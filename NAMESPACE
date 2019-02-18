@@ -1,0 +1,4 @@
+importFrom("methods", "new", "slotNames")
+importFrom("stats", "median", "prcomp", "sd")
+import("ggplot2")
+exportPattern("^[[:alpha:]]+")
