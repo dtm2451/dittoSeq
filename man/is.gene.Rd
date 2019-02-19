@@ -9,7 +9,7 @@ is.gene(test, object = DEFAULT)
 \arguments{
 \item{test}{"potential.gene.name" in quotes. REQUIRED.}
 
-\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 }
 \value{
 Returns TRUE if there is a row in the objects' data slot named 'test'.

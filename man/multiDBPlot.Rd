@@ -11,7 +11,7 @@ multiDBPlot(vars, object = DEFAULT, group.by, color.by,
 \arguments{
 \item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
 
-\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
 \item{group.by}{"metadata" to use for separating values. REQUIRED.}
 

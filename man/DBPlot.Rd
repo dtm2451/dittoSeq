@@ -21,7 +21,7 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 \arguments{
 \item{var}{Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.}
 
-\item{object}{the Seurat or RNAseq Object = name of object in "quotes". REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
 \item{group.by}{"metadata" to use for separating values. REQUIRED.}
 

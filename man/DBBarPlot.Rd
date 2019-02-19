@@ -15,7 +15,7 @@ DBBarPlot(var = "ident", object = DEFAULT, group.by = "Sample",
 \arguments{
 \item{var}{Target Variable = values, OR a metadata in "quotes". REQUIRED. Length must be same  as the number of cells in the Seurat object or Samples in the RNAseq object}
 
-\item{object}{the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
 \item{group.by}{"metadata" to use for separating values. REQUIRED (Default is to use a metadata named "Sample").}
 

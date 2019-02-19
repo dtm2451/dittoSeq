@@ -10,7 +10,7 @@ multiDBDimPlot(vars, object = DEFAULT, show.legend = F, ncol = 3,
 \arguments{
 \item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
 
-\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
 \item{show.legend}{TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE}
 

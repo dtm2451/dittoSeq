@@ -8,7 +8,7 @@ PCAcalc(object = DEFAULT, genes.use = NULL, Ngenes = 2500,
   percent.samples = 75, name = "pca")
 }
 \arguments{
-\item{object}{the RNAseq object = REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
 \item{genes.use}{NULL or a vector of genes.  This will set the genes to be used by the prcomp PCA calculation.  NOTE: this list will not be used to populate the var.genes slot, but you can do that manually if you want to.}
 

@@ -11,7 +11,7 @@ extDim(reduction.use, dim = 1, object = DEFAULT)
 
 \item{dim}{#. which component to extract the loadings for (PC1 vs 2 vs 3)}
 
-\item{object}{the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 }
 \value{
 Returns a list where [[1]]=embeddings = the loadings of cell/sample for a given dimensional reduction component, and [[2]] = name = the string name that should be used to refer to the components if going into a plot.

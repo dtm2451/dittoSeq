@@ -9,7 +9,7 @@ meta.levels(meta, object = DEFAULT, table.out = F)
 \arguments{
 \item{meta}{quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.}
 
-\item{object}{the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
 \item{table.out}{TRUE/FALSE. Default = FALSE. Whether the numbers of incidences of each level are wanted in addition to the level names themselves.}
 }

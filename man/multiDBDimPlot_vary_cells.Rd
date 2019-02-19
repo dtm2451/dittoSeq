@@ -13,7 +13,7 @@ multiDBDimPlot_vary_cells(var, object = DEFAULT, cells.use.meta,
 \arguments{
 \item{var}{name of a "gene", "meta.data", "ident", or a vector the length of the #cells or #samples in 'object'. REQUIRED. A var with which to color the separate plots.  Referencing discrete or continuous data are both allowed.}
 
-\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
 \item{cells.use.meta}{The name of the meta.data that will be used for selecting cells. REQUIRED.}
 

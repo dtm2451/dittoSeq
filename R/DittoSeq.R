@@ -334,7 +334,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' Plots continuous data on the y-axis, grouped in a settable way in the x-axis
 #'
 #' @param var                    Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.
-#' @param object                 the Seurat or RNAseq Object = name of object in "quotes". REQUIRED, unless DEFAULT <- object has been run.
+#' @param object                 the Seurat or RNAseq Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param group.by               "metadata" to use for separating values. REQUIRED.
 #' @param color.by               "metadata" to use for coloring. Affects boxplot and vlnplot fills. REQUIRED when using either.
 #' @param shape.by               "metadata" to use for setting the shape of jitter.  Default = just dots. Ignored if not a "quoted" metadata or "ident"
@@ -389,7 +389,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    title.legend = F, auto.title=T){
   #Plots continuous data on the y-axis, grouped in a settable way in the x-axis
   #
-  #object                 the Seurat or RNAseq Object = name of object in "quotes". REQUIRED, unless DEFAULT <- object has been run.
+  #object                 the Seurat or RNAseq Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
   #var                    Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.
   #group.by               "metadata" to use for separating values.  Default is by sample. REQUIRED.
   #color.by               "metadata" to use for coloring. Affects boxplot and vlnplot fills. REQUIRED for both.
@@ -573,7 +573,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
 #' Outputs a stacked bar plot to show the percent composition of samples or other cell groupings
 #'
 #' @param var                    Target Variable = values, OR a metadata in "quotes". REQUIRED. Length must be same  as the number of cells in the Seurat object or Samples in the RNAseq object
-#' @param object                 the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless DEFAULT <- object has been run.
+#' @param object                 the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param group.by               "metadata" to use for separating values. REQUIRED (Default is to use a metadata named "Sample").
 #' @param cells.use              Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. *USE* in object@cell.names[*USE*])
 #' @param color.panel            the set of colors to draw from
@@ -609,7 +609,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
   #This function will build a barplot colored by counts of discrete identities in 'var', and grouped by sample,
   # age, or any other grouping given to 'group.by'.
   #
-  #object                 the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless DEFAULT <- object has been run.
+  #object                 the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
   #var                    Target Variable = values, OR a metadata in "quotes". REQUIRED. Length must be same
   # as the number of cells in the Seurat object or Samples in the RNAseq object
   #group.by               "metadata" to use for separating values.  Default is by sample. REQUIRED.
@@ -754,7 +754,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
 #' Generates multiple DBPlots arranged into a grid.
 #'
 #' @param vars               c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
-#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param group.by           "metadata" to use for separating values. REQUIRED.
 #' @param color.by           "metadata" to use for coloring. Affects boxplot and vlnplot fills. REQUIRED when using either.
 #' @param show.legend        TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE
@@ -799,7 +799,7 @@ multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
   #
   #Inputs:
   #vars               A list of vars from which to generate the separate plots
-  #object             the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless DEFAULT <- object has been run.
+  #object             the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
   #show.legend        Whether or not you would like a legend to be plotted.  Default = FALSE
   #ncol               How many plots should be arranged per row
   #nrow               How many rows to arrange the plots into.  Left NULL(/blank) by default.
@@ -821,7 +821,7 @@ multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
 #' Generates multiple DBDimPlots arranged into a grid.
 #'
 #' @param vars               c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
-#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param show.legend        TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE
 #' @param ncol               #. How many plots should be arranged per row.  Default = 3.
 #' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
@@ -845,7 +845,7 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
   #
   #Inputs:
   #vars               A list of vars from which to generate the separate plots
-  #object             the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless DEFAULT <- object has been run.
+  #object             the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
   #show.legend        Whether or not you would like a legend to be plotted.  Default = FALSE
   #ncol               How many plots should be arranged per row
   #nrow               How many rows to arrange the plots into.  Left NULL(/blank) by default.
@@ -871,7 +871,7 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 #' Generates multiple DBDimPlots, each showing different cells, arranged into a grid.
 #'
 #' @param var                name of a "gene", "meta.data", "ident", or a vector the length of the #cells or #samples in 'object'. REQUIRED. A var with which to color the separate plots.  Referencing discrete or continuous data are both allowed.
-#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param cells.use.meta     The name of the meta.data that will be used for selecting cells. REQUIRED.
 #' @param cells.use.levels   The values/groupings of the cells.use.meta that you wish to show. NOTE: these will be put into the plot's main title in order to have them be identifiable.
 #' @param all.cells.plot     TRUE/FALSE, whether a plot showing all of the cells should be included at the end.
@@ -903,7 +903,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
   #
   #Inputs:
   #var                A var from which to generate the separate plots
-  #object             the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless DEFAULT <- object has been run.
+  #object             the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
   #cells.use.meta     The name of the meta.data that will be used for selecting cells.
   #cells.use.levels   The levels of thee meta.data that you wish to show. NOTE: these will be put into
   # plot's subtitle in order to have them be identifiable
@@ -1022,7 +1022,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
 #' Tests if an input is the name of a meta.data slot.
 #'
 #' @param test               "potential.meta.data.name" in quotes. REQUIRED.
-#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns TRUE if there is a meta.data slot named 'test' (or for Seurat objects, if test = "ident", will also give TRUE because my meta() function knows how to handle meta("ident"))
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1049,7 +1049,7 @@ is.meta <- function(test, object=DEFAULT){
 #' Tests if an input is the name of a gene recovered in the dataset.
 #'
 #' @param test               "potential.gene.name" in quotes. REQUIRED.
-#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns TRUE if there is a row in the objects' data slot named 'test'.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1082,7 +1082,7 @@ is.gene <- function(test, object=DEFAULT){
 #### get.metas: prints the names of all the metadata lists for the object ####
 #' Returns the names of all meta.data slots in the object.
 #'
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns the names of all meta.data slots in the object.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1101,7 +1101,7 @@ get.metas <- function(object=DEFAULT){
 #### get.genes: prints the names of all the genes for a Seurat or RNAseq ####
 #' Returns the names of all genes within the data slot of the object.
 #'
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns the names of all genes within the data slot of the object.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1128,7 +1128,7 @@ get.genes <- function(object=DEFAULT){
 #' Returns the values of a meta.data  for all cells/samples
 #'
 #' @param meta               quoted "meta.data" slot name = REQUIRED. the meta.data slot that should be retrieved.
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1153,7 +1153,7 @@ meta <- function(meta, object=DEFAULT){
 #' Returns the values of a gene for all cells/samples
 #'
 #' @param gene               quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param data.type          Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
 #' @return Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
 #' @examples
@@ -1193,7 +1193,7 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #' Gives the distinct values of a meta.data slot (or ident)
 #'
 #' @param meta               quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param table.out          TRUE/FALSE. Default = FALSE. Whether the numbers of incidences of each level are wanted in addition to the level names themselves.
 #' @return Returns the distinct values of a meta.data slot, or ident (clustering) slot if "ident" was given and the object is a Seurat object.  Can also return the counts of each as well.
 #' @examples
@@ -1219,7 +1219,7 @@ meta.levels <- function(meta, object = DEFAULT, table.out = F){
 #'
 #' @param reduction.use      quoted "reduction" name. = REQUIRED. Common types are "pca", "tsne", "ica", "cca", "cca.aligned".
 #' @param dim                #. which component to extract the loadings for (PC1 vs 2 vs 3)
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns a list where [[1]]=embeddings = the loadings of cell/sample for a given dimensional reduction component, and [[2]] = name = the string name that should be used to refer to the components if going into a plot.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1543,7 +1543,7 @@ import.DESeq2 <- function(dds, #A DESeq object, *the output of DESeq()*
 #' Wrapper for running prcomp on an RNAseq object
 #'
 #' @description This function will run prcomp PCA calculation on either a set of genes given by the genes.use slot, or on the Ngenes that have the highest coefficient of variation (CV=mean/sd) after a per experimental condition (extracted from the dds) expression filter is applied.
-#' @param object             the RNAseq object = REQUIRED, unless DEFAULT <- object has been run.
+#' @param object             the RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param genes.use          NULL or a vector of genes.  This will set the genes to be used by the prcomp PCA calculation.  NOTE: this list will not be used to populate the var.genes slot, but you can do that manually if you want to.
 #' @param Ngenes             #. How many genes to use for the PCA calculation. (This number will ultimately be the length of the var.genes slot)
 #' @param percent.samples    # between 0 and 100. The percent of samples within each condition that must express the gene in order for a gene to be included in the PCA calculation.

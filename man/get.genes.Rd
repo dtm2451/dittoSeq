@@ -7,7 +7,7 @@
 get.genes(object = DEFAULT)
 }
 \arguments{
-\item{object}{the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 }
 \value{
 Returns the names of all genes within the data slot of the object.

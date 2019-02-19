@@ -9,7 +9,7 @@ is.meta(test, object = DEFAULT)
 \arguments{
 \item{test}{"potential.meta.data.name" in quotes. REQUIRED.}
 
-\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 }
 \value{
 Returns TRUE if there is a meta.data slot named 'test' (or for Seurat objects, if test = "ident", will also give TRUE because my meta() function knows how to handle meta("ident"))

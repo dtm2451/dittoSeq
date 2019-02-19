@@ -9,7 +9,7 @@ meta(meta, object = DEFAULT)
 \arguments{
 \item{meta}{quoted "meta.data" slot name = REQUIRED. the meta.data slot that should be retrieved.}
 
-\item{object}{the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.}
+\item{object}{the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 }
 \value{
 Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
