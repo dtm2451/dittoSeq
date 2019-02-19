@@ -8,13 +8,13 @@ DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   dim.1 = 1, dim.2 = 2, theme = NA, size = 1, shape = 16,
   shapes = c(16, 15, 17, 23, 25, 8), legend.size = 5,
   legend.title = NULL, shape.legend.size = 5,
-  shape.legend.title = NULL, main = NULL, sub = NULL,
-  xlab = "make", ylab = "make", auto.title = T, cells.use = NULL,
-  show.others = TRUE, ellipse = F, do.label = F, label.size = 5,
-  highlight.labels = T, label.by = NULL, rename.groups = NA,
-  low = "#F0E442", high = "#0072B2", range = NULL,
-  color.panel = MYcolors, colors = 1:length(color.panel),
-  do.letter = NA)
+  shape.legend.title = NULL, data.type = "normalized", main = NULL,
+  sub = NULL, xlab = "make", ylab = "make", auto.title = T,
+  cells.use = NULL, show.others = TRUE, ellipse = F, do.label = F,
+  label.size = 5, highlight.labels = T, label.by = NULL,
+  rename.groups = NA, low = "#F0E442", high = "#0072B2",
+  range = NULL, color.panel = MYcolors,
+  colors = 1:length(color.panel), do.letter = NA)
 }
 \arguments{
 \item{var}{Target Variable = either values or a metadata (in "quotes"), gene (in "quotes"), or "ident"}
@@ -42,6 +42,8 @@ DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
 \item{shape.legend.size}{The size to increase the plotting of shapes legend shapes to.}
 
 \item{shape.legend.title}{For adding a title for the shapes legend is a meta.data was given to 'shape' and multiple shapes were therefore used.  It is set to NULL (off) by default.}
+
+\item{data.type}{For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"}
 
 \item{main}{plot title}
 

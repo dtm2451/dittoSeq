@@ -15,6 +15,7 @@
 #' @param legend.title For adding a title for the colors/letters legend.  It is set to NULL (off) by default.
 #' @param shape.legend.size The size to increase the plotting of shapes legend shapes to.
 #' @param shape.legend.title For adding a title for the shapes legend is a meta.data was given to 'shape' and multiple shapes were therefore used.  It is set to NULL (off) by default.
+#' @param data.type For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
 #' @param main plot title
 #' @param sub plot subtitle
 #' @param xlab label for y axes.  Default labels are generated if you do not give this a specific value.  To remove the labeling, set to NULL.
@@ -48,6 +49,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                       size=1, shape=16, shapes=c(16,15,17,23,25,8),
                       legend.size = 5, legend.title = NULL,
                       shape.legend.size = 5, shape.legend.title = NULL,
+                      data.type = "normalized",
                       main = NULL, sub = NULL, xlab="make", ylab ="make", auto.title = T,
                       cells.use = NULL, show.others=TRUE, ellipse = F,
                       do.label = F, label.size = 5, highlight.labels = T, label.by = NULL,
@@ -139,7 +141,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
     #If "is.meta" pull the @meta.data$"var" from the RNAseq or seurat object
     if(is.meta(var, object)){Y <- meta(var, object)}
     #If "is.gene" pull the gene expression data from the RNAseq or seurat object
-    if(is.gene(var, object)){Y <- gene(var, object)}
+    if(is.gene(var, object)){Y <- gene(var, object, data.type)}
     #Otherwise, var is likely a full set of data already, so just make Y = var
   } else {Y <- var}
   #Determine the identity of the provided 'shape'.
@@ -338,6 +340,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' @param shape.by               "metadata" to use for setting the shape of jitter.  Default = just dots. Ignored if not a "quoted" metadata or "ident"
 #' @param cells.use              Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. USE in object@cell.names[USE])
 #' @param plots                  types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.
+#' @param data.type              For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
 #' @param color.panel            the set of colors to draw from
 #' @param colors                 indexes / or order, of colors from color.panel to actual use
 #' @param main                   plot title
@@ -373,6 +376,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 
 DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    shape.by = "", cells.use = NULL, plots = c("jitter","vlnplot"),
+                   data.type = "normalized",
                    color.panel = MYcolors, colors = c(1:length(color.panel)),
                    main = NULL, sub = NULL,
                    ylab = "make", y.breaks = NULL, range = NULL,
@@ -433,7 +437,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   #non-direct input options are: the name of a metadata or a gene (in "quotes").
   # Both these options also get a default axis title.
   if (is.meta(var, object)){Y <- meta(var, object)}
-  if (is.gene(var, object)){Y <- gene(var, object)}
+  if (is.gene(var, object)){Y <- gene(var, object, data.type)}
   if (!(is.meta(var, object)|is.gene(var, object))){Y <- var}
   #Unless ylab has been changed from default "make", set default y-labels if var is "metadata" or "gene".
   # If set to "var" use the 'var'.  If set to 'NULL', ylab will be removed later.
@@ -876,8 +880,9 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 #' @param ncol               #. How many plots should be arranged per row.  Default = 3.
 #' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
 #' @param add.title          TRUE/FALSE. Whether a title should be added.
-#' @param axes.labels        TRUE/FALSE. Whether a axis labels should be added
+#' @param axes.labels        TRUE/FALSE. Whether a axis labels should be added.
 #' @param ...                other paramters that can be given to DBDimPlot function used in the same way.
+#' @param data.type          As with regular DBDimPlotting, For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
 #' @return A function for quickly making multiple DBDimPlots arranged in a grid, where instead of varying the 'var' displayed, what varies is the cells that are shown. Most parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each plot is which cells get displayed. NOTE: This function is incompatible with changing the 'colors' input. If you need to change the order of when certain colrs are chosen, change the order in color.panel. Also note: if 'var' given refers to continuous data, then the min and max will be calculated at the beginning in order to make the scale consistent accross all plots.  You can still set your own range, and this would also create a consistent scale.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -893,7 +898,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                                       show.legend = F,
                                       add.single.legend = T,
                                       ncol = 3, nrow = NULL,
-                                      add.title=T, axes.labels=F,...){
+                                      add.title=T, axes.labels=F, data.type = "normalized", ...){
   #This function will spit out multiple DBPlots arranged into a grid.
   #
   #Inputs:
@@ -931,7 +936,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
   if (length(range)!=2){
     range <- NULL
     if (is.gene(var,object)){
-      range <- range(gene(var,object))
+      range <- range(gene(var,object, data.type))
     }
     if (is.meta(var,object) & continuous){
       range <- range(meta(var,object))
@@ -951,6 +956,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   ylab = lab,
                   main = X,
                   range = range,
+                  data.type = data.type,
                   ...) +
           theme(legend.position = ifelse(show.legend, "right", "none"))
       })
@@ -967,6 +973,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   ylab = lab,
                   main = X,
                   range = range,
+                  data.type = data.type,
                   ...) +
           theme(legend.position = ifelse(show.legend, "right", "none"))
       })
@@ -985,6 +992,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                 ylab = lab,
                 main = levels[X],
                 range = range,
+                data.type = data.type,
                 ...) +
         theme(legend.position = ifelse(show.legend, "right", "none"))
     })
@@ -995,6 +1003,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                         xlab = lab,
                         ylab = lab,
                         range = range,
+                        data.type = data.type,
                         main = "All Cells",
                         ...)
   legend <- cowplot::ggdraw(cowplot::get_legend(all.plot))
@@ -1145,6 +1154,7 @@ meta <- function(meta, object=DEFAULT){
 #'
 #' @param gene               quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.
 #' @param object             the Seurat or RNAseq object = REQUIRED, unless DEFAULT <- object has been run.
+#' @param data.type          Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
 #' @return Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1153,17 +1163,29 @@ meta <- function(meta, object=DEFAULT){
 #' DEFAULT <- "pbmc"
 #' gene("CD14")
 
-gene <- function(gene, object=DEFAULT){
+gene <- function(gene, object=DEFAULT, data.type = "normalized"){
   #gene = the name of a gene, in the dataset, in "quotes"
   #object = either a Seurat or RNAseq object OR the name of one in "quotes"
-  if (classof(object)=="seurat"){
-    ind <- grep(paste0("^",gene,"$"),rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
-    OUT <- eval(expr = parse(text = paste0(object,"@data[gene,]")))
+  if (typeof(object)=="S4"){
+    object <- deparse(substitute(object))
   }
-  if (classof(object)=="RNAseq"){
-    ind <- grep(paste0("^",gene,"$"),rownames(eval(expr = parse(text = paste0(object,"@counts")))))
-    OUT <- eval(expr = parse(text = paste0(object,"@data[ind,]")))
+  #Set up data frame for establishing how to deal with different input object types
+  target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects", "@samples"),
+                       seurat = c("@data","@raw.data","@scale.data", "@cell.names"))
+  rownames(target) <- c("normalized","raw","scaled","sample.names")
+
+  if(data.type == "relative"){
+    OUT <- t(as.numeric(scale(gene(gene, object, "normalized"))))
+  } else {
+  OUT <- eval(expr = parse(text = paste0(object,
+                                         target[data.type,classof(object)],
+                                         "[gene,",
+                                         object,
+                                         target["sample.names",classof(object)],
+                                         "]")))
   }
+  OUT <- as.numeric(OUT)
+  names(OUT) <- eval(expr = parse(text = paste0(object, target["sample.names",classof(object)])))
   OUT
 }
 

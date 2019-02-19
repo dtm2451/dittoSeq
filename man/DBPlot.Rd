@@ -6,16 +6,17 @@
 \usage{
 DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   cells.use = NULL, plots = c("jitter", "vlnplot"),
-  color.panel = MYcolors, colors = c(1:length(color.panel)),
-  main = NULL, sub = NULL, ylab = "make", y.breaks = NULL,
-  range = NULL, xlab = NULL, labels = NULL, rotate.labels = TRUE,
-  hline = NULL, hline.linetype = "dashed", hline.color = "black",
-  jitter.size = 1, jitter.width = 0.2, jitter.color = "black",
-  jitter.shapes = c(16, 15, 17, 23, 25, 8),
-  jitter.shape.legend.size = 3, boxplot.width = 0.2,
-  boxplot.color = "black", boxplot.show.outliers = F,
-  boxplot.fill = T, reorder.x = 1:length(meta.levels(group.by,
-  object)), title.legend = F, auto.title = T)
+  data.type = "normalized", color.panel = MYcolors,
+  colors = c(1:length(color.panel)), main = NULL, sub = NULL,
+  ylab = "make", y.breaks = NULL, range = NULL, xlab = NULL,
+  labels = NULL, rotate.labels = TRUE, hline = NULL,
+  hline.linetype = "dashed", hline.color = "black", jitter.size = 1,
+  jitter.width = 0.2, jitter.color = "black", jitter.shapes = c(16,
+  15, 17, 23, 25, 8), jitter.shape.legend.size = 3,
+  boxplot.width = 0.2, boxplot.color = "black",
+  boxplot.show.outliers = F, boxplot.fill = T,
+  reorder.x = 1:length(meta.levels(group.by, object)),
+  title.legend = F, auto.title = T)
 }
 \arguments{
 \item{var}{Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.}
@@ -31,6 +32,8 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 \item{cells.use}{Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. USE in object@cell.names[USE])}
 
 \item{plots}{types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.}
+
+\item{data.type}{For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"}
 
 \item{color.panel}{the set of colors to draw from}
 

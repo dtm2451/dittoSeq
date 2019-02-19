@@ -7,7 +7,8 @@
 multiDBDimPlot_vary_cells(var, object = DEFAULT, cells.use.meta,
   cells.use.levels = meta.levels(cells.use.meta, object),
   all.cells.plot = T, show.legend = F, add.single.legend = T,
-  ncol = 3, nrow = NULL, add.title = T, axes.labels = F, ...)
+  ncol = 3, nrow = NULL, add.title = T, axes.labels = F,
+  data.type = "normalized", ...)
 }
 \arguments{
 \item{var}{name of a "gene", "meta.data", "ident", or a vector the length of the #cells or #samples in 'object'. REQUIRED. A var with which to color the separate plots.  Referencing discrete or continuous data are both allowed.}
@@ -30,7 +31,9 @@ multiDBDimPlot_vary_cells(var, object = DEFAULT, cells.use.meta,
 
 \item{add.title}{TRUE/FALSE. Whether a title should be added.}
 
-\item{axes.labels}{TRUE/FALSE. Whether a axis labels should be added}
+\item{axes.labels}{TRUE/FALSE. Whether a axis labels should be added.}
+
+\item{data.type}{As with regular DBDimPlotting, For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"}
 
 \item{...}{other paramters that can be given to DBDimPlot function used in the same way.}
 }
