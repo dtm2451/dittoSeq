@@ -345,9 +345,11 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' @param colors                 indexes / or order, of colors from color.panel to actual use
 #' @param main                   plot title
 #' @param sub                    plot subtitle
+#' @param theme                  Allows setting of a theme. Default = theme_classic when nothing is provided.
 #' @param ylab                   y axis label, default is "var" or "var expression" if var is a gene.
-#' @param y.breaks               a list of breaks that should be used as major gridlines. c(break1,break2,break3,etc.) NOTE: The low and highs of this variable will override `range`.
-#' @param range                  c(min,max). Use to set a custom min and maximum y-value to show.  Default = set based on the limits of the data in var.
+#' @param y.breaks               a list of breaks that should be used as major gridlines. c(break1,break2,break3,etc.) NOTE: The low and highs of this variable will override `min` and `max`.
+#' @param y.min                  Use to set a custom minimum y-value to show.  Default = set based on the limits of the data in var.
+#' @param y.max                  Use to set a custom maximum y-value to show.  Default = set based on the limits of the data in var.
 #' @param xlab                   x axis label, default is blank (NULL)
 #' @param labels                 c("label1","label2","label3"). = Names of the samples/groups if you wish to change them.  Default is the values in the group.by data. NOTE: you need to give at least as many labels as there are discrete values in the group.by data.
 #' @param rotate.labels          TRUE/FALSE. whether the labels should be rotated.  Default = FALSE = vertical labels.
@@ -378,8 +380,8 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    shape.by = "", cells.use = NULL, plots = c("jitter","vlnplot"),
                    data.type = "normalized",
                    color.panel = MYcolors, colors = c(1:length(color.panel)),
-                   main = NULL, sub = NULL,
-                   ylab = "make", y.breaks = NULL, range = NULL,
+                   theme = theme_classic(), main = NULL, sub = NULL,
+                   ylab = "make", y.breaks = NULL, y.min = NULL, y.max = NULL,
                    xlab = NULL, labels = NULL, rotate.labels = TRUE,
                    hline=NULL, hline.linetype = "dashed", hline.color = "black",
                    jitter.size=1, jitter.width=0.2, jitter.color = "black", jitter.shapes=c(16,15,17,23,25,8),
@@ -486,13 +488,22 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   Target_dat$sample <- as.factor(as.character(Target_dat$sample))
 
   #####Start making the plot
-  p <- ggplot(Target_dat, aes(x=sample, y=Y, fill=color))
+  p <- ggplot(Target_dat, aes(x=sample, y=Y, fill=color)) + theme
   #Set the legend to not have a title, unless requested.
   if (!title.legend) {p <- p + theme(legend.title=element_blank())}
   #Add the y label
   p<- p + ylab(ylab)
-  #Set the y-axis limits if a range is given.
-  if (!is.null(range)){p <- p + ylim(range)}
+  #Set the y-axis limits if a y.min or y.max is given.
+  if ((!(is.null(y.min))) & (!(is.null(y.max)))){
+    p <- p + ylim(y.min,y.max)
+  } else {
+    if (!(is.null(y.min))){
+      p <- p + ylim(y.min, max(Target_dat$Y))
+    }
+    if (!(is.null(y.max))){
+      p <- p + ylim(min(Target_dat$Y), y.max)
+    }
+  }
 
   ###Add data based on what is requested in plots, *ordered by their order*
   for (i in 1:length(plots)){
