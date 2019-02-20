@@ -481,7 +481,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
     p <- p + scale_y_continuous(breaks = y.breaks) + coord_cartesian(ylim=c(min(y.breaks),max(y.breaks)))
   }
   #Rotate Labels if rotate.labels = TRUE
-  if (rotate.labels) {p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1.3, vjust = 1.2, size=12))}
+  if (rotate.labels) {p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1, size=12))}
   #Set colors to color.panel[colors], set the x-axis formatting, and add titles.
   p <- p + scale_fill_manual(values=color.panel[colors]) +
     ggtitle(main, sub) + xlab(xlab)
