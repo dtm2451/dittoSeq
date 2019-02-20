@@ -14,7 +14,7 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   hline.color = "black", jitter.size = 1, jitter.width = 0.2,
   jitter.color = "black", jitter.shapes = c(16, 15, 17, 23, 25, 8),
   jitter.shape.legend.size = 3, boxplot.width = 0.2,
-  boxplot.color = "black", boxplot.show.outliers = F,
+  boxplot.color = "black", boxplot.show.outliers = NA,
   boxplot.fill = T, reorder.x = 1:length(meta.levels(group.by,
   object)), title.legend = F, auto.title = T)
 }
@@ -79,7 +79,7 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 
 \item{boxplot.color}{the color of the lines of the boxplot}
 
-\item{boxplot.show.outliers}{whether outliers should by including in the boxplot. If no jitter is being added, this should be set to TRUE.  Default is FALSE to not have duplicate dots to what's in the jitter.}
+\item{boxplot.show.outliers}{whether outliers should by including in the boxplot. Default is FALSE when there is a jitter plotted, TRUE if no jitter.}
 
 \item{boxplot.fill}{whether the boxplot should be filled in or not.}
 

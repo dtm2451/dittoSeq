@@ -306,7 +306,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' @param jitter.shape.legend.size     Changes the size of the shape key in the legend.  Use a number.  OR, set to "none" to remove from the legend completely
 #' @param boxplot.width          the width/spread of the boxplot in the x direction
 #' @param boxplot.color          the color of the lines of the boxplot
-#' @param boxplot.show.outliers  whether outliers should by including in the boxplot. If no jitter is being added, this should be set to TRUE.  Default is FALSE to not have duplicate dots to what's in the jitter.
+#' @param boxplot.show.outliers  whether outliers should by including in the boxplot. Default is FALSE when there is a jitter plotted, TRUE if no jitter.
 #' @param boxplot.fill          whether the boxplot should be filled in or not.
 #' @param reorder.x              sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order for the samples.  Default = alphabetical then numerical.
 #' @param title.legend           whether to leave the title for the plot's legend
@@ -329,7 +329,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    hline=NULL, hline.linetype = "dashed", hline.color = "black",
                    jitter.size=1, jitter.width=0.2, jitter.color = "black", jitter.shapes=c(16,15,17,23,25,8),
                    jitter.shape.legend.size = 3,
-                   boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = F, boxplot.fill =T,
+                   boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA, boxplot.fill =T,
                    reorder.x = 1:length(meta.levels(group.by, object)),
                    title.legend = F, auto.title=T){
 
@@ -416,6 +416,9 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   for (i in 1:length(plots)){
     #If next request is "boxplot", make a boxplot.
     if (plots[i] == "boxplot") {
+      if (is.na(boxplot.show.outliers)){
+        boxplot.show.outliers <- ifelse("jitter" %in% plots, FALSE, TRUE)
+      }
       if (boxplot.show.outliers) {
         p <- p + geom_boxplot(width=boxplot.width, color = boxplot.color,
                               alpha = ifelse(boxplot.fill, 1, 0))
