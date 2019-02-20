@@ -219,9 +219,9 @@ DBPlot("Score", group.by = "Sample", color.by = "age",
        jitter.shapes = c(15,16))
 ```
 
-**`range`, `low`, and `high`** = in DBDimPlot, `range` sets the bounds of the y axis. In DBDimPlot, `range` sets the cutoffs for lowest and highest values that the `low` and `high` colors should be used for. `low` and `high` set the color scale. Usage: `range = c(low-end, high-end)` with low-end and high-end both being numbers. `low` or `high` = "quoted" color name, e.g. "blue", or "quoted" hex code color representation, e.g. "#F0E442". Defaults are the extents of the data for range and yellow&blue for low&high.
+**`min`, `max`** = in DBPlot, min and max set the limits of the y axis. In DBDimPlot, min and max set the cutoffs for what goes into the color scale for continuous data.  One or both can be used.  If only one is used, the limits of the data will still be used for setting the other extent.  In many cases, for displaying raw bulk RNAseq data, it can be good to set the min to zero.  Note: If values exist that are below min, or above max, in in a DBDimPlot, you will not be able to tell as they will be assigned the min.color or max.color
 
-**`y.min`, `y.max`** = in DBPlot, these will set the limits of the y axis.  One or both can be used.  If only one is used, the limits of the data will still be used for setting the other extent.  In many cases, for displaying raw bulk RNAseq data, it can be good to set the y.min to zero.
+**`min.color`, `max.color`** = in DBDimPlot, these set the colors used in the color scale when showing continuous data. `min.color` or `max.color` = "quoted" color name, e.g. "blue", or "quoted" hex code color representation, e.g. "#F0E442".  Defaults are yellow -> blue.
 
 **`data.type`** = when showing gene expression, this sets what type of data will be grabbed. Options are: "raw", "normalized", "scaled", and "relative".  "raw" = the @raw.data slot for a Seurat object or the raw @counts slor for an RNAseq object. "normalized" will use the log noralized @data slot for a Seurat object, or the regularized log normalized @data slot of an RNAseq object. "scaled" will pull the scaled & variable regressed out data of a Seurat object (Warning: this is often only calculated for a subset of genes) and will give an error for RNAseq data because it is not calculated, what you'd want is what you get with "relative".  "relative" will use the normalized data, but it will be run through the scale function first to make it relative to the mean of the the expression accross the entire dataset.  
 
@@ -289,7 +289,7 @@ DBDimPlot("ident",
 - `boxplot.color`: the color of the lines of the boxplot. Default is "black".
 - `boxplot.show.outliers`: whether outliers should by including in the boxplot. If no jitter is being added, this should be set to TRUE. Default is FALSE in order to not have duplicate dots to what's in the jitter. 
 - `box.plot.fill`: whether the boxplot should be filled in or not. Default is TRUE. 
-- `y.breaks`: a list of breaks that should be used as major gridlines. Usage: y.breaks = c(break1,break2,break3,etc.). NOTE: The low and highs of this variable will override `range`.
+- `y.breaks`: a list of breaks that should be used as major gridlines. Usage: y.breaks = c(break1,break2,break3,etc.). NOTE: The low and highs of this variable will override `min` and `max`.
 - `title.legend`: whether to leave the title for the plot's legend. Default is FALSE, a.k.a. no legend title.
 
 An example using many of these:
