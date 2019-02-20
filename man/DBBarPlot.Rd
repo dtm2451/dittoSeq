@@ -7,7 +7,7 @@
 DBBarPlot(var = "ident", object = DEFAULT, group.by = "Sample",
   cells.use = NULL, color.panel = MYcolors,
   colors = c(1:length(color.panel)), xlab = NULL, ylab = "make",
-  x.labels = NA, rotate.labels = TRUE, y.labels = c(0, 0.5, 1),
+  x.labels = NA, rotate.labels = TRUE, y.breaks = c(0, 0.5, 1),
   main = "make", sub = NULL, rename.groups = NA,
   legend.title = NULL, reorder.x = 1:length(meta.levels(group.by,
   object)))
@@ -33,7 +33,7 @@ DBBarPlot(var = "ident", object = DEFAULT, group.by = "Sample",
 
 \item{rotate.labels}{TRUE/FALSE. whether the labels should be rotated.  Default = FALSE = vertical labels.}
 
-\item{y.labels}{The numerical labels for the y axis.  This will set the range of the plot!}
+\item{y.breaks}{The numerical labels for the y axis.  Note: The percentages that build this figure will always add up to 1, so the plot will always go from 0 to 1.}
 
 \item{main}{"character". Plot main title.}
 

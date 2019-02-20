@@ -28,13 +28,13 @@
 #' @param label.size Size of the the labels text
 #' @param highlight.labels TRUE/FALSE. Whether the labels should have a box behind them
 #' @param rename.groups new names for the identities of var.  Change to NULL to remove labeling altogether.
-#' @param low color for lowest values of var/range
-#' @param high color for highest values of var/range
-#' @param range limits for color scaling if var is a continuous value
+#' @param min.color color for lowest values of var/min
+#' @param max.color color for highest values of var/max
+#' @param min set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.
+#' @param max set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it's likely because min > max.
 #' @param color.panel a list of colors to be used for when plotting a discrete var.
 #' @param colors indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups
 #' @param do.letter TRUE/FALSE/NA. Whether letters should be added on top of the colored dots. For colorblindness compatibility.  NA by default, and if left that way, will be set to either TRUE or FALSE depending on the number of groups if a discrete var is given. For when there are lots of descrete variables, it can be hard to see by just color / shape.  NOTE: Lettering is incompatible with changing dots to shapes, so this will override a setting of distinct shapes based on the 'shape' variable!
-#' @param label.by To be removed.
 #' @return Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA, ICA, ..., plot of choice.  var is the argument that sets how dots will be colored, and it can refer to either continuous (ex: "CD34" = gene expression) or discrete (ex: "ident" = clustering) data.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -52,45 +52,11 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                       data.type = "normalized",
                       main = NULL, sub = NULL, xlab="make", ylab ="make", auto.title = T,
                       cells.use = NULL, show.others=TRUE, ellipse = F,
-                      do.label = F, label.size = 5, highlight.labels = T, label.by = NULL,
+                      do.label = F, label.size = 5, highlight.labels = T,
                       rename.groups = NA,
-                      low = "#F0E442", high = "#0072B2", range = NULL,
+                      min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
                       color.panel = MYcolors, colors = 1:length(color.panel),
                       do.letter = NA){
-  #Makes a plot where colored dots are overlayed onto the dim.reduction plot of choice.
-  #
-  #object                 the Seurat or RNAseq object
-  #var                    Target Variable = either values or a metadata (in "quotes"), gene (in "quotes"), or "ident"
-  #reduction.use          "pca", "tsne", "ica", etc.  Default = tsne for Seurat objects, and pca for RNAseq objects
-  #dim.1                  The component number to use on the x-axis.  Default = 1
-  #dim.2                  The component number to use on the y-axis.  Default = 2
-  #main                   plot title
-  #sub                    plot subtitle
-  #cells.use              cells to show: either in the form of a character list of names, or a logical that is the same
-                          # length as the number of cells in the object (a.k.a. *THIS*: object@cell.names[*THIS*])
-  #show.others            TRUE by default, whether other cells should be shown in the background
-  #size                   number for size of all highlighted points
-  #shape                  number for setting shape OR name of metadata to use for setting shape
-  #shapes                 the shapes to use.  Default is a list of 6.  There are more, but not many of the default
-                          # ggplot options are great.  I recommend using colors for any variable with 7+ options.
-  #low                    color for lowest values of var/range
-  #high                   color for highest values of var/range
-  #range                  limits for color scaling if var is a continuous value
-  #color.panel            a list of colors to be used for when plotting a discrete var.
-  #colors                 indexes / order of colors from color.panel to use
-  #theme                  Allows setting of a theme. Uses theme_bw if not provided.
-                          # To provide, either say "prettyplot" and the prettyplot.1 declared in
-                          # this file will be used.  Or provide a your own theme.
-  #xlab & ylab            labels for the x and y axes.
-  #do.label               Whether to add text labels at the center (median) of clusters for grouping vars
-  #label.size             Size of the the labels text
-  #highlight.labels       Whether the labels should have a box behind them
-  #ellipse                Whether the groups should be surrounded by an ellipse.
-  #legend.size            The Size to increase the plotting of legend shapes to (for discrete variable plotting)
-  #legend.title           The title for the legend.  Set to NULL if not wanted.
-  #rename.groups          new names for the identities of var.  Change to NULL to remove labeling altogether.
-  #do.letter              for when there are lots of descrete variables, it can be hard to see by just color / shape.
-                          # NOTE: Lettering is incompatible with changing dots to shapes, so this wwill turn that off!
 
   if (typeof(object)=="S4"){
     object <- deparse(substitute(object))
@@ -240,47 +206,23 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 
   ### Add Labels ###
   if (do.label) {
-    #If something different than the "var" is NOT given to 'label.by'
-    if (is.null(label.by)){
-      #Make a text plot at the median x and y values for each cluster
-      #Determine medians
-      cent.1 = sapply(levels(as.factor(Target_dat$Y)), function(X) median(Target_dat$dim1[Target_dat$Y==X]))
-      cent.2 = sapply(levels(as.factor(Target_dat$Y)), function(X) median(Target_dat$dim2[Target_dat$Y==X]))
-      #Add labels
-      if (highlight.labels){
-        #Add labels with a white background
-        p <- p +
-          geom_label(data = data.frame(x=cent.1, y=cent.2),
-                     aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_dat$Y))}),
-                     size = label.size)
-      } else {
-        #Add labels without a white background
-        p <- p +
-          geom_text(data = data.frame(x=cent.1, y=cent.2),
-                    aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_dat$Y))}),
-                    size = label.size)
-      }
-    } else { #If a distinct variable to label based on was given, use that instead
-        #Error: if (!(is.meta(label.by)))
-        #Grab the label.by variable
-        label.data <- as.factor(meta(label.by, object)[cells.use])
-        #Determine medians
-        cent.1 = sapply(levels(as.factor(label.data)), function(X) median(Target_dat$dim1[label.data==X]))
-        cent.2 = sapply(levels(as.factor(label.data)), function(X) median(Target_dat$dim2[label.data==X]))
-        #Add labels
-        if (highlight.labels){
-          #Add labels with a white background
-          p <- p +
-            geom_label(data = data.frame(x=cent.1, y=cent.2),
-                       aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(label.data)}),
-                       size = label.size)
-        } else {
-          #Add labels without a white background
-          p <- p +
-            geom_text(data = data.frame(x=cent.1, y=cent.2),
-                      aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(label.data)}),
-                      size = label.size)
-        }
+    #Make a text plot at the median x and y values for each cluster
+    #Determine medians
+    cent.1 = sapply(levels(as.factor(Target_dat$Y)), function(X) median(Target_dat$dim1[Target_dat$Y==X]))
+    cent.2 = sapply(levels(as.factor(Target_dat$Y)), function(X) median(Target_dat$dim2[Target_dat$Y==X]))
+    #Add labels
+    if (highlight.labels){
+      #Add labels with a white background
+      p <- p +
+        geom_label(data = data.frame(x=cent.1, y=cent.2),
+                   aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_dat$Y))}),
+                   size = label.size)
+    } else {
+      #Add labels without a white background
+      p <- p +
+        geom_text(data = data.frame(x=cent.1, y=cent.2),
+                  aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_dat$Y))}),
+                  size = label.size)
     }
   }
 
@@ -313,8 +255,9 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
       }
     }
   } else {
-    #Otherwise, the data is continous, so set a gradient that goes from 'low' input color to 'high' input color.
-    p <- p + scale_color_gradient(low= low, high = high, limits = range,
+    #Otherwise, the data is continous, so set a gradient that goes from 'min.color' input color to 'max.color' input color.
+    p <- p + scale_color_gradient(low= min.color, high = max.color, limits = c(ifelse(is.null(min), min(Target_dat$Y), min),
+                                                                               ifelse(is.null(max), max(Target_dat$Y), max)),
                                   #Next, set the legend title.  Given input if given, or remove if still null.
                                   name = legend.title)
   }
@@ -348,8 +291,8 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' @param theme                  Allows setting of a theme. Default = theme_classic when nothing is provided.
 #' @param ylab                   y axis label, default is "var" or "var expression" if var is a gene.
 #' @param y.breaks               a list of breaks that should be used as major gridlines. c(break1,break2,break3,etc.) NOTE: The low and highs of this variable will override `min` and `max`.
-#' @param y.min                  Use to set a custom minimum y-value to show.  Default = set based on the limits of the data in var.
-#' @param y.max                  Use to set a custom maximum y-value to show.  Default = set based on the limits of the data in var.
+#' @param min                  Use to set a custom minimum y-value to show.  Default = set based on the limits of the data in var.
+#' @param max                  Use to set a custom maximum y-value to show.  Default = set based on the limits of the data in var.
 #' @param xlab                   x axis label, default is blank (NULL)
 #' @param labels                 c("label1","label2","label3"). = Names of the samples/groups if you wish to change them.  Default is the values in the group.by data. NOTE: you need to give at least as many labels as there are discrete values in the group.by data.
 #' @param rotate.labels          TRUE/FALSE. whether the labels should be rotated.  Default = FALSE = vertical labels.
@@ -381,7 +324,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    data.type = "normalized",
                    color.panel = MYcolors, colors = c(1:length(color.panel)),
                    theme = theme_classic(), main = NULL, sub = NULL,
-                   ylab = "make", y.breaks = NULL, y.min = NULL, y.max = NULL,
+                   ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
                    xlab = NULL, labels = NULL, rotate.labels = TRUE,
                    hline=NULL, hline.linetype = "dashed", hline.color = "black",
                    jitter.size=1, jitter.width=0.2, jitter.color = "black", jitter.shapes=c(16,15,17,23,25,8),
@@ -389,42 +332,6 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = F, boxplot.fill =T,
                    reorder.x = 1:length(meta.levels(group.by, object)),
                    title.legend = F, auto.title=T){
-  #Plots continuous data on the y-axis, grouped in a settable way in the x-axis
-  #
-  #object                 the Seurat or RNAseq Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
-  #var                    Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.
-  #group.by               "metadata" to use for separating values.  Default is by sample. REQUIRED.
-  #color.by               "metadata" to use for coloring. Affects boxplot and vlnplot fills. REQUIRED for both.
-  #shape.by               "metadata" to use for setting the shape of jitter.  Default = just dots. Ignored if not a metadata
-  #cells.use              Cells to include: either in the form of a character list of names, or a logical that is the same
-  # length as the number of cells in the object (a.k.a. *USE* in object@cell.names[*USE*])
-  #main                   plot title
-  #sub                    plot subtitle
-  #color.panel            the set of colors to draw from
-  #colors                 indexes / or order, of colors from color.panel to actual use
-  #plots                  types of plots to include: possibilities = "jitter", "boxplot", "vlnplot"
-  #labels                 names to change x labels to.
-  #rotate.labels          Logical, whether the labels should be rotated
-  #ylab                   y axis label, default is
-  #hline                  y value(s) where a dashed horizontal line should go
-  #hline.linetype         Type of line.  Any ggplot linetype should work.  Defaults to "dashed"
-  #hline.color            color(s) of the horizontal line(s)
-  #jitter.size            the size of the jitter shapes.
-  #jitter.width           the width/spread of the jitter in the x direction
-  #jitter.color           the color of the jitter shapes
-  #jitter.shapes          the shapes to use.  Default is the first in the list, which corresponds to dots.
-  #jitter.shape.legend.size     Changes the size of the shape key in the legend.  Use a number.  OR, set to "none"
-  # to remove from the legend completely
-  #boxplot.width          the width/spread of the boxplot in the x direction
-  #boxplot.color          the color of the lines of the boxplot
-  #boxplot.show.outliers  whether outliers should by including in the boxplot. If no jitter is being added, this should
-  # be set to TRUE.  Default is FALSE to not have duplicate dots to what's in the jitter.
-  #box.plot.fill          whether the boxplot should be filled in or not.
-  #reorder.x              sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order
-  # for the samples.  Default = alphabetical then numerical.
-  #y.breaks               a list of breaks that should be used as major gridlines. c(break1,break2,break3,etc.)
-  # NOTE: The low and highs of this variable will override `range`.
-  #title.legend           whether to leave the title for the plot's legend
 
   #Turn the object into a "name" if a full object was given
   if (typeof(object)=="S4"){
@@ -493,15 +400,15 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   if (!title.legend) {p <- p + theme(legend.title=element_blank())}
   #Add the y label
   p<- p + ylab(ylab)
-  #Set the y-axis limits if a y.min or y.max is given.
-  if ((!(is.null(y.min))) & (!(is.null(y.max)))){
-    p <- p + ylim(y.min,y.max)
+  #Set the y-axis limits if a min or max is given.
+  if ((!(is.null(min))) & (!(is.null(max)))){
+    p <- p + ylim(min,max)
   } else {
-    if (!(is.null(y.min))){
-      p <- p + ylim(y.min, max(Target_dat$Y))
+    if (!(is.null(min))){
+      p <- p + ylim(min, max(Target_dat$Y))
     }
-    if (!(is.null(y.max))){
-      p <- p + ylim(min(Target_dat$Y), y.max)
+    if (!(is.null(max))){
+      p <- p + ylim(min(Target_dat$Y), max)
     }
   }
 
@@ -593,7 +500,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
 #' @param ylab                   "character". The text title for the y axis.  Auto-generated by default.  Provide ylab = NULL to remove
 #' @param x.labels               Replacement x-axis labels to use instead of the identities of gorup.by
 #' @param rotate.labels          TRUE/FALSE. whether the labels should be rotated.  Default = FALSE = vertical labels.
-#' @param y.labels               The numerical labels for the y axis.  This will set the range of the plot!
+#' @param y.breaks               The numerical labels for the y axis.  Note: The percentages that build this figure will always add up to 1, so the plot will always go from 0 to 1.
 #' @param main                   "character". Plot main title.
 #' @param sub                    "character". Plot subtitle.
 #' @param rename.groups          new names for the identities of var.  Change to NULL to remove labeling altogether.
@@ -612,30 +519,11 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
                       cells.use = NULL,
                       color.panel = MYcolors, colors = c(1:length(color.panel)),
                       xlab = NULL, ylab = "make", x.labels = NA, rotate.labels = TRUE,
-                      y.labels = c(0,0.5,1),
+                      y.breaks = c(0,0.5,1),
                       main = "make", sub = NULL, rename.groups = NA,
                       legend.title = NULL,
                       reorder.x = 1:length(meta.levels(group.by, object))
-){
-  #This function will build a barplot colored by counts of discrete identities in 'var', and grouped by sample,
-  # age, or any other grouping given to 'group.by'.
-  #
-  #object                 the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
-  #var                    Target Variable = values, OR a metadata in "quotes". REQUIRED. Length must be same
-  # as the number of cells in the Seurat object or Samples in the RNAseq object
-  #group.by               "metadata" to use for separating values.  Default is by sample. REQUIRED.
-  #cells.use              Cells to include: either in the form of a character list of names, or a logical that is the same
-  # length as the number of cells in the object (a.k.a. *USE* in object@cell.names[*USE*])
-  #color.panel            the set of colors to draw from
-  #colors                 indexes / or order, of colors from color.panel to actual use
-  #xlab/ylab              The text titles for the axis.  xlab is blank by default.  Provide ylab = NULL to remove
-  #x.labels               Replacement x-axis labels to use instead of the identities of gorup.by
-  #y.labels               The numerical labels for the y axis.  This will set the range of the plot!
-  #main/sub               main = plot title, sub = plot subtitle.
-  #rename.groups          new names for the identities of var.  Change to NULL to remove labeling altogether.
-  #legend.title           Title for the legend
-  #reorder.x              sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order
-  # for the samples.  Default = alphabetical then numerical.
+                      ){
 
   #Turn the object into a "name" if a full object was given
   if (typeof(object)=="S4"){
@@ -716,7 +604,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
                                             "samples"))
   }
   #Add the y-axis labels and name to the plot
-  p <- p + scale_y_continuous(breaks= y.labels,
+  p <- p + scale_y_continuous(breaks= y.breaks,
                               limits = c(0,1),
                               name = ylab)
   ###Set the colors & and rename the groupings
@@ -806,16 +694,6 @@ multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
                         add.title=T,
                         ylab = F,
                         ...){
-  #This function will spit out multiple DBPlots arranged into a grid.
-  #
-  #Inputs:
-  #vars               A list of vars from which to generate the separate plots
-  #object             the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
-  #show.legend        Whether or not you would like a legend to be plotted.  Default = FALSE
-  #ncol               How many plots should be arranged per row
-  #nrow               How many rows to arrange the plots into.  Left NULL(/blank) by default.
-  #add.title          Whether a title should be added, TRUE/FALSE
-  #ylab               Whether a y-axis title should be added, TRUE/FALSE or "var"
 
   ylab.input <- ylab
 
@@ -852,16 +730,6 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
                            show.legend = F,
                            ncol = 3, nrow = NULL,
                            add.title=T, axes.labels=F,...){
-  #This function will spit out multiple DBDimPlots arranged into a grid.
-  #
-  #Inputs:
-  #vars               A list of vars from which to generate the separate plots
-  #object             the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
-  #show.legend        Whether or not you would like a legend to be plotted.  Default = FALSE
-  #ncol               How many plots should be arranged per row
-  #nrow               How many rows to arrange the plots into.  Left NULL(/blank) by default.
-  #add.title          Logical, whether a title should be added, TRUE/FALSE
-  #axes.labels        Logical, whether x/y axis labels are wanted.
 
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
   # If set to TRUE, set it to "make".
@@ -910,23 +778,6 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                                       add.single.legend = T,
                                       ncol = 3, nrow = NULL,
                                       add.title=T, axes.labels=F, data.type = "normalized", ...){
-  #This function will spit out multiple DBPlots arranged into a grid.
-  #
-  #Inputs:
-  #var                A var from which to generate the separate plots
-  #object             the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
-  #cells.use.meta     The name of the meta.data that will be used for selecting cells.
-  #cells.use.levels   The levels of thee meta.data that you wish to show. NOTE: these will be put into
-  # plot's subtitle in order to have them be identifiable
-  #all.cells.plot     TRUE/FALSE, whether a plot showing all of the cells should be included last.
-  #show.legend        Whether or not you would like a legend to be plotted.  Default = FALSE
-  #add.single.legend  TRUE/FALSE, whether to add a legend as an additional plot.
-  #ncol               How many plots should be arranged per row
-  #nrow               How many rows to arrange the plots into.  Left NULL(/blank) by default.
-  #add.title          Logical, whether a title should be added, TRUE/FALSE
-  #axes.labels        Logical, whether x/y axis labels are wanted.
-  #NOTE: This function is incompatible with changing the 'colors' input. If you need to change your
-  #      colors, change your color.panel.
 
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
   # If set to TRUE, set it to "make".
@@ -1046,8 +897,6 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
 #' get.metas()
 
 is.meta <- function(test, object=DEFAULT){
-  #test = the name, in "quotes", that will be tested for being a metadata slot.
-  #object = either a Seurat or RNAseq object OR the name of one in "quotes"
 
   #Bypass for ident for Seurat objects
   if(test=="ident" & classof(object)=="seurat") {return(TRUE)}
@@ -1070,8 +919,7 @@ is.meta <- function(test, object=DEFAULT){
 #' is.gene("CD14")
 
 is.gene <- function(test, object=DEFAULT){
-  #test = the name, in "quotes", that will be tested for being a gene in the dataset.
-  #object = either a Seurat or RNAseq object OR the name of one in "quotes"
+
   if(typeof(object)=="character")
   {
     if (classof(object)=="seurat"){
@@ -1103,7 +951,7 @@ is.gene <- function(test, object=DEFAULT){
 #' get.metas()
 
 get.metas <- function(object=DEFAULT){
-  #object = either a Seurat or RNAseq object OR the name of one in "quotes"
+
   if(typeof(object)=="character"){
     names(eval(expr = parse(text = paste0(object,"@meta.data"))))
   } else {names(object@meta.data)}
@@ -1122,7 +970,7 @@ get.metas <- function(object=DEFAULT){
 #' get.genes()
 
 get.genes <- function(object=DEFAULT){
-  #object = either a Seurat or RNAseq object OR the name of one in "quotes"
+
   if (classof(object)=="seurat"){
     if(typeof(object)=="character"){
       return(rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
@@ -1149,8 +997,7 @@ get.genes <- function(object=DEFAULT){
 #' meta("res.1")
 
 meta <- function(meta, object=DEFAULT){
-  #meta = the name of a meta.data slot in "quotes"
-  #object = either a Seurat or RNAseq object OR the name of one in "quotes"
+
   if(typeof(object)=="character"){
     if(meta=="ident"){return(as.character(eval(expr = parse(text = paste0(object,"@ident")))))}
     else{return(eval(expr = parse(text = paste0(object,"@meta.data$",meta))))}
@@ -1175,8 +1022,7 @@ meta <- function(meta, object=DEFAULT){
 #' gene("CD14")
 
 gene <- function(gene, object=DEFAULT, data.type = "normalized"){
-  #gene = the name of a gene, in the dataset, in "quotes"
-  #object = either a Seurat or RNAseq object OR the name of one in "quotes"
+
   if (typeof(object)=="S4"){
     object <- deparse(substitute(object))
   }
@@ -1215,9 +1061,7 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #' meta.levels("res.1")
 
 meta.levels <- function(meta, object = DEFAULT, table.out = F){
-  #meta = the name of a meta.data slot in "quotes"
-  #object = either a Seurat or RNAseq object OR the name of one in "quotes"
-  #table.out = TRUE/FALSE. Whether the numbers of incidences of each level are wanted in addition to the level names themselves.
+
   if (table.out){
     table(meta(meta, object))
   } else {
@@ -1248,10 +1092,6 @@ meta.levels <- function(meta, object = DEFAULT, table.out = F){
 #'
 
 extDim <- function(reduction.use, dim=1, object=DEFAULT){
-  #reduction.use = the name of the @dr$ / @reductions$ slot if the object is a Seurat object.  This is not used for 'RNAseq'
-  # objects because they only have pca.
-  #dim = the component number to get.  a.k.a. PC*1* versus PC*2*.
-  #object = the name of a Seurat or RNAseq object, in "quotes"
 
   #Turn the object into a "name" if a full object was given
   if (typeof(object)=="S4"){
@@ -1290,7 +1130,7 @@ extDim <- function(reduction.use, dim=1, object=DEFAULT){
 #'
 
 gen.key <- function (reduction.use){
-  #reduction.use = the name of the dr type.
+
   key <- reduction.use
   if (grepl("pca", reduction.use)){key <- "PC"}
   if (grepl("cca", reduction.use)){key <- "CC"}
@@ -1312,7 +1152,7 @@ gen.key <- function (reduction.use){
 #' #Output: "seurat"
 
 classof <- function (object = DEFAULT){
-  #object = the name of a Seurat or RNAseq object, in "quotes"
+
   if (typeof(object)=="S4"){
     object <- deparse(substitute(object))
   }
@@ -1339,8 +1179,7 @@ classof <- function (object = DEFAULT){
 #' Darken(MYcolors[1:8]) #Works for multiple color inputs as well.
 
 Darken <- function(colors, percent.change = 0.25, relative = T){
-  # Darkens the given color palette by a set amount.
-  #Utilizes lighten and darken functions of the colorspace package to alter colors
+
   colorspace::darken(colors, amount = percent.change, space = "HLS", fixup = TRUE, method = ifelse(relative,"relative","absolute"))
 }
 
@@ -1358,8 +1197,7 @@ Darken <- function(colors, percent.change = 0.25, relative = T){
 #' Lighten(MYcolors[1:8]) #Works for multiple color inputs as well.
 
 Lighten <- function(colors, percent.change = 0.25, relative = T){
-  # Lightens the given color palette by a set amount.
-  #Utilizes lighten and darken functions of the colorspace package to alter colors
+
   colorspace::lighten(colors, amount = percent.change, space = "HLS", fixup = TRUE, method = ifelse(relative,"relative","absolute"))
 }
 
@@ -1379,22 +1217,6 @@ Lighten <- function(colors, percent.change = 0.25, relative = T){
 #' Simulate("tritan", DBDimPlot, var = "res.1", object = "pbmc", size = 2)
 
 Simulate <- function(type = "deutan", plot.function, color.panel = NULL, ...){
-  #This function will generate a plot in altered colors to simulate its look to a colorblind person!
-  #
-  #Inputs:
-  #type             The type of colorblindness that you want to simulate for. Options:
-  # "deutan" = Most common form of color-blindness, deutanopia/deutanomaly is when
-  #            the cones mainly responsible for red vision are defective
-  # "protan" = Second most common form of color-blindness, protanopia/protanomaly
-  #            is when the cones mainly responsible for green vision are defective
-  # "tritan" = Third most common form.  Defective cones are responsible for blue vision.
-  # Other inputs for type will cast an error.
-  # Note: there are more severe color deficiencies that are even more rare.
-  #       Unfortunately, for these types of color vision deficiency, only non-color
-  #       methods, like lettering or shapes, will do much to help.
-  #plot.function    Plotting.function = The plotting function that you want to use/simulate.
-  #color.panel      # Same as for all other plotting funcitons, defaults to MYcolors if you do not provide.
-  #...              All the normal arguments associated with the function that you want to use!
 
   #Check that type was given properly
   if(!(type=="deutan"|type=="protan"|type=="tritan")){
@@ -1491,17 +1313,6 @@ import.DESeq2 <- function(dds, #A DESeq object, *the output of DESeq()*
                           # not required, but can be provided.
                           percent.samples = 75
 ){
-  #INPUTS
-  #dds                The DESeq2 object for your data, *the output of DESeq()*
-  #run_PCA            FALSE by default.  Whether @rlog @var.genes and @pca[[1]] population are desired.
-  #pc.genes           The genes that should be used for calculating PCA.  If null, a per condition expression filter
-  # will be applied, followed by a selection of Ngenes number of genes that have the highest
-  # coefficient of variation (CV=mean/sd)
-  #Ngenes             How many genes to use for the PCA
-  #blind              Whether rlog estimation should be blinded to sample info. Run `?rlog` for more info
-  #counts
-  #percent.samples    The percent of samples within each condition that must express the gene in order for
-  # a gene to be included in the PCA
 
   ########## Create the Object ########################
   #Create the object with whatever inputs were given, a.k.a. creates objects@counts and any other level
@@ -1573,17 +1384,6 @@ PCAcalc <- function(object = DEFAULT,
                     percent.samples = 75,
                     name = "pca"
 ){
-  #INPUTS
-  #object           The RNAseq object to work on
-  #genes.use        The genes that should be used for calculating PCA.  If null, a per condition expression filter
-  # will be applied, followed by a selection of Ngenes number of genes that have the highest
-  # coefficient of variation (CV=mean/sd)
-  #run_PCA          FALSE by default.  Whether @data @var.genes and @pca[[1]] population are desired.
-  #Ngenes           How many genes to use for the PCA
-  #percent.samples  The percent of samples within each condition that must express the gene in order for
-  # a gene to be included in the PCA
-  #name             The name that will be given to this dimensional reduction slot in the object.
-  # after running, it will be stored in object@reductions$name
 
   #Turn the percent.samples into a decimal named cutoff
   cutoff <- percent.samples/100

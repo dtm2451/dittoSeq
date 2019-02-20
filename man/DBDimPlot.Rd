@@ -11,10 +11,10 @@ DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   shape.legend.title = NULL, data.type = "normalized", main = NULL,
   sub = NULL, xlab = "make", ylab = "make", auto.title = T,
   cells.use = NULL, show.others = TRUE, ellipse = F, do.label = F,
-  label.size = 5, highlight.labels = T, label.by = NULL,
-  rename.groups = NA, low = "#F0E442", high = "#0072B2",
-  range = NULL, color.panel = MYcolors,
-  colors = 1:length(color.panel), do.letter = NA)
+  label.size = 5, highlight.labels = T, rename.groups = NA,
+  min.color = "#F0E442", max.color = "#0072B2", min = NULL,
+  max = NULL, color.panel = MYcolors, colors = 1:length(color.panel),
+  do.letter = NA)
 }
 \arguments{
 \item{var}{Target Variable = either values or a metadata (in "quotes"), gene (in "quotes"), or "ident"}
@@ -67,15 +67,15 @@ DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
 
 \item{highlight.labels}{TRUE/FALSE. Whether the labels should have a box behind them}
 
-\item{label.by}{To be removed.}
-
 \item{rename.groups}{new names for the identities of var.  Change to NULL to remove labeling altogether.}
 
-\item{low}{color for lowest values of var/range}
+\item{min.color}{color for lowest values of var/min}
 
-\item{high}{color for highest values of var/range}
+\item{max.color}{color for highest values of var/max}
 
-\item{range}{limits for color scaling if var is a continuous value}
+\item{min}{set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.}
+
+\item{max}{set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it's likely because min > max.}
 
 \item{color.panel}{a list of colors to be used for when plotting a discrete var.}
 

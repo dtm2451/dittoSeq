@@ -9,7 +9,7 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   data.type = "normalized", color.panel = MYcolors,
   colors = c(1:length(color.panel)), theme = theme_classic(),
   main = NULL, sub = NULL, ylab = "make", y.breaks = NULL,
-  y.min = NULL, y.max = NULL, xlab = NULL, labels = NULL,
+  min = NULL, max = NULL, xlab = NULL, labels = NULL,
   rotate.labels = TRUE, hline = NULL, hline.linetype = "dashed",
   hline.color = "black", jitter.size = 1, jitter.width = 0.2,
   jitter.color = "black", jitter.shapes = c(16, 15, 17, 23, 25, 8),
@@ -49,9 +49,9 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 
 \item{y.breaks}{a list of breaks that should be used as major gridlines. c(break1,break2,break3,etc.) NOTE: The low and highs of this variable will override `min` and `max`.}
 
-\item{y.min}{Use to set a custom minimum y-value to show.  Default = set based on the limits of the data in var.}
+\item{min}{Use to set a custom minimum y-value to show.  Default = set based on the limits of the data in var.}
 
-\item{y.max}{Use to set a custom maximum y-value to show.  Default = set based on the limits of the data in var.}
+\item{max}{Use to set a custom maximum y-value to show.  Default = set based on the limits of the data in var.}
 
 \item{xlab}{x axis label, default is blank (NULL)}
 
