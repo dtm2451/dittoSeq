@@ -219,22 +219,36 @@ DBPlot("Score", group.by = "Sample", color.by = "age",
        jitter.shapes = c(15,16))
 ```
 
-**`range`, `low`, and `high`** = in DBPlot, `range` sets the bounds of the y axis. In DBDimPlot, `range` sets the cutoffs for lowest and highest values that the `low` and `high` colors should be used for. `low` and `high` set the color scale. Usage: `range = c(low-end, high-end)` with low-end and high-end both being numbers. `low` or `high` = "quoted" color name, e.g. "blue", or "quoted" hex code color representation, e.g. "#F0E442". Defaults are the extents of the data for range and yellow&blue fro low&high.
+**`range`, `low`, and `high`** = in DBDimPlot, `range` sets the bounds of the y axis. In DBDimPlot, `range` sets the cutoffs for lowest and highest values that the `low` and `high` colors should be used for. `low` and `high` set the color scale. Usage: `range = c(low-end, high-end)` with low-end and high-end both being numbers. `low` or `high` = "quoted" color name, e.g. "blue", or "quoted" hex code color representation, e.g. "#F0E442". Defaults are the extents of the data for range and yellow&blue for low&high.
+
+**`y.min`, `y.max`** = in DBPlot, these will set the limits of the y axis.  One or both can be used.  If only one is used, the limits of the data will still be used for setting the other extent.  In many cases, for displaying raw bulk RNAseq data, it can be good to set the y.min to zero.
+
+**`data.type`** = when showing gene expression, this sets what type of data will be grabbed. Options are: "raw", "normalized", "scaled", and "relative".  "raw" = the @raw.data slot for a Seurat object or the raw @counts slor for an RNAseq object. "normalized" will use the log noralized @data slot for a Seurat object, or the regularized log normalized @data slot of an RNAseq object. "scaled" will pull the scaled & variable regressed out data of a Seurat object (Warning: this is often only calculated for a subset of genes) and will give an error for RNAseq data because it is not calculated, what you'd want is what you get with "relative".  "relative" will use the normalized data, but it will be run through the scale function first to make it relative to the mean of the the expression accross the entire dataset.  
 
 ```
-# Adjusting the range of DBPlot or DBBarPlot
-DBPlot("Score", group.by = "Sample", color.by = "age", cells.use = meta("ident")=="3",
-       plots = c("vlnplot", "boxplot", "jitter"),
-       range = c(-40,50))
-
-# Adjusting the range and colors of a DBDimPloot
+# Adjusting the range and colors of a DBDimPlot
 DBDimPlot("Score", cells.use = meta("ident")=="3",
           range = c(-20,10), low = "grey", high = "red")
+          
+# Adjusting the y.min / y.max of DBPlot
+DBPlot("Score", group.by = "Sample", color.by = "age", cells.use = meta("ident")=="3",
+       plots = c("vlnplot", "boxplot", "jitter"),
+       y.min = -40,
+       y.max = 50)
+
+# Showing the raw data of a set of genes, with all y axes starting at 0
+multiDBPlot(c("CD4","IL7R","ANXA1","SELL","IL4","CD69"),
+            object = "bulkCD4", group.by = "Age", color.by = "Age",
+            plots = c("boxplot","jitter"),
+            y.min = 0)
 ```
 
 **`theme`** = If you would like to use your own theme, you can provide a ggplot theme here.  Provide the theme object (would be labeled as a 'list' in your workspace).  Note: This particular feature has only been lightly tested.
 
 ```
+#Change the plot's theme by calling on one of ggplot's n ative themes
+DBDimPlot("ident", theme = theme_classic())
+
 #Make a theme object
 prettyplot.theme <- theme(text = element_text(size = 14, color="black"),
                     panel.background = element_rect(fill = "transparent",colour = NA),
@@ -246,6 +260,7 @@ prettyplot.theme <- theme(text = element_text(size = 14, color="black"),
                     plot.background = element_rect(fill = "transparent",colour = NA))
 #Make a plot with this theme
 DBDimPlot("ident", theme = prettyplot.theme)
+
 #Make a plot by calling theme inside the Plotting function call:
 DBDimPlot("ident",
           theme = theme(text = element_text(size = 14, color="black"),
@@ -306,7 +321,7 @@ DBPlot("Score", group.by = "Sample", color.by = "age",
 - `nrow`: The number of rows that should be in the plotting array.  Default = as many as are needed.  If a number is given that is larger than what is required, then there will be blank space.  Setting this is useful for creating multiple identically spaced pages of plots even when the number of plots will be inconsistent.
 - `show.legend`: TRUE/FALSE, default = F. WHether as legend should be added (to every plot!)
 - `add.title`: TRUE/FALSE, default = T. Whether the titles should be shown.
-- `ylab` / `axes.labels`: TRUE/FALSE, default = F. Whether the axes labels should be shown.
+- `ylab` / `axes.labels`: TRUE/FALSE/"var", default = F. Whether the axes labels should be shown.  If ylab is set to "var", for multiDBPlot only, the axis title will be set to just the var names: just "GENE" instead of "GENE expression".
 
 ## Helper functions
 
