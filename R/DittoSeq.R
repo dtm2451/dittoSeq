@@ -763,6 +763,8 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 #' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
 #' @param add.title          TRUE/FALSE. Whether a title should be added.
 #' @param axes.labels        TRUE/FALSE. Whether a axis labels should be added.
+#' @param min                Works as in DimPlot, not required to be given, but sets the value associated with the minimum color.  All points with a lower value than this will get the same min.color.
+#' @param max                Works as in DimPlot, not required to be given, but sets the value associated with the maximum color.  All points with a higher value than this will get the same max.color.
 #' @param ...                other paramters that can be given to DBDimPlot function used in the same way.
 #' @param data.type          As with regular DBDimPlotting, For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
 #' @return A function for quickly making multiple DBDimPlots arranged in a grid, where instead of varying the 'var' displayed, what varies is the cells that are shown. Most parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each plot is which cells get displayed. NOTE: This function is incompatible with changing the 'colors' input. If you need to change the order of when certain colrs are chosen, change the order in color.panel. Also note: if 'var' given refers to continuous data, then the min and max will be calculated at the beginning in order to make the scale consistent accross all plots.  You can still set your own range, and this would also create a consistent scale.
@@ -780,7 +782,9 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                                       show.legend = F,
                                       add.single.legend = T,
                                       ncol = 3, nrow = NULL,
-                                      add.title=T, axes.labels=F, data.type = "normalized", ...){
+                                      add.title=T, axes.labels=F,
+                                      min = NULL, max = NULL,
+                                      data.type = "normalized", ...){
 
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
   # If set to TRUE, set it to "make".
@@ -788,24 +792,30 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
 
   #Determine if var is continuous vs discrete
   continuous <- FALSE
-  if (is.gene(var, object)){
+  if ((is.gene(var, object)) | (is.numeric(var))){
     continuous <- TRUE
   }
   if (is.meta(var, object)){
-    if (typeof(meta(var,object))!="character" & typeof(meta(var,object))!="character"){
+    if (is.numeric(meta(var,object))){
       continuous <- TRUE
     }
   }
 
   #Set a range if the var represents continuous data, (is.gene() or typeof(meta)!=integer OR character).
-  if (length(range)!=2){
-    range <- NULL
-    if (is.gene(var,object)){
-      range <- range(gene(var,object, data.type))
-    }
-    if (is.meta(var,object) & continuous){
-      range <- range(meta(var,object))
-    }
+  if (is.gene(var,object)){
+    the.range <- range(gene(var,object, data.type))
+    min <- ifelse(is.null(min), the.range[1], min)
+    max <- ifelse(is.null(max), the.range[2], max)
+  }
+  if (is.meta(var,object) & continuous){
+    the.range <- range(meta(var,object))
+    min <- ifelse(is.null(min), the.range[1], min)
+    max <- ifelse(is.null(max), the.range[2], max)
+  }
+  if (is.numeric(var)){
+    the.range <- range(var)
+    min <- ifelse(is.null(min), the.range[1], min)
+    max <- ifelse(is.null(max), the.range[2], max)
   }
 
   #Case 1: If var and cells.use.meta are NOT equal:
@@ -820,7 +830,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   xlab = lab,
                   ylab = lab,
                   main = X,
-                  range = range,
+                  min = min, max = max,
                   data.type = data.type,
                   ...) +
           theme(legend.position = ifelse(show.legend, "right", "none"))
@@ -837,7 +847,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   colors = in.this.plot,
                   ylab = lab,
                   main = X,
-                  range = range,
+                  min = min, max = max,,
                   data.type = data.type,
                   ...) +
           theme(legend.position = ifelse(show.legend, "right", "none"))
@@ -856,7 +866,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                 xlab = lab,
                 ylab = lab,
                 main = levels[X],
-                range = range,
+                min = min, max = max,,
                 data.type = data.type,
                 ...) +
         theme(legend.position = ifelse(show.legend, "right", "none"))
@@ -867,7 +877,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                         auto.title = add.title,
                         xlab = lab,
                         ylab = lab,
-                        range = range,
+                        min = min, max = max,,
                         data.type = data.type,
                         main = "All Cells",
                         ...)
