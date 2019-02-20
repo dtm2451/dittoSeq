@@ -140,6 +140,8 @@ DBDimPlot("age",
           show.others = F)
 ```
 
+**`do.hover`, `data.hover`** = DBDimPlot only currently.  I added ggplotly data hover compatibility.  If you want to quickly learn more about a certain data point, set do.hover = TRUE and data.hover = c("meta-data1", "gene1","meta-data2", "gene2") where you repllace those with the names of whatever metadata or gene expression data you want to show when you hover your cursor over the plot.  Notes: do.hover=TRUE is incompatibile with the do.letter option, so it will turn letting (described below) off.
+
 **`do.label`, `label.size`, `highlight.labels`** = in DBDimPlot, for labeling clusters / ages / conditions / any discrete classifier of the cells in the dataset.  Setting `do.label = TRUE` turns on labeling. `label.size = 10` adjusts the label size. `highlight.labels = TRUE` controls whether there will be a white box around the labels.  Default are label.size = 5, and highlight.labels = TRUE
 
 **`ellipse`** = in DBDimPlot, whether an ellipse should be drawn to help orient the clustering of certain groups when plotting discrete variables. Usage: `ellipse = TRUE`
@@ -195,7 +197,7 @@ DBDimPlot("ident", color.panel = MYcolors, colors = c(1:8))
 DBDimPlot("ident", colors = c(8,2:7))
 ```
 
-**`do.letter`** = in DBDimPlot, for setting whether dots are annotated with letters to aid in identification.  If set to TRUE, will always happen.  If set to false, will not happen.  If left as the default (NA), then letters will be added if the number of groups is 8 or more.
+**`do.letter`** = in DBDimPlot, for setting whether dots are annotated with letters to aid in identification.  If set to TRUE, will always happen.  If set to false, will not happen.  If left as the default (NA), then letters will be added if the number of groups is 8 or more.  Note: incompatible with setting the shapes to me different, so if a metadata slot is given to `shape` (described in the next section) do.letter will overrule that input. Also, ggplotly is not compatible this lettering option. do.hover = TRUE will override do.letter = T (and then will allow shape = "metadata" to work!)
 
 ```
 #To add letters

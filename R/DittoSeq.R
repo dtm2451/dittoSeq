@@ -35,6 +35,8 @@
 #' @param color.panel a list of colors to be used for when plotting a discrete var.
 #' @param colors indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups
 #' @param do.letter TRUE/FALSE/NA. Whether letters should be added on top of the colored dots. For colorblindness compatibility.  NA by default, and if left that way, will be set to either TRUE or FALSE depending on the number of groups if a discrete var is given. For when there are lots of descrete variables, it can be hard to see by just color / shape.  NOTE: Lettering is incompatible with changing dots to shapes, so this will override a setting of distinct shapes based on the 'shape' variable!
+#' @param do.hover TRUE/FALSE. Default = F.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.
+#' @param data.hover list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
 #' @return Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA, ICA, ..., plot of choice.  var is the argument that sets how dots will be colored, and it can refer to either continuous (ex: "CD34" = gene expression) or discrete (ex: "ident" = clustering) data.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -56,7 +58,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                       rename.groups = NA,
                       min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
                       color.panel = MYcolors, colors = 1:length(color.panel),
-                      do.letter = NA){
+                      do.letter = NA, do.hover = FALSE, data.hover = var){
 
   if (typeof(object)=="S4"){
     object <- deparse(substitute(object))
@@ -80,14 +82,14 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
     if (classof(object)=="RNAseq"){
       eval(expr = parse(text = paste0(object,"@samples")))
     } else {
-    if(classof(object)=="seurat") {
-      eval(expr = parse(text = paste0(object,"@cell.names")))
-    }}
+      if(classof(object)=="seurat") {
+        eval(expr = parse(text = paste0(object,"@cell.names")))
+      }}
 
   #Generate the x/y dimensional reduction data and axes labels.
   xdat <- extDim(reduction.use, dim.1, object)
   ydat <- extDim(reduction.use, dim.2, object)
-    #If xlab/ylab left as "make", use default axis labels generated in the extDim call (ex. "tSNE_1" or "PC2").
+  #If xlab/ylab left as "make", use default axis labels generated in the extDim call (ex. "tSNE_1" or "PC2").
   if (!(is.null(xlab))) {
     if (xlab=="make") {
       xlab <- xdat$name
@@ -110,9 +112,57 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
     if(is.gene(var, object)){Y <- gene(var, object, data.type)}
     #Otherwise, var is likely a full set of data already, so just make Y = var
   } else {Y <- var}
+  #Decide if letters should be added or not
+  #If#1) if do.hover was set to TRUE, lettering will not work, so set to FALSE.
+  if(do.hover){
+    do.letter <- FALSE
+  } else {
+    #IF#2) if do.letter was already set, we'll just go with what the user wanted!
+    if(is.na(do.letter)){
+      #If#2) if the data is discrete, continue. (Otherwise, it is continuous so letters would not make sense!)
+      if(typeof(Y)=="character" | typeof(Y)=="integer"){
+        #If#3) if the number of groups is 8 or more, letters are recommended.
+        if(length(levels(as.factor(Y)))>=8){
+          do.letter <- TRUE
+        } else { do.letter <- FALSE }
+      } else { do.letter <- FALSE }
+    }
+  }
   #Determine the identity of the provided 'shape'.
-    #If it is a meta.data name, pull the meta.  else (it is a number) just carry it through
-  if(typeof(shape)=="character"){Shape <- meta(shape, object)} else{Shape <- shape}
+  #If it is a meta.data name, pull the meta.  else (it is a number) just carry it through
+  if(typeof(shape)=="character"){
+    if(do.letter){Shape <- shapes[1]
+    } else {Shape <- meta(shape, object)}
+  } else {Shape <- shape}
+
+  #Groundwork for plotly hover data:
+  #Overall: if do.hover=T and data.hover has a list of genes / metas,
+  # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
+  hover.string <- NA
+  if (do.hover) {
+    if (is.null(data.hover)) {
+      hover.string <- "Add gene or metadata \n names to hover.data"
+    } else {
+      features.info <- data.frame(row.names = all.cells)
+      fill <- logical()
+      for (i in 1:length(data.hover)){
+        fill[i] <- FALSE
+        if(is.meta(data.hover[i],object)){
+          features.info[,i] <- meta(data.hover[i],object)
+          fill[i] <- TRUE
+        }
+        if(is.gene(data.hover[i],object)){
+          features.info[,i] <- gene(data.hover[i], object, data.type)
+          fill[i] <- TRUE
+        }
+      }
+      names(features.info)<-data.hover[fill]
+      hover.string <- sapply(1:nrow(features.info), function(row){
+        paste(as.character(sapply(1:ncol(features.info), function(col){
+          paste0(names(features.info)[col],": ",features.info[row,col])})),collapse = "\n")
+      })
+    }
+  }
 
   #Populate the data.frame to be used for plotting
   full_dat <- data.frame(Y = Y,
@@ -120,29 +170,19 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                          dim2 = ydat$embeddings,
                          size = size,
                          shape = Shape,
-                         Group = Y)
+                         Group = Y,
+                         hover.string = hover.string)
 
   #Subset to cells.use
   if (typeof(cells.use)=="logical"){
     Others_dat <- full_dat[!cells.use,]
     Target_dat <- full_dat[cells.use,]
   } else {
-  Others_dat <- full_dat[!(all.cells %in% cells.use),]
-  Target_dat <- full_dat[all.cells %in% cells.use,]
+    Others_dat <- full_dat[!(all.cells %in% cells.use),]
+    Target_dat <- full_dat[all.cells %in% cells.use,]
   }
 
   ## Groundwork for adding letter labeling of dots
-  #Decide if letters should be added or not
-  #If#1) if do.letter was already set, we'll just go with waht the user wanted!
-  if(is.na(do.letter)){
-    #If#2) if the data is discrete, continue. (Otherwise, it is continuous so letters would not make sense!)
-    if(typeof(Y)=="character" | typeof(Y)=="integer"){
-      #If#3) if the number of groups is 8 or more, letters can be recommended.
-      if(length(levels(as.factor(Y)))>=8){
-        do.letter <- TRUE
-      } else { do.letter <- FALSE }
-    } else { do.letter <- FALSE }
-  }
   # If adding letters, create a vector of what those labels should be
   if(do.letter){
     letter.labels <- c(LETTERS, letters, 0:9, "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-",
@@ -160,27 +200,35 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   ###Add the data###
   #Make gray dots on the bottom layer if show.others = T and cells.use is a subset of all the cells / samples.
   if (show.others & dim(Others_dat)[1]>1) {
-    p <- p + geom_point(data=Others_dat, aes(x = dim1, y = dim2), size=0.5, color = "gray90")
+    p <- p + geom_point(data=Others_dat,
+                        if(do.hover){aes(x = dim1, y = dim2, text = hover.string)}else{aes(x = dim1, y = dim2)},
+                        size=0.5, color = "gray90")
   }
   #Overlay the target data on top
   # If 'shape' input was the name of a meta.data, aka type=character, treat shape as an aesthetic for performing grouping.
   # Otherwise it is a number and belongs outside of aes.
   if (typeof(shape)=="character" & !do.letter) {
-    p <- p + geom_point(data=Target_dat, aes(x = dim1, y = dim2, colour = Y, shape=shape), size=size) +
+    p <- p + geom_point(data=Target_dat,
+                        if(do.hover){aes(x = dim1, y = dim2, colour = Y, shape=shape, text = hover.string)
+                        }else{aes(x = dim1, y = dim2, colour = Y, shape=shape)},
+                        size=size) +
       if(do.letter){geom_point(data=Target_dat, aes(x = dim1, y = dim2, shape = Y), color = letter.colors, size=size)} +
       scale_shape_manual(values = shapes[1:length(levels(as.factor(Target_dat$shape)))],
                          labels = levels(as.factor(as.character(Target_dat$shape))))
   }  else {
-    p <- p + geom_point(data=Target_dat, aes(x = dim1, y = dim2, colour = Y), shape= Shape, size=size, stroke = 0)
-      if(do.letter){
-        p <- p +
+    p <- p + geom_point(data=Target_dat,
+                        if(do.hover){aes(x = dim1, y = dim2, colour = Y, text = hover.string)}
+                        else{aes(x = dim1, y = dim2, colour = Y)},
+                        shape= Shape, size=size, stroke = 0)
+    if(do.letter){
+      p <- p +
         geom_point(data=Target_dat, aes(x = dim1, y = dim2, shape = Y), color = "black", size=size/2) +
         scale_shape_manual(name = legend.title,
                            values = letter.labels#,
                            # if(!(is.na(rename.groups[1]))){
                            #   labels = rename.groups}
-                           )
-      }
+        )
+    }
   }
 
   ###Add ellipse###
@@ -191,7 +239,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                                        linetype = 2,
                                        size = 0.5,
                                        show.legend = F
-                                       )}
+  )}
 
   ###Add titles###
   #If not provided, autogenerate based on the identity of var
@@ -244,8 +292,8 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
       }
       #Also change the legend properties.
       if (!is.null(legend.size)){
-                        #First, change the size of the dots in the legend, unless legend.size was set to NULL
-                        #Also, set the legend title.  Given input if given, or remove if still null.
+        #First, change the size of the dots in the legend, unless legend.size was set to NULL
+        #Also, set the legend title.  Given input if given, or remove if still null.
         if(do.letter){
           p <- p + guides(colour = guide_legend(override.aes = list(size=legend.size)))
         } else {
@@ -270,7 +318,12 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   } else {
     p <- p + theme
   }
-  return(p)
+
+  if(do.hover){
+    return(plotly::ggplotly(p, tooltip = "text"))
+  } else {
+    return(p)
+  }
 }
 
 ################################# DBPlot ####################################

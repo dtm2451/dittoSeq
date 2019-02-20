@@ -17,3 +17,4 @@ Imports: methods,
     DESeq2,
     cowplot,
     SummarizedExperiment
+Suggests: plotly
