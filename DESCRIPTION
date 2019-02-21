@@ -11,10 +11,10 @@ LazyData: true
 RoxygenNote: 6.1.1
 Depends: ggplot2,
 Imports: methods,
-    Seurat (>= 2.2),
     colorspace (>= 1.4),
     gridExtra,
+    cowplot
+Suggests: plotly,
+    Seurat (>= 2.2),
     DESeq2,
-    cowplot,
     SummarizedExperiment
-Suggests: plotly
