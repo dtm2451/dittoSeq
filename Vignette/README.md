@@ -1,6 +1,6 @@
 # DittoSeq Vignette
 
-This is a tutorial for using my DittoSeq package of Seurat/DESeq auxiliary functions.
+Below is a demonstration of the power of DittoSeq's functions for exploring (sc)RNAseq data and creating publication-ready functions with descriptions of all tweakable inputs.  **For a play-along tutorial, you can download this pre-processed [public scRNAseq data, 272MB](https://ucsf.box.com/s/3lwwwingjinshfj69y3diyhaoa1b5b6w) and follow this [commented code](pbmc_3k_code-examples.R)**
 
 DittoSeq.R includes various helper and plotting functions for working with RNAseq data. All plotting functions spit out easy-to-read, color blind friendly, ggplot plots upon minimal coding input for your daily analysis needs, and they also allow sufficient manipulations to provide for out-of-the-box submission-quality figures.
 
@@ -30,7 +30,7 @@ devtools::install_github("dtm2451/DittoSeq")
 
 ### Basic use
 
-The basic use of most functions, including all of the plotting functions is `funtion(var, object, other.inputs)` where var is the target variable (often this will be the "name" of a metadata or gene) and object is the Seurat-object target.  One of the most useful other inputs is probably cells.use.
+The basic use of most functions, including all of the plotting functions is `function(var, object, other.inputs)` where var is the target variable (often this will be the "name" of a metadata or gene) and object is the Seurat-object target.  One of the most useful other inputs is probably cells.use.
 
 **`var`** - When var is given as a string name of a gene or metadata, default plot titles are generally generated and the functions will automatically grab the relevant values to plot.  A discrete vector can also be provided, but note that even if cells.use is going to be used to subset down to only certain cells, this vector must include data for all the cells.
 
