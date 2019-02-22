@@ -6,17 +6,18 @@
 \usage{
 DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   cells.use = NULL, plots = c("jitter", "vlnplot"),
-  data.type = "normalized", color.panel = MYcolors,
-  colors = c(1:length(color.panel)), theme = theme_classic(),
-  main = NULL, sub = NULL, ylab = "make", y.breaks = NULL,
-  min = NULL, max = NULL, xlab = NULL, labels = NULL,
-  rotate.labels = TRUE, hline = NULL, hline.linetype = "dashed",
-  hline.color = "black", jitter.size = 1, jitter.width = 0.2,
-  jitter.color = "black", jitter.shapes = c(16, 15, 17, 23, 25, 8),
-  jitter.shape.legend.size = 3, boxplot.width = 0.2,
-  boxplot.color = "black", boxplot.show.outliers = NA,
-  boxplot.fill = T, reorder.x = 1:length(meta.levels(group.by,
-  object)), title.legend = F, auto.title = T)
+  data.type = "normalized", do.hover = FALSE, data.hover = var,
+  color.panel = MYcolors, colors = c(1:length(color.panel)),
+  theme = theme_classic(), main = NULL, sub = NULL, ylab = "make",
+  y.breaks = NULL, min = NULL, max = NULL, xlab = NULL,
+  labels = NULL, rotate.labels = TRUE, hline = NULL,
+  hline.linetype = "dashed", hline.color = "black", jitter.size = 1,
+  jitter.width = 0.2, jitter.color = "black", jitter.shapes = c(16,
+  15, 17, 23, 25, 8), jitter.shape.legend.size = 3,
+  boxplot.width = 0.2, boxplot.color = "black",
+  boxplot.show.outliers = NA, boxplot.fill = T,
+  reorder.x = 1:length(meta.levels(group.by, object)),
+  title.legend = F, auto.title = T)
 }
 \arguments{
 \item{var}{Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.}
@@ -34,6 +35,10 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 \item{plots}{types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.}
 
 \item{data.type}{For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"}
+
+\item{do.hover}{TRUE/FALSE. Default = F.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.}
+
+\item{data.hover}{list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.}
 
 \item{color.panel}{the set of colors to draw from}
 

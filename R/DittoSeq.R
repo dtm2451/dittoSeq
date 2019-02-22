@@ -337,6 +337,8 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' @param cells.use              Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. USE in object@cell.names[USE])
 #' @param plots                  types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.
 #' @param data.type              For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
+#' @param do.hover               TRUE/FALSE. Default = F.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.
+#' @param data.hover             list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
 #' @param color.panel            the set of colors to draw from
 #' @param colors                 indexes / or order, of colors from color.panel to actual use
 #' @param main                   plot title
@@ -374,7 +376,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 
 DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    shape.by = "", cells.use = NULL, plots = c("jitter","vlnplot"),
-                   data.type = "normalized",
+                   data.type = "normalized", do.hover = FALSE, data.hover = var,
                    color.panel = MYcolors, colors = c(1:length(color.panel)),
                    theme = theme_classic(), main = NULL, sub = NULL,
                    ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
@@ -412,25 +414,64 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   #Update a holder 'Shape' variable if 'shape.by' is a meta
   if (is.meta(shape.by, object)){Shape <- meta(shape.by, object)} else {Shape = NA}
 
+  #Establish the full list of cell/sample names
+  all.cells <-
+    if (classof(object)=="RNAseq"){
+      eval(expr = parse(text = paste0(object,"@samples")))
+    } else {
+      if(classof(object)=="seurat") {
+        eval(expr = parse(text = paste0(object,"@cell.names")))
+      }}
+
+  #Groundwork for plotly hover data:
+  #Overall: if do.hover=T and data.hover has a list of genes / metas,
+  # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
+  hover.string <- NA
+  if (do.hover) {
+    if (is.null(data.hover)) {
+      hover.string <- "Add gene or metadata \n names to hover.data"
+    } else {
+      features.info <- data.frame(row.names = all.cells)
+      fill <- logical()
+      for (i in 1:length(data.hover)){
+        fill[i] <- FALSE
+        if(is.meta(data.hover[i],object)){
+          features.info[,i] <- meta(data.hover[i],object)
+          fill[i] <- TRUE
+        }
+        if(is.gene(data.hover[i],object)){
+          features.info[,i] <- gene(data.hover[i], object, data.type)
+          fill[i] <- TRUE
+        }
+      }
+      names(features.info)<-data.hover[fill]
+      hover.string <- sapply(1:nrow(features.info), function(row){
+        paste(as.character(sapply(1:ncol(features.info), function(col){
+          paste0(names(features.info)[col],": ",features.info[row,col])})),collapse = "\n")
+      })
+    }
+  }
+
   ###Make dataframe for storing the plotting data:
   #The data =Y, how to group the data = sample, how to color the groupings = color, and what the shape should be if there is a "jitter" made.
   full_dat <- data.frame(Y = Y,
                          sample = meta(group.by, object),
                          color = meta(color.by, object),
-                         shape = Shape)
+                         shape = Shape,
+                         hover.string = hover.string)
   #Subset the data.frame to only the cells in cell.use.
   if (classof(object)=="seurat"){
     if (typeof(cells.use)=="logical"){
       Target_dat <- full_dat[cells.use,]
     } else {
-      Target_dat <- full_dat[eval(expr = parse(text = paste0(object,"@cell.names"))) %in% cells.use,]
+      Target_dat <- full_dat[all.cells %in% cells.use,]
     }
   }
   if (classof(object)=="RNAseq"){
     if (typeof(cells.use)=="logical"){
       Target_dat <- full_dat[cells.use,]
     } else {
-      Target_dat <- full_dat[eval(expr = parse(text = paste0(object,"@samples"))) %in% cells.use,]
+      Target_dat <- full_dat[all.cells %in% cells.use,]
     }
   }
 
@@ -489,7 +530,9 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
         p <- p + geom_jitter(size=jitter.size,
                              width=jitter.width,
                              height = 0,
-                             aes(shape = shape),
+                             #Add the hover info
+                             if(do.hover){aes(shape = shape, text = hover.string)}
+                             else{aes(shape = shape)},
                              color = jitter.color)
         #Actually set the shapes to jitter.shapes.
         p <- p + scale_shape_manual(values = jitter.shapes[1:length(levels(as.factor(Target_dat$shape)))],
@@ -505,6 +548,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
         p <- p + geom_jitter(size=jitter.size,
                              width=jitter.width,
                              height = 0,
+                             if(do.hover){aes(text = hover.string)},
                              shape = jitter.shapes[1],
                              color = jitter.color)
       }
@@ -540,7 +584,11 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
     ggtitle(main, sub) + xlab(xlab)
 
   #DONE. Return the plot
-  return(p)
+  if(do.hover & ("jitter" %in% plots)){
+    return(plotly::ggplotly(p, tooltip = "text"))
+  } else {
+    return(p)
+  }
 }
 
 ########## DBBarPlot: Builds a stacked bar plot to show the composition of samples / ages / 'group.by' ##########
