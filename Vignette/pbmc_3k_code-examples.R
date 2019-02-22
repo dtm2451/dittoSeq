@@ -225,12 +225,18 @@ DBPlot("LYZ", group.by = "Celltype", color.by = "BroadCelltype",
        labels = c("CD4 Ts", "CD8 Ts", "Bs", "NKs", "14 Monos", "FC Monos", "DCs", "Megas"))
 #We can also adjust the range and tickmarks of the y-axis
 DBPlot("LYZ", group.by = "Celltype", color.by = "BroadCelltype",
-       plots = c("vlnplot","jitter"),
+       plots = c("jitter","vlnplot"),
        y.breaks = c(0,2.5,5,7.5,10))
 #And finally, though there are also some extra tweeks I am leaving out, we can show the raw (or scaled) data as well.
 DBPlot("LYZ", group.by = "Celltype", color.by = "BroadCelltype",
-       plots = c("vlnplot","jitter"),
+       plots = c("jitter","vlnplot"),
        data.type = "raw")
+#And we can use do.hover and data.hover to select info to display about the cells if we hover the cursor over the jitter dots
+DBPlot("LYZ", group.by = "Celltype", color.by = "BroadCelltype",
+       plots = c("jitter","vlnplot"),  # Notice that ggplotly puts the jitter on top regardless of the order of plots.  I may fix this bug in a future version.
+       data.type = "raw",
+       do.hover = T, data.hover = c("LYZ","CD8A","Celltype","BroadCelltype","Sample"))
+
 
 #####- My "identity plotting function, DBBarPlot -#######
 #### AT THIS TIME, SEURAT DOES NOT HAVE THIS AT ALL #####
@@ -255,5 +261,15 @@ DBBarPlot("Celltype", group.by = "Sample",
           sub = "Pallet Town Bushes",
           xlab = "Trainers",
           x.labels = c("Ash", "Gary", "Prof Oak"))
+#And finally, we can also set do.hover = T to extract the counts/ exact percentage info from the barplot:
+DBBarPlot("Celltype", group.by = "Sample",
+          rename.groups = c("Charizards", "Vaporeons", "Sceptiles", "Zapdos", "Wartortles", "Exeggutors", "Mr. Mimes", "Jynxs"),
+          legend.title = "Pokemon",
+          ylab = "Percent of Wild Encounters",
+          main = "Encounters by Visit",
+          sub = "Pallet Town Bushes",
+          xlab = "Trainers",
+          x.labels = c("Ash", "Gary", "Prof Oak"),
+          do.hover = T) # Notice that ggplotly ignores our rename.groups change of the identity names. I may fix this bug in a future version.
 
 ## Other customizations do exist.  Check the documentation for other arguments that are not in here!

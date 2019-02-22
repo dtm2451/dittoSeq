@@ -6,7 +6,8 @@
 \usage{
 DBBarPlot(var = "ident", object = DEFAULT, group.by = "Sample",
   cells.use = NULL, color.panel = MYcolors,
-  colors = c(1:length(color.panel)), xlab = NULL, ylab = "make",
+  colors = c(1:length(color.panel)), do.hover = F,
+  theme = theme_classic(), xlab = NULL, ylab = "make",
   x.labels = NA, rotate.labels = TRUE, y.breaks = c(0, 0.5, 1),
   main = "make", sub = NULL, rename.groups = NA,
   legend.title = NULL, reorder.x = 1:length(meta.levels(group.by,
@@ -24,6 +25,10 @@ DBBarPlot(var = "ident", object = DEFAULT, group.by = "Sample",
 \item{color.panel}{the set of colors to draw from}
 
 \item{colors}{indexes / or order, of colors from color.panel to actual use}
+
+\item{do.hover}{TRUE/FALSE. Default = F.  If set to true, object will be converted to a ggplotly object so that data about individual bars will be displayed when you hover your cursor over them.  Data displayed will be the "counts" and "percentage of total".'data.hover' argument is not used with this plotting function.}
+
+\item{theme}{Allows setting of a theme. Default = theme_classic() when nothing is provided.}
 
 \item{xlab}{"character". The text title for the x axis.  NULL/blank by default.}
 
