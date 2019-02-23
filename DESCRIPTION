@@ -1,6 +1,6 @@
 Package: DittoSeq
 Type: Package
-Title: User-Friendly Single-cell and Bulk RNA-Sequencing Visualization
+Title: User Friendly Single-cell and Bulk RNA Sequencing Visualization
 Version: 0.1.0
 Author: Daniel Bunis
 Maintainer: Daniel Bunis <daniel.bunis@ucsf.edu>
@@ -17,4 +17,5 @@ Imports: methods,
 Suggests: plotly,
     Seurat (>= 2.2),
     DESeq2,
-    SummarizedExperiment
+    SummarizedExperiment,
+    pheatmap

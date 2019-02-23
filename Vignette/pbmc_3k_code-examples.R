@@ -272,4 +272,34 @@ DBBarPlot("Celltype", group.by = "Sample",
           x.labels = c("Ash", "Gary", "Prof Oak"),
           do.hover = T) # Notice that ggplotly ignores our rename.groups change of the identity names. I may fix this bug in a future version.
 
+#- My heatmap function, DBHeatmap -#
+##### This is a new function that was not part of my original release!!!
+library(pheatmap)
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"))
+# Cell names are impossible to read, but the pheatmap code is kinda buggy, so I haven't been able to figure out how to remove them =/.
+# If you would like to try (and also this is just a useful feature), you can turn on data.out=T to just output the objects and script.
+LIST <- DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+                  "FCGR3A","LYZ","PPBP","CD8A"),
+                  data.out = TRUE)
+# Instead of names, the most useful thing can by annotations:
+# The cells.annotation input is how you do that.  Give this input any metadata or ident
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cells.annotation = "ident")
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cells.annotation = "BroadCelltype")
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cells.annotation = "Sample")
+#For real data, you will have more cells than this truncated dataset, so I recommend turning off
+# cell clustering when you are trying out tweaks to the look. DO this by adding cluster_cols=FALSE
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cells.annotation = "ident",
+          cluster_cols=FALSE)
+#If you would like to change the colors, you can use
+
+
 ## Other customizations do exist.  Check the documentation for other arguments that are not in here!
