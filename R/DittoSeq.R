@@ -869,6 +869,7 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
 
   #Make the cells.annotations data for color annotation bar
   Col_annot <- NA
+  Col_annot_colors <- NA
   if(!(cells.annotation[1] == FALSE)){
     Col_annot <- data.frame(as.factor(as.character(meta(cells.annotation[1], object)[all.cells %in% cells.use])),
                             row.names = cells.use)
