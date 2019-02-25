@@ -21,7 +21,7 @@ Outputs gene expression data, metadata data, or clustering data
 }
 \examples{
 pbmc <- Seurat::pbmc_small
-var_OR_get_meta_or_gene("CD34", "pbmc", "normalized")
+var_OR_get_meta_or_gene("CD14", "pbmc", "normalized")
 var_OR_get_meta_or_gene("ident", "pbmc")
 var_OR_get_meta_or_gene("nUMI", "pbmc")
 }

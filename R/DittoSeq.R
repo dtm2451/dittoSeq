@@ -1254,7 +1254,7 @@ all_cells <- function(object = DEFAULT){
 #' @return Given a logical or a list of names (or NULL) will output the list of cells names.  For retrieval / standardization.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
-#' which_cells(meta("ident")=="0", "pbmc")
+#' which_cells(meta("ident","pbmc")=="0", "pbmc")
 
 which_cells <- function(cells.use, object = DEFAULT){
   all.cells <- all_cells(object)
@@ -1324,7 +1324,7 @@ S4_2string <- function(object = DEFAULT){
 #' @return determines what type of var is given, and outputs the gene expression data, metadata data, or clustering data.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
-#' var_OR_get_meta_or_gene("CD34", "pbmc", "normalized")
+#' var_OR_get_meta_or_gene("CD14", "pbmc", "normalized")
 #' var_OR_get_meta_or_gene("ident", "pbmc")
 #' var_OR_get_meta_or_gene("nUMI", "pbmc")
 

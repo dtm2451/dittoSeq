@@ -19,5 +19,5 @@ Retrieves the list of cells.names to use
 }
 \examples{
 pbmc <- Seurat::pbmc_small
-which_cells(meta("ident")=="0", "pbmc")
+which_cells(meta("ident","pbmc")=="0", "pbmc")
 }
