@@ -60,31 +60,17 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                       color.panel = MYcolors, colors = 1:length(color.panel),
                       do.letter = NA, do.hover = FALSE, data.hover = var){
 
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
-  }
+  #Change object to character if not already
+  object <- S4_2string(object)
 
-  ### Establish Defaults and gather some preliminary info ###
-  #If cells.use = NA (was not provided), populate it to be all cells or all samples.
-  if (classof(object)=="seurat" & is.null(cells.use)) {
-    cells.use <- eval(expr = parse(text = paste0(object,"@cell.names")))
-  }
-  if (classof(object)=="RNAseq" & is.null(cells.use)) {
-    cells.use <- eval(expr = parse(text = paste0(object,"@samples")))
-  }
+  #Populate cells.use with a list of names if it was given anything else.
+  cells.use <- which_cells(cells.use, object)
+  #Establish the full list of cell/sample names
+  all.cells <- all_cells(object)
 
   #If reduction.use = NA (was not provided), populate it to be tsne or pca.
   if (classof(object)=="seurat" & is.na(reduction.use)) {reduction.use <- "tsne"}
   if (classof(object)=="RNAseq" & is.na(reduction.use)) {reduction.use <- "pca"}
-
-  #Establish the full list of cell/sample names
-  all.cells <-
-    if (classof(object)=="RNAseq"){
-      eval(expr = parse(text = paste0(object,"@samples")))
-    } else {
-      if(classof(object)=="seurat") {
-        eval(expr = parse(text = paste0(object,"@cell.names")))
-      }}
 
   #Generate the x/y dimensional reduction data and axes labels.
   xdat <- extDim(reduction.use, dim.1, object)
@@ -103,15 +89,8 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 
   #Build data for populating dat, the data.frame for plotyting.
   #Determine the identity of the provided 'var' and populate Y, the variable used for coloring.
-  if(typeof(var)=="character"){
-    #If "ident" pull the @ident object from the seurat object
-    if(var == "ident"){Y <- meta(var, object)}
-    #If "is.meta" pull the @meta.data$"var" from the RNAseq or seurat object
-    if(is.meta(var, object)){Y <- meta(var, object)}
-    #If "is.gene" pull the gene expression data from the RNAseq or seurat object
-    if(is.gene(var, object)){Y <- gene(var, object, data.type)}
-    #Otherwise, var is likely a full set of data already, so just make Y = var
-  } else {Y <- var}
+  Y <- var_OR_get_meta_or_gene(var, object, data.type)
+
   #Decide if letters should be added or not
   #If#1) if do.hover was set to TRUE, lettering will not work, so set to FALSE.
   if(do.hover){
@@ -120,7 +99,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
     #IF#2) if do.letter was already set, we'll just go with what the user wanted!
     if(is.na(do.letter)){
       #If#2) if the data is discrete, continue. (Otherwise, it is continuous so letters would not make sense!)
-      if(typeof(Y)=="character" | typeof(Y)=="integer"){
+      if(!(is.numeric(Y))){
         #If#3) if the number of groups is 8 or more, letters are recommended.
         if(length(levels(as.factor(Y)))>=8){
           do.letter <- TRUE
@@ -136,32 +115,11 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   } else {Shape <- shape}
 
   #Groundwork for plotly hover data:
-  #Overall: if do.hover=T and data.hover has a list of genes / metas,
+  #This does: if do.hover=T and data.hover has a list of genes / metas,
   # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
   hover.string <- NA
   if (do.hover) {
-    if (is.null(data.hover)) {
-      hover.string <- "Add gene or metadata \n names to hover.data"
-    } else {
-      features.info <- data.frame(row.names = all.cells)
-      fill <- logical()
-      for (i in 1:length(data.hover)){
-        fill[i] <- FALSE
-        if(is.meta(data.hover[i],object)){
-          features.info[,i] <- meta(data.hover[i],object)
-          fill[i] <- TRUE
-        }
-        if(is.gene(data.hover[i],object)){
-          features.info[,i] <- gene(data.hover[i], object, data.type)
-          fill[i] <- TRUE
-        }
-      }
-      names(features.info)<-data.hover[fill]
-      hover.string <- sapply(1:nrow(features.info), function(row){
-        paste(as.character(sapply(1:ncol(features.info), function(col){
-          paste0(names(features.info)[col],": ",features.info[row,col])})),collapse = "\n")
-      })
-    }
+    hover.string <- make_hover_strings(data.hover, object, data.type)
   }
 
   #Populate the data.frame to be used for plotting
@@ -174,13 +132,8 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                          hover.string = hover.string)
 
   #Subset to cells.use
-  if (typeof(cells.use)=="logical"){
-    Others_dat <- full_dat[!cells.use,]
-    Target_dat <- full_dat[cells.use,]
-  } else {
-    Others_dat <- full_dat[!(all.cells %in% cells.use),]
-    Target_dat <- full_dat[all.cells %in% cells.use,]
-  }
+  Others_dat <- full_dat[!(all.cells %in% cells.use),]
+  Target_dat <- full_dat[cells.use,]
 
   ## Groundwork for adding letter labeling of dots
   # If adding letters, create a vector of what those labels should be
@@ -212,7 +165,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                         if(do.hover){aes(x = dim1, y = dim2, colour = Y, shape=shape, text = hover.string)
                         }else{aes(x = dim1, y = dim2, colour = Y, shape=shape)},
                         size=size) +
-      if(do.letter){geom_point(data=Target_dat, aes(x = dim1, y = dim2, shape = Y), color = letter.colors, size=size)} +
+      # if(do.letter){geom_point(data=Target_dat, aes(x = dim1, y = dim2, shape = Y), color = letter.colors, size=size)} +
       scale_shape_manual(values = shapes[1:length(levels(as.factor(Target_dat$shape)))],
                          labels = levels(as.factor(as.character(Target_dat$shape))))
   }  else {
@@ -243,7 +196,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 
   ###Add titles###
   #If not provided, autogenerate based on the identity of var
-  if (is.null(main) & auto.title==T){
+  if (is.null(main) & auto.title==T & length(var)==1){
     #If var is a meta.data, make the title = var
     if(is.meta(var, object)){main <- var}
     #If var is a gene, still make the title = var
@@ -277,7 +230,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   ### Set the colors ###
   ### Also change the size of the dots in the legend if showing groupings ###
   #If var yielded a list of groups for plotting (should be in the form of a list of strings = character, or a factor = integer)
-  if (typeof(Y)=="character" | typeof(Y)=="integer"){
+  if (!(is.numeric(Y))){
     #If the number of levels/groups is less than the length of the color.panel, use the color.panel set.
     if (length(levels(as.factor(as.character(Target_dat$Y))))<=length(color.panel[colors])){
       #If labels.rename was changed from NA, rename the grouping labels to rename.groups values
@@ -389,67 +342,37 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    title.legend = F, auto.title=T){
 
   #Turn the object into a "name" if a full object was given
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
-  }
+  object <- S4_2string(object)
 
-  #If cells.use = NA (was not provided), populate it to be all cells or all samples.
-  if (classof(object)=="seurat" & is.null(cells.use)) {cells.use <- eval(expr = parse(text = paste0(object,"@cell.names")))}
-  if (classof(object)=="RNAseq" & is.null(cells.use)) {cells.use <- eval(expr = parse(text = paste0(object,"@samples")))}
+  #Populate cells.use with a list of names if it was given anything else.
+  cells.use <- which_cells(cells.use, object)
+  #Establish the full list of cell/sample names
+  all.cells <- all_cells(object)
 
   ###Determine what the y-axis should be.
   #non-direct input options are: the name of a metadata or a gene (in "quotes").
   # Both these options also get a default axis title.
-  if (is.meta(var, object)){Y <- meta(var, object)}
-  if (is.gene(var, object)){Y <- gene(var, object, data.type)}
-  if (!(is.meta(var, object)|is.gene(var, object))){Y <- var}
+  Y <- var_OR_get_meta_or_gene(var, object, data.type)
+
   #Unless ylab has been changed from default "make", set default y-labels if var is "metadata" or "gene".
   # If set to "var" use the 'var'.  If set to 'NULL', ylab will be removed later.
   if (!(is.null(ylab))){
-    if (ylab=="make" & is.meta(var, object)) {ylab <- var}
-    if (ylab=="make" & is.gene(var,object)) {ylab <- paste0(var," expression")}
-    if (ylab=="var") {ylab <- var}
-    if (ylab=="make") {ylab <- NULL}
+    if (ylab=="make" & length(var)==1) {
+      if(is.meta(var, object)){ylab <- var}
+      if(is.gene(var,object)){ylab <- paste0(var," expression")}
+    }
+    if(ylab=="var") {ylab <- var}
+    if(ylab=="make") {ylab <- NULL} #If it has not been "made" set to NULL
   }
   #Update a holder 'Shape' variable if 'shape.by' is a meta
   if (is.meta(shape.by, object)){Shape <- meta(shape.by, object)} else {Shape = NA}
-
-  #Establish the full list of cell/sample names
-  all.cells <-
-    if (classof(object)=="RNAseq"){
-      eval(expr = parse(text = paste0(object,"@samples")))
-    } else {
-      if(classof(object)=="seurat") {
-        eval(expr = parse(text = paste0(object,"@cell.names")))
-      }}
 
   #Groundwork for plotly hover data:
   #Overall: if do.hover=T and data.hover has a list of genes / metas,
   # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
   hover.string <- NA
   if (do.hover) {
-    if (is.null(data.hover)) {
-      hover.string <- "Add gene or metadata \n names to hover.data"
-    } else {
-      features.info <- data.frame(row.names = all.cells)
-      fill <- logical()
-      for (i in 1:length(data.hover)){
-        fill[i] <- FALSE
-        if(is.meta(data.hover[i],object)){
-          features.info[,i] <- meta(data.hover[i],object)
-          fill[i] <- TRUE
-        }
-        if(is.gene(data.hover[i],object)){
-          features.info[,i] <- gene(data.hover[i], object, data.type)
-          fill[i] <- TRUE
-        }
-      }
-      names(features.info)<-data.hover[fill]
-      hover.string <- sapply(1:nrow(features.info), function(row){
-        paste(as.character(sapply(1:ncol(features.info), function(col){
-          paste0(names(features.info)[col],": ",features.info[row,col])})),collapse = "\n")
-      })
-    }
+    hover.string <- make_hover_strings(data.hover, object, data.type)
   }
 
   ###Make dataframe for storing the plotting data:
@@ -460,20 +383,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                          shape = Shape,
                          hover.string = hover.string)
   #Subset the data.frame to only the cells in cell.use.
-  if (classof(object)=="seurat"){
-    if (typeof(cells.use)=="logical"){
-      Target_dat <- full_dat[cells.use,]
-    } else {
-      Target_dat <- full_dat[all.cells %in% cells.use,]
-    }
-  }
-  if (classof(object)=="RNAseq"){
-    if (typeof(cells.use)=="logical"){
-      Target_dat <- full_dat[cells.use,]
-    } else {
-      Target_dat <- full_dat[all.cells %in% cells.use,]
-    }
-  }
+  Target_dat <- full_dat[all.cells %in% cells.use,]
 
   #Reorder x groupings (steps 1 and 2)
   #1-Rename the grouping (=Target_dat$sample) labels in order to set their order.
@@ -562,7 +472,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   if (!is.null(hline))  {p <- p + geom_hline(yintercept=hline, linetype= hline.linetype, color = hline.color)}
 
   #Set default title if no 'main' was given and if 'autotitle' is set to TRUE
-  if (is.null(main) & auto.title==T){
+  if (is.null(main) & auto.title==T & length(var)==1){
     if(is.meta(var, object)){main <- var}
     if(is.gene(var, object)){main <- var}
   }
@@ -633,21 +543,12 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
                       ){
 
   #Turn the object into a "name" if a full object was given
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
-  }
+  object <- S4_2string(object)
 
+  #Populate cells.use with a list of names if it was given anything else.
+  cells.use <- which_cells(cells.use, object)
   #Establish the full list of cell/sample names
-  all.cells <-
-    if (classof(object)=="RNAseq"){
-      eval(expr = parse(text = paste0(object,"@samples")))
-    } else {
-      if(classof(object)=="seurat") {
-        eval(expr = parse(text = paste0(object,"@cell.names")))
-      }}
-
-  #If cells.use = NA (was not provided), populate it to be all cells or all samples.
-  if (is.null(cells.use)) {cells.use <- all.cells}
+  all.cells <- all_cells(object)
 
   ####Retrieve metas: var, group.by
   #var to y.var
@@ -665,13 +566,8 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
     }
   }
   #Subset the x.var and y.var to only the cells in cell.use.
-    if (typeof(cells.use)=="logical"){
-      x.var <- as.factor(as.character(x.var[cells.use]))
-      y.var <- as.factor(as.character(y.var[cells.use]))
-    } else {
-      x.var <- x.var[all.cells %in% cells.use]
-      y.var <- y.var[all.cells %in% cells.use]
-    }
+  x.var <- x.var[all.cells %in% cells.use]
+  y.var <- y.var[all.cells %in% cells.use]
   #Reorder x groupings (steps 1 and 2)
   #1-Rename the x.var labels in order to set their order.
   #2-Store originals in orig.names.
@@ -789,6 +685,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
 #' @param genes c("gene1","gene2","gene3",...) = list of genes to put in the heatmap. REQUIRED.
 #' @param object the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param cells.use Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. *USE* in object@cell.names[*USE*])
+#' @param data.type For obtaining the expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
 #' @param cell.names.meta quoted "name" of a meta.data slot to use for naming the columns instead of the raw cell/sample names.  Default = just use the raw cell/sample names in the data slot.
 #' @param heatmap.colors the colors to use for the expression matrix. Default is a ramp from navy to white to red with 50 slices.
 #' @param cells.annotation FALSE/ the name of a metadata slot containing how the cells/samples should be annotated. Default = FALSE.
@@ -819,7 +716,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
 #'           cells.annotation = "ident")
 #'
 DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
-                      cell.names.meta = NULL,
+                      cell.names.meta = NULL, data.type = "normalized",
                       heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
                       cells.annotation = FALSE, cells.annotation.colors = rep(list(MYcolors),length(cells.annotation)),
                       data.out=FALSE, ...){
@@ -830,42 +727,15 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
   }
 
   #Turn the object into a "name" if a full object was given
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
-  }
+  object <- S4_2string(object)
 
-  ### Establish Defaults and gather some preliminary info ###
+  #Populate cells.use with a list of names if it was given anything else.
+  cells.use <- which_cells(cells.use, object)
   #Establish the full list of cell/sample names
-  all.cells <-
-    if (classof(object)=="RNAseq"){
-      eval(expr = parse(text = paste0(object,"@samples")))
-    } else {
-      if(classof(object)=="seurat") {
-        eval(expr = parse(text = paste0(object,"@cell.names")))
-      }}
-  #If cells.use = NA (was not provided), populate it to be all cells / samples.
-  if (is.null(cells.use)) {
-    cells.use <- all.cells
-  } else{
-    #If cells.use = a logical, obtain the cells/samples that given TRUE
-    if (is.logical(cells.use)) {
-      cells.use <- all.cells[cells.use]
-    }
-  }
-
+  all.cells <- all_cells(object)
 
   #Make the data matrix
-  data <- eval(expr = parse(text = paste0("as.matrix(",object,"@data[genes,cells.use])")))
-
-  #Change the names of the cells/samples if requested:
-  if(!(is.null(cell.names.meta))){
-    if(is.meta(cell.names.meta,object)){
-      new.names <- meta(cell.names.meta, object)[all.cells %in% cells.use]
-    } else {
-      return("cell.names.meta must be the name of a metadata slot")
-    }
-    colnames(data) <- new.names
-  }
+  data <- as.matrix(which_data(data.type,object)[genes,cells.use])
 
   #Make the cells.annotations data for color annotation bar
   Col_annot <- NA
@@ -890,9 +760,18 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
     rownames(Col_annot) <- colnames(data)
   }
 
+  #Establish cell/sample names
+  Col_names <- NULL
+  if(!(is.null(cell.names.meta))){
+    Col_names <- meta(cell.names.meta, object)[all.cells %in% cells.use]
+  }
+
   if(data.out){
-    OUT <- list(data,heatmap.colors,Col_annot,Col_annot_colors, paste0('pheatmap(mat = data, color = heatmap.colors, annotation_col = Col_annot, annotation_colors = Col_annot_colors, scale = "row",',...,")"))
-    names(OUT)<- c("data","heatmap.colors","Col_annot","Col_annot_colors","pheatmap.script")
+    OUT <- list(data,heatmap.colors,Col_annot,Col_annot_colors, Col_names,
+                paste0("pheatmap(mat = data, color = heatmap.colors, annotation_col = Col_annot, ",
+                       "annotation_colors = Col_annot_colors, scale = 'row', ",
+                       "labels_col = Col_names,",...,")Ignore , / row#### at end"))
+    names(OUT)<- c("data","heatmap.colors","Col_annot","Col_annot_colors","labels_col","pheatmap.script")
     return(OUT)
   }
 
@@ -902,6 +781,7 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
                            annotation_col = Col_annot,
                            annotation_colors = Col_annot_colors,
                            scale = "row",
+                           labels_col = Col_names,
                            ...)
 
   #DONE: Return the heatmap
@@ -1049,35 +929,25 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
 
   #Determine if var is continuous vs discrete
   continuous <- FALSE
-  if ((is.gene(var, object)) | (is.numeric(var))){
+  if ((is.gene(var[1], object)) | (is.numeric(var))){
     continuous <- TRUE
   }
-  if (is.meta(var, object)){
+  if (is.meta(var[1], object)){
     if (is.numeric(meta(var,object))){
       continuous <- TRUE
     }
   }
 
   #Set a range if the var represents continuous data, (is.gene() or typeof(meta)!=integer OR character).
-  if (is.gene(var,object)){
-    the.range <- range(gene(var,object, data.type))
-    min <- ifelse(is.null(min), the.range[1], min)
-    max <- ifelse(is.null(max), the.range[2], max)
-  }
-  if (is.meta(var,object) & continuous){
-    the.range <- range(meta(var,object))
-    min <- ifelse(is.null(min), the.range[1], min)
-    max <- ifelse(is.null(max), the.range[2], max)
-  }
-  if (is.numeric(var)){
-    the.range <- range(var)
+  if(continuous){
+    the.range <- range(var_OR_get_meta_or_gene(var,object, data.type))
     min <- ifelse(is.null(min), the.range[1], min)
     max <- ifelse(is.null(max), the.range[2], max)
   }
 
   #Case 1: If var and cells.use.meta are NOT equal:
   #Need to ensure that colors are consistent.
-  if(var != cells.use.meta){
+  if(var[1] != cells.use.meta){
     #If data is continuous, then setting the range above has done the job of ensuring color consistency.
     if (continuous){
       plots <- lapply(cells.use.levels, function(X) {
@@ -1113,7 +983,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
   }
   #Case 2: If var and cells.use.meta are equal
   #Need to vary the color with each new plot.
-  if(var == cells.use.meta){
+  if(var[1] == cells.use.meta){
     levels <- meta.levels(cells.use.meta, object)
     plots <- lapply((1:length(levels))[levels %in% cells.use.levels], function(X) {
       DBDimPlot(var, object,
@@ -1341,6 +1211,136 @@ meta.levels <- function(meta, object = DEFAULT, table.out = F){
   } else {
     levels(as.factor(meta(meta, object)))
   }
+}
+
+#' Retrieves the proper slot of data
+#'
+#' @param data.type          "raw", "normalized", or "scaled". REQUIRED. which type of data is requested
+#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @return Given "raw", "normalized", or "scaled", this function will output the proper slot of a seurat or RNAseq object.
+#' @examples
+#' pbmc <- Seurat::pbmc_small
+#' which_data("normalized", "pbmc")
+
+which_data <- function(data.type, object=DEFAULT){
+  #Set up data frame for establishing how to deal with different input object types
+  target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects"),
+                       seurat = c("@data","@raw.data","@scale.data"),
+                       row.names = c("normalized","raw","scaled"))
+  eval(expr = parse(text = paste0(object,
+                                  target[data.type,classof(object)]
+                                  )))
+}
+
+#' Retrieves all the cells/samples
+#'
+#' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @return Given a seurat or RNAseq object, will return the cell.names or samples slot.
+#' @examples
+#' pbmc <- Seurat::pbmc_small
+#' all_cells("pbmc")
+
+all_cells <- function(object = DEFAULT){
+  object <- S4_2string(object)
+  target <- data.frame(use = c("@samples", "@cell.names"),
+                       row.names = c("RNAseq", "seurat"))
+  eval(expr = parse(text = paste0(object, target[classof(object),])))
+}
+
+#' Retrieves the list of cells.names to use
+#'
+#' @param cells.use either a logical or a list of names.
+#' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @return Given a logical or a list of names (or NULL) will output the list of cells names.  For retrieval / standardization.
+#' @examples
+#' pbmc <- Seurat::pbmc_small
+#' which_cells(meta("ident")=="0", "pbmc")
+
+which_cells <- function(cells.use, object = DEFAULT){
+  all.cells <- all_cells(object)
+  if (is.null(cells.use)){
+    return(all.cells)
+  }
+  if (typeof(cells.use)=="logical"){
+    OUT <- all.cells[cells.use]
+  }
+  OUT
+}
+
+
+#' Outputs a string of gene expression / meta.data information for ploty hover display
+#'
+#' @param data.hover The data needed in the text output. = A list of metadata names, genes, or "ident", in quotes.
+#' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param data.type "normalized" or "raw" or "scaled".  For when genes are in data.hover, what type of their expression is wanted?
+#' @return Given a list of data to grab in data.hover, outputs the 'data name': data, 'data name': data, ... for every cell of the object
+#' @examples
+#' pbmc <- Seurat::pbmc_small
+#' make_hover_strings(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
+
+make_hover_strings <- function(data.hover, object, data.type = "normalized"){
+  #Overall: if do.hover=T and data.hover has a list of genes / metas,
+  # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
+  if (is.null(data.hover)) {
+    hover.string <- "Add gene or metadata \n names to hover.data"
+  } else {
+    features.info <- data.frame(row.names = all_cells(object))
+    fill <- sapply(seq_len(length(data.hover)), function(i)
+      (is.meta(data.hover[i],object) | is.gene(data.hover[i],object) | (data.hover[i]=="ident")))
+    features.info <- sapply(seq_len(length(data.hover))[fill], function(i)
+      features.info[,dim(features.info)[2]+1] <-
+        var_OR_get_meta_or_gene(data.hover[i],object, data.type))
+    names(features.info) <- data.hover[fill]
+    hover.string <- sapply(seq_len(nrow(features.info)), function(row){
+      paste(as.character(sapply(seq_len(ncol(features.info)), function(col){
+        paste0(names(features.info)[col],": ",features.info[row,col])})),collapse = "\n")
+    })
+  }
+  hover.string
+}
+
+#' Turns an S4 object into it's name in string form
+#'
+#' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @return mainly for standardization within DittoSeq functions, outputs the string name and ensures objects can be handled in that form.
+#' @examples
+#' pbmc <- Seurat::pbmc_small
+#' S4_2string(pbmc)
+#' S4_2string("pbmc")
+
+S4_2string <- function(object = DEFAULT){
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4"){
+    object <- deparse(substitute(object))
+  }
+  object
+}
+
+#' Outputs gene expression data, metadata data, or clustering data
+#'
+#' @param var name of a metadata, gene, or "ident". = the data that should be grabbed
+#' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param data.type "normalized" or "raw" or "scaled".  For when var is a gene, what type of its expression is wanted?
+#' @return determines what type of var is given, and outputs the gene expression data, metadata data, or clustering data.
+#' @examples
+#' pbmc <- Seurat::pbmc_small
+#' var_OR_get_meta_or_gene("CD34", "pbmc", "normalized")
+#' var_OR_get_meta_or_gene("ident", "pbmc")
+#' var_OR_get_meta_or_gene("nUMI", "pbmc")
+
+var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type){
+  OUT <- var
+  if(length(var)==1 & typeof(var)=="character"){
+    #If "ident" pull the @ident object from the seurat object
+    if(var == "ident"){OUT <- meta(var, object)}
+    #If "is.meta" pull the @meta.data$"var" from the RNAseq or seurat object
+    if(is.meta(var, object)){OUT <- meta(var, object)}
+    #If "is.gene" pull the gene expression data from the RNAseq or seurat object
+    if(is.gene(var, object)){OUT <- gene(var, object, data.type)}
+    #Otherwise, var is likely a full set of data already, so just make Y = var
+  }
+  names(OUT) <- all_cells(object)
+  OUT
 }
 
 #### extDim: for extracting the PC/tsne/IC/dim.reduction loadings of all cells/samples ####

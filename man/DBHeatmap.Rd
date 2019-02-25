@@ -5,8 +5,9 @@
 \title{Outputs a heatmap of the object}
 \usage{
 DBHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
-  cell.names.meta = NULL, heatmap.colors = colorRampPalette(c("blue",
-  "white", "red"))(50), cells.annotation = FALSE,
+  cell.names.meta = NULL, data.type = "normalized",
+  heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
+  cells.annotation = FALSE,
   cells.annotation.colors = rep(list(MYcolors),
   length(cells.annotation)), data.out = FALSE, ...)
 }
@@ -18,6 +19,8 @@ DBHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
 \item{cells.use}{Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. *USE* in object@cell.names[*USE*])}
 
 \item{cell.names.meta}{quoted "name" of a meta.data slot to use for naming the columns instead of the raw cell/sample names.  Default = just use the raw cell/sample names in the data slot.}
+
+\item{data.type}{For obtaining the expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"}
 
 \item{heatmap.colors}{the colors to use for the expression matrix. Default is a ramp from navy to white to red with 50 slices.}
 
