@@ -1263,8 +1263,6 @@ which_cells <- function(cells.use, object = DEFAULT){
   }
   if (typeof(cells.use)=="logical"){
     OUT <- all.cells[cells.use]
-  } else {
-    OUT <- cells.use
   }
   OUT
 }
