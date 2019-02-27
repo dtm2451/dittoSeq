@@ -277,29 +277,69 @@ DBBarPlot("Celltype", group.by = "Sample",
 library(pheatmap)
 DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
             "FCGR3A","LYZ","PPBP","CD8A"))
-# Cell names are impossible to read, but the pheatmap code is kinda buggy, so I haven't been able to figure out how to remove them =/.
-# If you would like to try (and also this is just a useful feature), you can turn on data.out=T to just output the objects and script.
-LIST <- DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-                  "FCGR3A","LYZ","PPBP","CD8A"),
-                  data.out = TRUE)
-# Instead of names, the most useful thing can by annotations:
-# The cells.annotation input is how you do that.  Give this input any metadata or ident
-DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-            "FCGR3A","LYZ","PPBP","CD8A"),
-          cells.annotation = "ident")
-DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-            "FCGR3A","LYZ","PPBP","CD8A"),
-          cells.annotation = "BroadCelltype")
-DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-            "FCGR3A","LYZ","PPBP","CD8A"),
-          cells.annotation = "Sample")
+
 #For real data, you will have more cells than this truncated dataset, so I recommend turning off
-# cell clustering when you are trying out tweaks to the look. DO this by adding cluster_cols=FALSE
+# cell clustering when you are trying out tweaks to the look. Do this by adding cluster_cols=FALSE
 DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
             "FCGR3A","LYZ","PPBP","CD8A"),
           cells.annotation = "ident",
           cluster_cols=FALSE)
-#If you would like to change the colors, you can use
+
+# Cell names are impossible to read, so I recommend creating a blank meta.data slot, and then setting this to be the cell.names.meta:
+pbmc@meta.data$blank <- ""
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cell.names.meta = "blank")
+#For bulk RNAseq data, or if you have only a few cells, but would like to replace the given names with your samples or a certain metadata slot:
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cells.use = pbmc@cell.names[1:20], #This code directs it to only use the first 20 cells in this dataset
+          cell.names.meta = "Sample")
+
+# To zoom in on only a certain set of cells/samples, you can use the cells.use option.  This works the same as for my other functions.
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cell.names.meta = "blank",
+          cells.annotation = "Celltype",
+          cells.use = meta("BroadCelltype")=="Lymphoid")
+
+# Instead of using cell names, `cells.annotation` will annotate cells by cluster or any metadata.  Give this input any "metadata" or "ident"
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cell.names.meta = "blank",
+          cells.annotation = "ident")
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cell.names.meta = "blank",
+          cells.annotation = "BroadCelltype")
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cell.names.meta = "blank",
+          cells.annotation = "Sample")
+
+#To change the colors of the cell annotations, use the input cell.annotation.colors.
+#This input requires colors be given in list form, so use list(c("color1","color2","color3"))
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cell.names.meta = "blank",
+          cells.annotation = "Sample",
+          cells.annotation.colors = list(c("orange", "yellow", "purple")))
+
+#To change the colors in the heatmap, you can modify the heatmap.colors input
+#Default: heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50)
+#This builds a ramp from blue to white to red with 50 steps
+#Changing this to heatmap.colors = colorRampPalette(c("black","green"))(30)
+#would make the colors go from green to white to darkblue with only 75 steps:
+DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+            "FCGR3A","LYZ","PPBP","CD8A"),
+          cell.names.meta = "blank",
+          heatmap.colors = colorRampPalette(c("green","white","darkblue"))(75))
+
+# If you would like to make any additional tweaks, you can turn on data.out=T and output to a variale in order to output the objects and script.
+LIST <- DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+                    "FCGR3A","LYZ","PPBP","CD8A"),
+                  data.out = TRUE)
+LIST$pheatmap.script #This is where to find the script
 
 
-## Other customizations do exist.  Check the documentation for other arguments that are not in here!
+## Other customizations do exist.  Check the documentation for other arguments that are not in here! ##

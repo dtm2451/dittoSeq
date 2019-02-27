@@ -26,7 +26,9 @@ devtools::install_github("dtm2451/DittoSeq")
 
 **DBBarPlot** = No analogous function currently in Seurat.  Handles plotting of discrete data on a per-sample or per-condition grouping. Essentially, it is similar to DBPlot, but for discrete variables. Example: cluster makeup of a sample.
 
-**multiDBPlot**, **multiDBDimPLot**, and **multiDBDimPLot_vary_cells**   = Plots multiple DBDimPlots or DBPlots in an array.  Can handle most inputs that would be given to the individual functions.
+**`DBHeatmap()`** = Given a set of genes to focus on, outputs a heatmap.  Colors, cell annotations, names, are all tunable with discrete inputs.  Many others are possible as well; this function is a wrapper for pheatmap.
+
+**multiDBPlot**, **multiDBDimPLot**, and **multiDBDimPLot_vary_cells** = Plots multiple DBDimPlots or DBPlots in an array.  Can handle most inputs that would be given to the individual functions.
 
 ### Basic use
 
@@ -44,7 +46,9 @@ The basic use of most functions, including all of the plotting functions is `fun
 
 Other Required Inputs, **`group.by` and `color.by`** - DBBarPlot(var, object, group.by) and DBPlot(var, object, group.by, color.by) have 1 and 2 other required inputs.  For both, group.by is required in order to set the x axis groupings.  For DBPlot, color.by is required as well for setting the fill color of the violin-plotting or box-plotting.  The inputs for each of these variables are the "quoted" name of a meta.data of the object.  These should be whatever metadata you wish to have the data grouped by / colored by.
 
-`multiDBDimPlot` and `multiDBPlot` require the same inputs as their individual plot counterparts, and can handle all the same additional manipulations.  Extra inputs `ncol` and `nrow` allow you to set the spacing of your plots.  
+`multiDBDimPlot()` and `multiDBPlot()` require the same inputs as their individual plot counterparts, and can handle all the same additional manipulations.  Extra inputs `ncol` and `nrow` allow you to set the spacing of your plots.
+
+`multiDBDimPlot_vary_cells()` requires additional input `cells.use.meta` for determining how to vary cells. Additional input `cells.use.levels` is used, instead of the `cells.use` input of all other functions, for determining which cell groupings to cycle through.
 
 #### Basic use examples
 
@@ -72,7 +76,7 @@ DBBarPlot("ident", group.by = "Sample")
 ![DBPlot1](DBPlot1.png)
 ![DBBarPlot1](DBBarPlot1.png)
 ![DBBarPlot1](multiDBDimPlot1.png)
-
+![DBHeatmap](DBHeatmap.png)
 
 ### Intuitive inputs
 
@@ -324,6 +328,8 @@ DBPlot("Score", group.by = "Sample", color.by = "age",
 - `show.legend`: TRUE/FALSE, default = F. WHether as legend should be added (to every plot!)
 - `add.title`: TRUE/FALSE, default = T. Whether the titles should be shown.
 - `ylab` / `axes.labels`: TRUE/FALSE/"var", default = F. Whether the axes labels should be shown.  If ylab is set to "var", for multiDBPlot only, the axis title will be set to just the var names: just "GENE" instead of "GENE expression".
+- `cells.use.meta`: The name of a meta.data slot = in multiDBDimPlot_vary_cells only = how the cells shown should be grouped/varied accross the plots.
+- `cells.use.levels`: The values of the cells.use.meta that should be shown = in multiDBDimPlot_vary_cells only. To determine the options you can use the meta.levels() function.
 
 ## Helper functions
 
@@ -333,10 +339,10 @@ These make manipulating Seurat data, and using my plotting functons, easier.
 
 **`is.meta()` and `is.gene()`**: Returns TRUE or FALSE for whether a "meta-name" or "gene" input is part of the dataset. Usage = `is.meta("meta-name", object)`, `is.meta("meta-name", "object")`, or `is.meta("meta-name")` with `DEFAULT` set.
 
-**`meta()` and `gene()`**: Returns the values a metadata for every cell or the normalized expression data (`@data` slot) for all cells. Usage = `meta("meta-name", object)`, `meta("meta-name", "object")`, or `meta("meta-name")` with `DEFAULT` set.
+**`meta()`, `gene()`, and `var_OR_get_meta_or_gene()`**: Returns the values of a meta.data for every cell or the expression data for all cells.  meta() and gene() are specific to one type. var_OR_get_meta_or_gene can be used to retrieve either type. gene(), and var_OR_get_meta_or_gene() when given a gene, requires being told what type of expression data is wanted as well.  data.type="raw" will grab from the raw.data or counts slot. data.type="normalized" will grab from the data slot.  data.type="scaled" will return from the scale.data slot of seurat objects.  data.type="relative" will obtain the "normalized" data slot and then scale the output so that the mean is zero and standard deviation is 1 (the same transformation of expression data that normally goes into a heatmap.) And data.type="relative.to.max" will retrieve the normalized data, then divide all numbers by the maximum value so that range goes from 0-to-1 (= useful for multiDBPlot). Usage = `meta("meta-name", object)`.  `gene("gene-name", object, data.type)`.
 
-**`meta.levels()`**: Returns the range of values of metadata. Like running `levels(as.factor(object@meta.data$meta))`. Usage = `meta.levels("meta-name", object)`, `meta.levels("meta-name", "object")`, or `meta.levels("meta-name")` with `DEFAULT` set.  Alternatively, can reurn the counts of each value of the meta if the optional input `table.out` is set to `TRUE`.
+**`meta.levels()`**: Returns the range of values of metadata. Like running `levels(as.factor(object@meta.data$meta))`. Usage = `meta.levels("meta-name", object)`.  Alternatively, can reurn the counts of each value of the meta if the optional input `table.out` is set to `TRUE`.
 
 ### Other included helper functions
 
-**`extDim()`**: extracts the loadings of each cell for a given dimensional reduction space. Usage = extDim(reduction.use, dim, object) where: reduction.use is the all lowercase, quoted, key for the target dr space, "tsne", "pca", "ica", "cca", "cca.aligned"; where dim is the component #, like 1 vs 2 for PC1 vs PC2; where object is the "quoted" name of the seurat object of interest.
+**`extDim()`**: extracts the loadings of each cell for a given dimensional reduction space. The output has 2 slots: $embeddings = the loadings of each cell, $name = the suggested way of naming this reduction in text or as an axis of a plot. Usage = extDim(reduction.use, dim, object) where: reduction.use is the all lowercase, quoted, key for the target dr space, "tsne", "pca", "ica", "cca", "cca.aligned"; where dim is the component #, like 1 vs 2 for PC1 vs PC2; where object is the "quoted" name of the seurat object of interest.
