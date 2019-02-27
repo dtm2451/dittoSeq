@@ -26,7 +26,8 @@ The default colors of this package are meant to be color blind friendly.  To mak
 Simply run this code.  It may take a while due to installation of Seurat and DESeq.  I may remove the need for Seurat in a future version:
 
 ```
-devtools::install_github("dtm2451/DittoSeq")
+install.packages("devtools")
+devtools::install_github("dtm2451/DittoSeq@*release")
 ```
 
 For an explanation on how to use these functions, see [my Vignette](Vignette)
@@ -39,7 +40,17 @@ For an explanation on how to use these functions, see [my Vignette](Vignette)
 
 **`DBBarPlot()`** = No analogous function currently in Seurat, which is a bit crazy imho. Most common use: Plotting the cluster breakdown of all cells of each sample. Essentially, it is similar to DBPlot, but for discrete variables. Handles plotting of discrete data on a per-sample or per-condition grouping.
 
+**`DBHeatmap()`** = Given a set of genes to focus on, outputs a heatmap.  Colors, cell annotations, names, are all tunable with discrete inputs.  Many others are possible as well; this function is a wrapper for pheatmap.
+
 **multi-plotters** = Plot multiple DBDimPlots or DBPlots in an array.  Can handle most inputs that would be given to the individual functions.  Names are **`multiDBDimPlot()`**, **`multiDBPlot()`**, and **`multiDBDimPlot_vary_cells()`**.
+
+## Color adjustment functions
+
+**`Darken()`**: Darkens a color or color.panel by a given amount. (note: use these on a color.panel, not on a generated plot)
+
+**`Lighten()`**: Lightens a color or color.panel by a given amount. (note: use these on a color.panel, not on a generated plot)
+
+**`Simulate()`**: Generates any of the plot-types included in this package with colors adjusted to simulate any of the major forms of colorblindness.
 
 ## Helper functions
 
@@ -49,16 +60,8 @@ These make manipulating Seurat data, and using my plotting functons, easier.
 
 **`is.meta()`** and **`is.gene()`**: Returns TRUE or FALSE for whether a "meta.data" or "gene" input is part of the dataset.
 
-**`meta()`** and **`gene()`**: Returns the values of a meta.data for every cell or the normalized expression data (`@data` slot) for all cells.
+**`meta()`**, **`gene()`**, and **`var_OR_get_meta_or_gene()`**: Returns the values of a meta.data for every cell or the expression data for all cells.  meta() and gene() are specific to one type. var_OR_get_meta_or_gene can be used to retrieve either type.
 
 **`meta.levels()`**: Returns the range of values of metadata. Like running `levels(as.factor(object@meta.data$meta))`. Alternatively, can reurn the counts of each value of the meta.data if the optional input `table.out` is set to `TRUE`.
 
-**`extDim()`**: extracts the loadings of each cell for a given dimensional reduction space.
-
-## Color adjustment functions
-
-**`Darken()`**: Darkens a color or color.panel by a given amount. (note: use these on a color.panel, not on a generated plot)
-
-**`Lighten()`**: Lightens a color or color.panel by a given amount. (note: use these on a color.panel, not on a generated plot)
-
-**`Simulate()`**: Generates any of the plot-types included in this package with colors adjusted to simulate any of the major forms of colorblindness.
+**`extDim()`**: extracts the loadings of each cell for a given dimensional reduction space.  The output has 2 slots: $embeddings = the loadings of each cell, $name = the suggested way of naming this reduction in text or as an axis of a plot.
