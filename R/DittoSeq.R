@@ -566,7 +566,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
     }
   }
   #Subset the x.var and y.var to only the cells in cell.use.
-  x.var <- x.var[all.cells %in% cells.use]
+  x.var <- as.factor(as.character(x.var[all.cells %in% cells.use]))
   y.var <- y.var[all.cells %in% cells.use]
   #Reorder x groupings (steps 1 and 2)
   #1-Rename the x.var labels in order to set their order.
@@ -1261,7 +1261,7 @@ which_cells <- function(cells.use, object = DEFAULT){
   if (is.null(cells.use)){
     return(all.cells)
   }
-  if (typeof(cells.use)=="logical"){
+  if (is.logical(cells.use)){
     OUT <- all.cells[cells.use]
   } else {
     OUT <- cells.use
