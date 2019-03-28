@@ -13,7 +13,8 @@ Depends: ggplot2,
 Imports: methods,
     colorspace (>= 1.4),
     gridExtra,
-    cowplot
+    cowplot,
+    reshape2
 Suggests: plotly,
     Seurat (>= 2.2),
     DESeq2,

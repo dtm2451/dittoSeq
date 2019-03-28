@@ -2,7 +2,7 @@
 #'
 #' @param CellRangerLocations list of locations where barcodes.tsv, genes.tsv, and matrix.mtx are located.
 #' @param Lane.names how the lanes should be named (if you want to give them something different from the default = Lane1, Lane2, Lane3...)
-#' @param Demux.best the location of the .best output file from running of demuxlet
+#' @param Demuxlet.best the location of the .best output file from running of demuxlet
 #' @param verbose whether to print messages about the stage of this process that is currently being run.
 #' @return Imports CellRanger 10X data from multiple lanes, merges those into a single Seurat object, then extracts the linked sample calls and demuxlet statistics from the demuxlet .best output file.  All relevant demuxlet information is stored as meta.data slots.
 #' @examples
@@ -14,33 +14,38 @@ Import10XDemux <- function(CellRangerLocations, Lane.names=NULL, Demuxlet.best, 
   #Demux.best = the .best output file from running of demuxlet
 
   #If CellRangerLocations has length greater than one, create individual Seurat's for each and iteratively bring in each set.
-  if(verbose){print("Building Seurat Object...")}
+  if(verbose){print("Building Seurat Object...",quote=F)}
   if(length(CellRangerLocations)==1){
     OUT <- Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[1]))
   } else {
     #Create Lane.names if not given
     if(is.null(Lane.names)){Lane.names <- paste0("Lane",seq_len(length(CellRangerLocations)))}
     #Make Seurat Object
-    if(verbose){print(paste0("  Making and merging ",Lane.names[1], " and ", Lane.names[2]))}
-    OUT <- MergeSeurat(object1 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[1])),
+    if(verbose){print(paste0("  Making and merging ",Lane.names[1], " and ", Lane.names[2]),quote=F)}
+    OUT <- Seurat::MergeSeurat(object1 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[1])),
                        add.cell.id1 = Lane.names[1],
                        object2 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[2])),
                        add.cell.id2 = Lane.names[2],
                        do.normalize = F)
     if(length(CellRangerLocations)>=3){
       for (X in 3:length(CellRangerLocations)){
-        if(verbose){print(paste0("  Adding ", Lane.names[X]))}
-        OUT <- MergeSeurat(object1 = OUT,
+        if(verbose){print(paste0("  Adding ", Lane.names[X]),quote=F)}
+        OUT <- Seurat::MergeSeurat(object1 = OUT,
                            object2 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[X])),
                            add.cell.id2 = Lane.names[X],
                            do.normalize = F)
       }
     }
-    if(verbose){print("  Adding 'Lane' information as meta.data")}
-    OUT@meta.data$Lane <- sapply(OUT@cell.names, function(X) strsplit(X, "_")[[1]][[1]])
+    if(verbose){print("  Adding 'Lane' information as meta.data",quote=F)}
+    OUT@meta.data$Lane <-
+      if(length(CellRangerLocations)>1){
+        sapply(OUT@cell.names, function(X) strsplit(X, "_")[[1]][[1]])
+      } else {
+        Lane.names[1]
+      }
   }
 
-  if(verbose){print("Extracting the Demuxlet information")}
+  if(verbose){print("Extracting the Demuxlet information",quote=F)}
     DEMUX.raw <- read.csv(Demuxlet.best, header=TRUE, sep="\t")
     DEMUX.call <- data.frame(doublet=sapply(as.character(DEMUX.raw$BEST),
                                             function(X) strsplit(X,'-')[[1]][[1]]),
@@ -48,14 +53,14 @@ Import10XDemux <- function(CellRangerLocations, Lane.names=NULL, Demuxlet.best, 
                                            function(x){strsplit(x,"-")[[1]][[2]]}),
                              barcode=sapply(as.character(DEMUX.raw$BARCODE),
                                             function(x){strsplit(x,"-")[[1]][[1]]}))
-  if(verbose){print("  Matching barcodes")}
+  if(verbose){print("  Matching barcodes",quote=F)}
     # Strip barcodes from the cell names of the Seurat object
     cells <- sapply(OUT@cell.names, function(X) strsplit(X, "_")[[1]][[length(strsplit(X, "_")[[1]])]])
     # Remove any uneccesary cells from the Demux output (= cells not in this Seurat object)
     trim <- DEMUX.call[DEMUX.call$barcode %in% cells,]
     # Determine the indices to match Seurat cells to Demux matrix.
     inds <- sapply(cells,function(X) match(X,trim$barcode))
-  if(verbose){print("  Adding Demuxlet as meta.data")}
+  if(verbose){print("  Adding Demuxlet as meta.data",quote=F)}
     OUT@meta.data$Sample <- as.character(trim$sample[inds])
     OUT@meta.data$demux.doublet.call <- trim$doublet[inds]
     trim.out <- DEMUX.raw[DEMUX.call$barcode %in% cells,]
@@ -64,28 +69,94 @@ Import10XDemux <- function(CellRangerLocations, Lane.names=NULL, Demuxlet.best, 
     OUT@meta.data$demux.RD.UNIQ <- trim.out$RD.UNIQ[inds]
     OUT@meta.data$demux.N.SNP <- trim.out$N.SNP[inds]
     OUT@meta.data$demux.PRB.DBL <- trim.out$PRB.DBL[inds]
-  if(verbose){print("  Checking for barcode duplicates")}
-    # Check if there are barcode duplicates accross 10X lanes.
-    demux.barcode.dup <- array(F, dim = length(OUT@cell.names))
-    demux.barcode.dup[duplicated(inds, fromLast=F)|duplicated(inds, fromLast=T)] <- T
-    if (sum(demux.barcode.dup)>0){
-      print("Warning: Cell barcodes were duplicated accross lanes of this dataset and may have been therefore artificially called as doublets by demuxlet. Recommended: Modify how your demuxlet was run to account for this.")
-      OUT@meta.data$demux.barcode.dup <- demux.barcode.dup
-    }
+  if(verbose){
+    print("  Checking for barcode duplicates",quote=F)
+    print("",quote=F)
+    print("",quote=F)}
+  # Check if there are barcode duplicates accross 10X lanes.
+  demux.barcode.dup <- array(F, dim = length(OUT@cell.names))
+  demux.barcode.dup[duplicated(inds, fromLast=F)|duplicated(inds, fromLast=T)] <- T
+  if (sum(demux.barcode.dup)>0){
+    print("Warning: Cell barcodes were duplicated accross lanes of this dataset and may have been therefore artificially called as doublets by demuxlet. Recommended: Modify how your demuxlet was run to account for this.",quote=F)
+    OUT@meta.data$demux.barcode.dup <- demux.barcode.dup
+    print("",quote=F)
+    print("",quote=F)
+  }
+  print("SUMMARY:",quote=F)
+  print(paste0(length(CellRangerLocations),
+               " CellRanger outputs were combined into a Seurat object with demuxlet data extracted into metadata."),quote=F)
+  print(paste0("The average number of SNPs per cell was: ",round(mean(OUT@meta.data$demux.N.SNP),1)),quote=F)
+  print(paste0("Out of ",length(OUT@cell.names)," cells total, Demuxlet assigned:"),quote=F)
+  print(paste0("     ",sum(OUT@meta.data$demux.doublet.call=="SNG", na.rm = TRUE), " cells or ", round(100*sum(OUT@meta.data$demux.doublet.call=="SNG")/length(OUT@cell.names),1), "% as singlets"),quote=F)
+  print(paste0("     ",sum(OUT@meta.data$demux.doublet.call=="DBL", na.rm = TRUE), " cells or ", round(100*sum(OUT@meta.data$demux.doublet.call=="DBL")/length(OUT@cell.names),1), "% as doublets"),quote=F)
+  print(paste0("     ",sum(OUT@meta.data$demux.doublet.call=="AMB", na.rm = TRUE), " cells as too ambiguous to call."),quote=F)
   OUT
 }
 
-# Test <- ImportMulti10XDemux(CellRangerLocations = c("/Users/danielbunis/Box Sync/Layering Analysis/10X/Raw-cellranger/CD4_matrix/",
-#                                             "/Users/danielbunis/Box Sync/Layering Analysis/10X/Raw-cellranger/CD4-8_matrix/",
-#                                             "/Users/danielbunis/Box Sync/Layering Analysis/10X/Raw-cellranger/CD8_matrix/",
-#                                             "/Users/danielbunis/Box Sync/Layering Analysis/10X/Raw-cellranger/HSPC2_matrix/"),
-#                     Lane.names = c("CD4","CD4.8","CD8","HSPC2"),
-#                     Demuxlet.best = "../../pre-R/Demux/demux11.best")
-# DEFAULT <- "Test"
-# get.metas()
-# meta.levels("Sample")
-# meta.levels("Sample", table.out = T)
-# meta.levels("Lane", table.out = T)
-# table(meta("Lane"),meta("Sample"))
+#' Plots the number of SNPs sequenced per droplet
+#'
+#' @param object                 the Seurat Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param group.by               "metadata" to use for separating values. Default is "Lane".
+#' @param color.by               "metadata" to use for coloring. Default is "Lane".
+#' @param plots                  Default = c("jitter","boxplot"). = the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.
+#' @param ...                    extra arguments passed to DBPlot
+#' @return For a given Seurat object, plots a summary of how many SNPs were available to Demuxlet for making sample annotation calls.  Assumes that the number of SNPs are stored in a 'demux.N.SNPs' metadata slot, as would be the case if the Seurat object was created with the Import10XDemux function.
+#' @examples
+#' #Data required for an example would be rather large.  For an example, see the online vignette.
+demux.SNP.summary <- function(object = DEFAULT, group.by = "Lane", color.by = "Lane", plots = c("jitter","boxplot"), ...){
+  DBPlot("demux.N.SNP", object, group.by = group.by, color.by = color.by, plots = plots, ...)
+}
 
+#' Plots the number of annotations per sample, per lane
+#'
+#' @param object the Seurat Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param singlets.only Whether to only show data for cells called as singlets by demuxlet. Default is TRUE. Note: if doublets are included, only one of their sample calls will be used.
+#' @param main plot title. Default = "Sample Annotations by Lane"
+#' @param sub plot subtitle
+#' @param ylab y axis label, default is "Annotations"
+#' @param xlab x axis label, default is "Sample"
+#' @param color bars color. Default is blue.
+#' @param theme A complete ggplot theme. Default is a modified theme_bw().
+#' @param rotate.labels whether sample names / x-axis labels should be rotated or not. Default is TRUE.
+#' @return For a given Seurat object, summarizes how many cells in each lane were anotated to each sample.  Assumes that the Sample calls of each cells, and which lane each cell belonged to, are stored in 'Sample' and 'Lane' metadata slots, respectively, as would be the case if the Seurat object was created with the Import10XDemux function.
+#' @examples
+#' #Data required for an example would be rather large.  For an example, see the online vignette.
+demux.calls.summary <- function(object = DEFAULT, singlets.only = TRUE,
+                                main = "Sample Annotations by Lane", sub = NULL,
+                                ylab = "Annotations", xlab = "Sample",
+                                color = MYcolors[2], theme = NULL, rotate.labels = TRUE
+){
+  #Change object to character if not already
+  object <- S4_2string(object)
+  #Populate cells.use with a list of names, based on the singlets.only variable.
+  cells.use <- if(singlets.only){
+    which_cells(meta("demux.doublet.call",object)=="SNG", object)
+  } else {
+    all_cells(object)
+  }
+  #Establish the full list of cell/sample names
+  all.cells <- all_cells(object)
+  #Set theme
+  if(is.null(theme)){
+    theme <- theme_bw()+theme(panel.grid.major = element_blank(),
+                              panel.grid.minor = element_blank(),
+                              axis.line = element_blank(),
+                              panel.border = element_blank())
+  }
 
+  dat <- as.data.frame.matrix(table(meta("Sample")[cells.use %in% all.cells],
+                                    meta("Lane")[cells.use %in% all.cells]))
+  dat$Sample <- row.names(dat)
+  dat.m <- reshape2::melt(dat, "Sample")
+  p <- ggplot(data = dat.m) +
+    geom_col(aes(x = Sample, y = value), fill = color) +
+    geom_hline(yintercept=0) +
+    facet_wrap(~ variable, ncol = 1, scales = "fixed", strip.position = "left") +
+    ggtitle(main, subtitle = sub) +
+    xlab(xlab) + ylab(ylab) +
+    theme
+  #Rotate Labels if rotate.labels = TRUE
+  if (rotate.labels) {p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1, size=12))}
+
+  return(p)
+}

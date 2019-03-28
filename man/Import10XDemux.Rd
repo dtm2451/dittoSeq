@@ -12,9 +12,9 @@ Import10XDemux(CellRangerLocations, Lane.names = NULL, Demuxlet.best,
 
 \item{Lane.names}{how the lanes should be named (if you want to give them something different from the default = Lane1, Lane2, Lane3...)}
 
-\item{verbose}{whether to print messages about the stage of this process that is currently being run.}
+\item{Demuxlet.best}{the location of the .best output file from running of demuxlet}
 
-\item{Demux.best}{the location of the .best output file from running of demuxlet}
+\item{verbose}{whether to print messages about the stage of this process that is currently being run.}
 }
 \value{
 Imports CellRanger 10X data from multiple lanes, merges those into a single Seurat object, then extracts the linked sample calls and demuxlet statistics from the demuxlet .best output file.  All relevant demuxlet information is stored as meta.data slots.
