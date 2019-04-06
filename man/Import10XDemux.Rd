@@ -4,7 +4,7 @@
 \alias{Import10XDemux}
 \title{Imports 10X and demuxlet data and creates a Seurat object}
 \usage{
-Import10XDemux(CellRangerLocations, Lane.names = NULL, Demuxlet.best,
+Import10XDemux(CellRangerLocations, Lane.names = NA, Demuxlet.best,
   verbose = TRUE)
 }
 \arguments{

@@ -5,7 +5,8 @@
 \title{Plots the number of SNPs sequenced per droplet}
 \usage{
 demux.SNP.summary(object = DEFAULT, group.by = "Lane",
-  color.by = "Lane", plots = c("jitter", "boxplot"), ...)
+  color.by = "Lane", plots = c("jitter", "boxplot"),
+  boxplot.color = "grey30", ...)
 }
 \arguments{
 \item{object}{the Seurat Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.}
@@ -15,6 +16,8 @@ demux.SNP.summary(object = DEFAULT, group.by = "Lane",
 \item{color.by}{"metadata" to use for coloring. Default is "Lane".}
 
 \item{plots}{Default = c("jitter","boxplot"). = the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.}
+
+\item{boxplot.color}{The color of the lines of the boxplot.}
 
 \item{...}{extra arguments passed to DBPlot}
 }
