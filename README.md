@@ -10,7 +10,8 @@
 ![example5](Vignette/DemuxCall.png)
 
 *For a description of how to use the visualization functions, click [here](Vignette)*
-*For a description of how to use the Demuxlet import functions, click [here](Demuxlet Vignette)*
+
+*For a description of how to use the Demuxlet import functions, click [here](Demuxlet-Vignette)*
 
 Package includes various helper and plotting functions for working with RNAseq data analyzed in other packages; Seurat for single-cell RNAseq data, DESeq for bulk RNAseq data. Additionally, contains import functions for [Demuxlet](https://github.com/statgen/demuxlet) cell annotations as Mux-seq datasets often consist of side-by-side bulk and single-cell RNAseq.
 
