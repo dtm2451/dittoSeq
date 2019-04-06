@@ -35,7 +35,7 @@ devtools::install_github("dtm2451/DittoSeq")
 ```
 
 For an explanation on how to use the visualization functions, see the [main Vignette](Vignette)
-For an explanation of the Demuxlet import functions, click [here](Demuxlet Vignette)
+For an explanation of the Demuxlet import functions, click [here](Demuxlet-Vignette)
 
 ## Plotting Functions
 
