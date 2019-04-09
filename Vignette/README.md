@@ -1,6 +1,6 @@
 # DittoSeq Vignette
 
-Below is a demonstration of the power of DittoSeq's functions for exploring (sc)RNAseq data and creating publication-ready functions with descriptions of all tweakable inputs.  **For a play-along tutorial, you can download this pre-processed [public scRNAseq data, 272MB](https://ucsf.box.com/s/3lwwwingjinshfj69y3diyhaoa1b5b6w) and follow this [commented code](pbmc_3k_code-examples.R)**
+Below is a demonstration of the power of DittoSeq's functions for exploring (sc)RNAseq data and creating publication-ready functions with descriptions of all tweakable inputs.  **For a play-along tutorial, you can download this pre-processed [public scRNAseq data, 272MB](https://ucsf.box.com/s/3lwwwingjinshfj69y3diyhaoa1b5b6w) and follow this [vignette](pbmc_3k_vignette.html)**
 
 DittoSeq.R includes various helper and plotting functions for working with RNAseq data. All plotting functions spit out easy-to-read, color blind friendly, ggplot plots upon minimal coding input for your daily analysis needs, and they also allow sufficient manipulations to provide for out-of-the-box submission-quality figures.
 
