@@ -26,7 +26,7 @@ devtools::install_github("dtm2451/DittoSeq")
 
 **DBBarPlot** = No analogous function currently in Seurat.  Handles plotting of discrete data on a per-sample or per-condition grouping. Essentially, it is similar to DBPlot, but for discrete variables. Example: cluster makeup of a sample.
 
-**DBHeatmap** = Given a set of genes to focus on, outputs a heatmap.  Colors, cell annotations, names, are all tunable with discrete inputs.  Many others are possible as well; this function is a wrapper for pheatmap.
+**DBHeatmap** = Given a set of genes to focus on, outputs a heatmap.  Colors, cell annotations, names, are all tunable with discrete inputs.  Many others are possible as well; this function is a wrapper for pheatmap.  **This particular function is newer than this walkthrough.  See this [vignette](Vignette/pbmc_3k_vignette.html) instead for help with this funciton.**
 
 **multiDBPlot**, **multiDBDimPLot**, and **multiDBDimPLot_vary_cells** = Plots multiple DBDimPlots or DBPlots in an array.  Can handle most inputs that would be given to the individual functions.
 

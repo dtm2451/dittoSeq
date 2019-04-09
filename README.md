@@ -9,7 +9,7 @@
 
 ![example5](Vignette/DemuxCall.png)
 
-*For a description of how to use the visualization functions, click [here](Vignette)*
+*For a description of how to use the visualization functions, click [here](Vignette) or [here](Vignette/pbmc_3k_vignette.html)*
 
 *For a description of how to use the Demuxlet import functions, click [here](Demuxlet-Vignette)*
 
@@ -34,7 +34,8 @@ install.packages("devtools")
 devtools::install_github("dtm2451/DittoSeq")
 ```
 
-For an explanation on how to use the visualization functions, see the [main Vignette](Vignette)
+For an explanation on how to use the visualization functions, see the [description](Vignette) or the [vignette with public data](Vignette/pbmc_3k_vignette.html).
+
 For an explanation of the Demuxlet import functions, click [here](Demuxlet-Vignette)
 
 ## Plotting Functions

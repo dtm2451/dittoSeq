@@ -763,7 +763,7 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
   #Establish cell/sample names
   Col_names <- NULL
   if(!(is.null(cell.names.meta))){
-    Col_names <- meta(cell.names.meta, object)[all.cells %in% cells.use]
+    Col_names <- as.character(meta(cell.names.meta, object)[all.cells %in% cells.use])
   }
 
   if(data.out){
