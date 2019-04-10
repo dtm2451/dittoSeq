@@ -1,6 +1,10 @@
 # DittoSeq Vignette
 
-Below is a demonstration of the power of DittoSeq's functions for exploring (sc)RNAseq data and creating publication-ready functions with descriptions of all tweakable inputs.  **For a play-along tutorial, you can download this pre-processed [public scRNAseq data, 272MB](https://ucsf.box.com/s/3lwwwingjinshfj69y3diyhaoa1b5b6w) and follow this [commented code](pbmc_3k_code-examples.R)**
+**For a play-along tutorial, you can download this pre-processed [public scRNAseq data, 272MB](https://ucsf.box.com/s/3lwwwingjinshfj69y3diyhaoa1b5b6w) and download and follow this [tutorial](https://ucsf.box.com/s/vegebc44n4kqlyhrh5wp71dkiasaj5ho)**
+
+Below is a demonstration of the power of DittoSeq's functions for exploring (sc)RNAseq data and creating publication-ready functions with descriptions of basic use and an explanation of many of the tweakable inputs.  I recommend going through the "Basic use" and "Intuitive inputs" sections of this page, then switching to the tutorial linked above.
+
+## Overview
 
 DittoSeq.R includes various helper and plotting functions for working with RNAseq data. All plotting functions spit out easy-to-read, color blind friendly, ggplot plots upon minimal coding input for your daily analysis needs, and they also allow sufficient manipulations to provide for out-of-the-box submission-quality figures.
 
@@ -27,6 +31,8 @@ devtools::install_github("dtm2451/DittoSeq")
 **DBBarPlot** = No analogous function currently in Seurat.  Handles plotting of discrete data on a per-sample or per-condition grouping. Essentially, it is similar to DBPlot, but for discrete variables. Example: cluster makeup of a sample.
 
 **DBHeatmap** = Given a set of genes to focus on, outputs a heatmap.  Colors, cell annotations, names, are all tunable with discrete inputs.  Many others are possible as well; this function is a wrapper for pheatmap.  **This particular function is newer than this walkthrough.  See this [vignette](Vignette/pbmc_3k_vignette.html) instead for help with this funciton.**
+
+**DBPlot_multi_var_summary** = No analogous function currently in Seurat.  Given a set of genes (like a signature set from a reference dataset, or a set of genes associated with a GO term or pathway), plots expression of all genes in the set across groups of cells/samples.  Aside from accepting multiple variables, most inputs and customizations are the same as DBPlot.
 
 **multiDBPlot**, **multiDBDimPLot**, and **multiDBDimPLot_vary_cells** = Plots multiple DBDimPlots or DBPlots in an array.  Can handle most inputs that would be given to the individual functions.
 

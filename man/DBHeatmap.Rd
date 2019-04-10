@@ -20,7 +20,7 @@ DBHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
 
 \item{cell.names.meta}{quoted "name" of a meta.data slot to use for naming the columns instead of the raw cell/sample names.  Default = just use the raw cell/sample names in the data slot.}
 
-\item{data.type}{For obtaining the expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"}
+\item{data.type}{For obtaining the expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
 
 \item{heatmap.colors}{the colors to use for the expression matrix. Default is a ramp from navy to white to red with 50 slices.}
 

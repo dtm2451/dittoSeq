@@ -17,7 +17,7 @@ Darken(colors, percent.change = 0.25, relative = T)
 Return a darkened version of the color in hexadecimal color form (="#RRGGBB" in base 16)
 }
 \description{
-A wrapper for the darken funciton of the colorspace package.
+A wrapper for the darken function of the colorspace package.
 }
 \examples{
 Darken("blue") #"blue" = "#0000FF"

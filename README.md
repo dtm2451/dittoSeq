@@ -9,7 +9,7 @@
 
 ![example5](Vignette/DemuxCall.png)
 
-*For a description of how to use the visualization functions, click [here](Vignette) or [here](Vignette/pbmc_3k_vignette.html)*
+*For a description of how to use the visualization functions, click [here](Vignette)*
 
 *For a description of how to use the Demuxlet import functions, click [here](Demuxlet-Vignette)*
 
@@ -34,7 +34,7 @@ install.packages("devtools")
 devtools::install_github("dtm2451/DittoSeq")
 ```
 
-For an explanation on how to use the visualization functions, see the [description](Vignette) or the [vignette with public data](Vignette/pbmc_3k_vignette.html).
+For an explanation on how to use the visualization functions, see the vignette [here](Vignette).
 
 For an explanation of the Demuxlet import functions, click [here](Demuxlet-Vignette)
 
@@ -47,6 +47,8 @@ For an explanation of the Demuxlet import functions, click [here](Demuxlet-Vigne
 **`DBBarPlot()`** = No analogous function currently in Seurat, which is a bit crazy imho. Most common use: Plotting the cluster breakdown of all cells of each sample. Essentially, it is similar to DBPlot, but for discrete variables. Handles plotting of discrete data on a per-sample or per-condition grouping.
 
 **`DBHeatmap()`** = Given a set of genes to focus on, outputs a heatmap.  Colors, cell annotations, names, are all tunable with discrete inputs.  Many others are possible as well; this function is a wrapper for pheatmap.
+
+**`DBPlot_multi_var_summary()`** = No analogous function currently in Seurat.  Given a set of genes (like a signature set from a reference dataset, or a set of genes associated with a GO term or pathway), plots expression of all genes in the set across groups of cells/samples.
 
 **multi-plotters** = Plot multiple DBDimPlots or DBPlots in an array.  Can handle most inputs that would be given to the individual functions.  Names are **`multiDBDimPlot()`**, **`multiDBPlot()`**, and **`multiDBDimPlot_vary_cells()`**.
 

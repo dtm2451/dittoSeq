@@ -37,7 +37,7 @@ multiDBDimPlot_vary_cells(var, object = DEFAULT, cells.use.meta,
 
 \item{max}{Works as in DimPlot, not required to be given, but sets the value associated with the maximum color.  All points with a higher value than this will get the same max.color.}
 
-\item{data.type}{As with regular DBDimPlotting, For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"}
+\item{data.type}{As with regular DBDimPlotting, For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
 
 \item{...}{other paramters that can be given to DBDimPlot function used in the same way.}
 }

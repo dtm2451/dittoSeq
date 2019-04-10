@@ -17,7 +17,7 @@ Lighten(colors, percent.change = 0.25, relative = T)
 Return a lighter version of the color in hexadecimal color form (="#RRGGBB" in base 16)
 }
 \description{
-A wrapper for the lighten funciton of the colorspace package.
+A wrapper for the lighten function of the colorspace package.
 }
 \examples{
 Lighten("blue") #"blue" = "#0000FF"

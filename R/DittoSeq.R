@@ -15,7 +15,7 @@
 #' @param legend.title For adding a title for the colors/letters legend.  It is set to NULL (off) by default.
 #' @param shape.legend.size The size to increase the plotting of shapes legend shapes to.
 #' @param shape.legend.title For adding a title for the shapes legend is a meta.data was given to 'shape' and multiple shapes were therefore used.  It is set to NULL (off) by default.
-#' @param data.type For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
+#' @param data.type For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @param main plot title
 #' @param sub plot subtitle
 #' @param xlab label for y axes.  Default labels are generated if you do not give this a specific value.  To remove the labeling, set to NULL.
@@ -289,7 +289,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' @param shape.by               "metadata" to use for setting the shape of jitter.  Default = just dots. Ignored if not a "quoted" metadata or "ident"
 #' @param cells.use              Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. USE in object@cell.names[USE])
 #' @param plots                  types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.
-#' @param data.type              For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
+#' @param data.type              For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @param do.hover               TRUE/FALSE. Default = F.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.
 #' @param data.hover             list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
 #' @param color.panel            the set of colors to draw from
@@ -685,7 +685,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
 #' @param genes c("gene1","gene2","gene3",...) = list of genes to put in the heatmap. REQUIRED.
 #' @param object the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param cells.use Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. *USE* in object@cell.names[*USE*])
-#' @param data.type For obtaining the expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
+#' @param data.type For obtaining the expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @param cell.names.meta quoted "name" of a meta.data slot to use for naming the columns instead of the raw cell/sample names.  Default = just use the raw cell/sample names in the data slot.
 #' @param heatmap.colors the colors to use for the expression matrix. Default is a ramp from navy to white to red with 50 slices.
 #' @param cells.annotation FALSE/ the name of a metadata slot containing how the cells/samples should be annotated. Default = FALSE.
@@ -770,8 +770,8 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
     OUT <- list(data,heatmap.colors,Col_annot,Col_annot_colors, Col_names,
                 paste0("pheatmap(mat = data, color = heatmap.colors, annotation_col = Col_annot, ",
                        "annotation_colors = Col_annot_colors, scale = 'row', ",
-                       "labels_col = Col_names,",...,")Ignore , / row#### at end"))
-    names(OUT)<- c("data","heatmap.colors","Col_annot","Col_annot_colors","labels_col","pheatmap.script")
+                       "labels_col = Col_names"))
+    names(OUT)<- c("data","heatmap.colors","Col_annot","Col_annot_colors","Col_names","pheatmap.script")
     return(OUT)
   }
 
@@ -788,6 +788,228 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
   return(HM)
 }
 
+#### DBPlot_multi_var_summary : Generates a DBPlot where datapoints are genes/metadata instead of cells/samples.
+#' Generates a DBPlot where datapoints are gene(s)/metadata instead of cells/samples.
+#'
+#' @param vars               c("gene1","gene2","gene3",...). REQUIRED. A list of genes from which to generate the plot
+#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param group.by           "metadata" to use for separating values. REQUIRED.
+#' @param color.by               "metadata" to use for coloring. Affects boxplot and vlnplot fills. REQUIRED when using either.
+#' @param cells.use              Cells to include in generating the summary data: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. USE in object@cell.names[USE])
+#' @param plots                  types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.
+#' @param data.type              In what format should the data for each var be summarized? DEFAULT = "relative".  Most other options are not as great for comparing accross genes that may have vastly different expression patterns. All options: "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)?
+#' @param data.summary           "mean" or "median". = the summary statistic to use for summarizing expression/score accross the gorups. Default is to use the mean.
+#' @param do.hover               TRUE/FALSE. Default = F.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  Data shown will be the gene name. ('data.hover' argument is NOT used with this function.)
+#' @param color.panel            the set of colors to draw from
+#' @param colors                 indexes / or order, of colors from color.panel to actual use
+#' @param theme                  Allows setting of a theme. Default = theme_classic when nothing is provided.
+#' @param legend.show            TRUE/FALSE, whether the legend should be included/removed. Default = FALSE
+#' @param legend.title           TRUE/FALSE/"custom-title", whether to have title for the plot's legend OR the custom title you would like the legend to have. Default = FALSE
+#' @param main                   plot title (Default is none)
+#' @param sub                    plot subtitle (Default is none)
+#' @param ylab                   y axis label (Default is none)
+#' @param y.breaks               a list of breaks that should be used as major gridlines. c(break1,break2,break3,etc.)
+#' @param min                  Use to set a custom minimum y-value to show.  Default = set based on the limits of the data in var.
+#' @param max                  Use to set a custom maximum y-value to show.  Default = set based on the limits of the data in var.
+#' @param xlab                   x axis label, default is blank (NULL)
+#' @param labels                 c("label1","label2","label3"). = Names of the samples/groups if you wish to change them.  Default is the values in the group.by data. NOTE: you need to give at least as many labels as there are discrete values in the group.by data.
+#' @param rotate.labels          TRUE/FALSE. whether the labels should be rotated.  Default = FALSE = vertical labels.
+#' @param reorder.x              Sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order for the samples.  Default = alphabetical then numerical. Method: look at an un-reordered plot, then plug in which position from left-to-right that you want the left-most group to move to, then where the originally second-from-left should go, and so on.
+#' @param jitter.size            the size of the jitter shapes.
+#' @param jitter.width           the width/spread of the jitter in the x direction
+#' @param jitter.color           the color of the jitter shapes
+#' @param jitter.shape           number corresponding to a ggplot shape.  Default = 16 = a small dot.
+#' @param boxplot.width          the width/spread of the boxplot in the x direction
+#' @param boxplot.color          the color of the lines of the boxplot
+#' @param boxplot.show.outliers  whether outliers should by including in the boxplot. Default is FALSE when there is a jitter plotted, TRUE if no jitter.
+#' @param boxplot.fill          whether the boxplot should be filled in or not.
+#' @param hline                  y value(s) where a dashed horizontal line should go
+#' @param hline.linetype         Type of line.  Any ggplot linetype should work.  Defaults to "dashed"
+#' @param hline.color            color(s) of the horizontal line(s)
+#' @return This function will output a DBPlot where each data point represents the average (or median) of expression of an individual gene, or of an individual metadata score, across a group of samples.
+#' @examples
+#' pbmc <- Seurat::pbmc_small
+#' genes <- get.genes("pbmc")[1:30]
+#' DBPlot_multi_var_summary(genes, object = "pbmc",
+#'                          group.by = "res.1", color.by = "res.1")
+#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object
+#'       # input can be skipped completely.
+#' DEFAULT <- "pbmc"
+#' DBPlot_multi_var_summary(genes,
+#'                          group.by = "res.1", color.by = "res.1")
+#'
+#' # To change it to have the violin plot in the back, a jitter on top of that, and a white boxplot with no fill in front:
+#' DBPlot_multi_var_summary(genes, object = "pbmc",
+#'                          group.by = "res.1", color.by = "res.1",
+#'                          plots = c("vlnplot","jitter","boxplot"),
+#'                          boxplot.color = "white", boxplot.fill = F)
+
+DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", color.by=NULL, cells.use = NULL,
+                                     plots = c("vlnplot","jitter"), data.type = "relative", data.summary = "mean",
+                                     do.hover = FALSE,
+                                     color.panel = MYcolors, colors = c(1:length(color.panel)),
+                                     theme = theme_classic(), legend.show = FALSE, legend.title = FALSE,
+                                     main = NULL, sub = NULL,
+                                     ylab = NULL, y.breaks = NULL, min = NULL, max = NULL,
+                                     xlab = NULL, labels = NULL, rotate.labels = TRUE,
+                                     reorder.x = 1:length(meta.levels(group.by, object)),
+                                     jitter.size=1, jitter.width=0.2, jitter.color = "black",
+                                     jitter.shape = 16,
+                                     boxplot.width = 0.2, boxplot.color = "black",
+                                     boxplot.show.outliers = NA, boxplot.fill =T,
+                                     hline=NULL, hline.linetype = "dashed", hline.color = "black"){
+
+  #Turn the object into a "name" if a full object was given
+  object <- S4_2string(object)
+
+  #Populate cells.use with a list of names if it was given anything else.
+  cells.use <- which_cells(cells.use, object)
+  #Establish the full list of cell/sample names
+  all.cells <- all_cells(object)
+
+  #### Ensure that vars is a list of numerical values.
+
+  #### Run prep for setting color
+  if(is.null(color.by)){
+    color.by <- group.by
+  }
+  #### Ensure that there are no ambiguities between group.by and color.by
+  grp.color.check.matrix <- as.matrix(table(meta(group.by,object),meta(color.by,object)))
+  grp.color.check.matrix <- data.frame(grp.color.check.matrix>0)
+  if(sum(rowSums(grp.color.check.matrix)!=1)){return(print("Unable to interpret color.by input.  group.by and color.by metadatas must match so that only one color will be assigned to each group."))}
+  color <- sapply(seq_len(dim(grp.color.check.matrix)[1]), function(X)
+    names(grp.color.check.matrix)[grp.color.check.matrix[X,]==TRUE])
+  names(color) <- row.names(grp.color.check.matrix)
+
+
+  #### Create data table
+  # Summarizes data and creates vars x groupings table
+  groupings <- as.factor(meta(group.by, object)[cells.use %in% all.cells])
+  if(data.summary=="mean"){
+    summarys <- data.frame(sapply(levels(groupings), function(this.group)
+      sapply(vars, function(X) mean(var_OR_get_meta_or_gene(X,object,data.type)[groupings==this.group])
+      )))
+  } else {
+    if(data.summary=="median"){
+      summarys <- data.frame(sapply(levels(groupings), function(this.group)
+        sapply(vars, function(X) median(var_OR_get_meta_or_gene(X,object,data.type)[groupings==this.group])
+        )))
+    } else {
+      return(print("mean and median are the only summary statistics currently supported.", quote = F))
+    }
+  }
+
+  # Turn that data.table into a linear list that is part of a ggplot friendly data.frame
+  dat <- data.frame(Y = unlist(summarys),
+                    vars = rep(rownames(summarys),ncol(summarys)),
+                    X = c(sapply(names(summarys), function(X) rep(X, nrow(summarys)))))
+  dat$color <- color[dat$X]
+
+  #Reorder x groupings (steps 1 and 2, #3 is completed later in the code)
+  if (is.numeric(reorder.x)){
+    #This step is necessary becuase ggplot orders by "character" which would put 10 after 1 instead of 9.
+    reorder.x <- as.character(unlist(sapply(reorder.x, function(X) ifelse(X<10,paste0("0",X),X))))
+  }
+  #1-Store originals in orig.names.
+  orig.names <- levels(as.factor(as.character(dat$X)))
+  #2-Rename the groupings (=dat$X) in order to set their order.
+  dat$X <- as.factor(as.character(dat$X))
+  levels(dat$X) <- reorder.x
+  dat$X <- as.factor(as.character(dat$X))
+  #3-Names will be set back to orig.names (unless new labels were provided) further down in the code.
+
+  ####If do.hover = T, make the string for implementing it
+  #Make data.frame genes x display data
+  features.info <- data.frame(gene = dat$vars)
+  hover.string <- sapply(seq_len(nrow(features.info)), function(row){
+    paste(as.character(sapply(seq_len(ncol(features.info)), function(col){
+      paste0(names(features.info)[col],": ",features.info[row,col])})),collapse = "\n")
+  })
+
+  #####Start making the plot
+  p <- ggplot(dat, aes(x=X, y=Y, fill=color)) + theme
+  #Set the y-axis limits if a min or max is given.
+  if ((!(is.null(min))) & (!(is.null(max)))){
+    p <- p + ylim(min,max)
+  } else {
+    if (!(is.null(min))){
+      p <- p + ylim(min, max(Target_dat$Y))
+    }
+    if (!(is.null(max))){
+      p <- p + ylim(min(Target_dat$Y), max)
+    }
+  }
+  #Add data based on what is requested in plots, *ordered by their order*
+  for (i in 1:length(plots)){
+    #If next request is "boxplot", make a boxplot.
+    if (plots[i] == "boxplot") {
+      if (is.na(boxplot.show.outliers)){
+        boxplot.show.outliers <- ifelse("jitter" %in% plots, FALSE, TRUE)
+      }
+      if (boxplot.show.outliers) {
+        p <- p + geom_boxplot(width=boxplot.width, color = boxplot.color,
+                              alpha = ifelse(boxplot.fill, 1, 0))
+      } else {
+        p <- p + geom_boxplot(width=boxplot.width, color = boxplot.color,
+                              alpha = ifelse(boxplot.fill, 1, 0),
+                              outlier.shape = NA)
+      }
+    }
+    #If next request is "jitter", make a jitter.  a.k.a. add dots with y=Y, and randomized spread in x direction.
+    if (plots[i] == "jitter") {
+      p <- p + geom_jitter(size=jitter.size,
+                           width=jitter.width,
+                           height = 0,
+                           if(do.hover){aes(text = hover.string)},
+                           shape = jitter.shape,
+                           color = jitter.color)
+    }
+    if (plots[i] == "vlnplot") {
+      p <- p + geom_violin()
+    }
+  }
+  #Add horizontal lines if given.
+  if (!is.null(hline))  {p <- p + geom_hline(yintercept=hline, linetype= hline.linetype, color = hline.color)}
+  #Change y-axis limits/breaks if requested
+  if (!is.null(y.breaks)) {
+    p <- p + scale_y_continuous(breaks = y.breaks)
+  }
+  #Rotate Labels if rotate.labels = TRUE
+  if (rotate.labels) {p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1, size=12))}
+  #Set colors to color.panel[colors], and add/remove legend title.
+  if (is.logical(legend.title)){
+    if(!legend.title) {
+      #legend.title = FALSE
+      p <- p + scale_fill_manual(values=color.panel[colors]) + theme(legend.title=element_blank())
+    } else {
+      #legend.title = TRUE
+      p <- p + scale_fill_manual(name = color.by,
+                                 values = color.panel[colors])
+    }
+  } else {
+    #legend.title = "custom"
+    p <- p + scale_fill_manual(name = legend.title,
+                               values = color.panel[colors])
+  }
+  #Change the x-axis labels if a labels was given.
+  if (!(is.null(labels))){
+    p <- p + scale_x_discrete(labels=labels)
+  } else {
+    #If new labels were not given, put the original names back.
+    p <- p + scale_x_discrete(labels=orig.names[order(reorder.x)])
+  }
+  #Set titles and x-axis label
+  p <- p + ggtitle(main, sub) + xlab(xlab) + ylab(ylab)
+  #Remove legend unless wanted
+  p <- p + theme(legend.position = ifelse(legend.show, "right", "none"))
+
+  #DONE. Return the plot
+  if(do.hover & ("jitter" %in% plots)){
+    return(plotly::ggplotly(p, tooltip = "text"))
+  } else {
+    return(p)
+  }
+}
 
 #### multiDBPlot : a function for quickly making multiple DBPlots arranged in a grid.
 #' Generates multiple DBPlots arranged into a grid.
@@ -903,7 +1125,7 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 #' @param min                Works as in DimPlot, not required to be given, but sets the value associated with the minimum color.  All points with a lower value than this will get the same min.color.
 #' @param max                Works as in DimPlot, not required to be given, but sets the value associated with the maximum color.  All points with a higher value than this will get the same max.color.
 #' @param ...                other paramters that can be given to DBDimPlot function used in the same way.
-#' @param data.type          As with regular DBDimPlotting, For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
+#' @param data.type          As with regular DBDimPlotting, For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @return A function for quickly making multiple DBDimPlots arranged in a grid, where instead of varying the 'var' displayed, what varies is the cells that are shown. Most parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each plot is which cells get displayed. NOTE: This function is incompatible with changing the 'colors' input. If you need to change the order of when certain colrs are chosen, change the order in color.panel. Also note: if 'var' given refers to continuous data, then the min and max will be calculated at the beginning in order to make the scale consistent accross all plots.  You can still set your own range, and this would also create a consistent scale.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1152,7 +1374,7 @@ meta <- function(meta, object=DEFAULT){
 #'
 #' @param gene               quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.
 #' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param data.type          Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"
+#' @param data.type          Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation)? Default = "normalized"
 #' @return Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1274,7 +1496,7 @@ which_cells <- function(cells.use, object = DEFAULT){
 #'
 #' @param data.hover The data needed in the text output. = A list of metadata names, genes, or "ident", in quotes.
 #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param data.type "normalized" or "raw" or "scaled".  For when genes are in data.hover, what type of their expression is wanted?
+#' @param data.type For when grabbing gene expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @return Given a list of data to grab in data.hover, outputs the 'data name': data, 'data name': data, ... for every cell of the object
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1322,7 +1544,7 @@ S4_2string <- function(object = DEFAULT){
 #'
 #' @param var name of a metadata, gene, or "ident". = the data that should be grabbed
 #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param data.type "normalized" or "raw" or "scaled".  For when var is a gene, what type of its expression is wanted?
+#' @param data.type For when extracting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @return determines what type of var is given, and outputs the gene expression data, metadata data, or clustering data.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1444,7 +1666,7 @@ classof <- function (object = DEFAULT){
 #### Darken: For darkening colors ####
 #' Darkens input colors by a set amount
 #'
-#' @description A wrapper for the darken funciton of the colorspace package.
+#' @description A wrapper for the darken function of the colorspace package.
 #' @param colors the color(s) input. Can be a list of colors, for example, MYcolors.
 #' @param percent.change # between 0 and 1. the percentage to darken by. Defaults to 0.25 if not given.
 #' @param relative TRUE/FALSE. Whether the percentage should be a relative change versus an absolute one. Default = T.
@@ -1462,7 +1684,7 @@ Darken <- function(colors, percent.change = 0.25, relative = T){
 #### Lighten: For lightening colors ####
 #' Lightens input colors by a set amount
 #'
-#' @description A wrapper for the lighten funciton of the colorspace package.
+#' @description A wrapper for the lighten function of the colorspace package.
 #' @param colors the color(s) input. Can be a list of colors, for example, MYcolors.
 #' @param percent.change # between 0 and 1. the percentage to darken by. Defaults to 0.25 if not given.
 #' @param relative TRUE/FALSE. Whether the percentage should be a relative change versus an absolute one. Default = T.
@@ -1521,7 +1743,7 @@ Simulate <- function(type = "deutan", plot.function, color.panel = NULL, ...){
 
 #' The RNAseq Class
 #'
-#' @description The RNAseq object stores data analyzed in DESeq2 in a structure similar to a Seurat-object.  This is the data structure required for DittoSeq plottign funcitons to access bulk RNAseq data.  All that is needed to create an RNAseq object is a DESeqDataSet output from the DESeq() function.
+#' @description The RNAseq object stores data analyzed in DESeq2 in a structure similar to a Seurat-object.  This is the data structure required for DittoSeq plottign functions to access bulk RNAseq data.  All that is needed to create an RNAseq object is a DESeqDataSet output from the DESeq() function.
 #' @slot counts a matrix. The raw genes x samples counts data. It is recommended, but not required, that one of these should be given when a new RNBAseq object is created.
 #' @slot dds a DESeqDataSet. The output of having run DESeq() on your data.
 #' @slot data a matrix. The regularized log correction of the counts data generated by a call to DESeq's rlog function.

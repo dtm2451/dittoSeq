@@ -11,7 +11,7 @@ make_hover_strings(data.hover, object, data.type = "normalized")
 
 \item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
-\item{data.type}{"normalized" or "raw" or "scaled".  For when genes are in data.hover, what type of their expression is wanted?}
+\item{data.type}{For when grabbing gene expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
 }
 \value{
 Given a list of data to grab in data.hover, outputs the 'data name': data, 'data name': data, ... for every cell of the object

@@ -11,7 +11,7 @@ gene(gene, object = DEFAULT, data.type = "normalized")
 
 \item{object}{the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
-\item{data.type}{Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() funciton to produce a relative-to-mean representation)? Default = "normalized"}
+\item{data.type}{Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation)? Default = "normalized"}
 }
 \value{
 Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
