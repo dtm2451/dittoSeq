@@ -1477,8 +1477,12 @@ which_data <- function(data.type, object=DEFAULT){
 all_cells <- function(object = DEFAULT){
   object <- S4_2string(object)
   target <- data.frame(use = c("@samples", "@cell.names"),
-                       row.names = c("RNAseq", "seurat"))
-  eval(expr = parse(text = paste0(object, target[classof(object),])))
+                       row.names = c("RNAseq", "Seurat.v2"))
+  if (classof(object)=="Seurat.v3"){
+    return(colnames(x = eval(expr = parse(text = paste0(object)))))
+  } else {
+    eval(expr = parse(text = paste0(object, target[classof(object),])))
+  }
 }
 
 #' Retrieves the list of cells.names to use
