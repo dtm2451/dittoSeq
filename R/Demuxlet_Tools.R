@@ -21,21 +21,35 @@ Import10XDemux <- function(CellRangerLocations, Lane.names=NA, Demuxlet.best, ve
   if(length(CellRangerLocations)==1){
     OUT <- Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[1]))
   } else {
-    #Make Seurat Object
-    if(verbose){print(paste0("  Making and merging ",Lane.names[1], " and ", Lane.names[2]),quote=F)}
-    OUT <- Seurat::MergeSeurat(object1 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[1])),
-                       add.cell.id1 = Lane.names[1],
-                       object2 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[2])),
-                       add.cell.id2 = Lane.names[2],
-                       do.normalize = F)
-    if(length(CellRangerLocations)>=3){
-      for (X in 3:length(CellRangerLocations)){
-        if(verbose){print(paste0("  Adding ", Lane.names[X]),quote=F)}
-        OUT <- Seurat::MergeSeurat(object1 = OUT,
-                           object2 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[X])),
-                           add.cell.id2 = Lane.names[X],
-                           do.normalize = F)
+    #If Seurat-v2:
+    if(packageVersion("Seurat") < '3.0.0'){
+      # Make 1 and 2, then merge, then iteratively add on the rest of the Seurat objects.
+      if(verbose){print(paste0("  Making and merging ",Lane.names[1], " and ", Lane.names[2]),quote=F)}
+      OUT <- Seurat::MergeSeurat(object1 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[1])),
+                         add.cell.id1 = Lane.names[1],
+                         object2 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[2])),
+                         add.cell.id2 = Lane.names[2],
+                         do.normalize = F)
+      if(length(CellRangerLocations)>=3){
+        for (X in 3:length(CellRangerLocations)){
+          if(verbose){print(paste0("  Adding ", Lane.names[X]),quote=F)}
+          OUT <- Seurat::MergeSeurat(object1 = OUT,
+                             object2 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[X])),
+                             add.cell.id2 = Lane.names[X],
+                             do.normalize = F)
+        }
       }
+    } else {
+      #Seurat-v3:
+      if(verbose){print(paste0("  Making and merging ",
+                               paste(Lane.names,
+                                     collapse = " and ")),
+                        quote=F)}
+      merge(x = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[1])),
+            add.cell.ids = Lane.names,
+            y = list(sapply(2:length(CellRangerLocations),
+                            function(X) Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[X])))),
+            merge.data = F)
     }
     if(verbose){print("  Adding 'Lane' information as meta.data",quote=F)}
     OUT@meta.data$Lane <-
@@ -117,21 +131,34 @@ ImportSeuratDemux <- function(Seurats, Lane.names=NA, Demuxlet.best, verbose = T
   if(length(Seurats)==1){
     OUT <- Seurats
   } else {
-    #Make Seurat Object
-    if(verbose){print(paste0("  Making and merging ",Lane.names[1], " and ", Lane.names[2]),quote=F)}
-    OUT <- Seurat::MergeSeurat(object1 = Seurats[[1]],
-                               add.cell.id1 = Lane.names[1],
-                               object2 = Seurats[[2]],
-                               add.cell.id2 = Lane.names[2],
-                               do.normalize = F)
-    if(length(Seurats)>=3){
-      for (X in 3:length(Seurats)){
-        if(verbose){print(paste0("  Adding ", Lane.names[X]),quote=F)}
-        OUT <- Seurat::MergeSeurat(object1 = OUT,
-                                   object2 = Seurats[[X]],
-                                   add.cell.id2 = Lane.names[X],
-                                   do.normalize = F)
+    #If Seurat-v2:
+    if(packageVersion("Seurat") < '3.0.0'){
+      # Make 1 and 2, then merge, then iteratively add on the rest of the Seurat objects.
+      if(verbose){print(paste0("  Merging ",Lane.names[1], " and ", Lane.names[2]),quote=F)}
+      OUT <- Seurat::MergeSeurat(object1 = Seurats[[1]],
+                                 add.cell.id1 = Lane.names[1],
+                                 object2 = Seurats[[2]],
+                                 add.cell.id2 = Lane.names[2],
+                                 do.normalize = F)
+      if(length(Seurats)>=3){
+        for (X in 3:length(Seurats)){
+          if(verbose){print(paste0("  Adding ", Lane.names[X]),quote=F)}
+          OUT <- Seurat::MergeSeurat(object1 = OUT,
+                                     object2 = Seurats[[X]],
+                                     add.cell.id2 = Lane.names[X],
+                                     do.normalize = F)
+        }
       }
+    } else {
+      #Seurat-v3:
+      if(verbose){print(paste0("  Merging ",
+                               paste(Lane.names,
+                                     collapse = " and ")),
+                        quote=F)}
+      merge(x = Seurats[[1]],
+            add.cell.ids = Lane.names,
+            y = Seurats[[2:length(Seurats)]],
+            merge.data = F)
     }
     if(verbose){print("  Adding 'Lane' information as meta.data",quote=F)}
     OUT@meta.data$Lane <-
