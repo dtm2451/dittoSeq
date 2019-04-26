@@ -69,7 +69,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   all.cells <- all_cells(object)
 
   #If reduction.use = NA (was not provided), populate it to be tsne or pca.
-  if (classof(object)=="seurat" & is.na(reduction.use)) {reduction.use <- "tsne"}
+  if (grepl("Seurat",classof(object)) & is.na(reduction.use)) {reduction.use <- "tsne"}
   if (classof(object)=="RNAseq" & is.na(reduction.use)) {reduction.use <- "pca"}
 
   #Generate the x/y dimensional reduction data and axes labels.
@@ -625,7 +625,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
     }
   #Populate ylab if left as "make".
   if(ylab == "make"){ ylab <- paste0("Percent of ",
-                                     ifelse(classof(object)=="seurat",
+                                     ifelse(grepl("Seurat",classof(object)),
                                             "cells",
                                             "samples"))
   }
@@ -1261,7 +1261,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
 is.meta <- function(test, object=DEFAULT){
 
   #Bypass for ident for Seurat objects
-  if(test=="ident" & classof(object)=="seurat") {return(TRUE)}
+  if(test=="ident" & grepl("Seurat",classof(object))) {return(TRUE)}
 
   #For all other cases...
   test %in% get.metas(object)
@@ -1275,7 +1275,8 @@ is.meta <- function(test, object=DEFAULT){
 #' @return Returns TRUE if there is a row in the objects' data slot named 'test'.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
-#' is.gene("CD14", object = "pbmc")
+#' is.gene("CD14", object = "pbmc") # TRUE
+#' is.gene("CD4", pbmc) # FALSE
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' is.gene("CD14")
@@ -1284,15 +1285,21 @@ is.gene <- function(test, object=DEFAULT){
 
   if(typeof(object)=="character")
   {
-    if (classof(object)=="seurat"){
+    if (classof(object)=="Seurat.v2"){
       return(test %in% rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
+    }
+    if (classof(object)=="Seurat.v3"){
+      return(test %in% rownames(eval(expr = parse(text = paste0(object)))))
     }
     if (classof(object)=="RNAseq"){
       return(test %in% rownames(eval(expr = parse(text = paste0(object,"@counts")))))
     }
   } else {
-    if (class(object)=="seurat"){
+    if (class(object)=="Seurat.v2"){
       return(test %in% rownames(object@raw.data))
+    }
+    if (classof(object)=="Seurat.v3"){
+      return(test %in% rownames(object))
     }
     if (class(object)=="RNAseq"){
       return(test %in% rownames(object@counts))
@@ -1650,11 +1657,23 @@ gen.key <- function (reduction.use){
 #' #Output: "seurat"
 
 classof <- function (object = DEFAULT){
-
+  #DittoSeq works with the object in "string" form to work with it's DEFAULT.setting method.
+  # I generally turn any object not already given in this form into one, just in case.
+  # Turn the object into a character string if it wasn't one already
   if (typeof(object)=="S4"){
     object <- deparse(substitute(object))
   }
-  class(eval(expr = parse(text = paste0(object))))[1]
+
+  #class <- class(object)
+  class <- class(eval(expr = parse(text = paste0(object))))[1]
+
+  #If a Seurat, need to add what version?
+  if(eval(expr = parse(text = paste0(object, "@version"))) > '3.0.0') {
+    #Then needs to be
+    class <- "Seurat.v3"
+  } else {
+    class <- "Seurat.v2"
+  }
 }
 
 ############################################################################################################
