@@ -19,7 +19,8 @@ Tests if an input is the name of a gene recovered in the dataset.
 }
 \examples{
 pbmc <- Seurat::pbmc_small
-is.gene("CD14", object = "pbmc")
+is.gene("CD14", object = "pbmc") # TRUE
+is.gene("CD4", pbmc) # FALSE
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
 is.gene("CD14")

@@ -1666,23 +1666,26 @@ gen.key <- function (reduction.use){
 #' #Output: "seurat"
 
 classof <- function (object = DEFAULT){
-  #DittoSeq works with the object in "string" form to work with it's DEFAULT.setting method.
-  # I generally turn any object not already given in this form into one, just in case.
-  # Turn the object into a character string if it wasn't one already
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
+  #DittoSeq works with the object in "string" form to work with it's DEFAULT setting method.
+
+  #if object in "string" form, convert to the actual object
+  if (typeof(object)=="character"){
+    object <- eval(expr = parse(text = paste0(object)))
   }
 
   #class <- class(object)
-  class <- class(eval(expr = parse(text = paste0(object))))[1]
+  class <- class(object)
 
-  #If a Seurat, need to add what version?
-  if(eval(expr = parse(text = paste0(object, "@version"))) > '3.0.0') {
-    #Then needs to be
-    class <- "Seurat.v3"
-  } else {
-    class <- "Seurat.v2"
+  #If a Seurat, need to add what version
+  if (grepl("Seurat|seurat",class)){
+    if(object@version > '3.0.0') {
+      #Then needs to be
+      class <- "Seurat.v3"
+    } else {
+      class <- "Seurat.v2"
+    }
   }
+  class
 }
 
 ############################################################################################################
