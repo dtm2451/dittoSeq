@@ -1371,12 +1371,19 @@ get.genes <- function(object=DEFAULT){
 #' meta("res.1")
 
 meta <- function(meta, object=DEFAULT){
-
   if(typeof(object)=="character"){
-    if(meta=="ident"){return(as.character(eval(expr = parse(text = paste0(object,"@ident")))))}
+    if(meta=="ident"){
+      if(packageVersion("Seurat") >= '3.0.0'){
+        return(as.character(Idents(object = eval(expr = parse(text = paste0(object))))))
+      } else {return(as.character(eval(expr = parse(text = paste0(object,"@ident")))))}
+    }
     else{return(eval(expr = parse(text = paste0(object,"@meta.data$'",meta, "'"))))}
   } else {
-    if(meta=="ident"){return(as.character(object@ident))}
+    if(meta=="ident"){
+      if(packageVersion("Seurat") >= '3.0.0'){
+        return(as.character(Idents(object)))
+      } else {return(as.character(object@ident))}
+    }
     else{return(eval(expr = parse(text = paste0("object@meta.data$",meta))))}
   }
 }
