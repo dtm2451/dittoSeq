@@ -1340,9 +1340,14 @@ get.metas <- function(object=DEFAULT){
 
 get.genes <- function(object=DEFAULT){
 
-  if (classof(object)=="seurat"){
+  if (classof(object)=="Seurat.v2"){
     if(typeof(object)=="character"){
       return(rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
+    } else {return(rownames(object@raw.data))}
+  }
+  if (classof(object)=="Seurat.v3"){
+    if(typeof(object)=="character"){
+      return(rownames(eval(expr = parse(text = paste0(object)))))
     } else {return(rownames(object@raw.data))}
   }
   if (classof(object)=="RNAseq"){
