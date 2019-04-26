@@ -1385,7 +1385,7 @@ meta <- function(meta, object=DEFAULT){
 #' Returns the values of a gene for all cells/samples
 #'
 #' @param gene               quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object             "name" of the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param data.type          Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation)? Default = "normalized"
 #' @return Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
 #' @examples
@@ -1397,30 +1397,50 @@ meta <- function(meta, object=DEFAULT){
 
 gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
-  }
-  #Set up data frame for establishing how to deal with different input object types
+  #Set up data frame for establishing how to deal with RNAseq or Seurat-v2 objects
   target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects", "@samples"),
-                       seurat = c("@data","@raw.data","@scale.data", "@cell.names"))
+                       Seurat.v2 = c("@data","@raw.data","@scale.data", "@cell.names"),
+                       Seurat.v3 = c("nope", "counts", "scale.data", "nope"),
+                       stringsAsFactors = F)
   rownames(target) <- c("normalized","raw","scaled","sample.names")
 
+  #Distinct functions if data.type = "relative" or "normalized.to.max" compared to all other options:
   if(data.type == "relative" | data.type == "normalized.to.max"){
     if(data.type == "relative"){
-      OUT <- t(as.numeric(scale(gene(gene, object, "normalized"))))
+      #For "relative", recursive call to grab the 'normalized'  data that then has scaling run on top of it.
+      OUT <- as.numeric(scale(gene(gene, object, "normalized")))
     } else {
+      #For "normalized.to.max", recursive call to grab the 'normalized' data, then divide by its max.
       OUT <- gene(gene, object, "normalized")/max(gene(gene, object, "normalized"))
     }
+    #For all other data.type options...
   } else {
-  OUT <- eval(expr = parse(text = paste0(object,
-                                         target[data.type,classof(object)],
-                                         "[gene,",
-                                         object,
-                                         target["sample.names",classof(object)],
-                                         "]")))
+    if (classof(object)!="Seurat.v3"){
+      OUT <- eval(expr = parse(text = paste0(object,
+                                             target[data.type,classof(object)],
+                                             "[gene,",
+                                             object,
+                                             target["sample.names",classof(object)],
+                                             "]")))
+      #Change from sparse form if sparse
+      OUT <- as.numeric(OUT)
+      #Add names
+      names(OUT) <- eval(expr = parse(text = paste0(object, target["sample.names",classof(object)])))
+    } else {
+      #Go from "object" to the actual object if given in character form
+      object <- eval(expr = parse(text = paste0(object)))
+      #Obtain expression
+      if(data.type == "normalized"){
+        OUT <- GetAssayData(object)[gene,]
+      } else {
+        OUT <- GetAssayData(object, slot = target[data.type,classof(object)])[gene,]
+      }
+      #Change from sparse form if sparse
+      OUT <- as.numeric(OUT)
+      #Add cellnames
+      names(OUT) <- colnames(object)
+    }
   }
-  OUT <- as.numeric(OUT)
-  names(OUT) <- eval(expr = parse(text = paste0(object, target["sample.names",classof(object)])))
   OUT
 }
 
@@ -1678,7 +1698,7 @@ classof <- function (object = DEFAULT){
 
   #If a Seurat, need to add what version
   if (grepl("Seurat|seurat",class)){
-    if(object@version > '3.0.0') {
+    if(object@version >= '3.0.0') {
       #Then needs to be
       class <- "Seurat.v3"
     } else {
