@@ -1401,8 +1401,8 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
   target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects", "@samples"),
                        Seurat.v2 = c("@data","@raw.data","@scale.data", "@cell.names"),
                        Seurat.v3 = c("nope", "counts", "scale.data", "nope"),
-                       stringsAsFactors = F)
-  rownames(target) <- c("normalized","raw","scaled","sample.names")
+                       stringsAsFactors = F,
+                       row.names = c("normalized","raw","scaled","sample.names"))
 
   #Distinct functions if data.type = "relative" or "normalized.to.max" compared to all other options:
   if(data.type == "relative" | data.type == "normalized.to.max"){
@@ -1431,9 +1431,9 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
       object <- eval(expr = parse(text = paste0(object)))
       #Obtain expression
       if(data.type == "normalized"){
-        OUT <- GetAssayData(object)[gene,]
+        OUT <- Seurat::GetAssayData(object)[gene,]
       } else {
-        OUT <- GetAssayData(object, slot = target[data.type,classof(object)])[gene,]
+        OUT <- Seurat::GetAssayData(object, slot = target[data.type,classof(object)])[gene,]
       }
       #Change from sparse form if sparse
       OUT <- as.numeric(OUT)
@@ -1479,11 +1479,26 @@ meta.levels <- function(meta, object = DEFAULT, table.out = F){
 which_data <- function(data.type, object=DEFAULT){
   #Set up data frame for establishing how to deal with different input object types
   target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects"),
-                       seurat = c("@data","@raw.data","@scale.data"),
+                       Seurat.v2 = c("@data","@raw.data","@scale.data"),
+                       Seurat.v3 = c("nope", "counts", "scale.data"),
+                       stringsAsFactors = F,
                        row.names = c("normalized","raw","scaled"))
-  eval(expr = parse(text = paste0(object,
-                                  target[data.type,classof(object)]
-                                  )))
+  if(classof(object)!="Seurat.v3"){
+    #For RNAseq or Seurat-v2
+    eval(expr = parse(text = paste0(object,
+                                    target[data.type,classof(object)]
+                                    )))
+  } else {
+    #For Seurat-v3
+    #Go from "object" to the actual object if given in character form
+    object <- eval(expr = parse(text = paste0(object)))
+    #Obtain expression
+    if(data.type == "normalized"){
+      OUT <- Seurat::GetAssayData(object)
+    } else {
+      OUT <- Seurat::GetAssayData(object, slot = target[data.type,classof(object)])
+    }
+  }
 }
 
 #' Retrieves all the cells/samples
@@ -1633,7 +1648,7 @@ extDim <- function(reduction.use, dim=1, object=DEFAULT){
   }
 
   # If object is a Seurat object
-  if (classof(object)=="seurat"){
+  if (grepl("Seurat",classof(object))){
     if ("dr" %in% slotNames(eval(expr = parse(text = paste0(object))))){
       OUT <- list(eval(expr = parse(text = paste0(object,"@dr$",reduction.use,"@cell.embeddings[,",dim,"]"))))
       OUT[2] <- paste0(eval(expr = parse(text = paste0(object,"@dr$",reduction.use,"@key"))),dim)
