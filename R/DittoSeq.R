@@ -1122,10 +1122,13 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 #' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
 #' @param add.title          TRUE/FALSE. Whether a title should be added.
 #' @param axes.labels        TRUE/FALSE. Whether a axis labels should be added.
+#' @param main               For setting a title for each individual plot.  Options: Leave as "make" and the titles will be which cells are in each plot.  "any.text" will set the same title for all plots.  NULL or "" will remove the titles.
+#' @param all.cells.main     For setting the title of the All.cells plot.  Default is All Cells.  Set to NULL or "" to remove.
 #' @param min                Works as in DimPlot, not required to be given, but sets the value associated with the minimum color.  All points with a lower value than this will get the same min.color.
 #' @param max                Works as in DimPlot, not required to be given, but sets the value associated with the maximum color.  All points with a higher value than this will get the same max.color.
 #' @param ...                other paramters that can be given to DBDimPlot function used in the same way.
 #' @param data.type          As with regular DBDimPlotting, For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
+#' @param OUT.List           TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows direct input into plot_around().
 #' @return A function for quickly making multiple DBDimPlots arranged in a grid, where instead of varying the 'var' displayed, what varies is the cells that are shown. Most parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each plot is which cells get displayed. NOTE: This function is incompatible with changing the 'colors' input. If you need to change the order of when certain colrs are chosen, change the order in color.panel. Also note: if 'var' given refers to continuous data, then the min and max will be calculated at the beginning in order to make the scale consistent accross all plots.  You can still set your own range, and this would also create a consistent scale.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1134,16 +1137,20 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 #' DEFAULT <- "pbmc"
 #' multiDBDimPlot_vary_cells("CD14", cells.use.meta = "ident")
 
-multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
-                                      cells.use.meta,
-                                      cells.use.levels = meta.levels(cells.use.meta,object),
-                                      all.cells.plot = T,
-                                      show.legend = F,
-                                      add.single.legend = T,
-                                      ncol = 3, nrow = NULL,
-                                      add.title=T, axes.labels=F,
-                                      min = NULL, max = NULL,
-                                      data.type = "normalized", ...){
+new_multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
+                                          cells.use.meta,
+                                          cells.use.levels = meta.levels(cells.use.meta,object),
+                                          all.cells.plot = T,
+                                          show.legend = F,
+                                          add.single.legend = T,
+                                          ncol = 3, nrow = NULL,
+                                          add.title=T, axes.labels=F,
+                                          min = NULL, max = NULL,
+                                          data.type = "normalized",
+                                          OUT.List = F,
+                                          main = "make",
+                                          all.cells.main = "All Cells",
+                                          ...){
 
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
   # If set to TRUE, set it to "make".
@@ -1178,7 +1185,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   auto.title = add.title,
                   xlab = lab,
                   ylab = lab,
-                  main = X,
+                  main = ifelse(main == "make", X, main),
                   min = min, max = max,
                   data.type = data.type,
                   ...) +
@@ -1195,7 +1202,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   xlab = lab,
                   colors = in.this.plot,
                   ylab = lab,
-                  main = X,
+                  main = ifelse(main == "make", X, main),
                   min = min, max = max,,
                   data.type = data.type,
                   ...) +
@@ -1214,7 +1221,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                 colors = X,
                 xlab = lab,
                 ylab = lab,
-                main = levels[X],
+                main = ifelse(main == "make", levels[X], main),
                 min = min, max = max,,
                 data.type = data.type,
                 ...) +
@@ -1228,7 +1235,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                         ylab = lab,
                         min = min, max = max,,
                         data.type = data.type,
-                        main = "All Cells",
+                        main = all.cells.main,
                         ...)
   legend <- cowplot::ggdraw(cowplot::get_legend(all.plot))
   if (all.cells.plot){
@@ -1237,7 +1244,11 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
   if (add.single.legend){
     plots$legend <- legend
   }
-  gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow)
+  if(OUT.List){
+    return(plots)
+  } else {
+    return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
+  }
 }
 
 #################### Helper Functions ########################
