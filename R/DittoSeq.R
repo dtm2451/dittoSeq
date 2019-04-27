@@ -1143,11 +1143,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                                       ncol = 3, nrow = NULL,
                                       add.title=T, axes.labels=F,
                                       min = NULL, max = NULL,
-                                      data.type = "normalized",
-                                      OUT.List = FALSE,
-                                      main = "make",
-                                      all.cells.main = "All Cells",
-                                      ...){
+                                      data.type = "normalized", ...){
 
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
   # If set to TRUE, set it to "make".
@@ -1182,7 +1178,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   auto.title = add.title,
                   xlab = lab,
                   ylab = lab,
-                  main = ifelse(main == "make", X, main),
+                  main = X,
                   min = min, max = max,
                   data.type = data.type,
                   ...) +
@@ -1199,7 +1195,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   xlab = lab,
                   colors = in.this.plot,
                   ylab = lab,
-                  main = ifelse(main == "make", X, main),
+                  main = X,
                   min = min, max = max,,
                   data.type = data.type,
                   ...) +
@@ -1218,7 +1214,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                 colors = X,
                 xlab = lab,
                 ylab = lab,
-                main = ifelse(main == "make", levels[X], main),
+                main = levels[X],
                 min = min, max = max,,
                 data.type = data.type,
                 ...) +
@@ -1232,7 +1228,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                         ylab = lab,
                         min = min, max = max,,
                         data.type = data.type,
-                        main = all.cells.main,
+                        main = "All Cells",
                         ...)
   legend <- cowplot::ggdraw(cowplot::get_legend(all.plot))
   if (all.cells.plot){
@@ -1241,11 +1237,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
   if (add.single.legend){
     plots$legend <- legend
   }
-  if(OUT.List == FALSE){
-    return(plots)
-  } else {
-    return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
-  }
+  gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow)
 }
 
 #################### Helper Functions ########################
