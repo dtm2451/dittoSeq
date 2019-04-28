@@ -1023,6 +1023,7 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
 #' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
 #' @param add.title          TRUE/FALSE. Whether a title should be added.
 #' @param ylab               TRUE/FALSE/"var". Whether a y-axis title should be added, TRUE/FALSE or "var".  If "var", then the var names will be used.  If TRUE, y-label for any gene vars will be "'var' expression"
+#' @param OUT.List           TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.
 #' @param ...                other paramters that can be given to DBPlot function used in exactly the same way.
 #' @return Given multiple 'var' parameters, this function will output a DBPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBPlot can be adjusted here.
 #' @examples
@@ -1050,11 +1051,12 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
 #'             show.legend = TRUE)              #Show legends
 
 multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
-                        show.legend = F,
+                        show.legend = FALSE,
                         ncol = 3,
                         nrow = NULL,
-                        add.title=T,
-                        ylab = F,
+                        add.title=TRUE,
+                        ylab = FALSE,
+                        OUT.List = FALSE,
                         ...){
 
   ylab.input <- ylab
@@ -1065,7 +1067,14 @@ multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
                                              ...) +
       theme(legend.position = ifelse(show.legend, "right", "none"))
   })
-  gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow)
+
+  #Output
+  if (OUT.List){
+    names(plots) <- vars
+    return(plots)
+  } else {
+    return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
+  }
 }
 
 #### multiDBDimPlot : a function for quickly making multiple DBDimPlots arranged in a grid.
@@ -1078,6 +1087,7 @@ multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
 #' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
 #' @param add.title          TRUE/FALSE. Whether a title should be added.
 #' @param axes.labels        TRUE/FALSE. Whether a axis labels should be added
+#' @param OUT.List           TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.
 #' @param ...                other paramters that can be given to DBDimPlot function used in exactly the same way.
 #' @return Given multiple 'var' parameters, this function will output a DBDimPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each is 'var'.
 #' @examples
@@ -1091,7 +1101,9 @@ multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
 multiDBDimPlot <- function(vars, object = DEFAULT,
                            show.legend = F,
                            ncol = 3, nrow = NULL,
-                           add.title=T, axes.labels=F,...){
+                           add.title=T, axes.labels=F,
+                           OUT.List,
+                           ...){
 
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
   # If set to TRUE, set it to "make".
@@ -1104,8 +1116,12 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
                                                 ...) +
       theme(legend.position = ifelse(show.legend, "right", "none"))
   })
-
-  gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow)
+  if (OUT.List){
+    names(plots) <- vars
+    return(plots)
+  } else {
+    return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
+  }
 }
 
 ##################### multiDBDimPlot_vary_cells #######################
@@ -1128,7 +1144,7 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 #' @param max                Works as in DimPlot, not required to be given, but sets the value associated with the maximum color.  All points with a higher value than this will get the same max.color.
 #' @param ...                other paramters that can be given to DBDimPlot function used in the same way.
 #' @param data.type          As with regular DBDimPlotting, For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
-#' @param OUT.List           TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows direct input into plot_around().
+#' @param OUT.List           TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, the All.cells plot will be named "all" and the legend will be named "legend". Others will be named by which cells are in them.
 #' @return A function for quickly making multiple DBDimPlots arranged in a grid, where instead of varying the 'var' displayed, what varies is the cells that are shown. Most parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each plot is which cells get displayed. NOTE: This function is incompatible with changing the 'colors' input. If you need to change the order of when certain colrs are chosen, change the order in color.panel. Also note: if 'var' given refers to continuous data, then the min and max will be calculated at the beginning in order to make the scale consistent accross all plots.  You can still set your own range, and this would also create a consistent scale.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -1137,20 +1153,20 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 #' DEFAULT <- "pbmc"
 #' multiDBDimPlot_vary_cells("CD14", cells.use.meta = "ident")
 
-new_multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
-                                          cells.use.meta,
-                                          cells.use.levels = meta.levels(cells.use.meta,object),
-                                          all.cells.plot = T,
-                                          show.legend = F,
-                                          add.single.legend = T,
-                                          ncol = 3, nrow = NULL,
-                                          add.title=T, axes.labels=F,
-                                          min = NULL, max = NULL,
-                                          data.type = "normalized",
-                                          OUT.List = F,
-                                          main = "make",
-                                          all.cells.main = "All Cells",
-                                          ...){
+multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
+                                      cells.use.meta,
+                                      cells.use.levels = meta.levels(cells.use.meta,object),
+                                      all.cells.plot = T,
+                                      show.legend = F,
+                                      add.single.legend = T,
+                                      ncol = 3, nrow = NULL,
+                                      add.title=T, axes.labels=F,
+                                      min = NULL, max = NULL,
+                                      data.type = "normalized",
+                                      OUT.List = F,
+                                      main = "make",
+                                      all.cells.main = "All Cells",
+                                      ...){
 
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
   # If set to TRUE, set it to "make".
@@ -1191,6 +1207,7 @@ new_multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   ...) +
           theme(legend.position = ifelse(show.legend, "right", "none"))
       })
+      names(plots) <- cells.use.levels
     } else { #If data is discrete, then we need to make sure the right colors are use in each plot!
       levels <- meta.levels(var,object)
       plots <- lapply(cells.use.levels, function(X) {
@@ -1208,6 +1225,7 @@ new_multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   ...) +
           theme(legend.position = ifelse(show.legend, "right", "none"))
       })
+      names(plots) <- cells.use.levels
     }
   }
   #Case 2: If var and cells.use.meta are equal
@@ -1227,6 +1245,7 @@ new_multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                 ...) +
         theme(legend.position = ifelse(show.legend, "right", "none"))
     })
+    names(plots) <- cells.use.levels
   }
   #Generate all.cells.plot and legend explanation
   all.plot <- DBDimPlot(var, object,
@@ -1697,7 +1716,6 @@ extDim <- function(reduction.use, dim=1, object=DEFAULT){
 #'
 
 gen.key <- function (reduction.use){
-
   key <- reduction.use
   if (grepl("pca", reduction.use)){key <- "PC"}
   if (grepl("cca", reduction.use)){key <- "CC"}
@@ -1739,6 +1757,52 @@ classof <- function (object = DEFAULT){
     }
   }
   class
+}
+
+###### grab_legend: Extract the legend from a ggplot ############
+#' Extract the legend from a ggplot
+#'
+#' @description This function will extract the legend of any ggplot.
+#' @param ggplot The ggplot object that you would like to grab the legend from.  Can be any of the single plots from DittoSeq except DBHeatmap and demux.calls.summary
+#' @return The legend of a ggplot plot
+#' @examples
+#' #Grab data
+#' pbmc <- Seurat::pbmc_small
+#'
+#' #Make a plot
+#' DBDimPlot(pbmc)
+#'
+#' #Extract the legend:
+#' grab_legend(DBDimPlot(pbmc))
+#'
+#' #Extract the legend of a stored plot:
+#' ggplot <- DBDimPlot(pbmc)
+#' grab_legend(ggplot)
+grab_legend <- function(ggplot){
+  cowplot::ggdraw(cowplot::get_legend(ggplot))
+}
+
+###### remove_legend: Remove the legend from a ggplot ############
+#' Remove the legend from a ggplot
+#'
+#' @description This function will remove the legend of any ggplot.
+#' @param ggplot The ggplot object that you would like to eliminate the legend from.  Can be any of the single plots from DittoSeq except DBHeatmap and demux.calls.summary
+#' @return A ggplot plot with its legend removed.
+#' @examples
+#' #Grab data
+#' pbmc <- Seurat::pbmc_small
+#'
+#' #Make a plot
+#' DBDimPlot(pbmc)
+#'
+#' #Remove the legend:
+#' remove_legend(DBDimPlot(pbmc))
+#'
+#' #Remove the legend of a stored plot:
+#' ggplot <- DBDimPlot(pbmc)
+#' remove_legend(ggplot)
+remove_legend <- function(ggplot){
+  ggplot + theme(legend.position = "none")
 }
 
 ############################################################################################################

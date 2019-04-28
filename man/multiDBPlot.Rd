@@ -5,8 +5,8 @@
 \title{Generates multiple DBPlots arranged into a grid.}
 \usage{
 multiDBPlot(vars, object = DEFAULT, group.by, color.by,
-  show.legend = F, ncol = 3, nrow = NULL, add.title = T,
-  ylab = F, ...)
+  show.legend = FALSE, ncol = 3, nrow = NULL, add.title = TRUE,
+  ylab = FALSE, OUT.List = FALSE, ...)
 }
 \arguments{
 \item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
@@ -26,6 +26,8 @@ multiDBPlot(vars, object = DEFAULT, group.by, color.by,
 \item{add.title}{TRUE/FALSE. Whether a title should be added.}
 
 \item{ylab}{TRUE/FALSE/"var". Whether a y-axis title should be added, TRUE/FALSE or "var".  If "var", then the var names will be used.  If TRUE, y-label for any gene vars will be "'var' expression"}
+
+\item{OUT.List}{TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.}
 
 \item{...}{other paramters that can be given to DBPlot function used in exactly the same way.}
 }
