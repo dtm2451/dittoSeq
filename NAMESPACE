@@ -1,6 +1,6 @@
 importFrom("methods", "new", "slotNames")
 importFrom("stats", "median", "prcomp", "sd")
 importFrom("grDevices", "colorRampPalette")
-importFrom("utils", "read.csv")
+importFrom("utils", "read.csv", "packageVersion")
 import("ggplot2")
 exportPattern("^[[:alpha:]]+")

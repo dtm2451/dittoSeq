@@ -1,220 +1,131 @@
-#' Imports 10X and demuxlet data and creates a Seurat object
+#' Extracts Demuxlet information into a pre-made Seurat object
 #'
-#' @param CellRangerLocations list of locations where barcodes.tsv, genes.tsv, and matrix.mtx are located.
+#' @param Seurat The Seurat object to add meta.datas to.
+#' @param Lane.info.meta A meta.data
 #' @param Lane.names how the lanes should be named (if you want to give them something different from the default = Lane1, Lane2, Lane3...)
 #' @param Demuxlet.best the location of the .best output file from running of demuxlet
 #' @param verbose whether to print messages about the stage of this process that is currently being run.
-#' @return Imports CellRanger 10X data from multiple lanes, merges those into a single Seurat object, then extracts the linked sample calls and demuxlet statistics from the demuxlet .best output file.  All relevant demuxlet information is stored as meta.data slots.
+#' @param bypass.check for running this function anyway even when meta.data slots already around would be over-written.
+#' @return Imports Demuxlet sample calls and statistics into a Seurat object.  All relevant demuxlet information is stored as meta.data slots.  Works in 2 differnet ways:  If a Lane.info.meta is given, this metadata is copied into a "Lane" metadata becuase that is where my summarizer functions look by default.  If no Lane.info.meta is given, information about lane origin is assumed to be in the form of "-#" at the end of the cellnames; the form they would be in if 10X lanes were combined with `cellranger aggr`.
 #' @examples
-#' #Data required for an example would be rather large.  For an example, see the online vignette.
+#' #Data required for an example would be rather large.
+#' # For an example, see the online vignette at:
+#' # https://github.com/dtm2451/DittoSeq/tree/master/Demuxlet-Vignette
 
-Import10XDemux <- function(CellRangerLocations, Lane.names=NA, Demuxlet.best, verbose = TRUE){
-  #CellRangerLocations = list of locations where barcodes.tsv, genes.tsv, and matrix.mtx are located.
+ImportDemux2Seurat <- function(Seurat,
+                               Lane.info.meta = NULL, Lane.names=NA,
+                               Demuxlet.best,
+                               bypass.check = FALSE,
+                               verbose = TRUE){
+  #Seurat = The Seurat object to add meta.datas to.  Lane info must be in the form of a "-#" at the end of the cell.names.
   #Lane.names = how the lanes should be named, if you want to give them something different from Lane1, Lane2, Lane3...
   #Demux.best = the .best output file from running of demuxlet
 
-  #Create Lane.names if not given
-  if(is.na(Lane.names[1])){Lane.names <- paste0("Lane",seq_len(length(Seurats)))}
-
-  #If CellRangerLocations has length greater than one, create individual Seurat's for each and iteratively bring in each set.
-  if(verbose){print("Building Seurat Object...",quote=F)}
-  if(length(CellRangerLocations)==1){
-    OUT <- Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[1]))
-  } else {
-    #If Seurat-v2:
-    if(packageVersion("Seurat") < '3.0.0'){
-      # Make 1 and 2, then merge, then iteratively add on the rest of the Seurat objects.
-      if(verbose){print(paste0("  Making and merging ",Lane.names[1], " and ", Lane.names[2]),quote=F)}
-      OUT <- Seurat::MergeSeurat(object1 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[1])),
-                         add.cell.id1 = Lane.names[1],
-                         object2 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[2])),
-                         add.cell.id2 = Lane.names[2],
-                         do.normalize = F)
-      if(length(CellRangerLocations)>=3){
-        for (X in 3:length(CellRangerLocations)){
-          if(verbose){print(paste0("  Adding ", Lane.names[X]),quote=F)}
-          OUT <- Seurat::MergeSeurat(object1 = OUT,
-                             object2 = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[X])),
-                             add.cell.id2 = Lane.names[X],
-                             do.normalize = F)
-        }
-      }
+  #Check if there are meta.data that would be over.written
+  Check <- c("Lane", "Sample", "demux.doublet.call", "demux.RD.TOTL", "demux.RD.PASS",
+             "demux.RD.UNIQ", "demux.N.SNP", "demux.PRB.DBL", "demux.barcode.dup")
+  if (sum(Check %in% get.metas(Seurat))>0){
+    if(bypass.check){
+      print(paste0("Caution: '",
+                   paste0(Check[Check %in% get.metas(Seurat)], collapse = "' and '"),
+                   "' are going to bw overwritten."),
+            quote = F)
     } else {
-      #Seurat-v3:
-      if(verbose){print(paste0("  Making and merging ",
-                               paste(Lane.names,
-                                     collapse = " and ")),
-                        quote=F)}
-      merge(x = Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[1])),
-            add.cell.ids = Lane.names,
-            y = list(sapply(2:length(CellRangerLocations),
-                            function(X) Seurat::CreateSeuratObject(Seurat::Read10X(CellRangerLocations[X])))),
-            merge.data = F)
+      print("To proceed anyway, set `bypass.chech = TRUE`.")
+      print(paste0("WARNING: ",
+                   paste0(Check[Check %in% get.metas(Seurat)], collapse = " and "),
+                   " would be overwritten."),
+            quote = F)
+      return(Seurat)
     }
-    if(verbose){print("  Adding 'Lane' information as meta.data",quote=F)}
-    OUT@meta.data$Lane <-
-      if(length(CellRangerLocations)>1){
-        sapply(OUT@cell.names, function(X) strsplit(X, "_")[[1]][[1]])
-      } else {
-        Lane.names[1]
-      }
   }
-
-  if(verbose){print("Extracting the Demuxlet information",quote=F)}
-    DEMUX.raw <- read.csv(Demuxlet.best, header=TRUE, sep="\t")
-    DEMUX.call <- data.frame(doublet=sapply(as.character(DEMUX.raw$BEST),
-                                            function(X) strsplit(X,'-')[[1]][[1]]),
-                             sample=sapply(as.character(DEMUX.raw$BEST),
-                                           function(x){strsplit(x,"-")[[1]][[2]]}),
-                             barcode=sapply(as.character(DEMUX.raw$BARCODE),
-                                            function(x){strsplit(x,"-")[[1]][[1]]}))
-  if(verbose){print("  Matching barcodes",quote=F)}
-    # Strip barcodes from the cell names of the Seurat object
-    cells <- sapply(OUT@cell.names, function(X) strsplit(X, "_")[[1]][[length(strsplit(X, "_")[[1]])]])
-    # Remove any uneccesary cells from the Demux output (= cells not in this Seurat object)
-    trim <- DEMUX.call[DEMUX.call$barcode %in% cells,]
-    # Determine the indices to match Seurat cells to Demux matrix.
-    inds <- sapply(cells,function(X) match(X,trim$barcode))
-  if(verbose){print("  Adding Demuxlet as meta.data",quote=F)}
-    OUT@meta.data$Sample <- as.character(trim$sample[inds])
-    OUT@meta.data$demux.doublet.call <- trim$doublet[inds]
-    trim.out <- DEMUX.raw[DEMUX.call$barcode %in% cells,]
-    OUT@meta.data$demux.RD.TOTL <- trim.out$RD.TOTL[inds]
-    OUT@meta.data$demux.RD.PASS <- trim.out$RD.PASS[inds]
-    OUT@meta.data$demux.RD.UNIQ <- trim.out$RD.UNIQ[inds]
-    OUT@meta.data$demux.N.SNP <- trim.out$N.SNP[inds]
-    OUT@meta.data$demux.PRB.DBL <- trim.out$PRB.DBL[inds]
-  if(verbose){
-    print("  Checking for barcode duplicates",quote=F)
-    print("",quote=F)
-    print("",quote=F)}
-  # Check if there are barcode duplicates accross 10X lanes.
-  demux.barcode.dup <- array(F, dim = length(OUT@cell.names))
-  demux.barcode.dup[duplicated(inds, fromLast=F)|duplicated(inds, fromLast=T)] <- T
-  if (sum(demux.barcode.dup)>0){
-    print("Warning: Cell barcodes were duplicated accross lanes of this dataset and may have been therefore artificially called as doublets by demuxlet. Recommended: Modify how your demuxlet was run to account for this.",quote=F)
-    OUT@meta.data$demux.barcode.dup <- demux.barcode.dup
-    print("",quote=F)
-    print("",quote=F)
-  }
-  print("SUMMARY:",quote=F)
-  print(paste0(length(CellRangerLocations),
-               " CellRanger outputs were combined into a Seurat object with demuxlet data extracted into metadata."),quote=F)
-  print(paste0("The average number of SNPs per cell was: ",round(mean(OUT@meta.data$demux.N.SNP),1)),quote=F)
-  print(paste0("Out of ",length(OUT@cell.names)," cells total, Demuxlet assigned:"),quote=F)
-  print(paste0("     ",sum(OUT@meta.data$demux.doublet.call=="SNG", na.rm = TRUE), " cells or ", round(100*sum(OUT@meta.data$demux.doublet.call=="SNG")/length(OUT@cell.names),1), "% as singlets"),quote=F)
-  print(paste0("     ",sum(OUT@meta.data$demux.doublet.call=="DBL", na.rm = TRUE), " cells or ", round(100*sum(OUT@meta.data$demux.doublet.call=="DBL")/length(OUT@cell.names),1), "% as doublets"),quote=F)
-  print(paste0("     ",sum(OUT@meta.data$demux.doublet.call=="AMB", na.rm = TRUE), " cells as too ambiguous to call."),quote=F)
-  OUT
-}
-
-#' Imports demuxlet data into a (merged) Seurat object
-#'
-#' @param Seurats The set of Seurat objects that represent your dataset (each is assumed to represent individual 10X lanes).
-#' @param Lane.names how the lanes should be named (if you want to give them something different from the default = Lane1, Lane2, Lane3...)
-#' @param Demuxlet.best the location of the .best output file from running of demuxlet
-#' @param verbose whether to print messages about the stage of this process that is currently being run.
-#' @return Imports Seurat objects, each expected to represent a single lane of droplet generation (or separate pool of samples for another sc-seq method, or sequencing lane, etc.), merges those into a single Seurat object, then extracts the linked sample calls and demuxlet statistics from the demuxlet .best output file.  All relevant demuxlet information is stored as meta.data slots.
-#' @examples
-#' #Data required for an example would be rather large.  For an example, see the online vignette.
-
-ImportSeuratDemux <- function(Seurats, Lane.names=NA, Demuxlet.best, verbose = TRUE){
-  #Seurats = list of Seurat objects (each representing individual 10X lanes).
-  #Lane.names = how the lanes should be named, if you want to give them something different from Lane1, Lane2, Lane3...
-  #Demux.best = the .best output file from running of demuxlet
 
   #Create Lane.names if not given
-  if(is.na(Lane.names[1])){Lane.names <- paste0("Lane",seq_len(length(Seurats)))}
-
-  #If Seurats has length greater than one, merge individual Seurat's iteratively.
-  if(verbose){print("Merging Seurat Objects...",quote=F)}
-  if(length(Seurats)==1){
-    OUT <- Seurats
-  } else {
-    #If Seurat-v2:
-    if(packageVersion("Seurat") < '3.0.0'){
-      # Make 1 and 2, then merge, then iteratively add on the rest of the Seurat objects.
-      if(verbose){print(paste0("  Merging ",Lane.names[1], " and ", Lane.names[2]),quote=F)}
-      OUT <- Seurat::MergeSeurat(object1 = Seurats[[1]],
-                                 add.cell.id1 = Lane.names[1],
-                                 object2 = Seurats[[2]],
-                                 add.cell.id2 = Lane.names[2],
-                                 do.normalize = F)
-      if(length(Seurats)>=3){
-        for (X in 3:length(Seurats)){
-          if(verbose){print(paste0("  Adding ", Lane.names[X]),quote=F)}
-          OUT <- Seurat::MergeSeurat(object1 = OUT,
-                                     object2 = Seurats[[X]],
-                                     add.cell.id2 = Lane.names[X],
-                                     do.normalize = F)
-        }
-      }
+  if(is.na(Lane.names[1])){
+    if(is.null(Lane.info.meta)){
+      Lane.names <- paste0("Lane",seq_len(length(Seurats)))
     } else {
-      #Seurat-v3:
-      if(verbose){print(paste0("  Merging ",
-                               paste(Lane.names,
-                                     collapse = " and ")),
-                        quote=F)}
-      merge(x = Seurats[[1]],
-            add.cell.ids = Lane.names,
-            y = Seurats[[2:length(Seurats)]],
-            merge.data = F)
+      Lane.names <- meta.levels(Lane.info.meta, Seurat)
     }
-    if(verbose){print("  Adding 'Lane' information as meta.data",quote=F)}
-    OUT@meta.data$Lane <-
-      if(length(Seurats)>1){
-        sapply(OUT@cell.names, function(X) strsplit(X, "_")[[1]][[1]])
-      } else {
-        Lane.names[1]
-      }
   }
 
+  # Obtain the cell.names
+  if(Seurat@version < '3.0.0'){
+    #If Seurat-v2:
+    cell.names <- Seurat@cell.names
+  } else {
+    #Seurat-v3:
+    cell.names <- colnames(Seurat)
+  }
+
+  #Add lane metadata information
+  if(verbose){print("Adding 'Lane' information as meta.data",quote=F)}
+  if(!(is.null(Lane.info.meta))){
+    Seurat@meta.data$Lane <- meta(Lane.info.meta, Seurat)
+    lane.idents <- as.factor(as.character(meta(Lane.info.meta, Seurat)))
+  } else {
+    # Make object with just the `#` of `-#` parts of cellnames
+    lane.idents <- as.factor(c(sapply(cell.names, function(X){
+      strsplit(X, split = "-")[[1]][length(strsplit(X, split = "-")[[1]])]
+    })))
+    # Create the Lane metadata
+    Seurat@meta.data$Lane <- lane.idents
+    # Change from # to Lane.names
+    levels(Seurat@meta.data$Lane) <- Lane.names
+  }
+  Seurat@meta.data$Lane <- as.factor(as.character(Seurat@meta.data$Lane))
+
+  #Extract Demuxlet data
   if(verbose){print("Extracting the Demuxlet information",quote=F)}
   DEMUX.raw <- read.csv(Demuxlet.best, header=TRUE, sep="\t")
   DEMUX.call <- data.frame(doublet=sapply(as.character(DEMUX.raw$BEST),
                                           function(X) strsplit(X,'-')[[1]][[1]]),
                            sample=sapply(as.character(DEMUX.raw$BEST),
                                          function(x){strsplit(x,"-")[[1]][[2]]}),
-                           barcode=sapply(as.character(DEMUX.raw$BARCODE),
-                                          function(x){strsplit(x,"-")[[1]][[1]]}))
+                           barcode=as.character(DEMUX.raw$BARCODE))
   if(verbose){print("  Matching barcodes",quote=F)}
-  # Strip barcodes from the cell names of the Seurat object
-  cells <- sapply(OUT@cell.names, function(X) strsplit(X, "_")[[1]][[length(strsplit(X, "_")[[1]])]])
+  # Strip barcodes in cell.names from any of the extra info that may have been added by Seurat (normally "text_" at start of names)
+  cells <- sapply(cell.names, function(X) strsplit(X, split = "_")[[1]][length(strsplit(X, split = "_")[[1]])])
   # Remove any uneccesary cells from the Demux output (= cells not in this Seurat object)
   trim <- DEMUX.call[DEMUX.call$barcode %in% cells,]
   # Determine the indices to match Seurat cells to Demux matrix.
   inds <- sapply(cells,function(X) match(X,trim$barcode))
+  # Add demux info
   if(verbose){print("  Adding Demuxlet as meta.data",quote=F)}
-  OUT@meta.data$Sample <- as.character(trim$sample[inds])
-  OUT@meta.data$demux.doublet.call <- trim$doublet[inds]
+  Seurat@meta.data$Sample <- as.character(trim$sample[inds])
+  Seurat@meta.data$demux.doublet.call <- trim$doublet[inds]
   trim.out <- DEMUX.raw[DEMUX.call$barcode %in% cells,]
-  OUT@meta.data$demux.RD.TOTL <- trim.out$RD.TOTL[inds]
-  OUT@meta.data$demux.RD.PASS <- trim.out$RD.PASS[inds]
-  OUT@meta.data$demux.RD.UNIQ <- trim.out$RD.UNIQ[inds]
-  OUT@meta.data$demux.N.SNP <- trim.out$N.SNP[inds]
-  OUT@meta.data$demux.PRB.DBL <- trim.out$PRB.DBL[inds]
+  Seurat@meta.data$demux.RD.TOTL <- trim.out$RD.TOTL[inds]
+  Seurat@meta.data$demux.RD.PASS <- trim.out$RD.PASS[inds]
+  Seurat@meta.data$demux.RD.UNIQ <- trim.out$RD.UNIQ[inds]
+  Seurat@meta.data$demux.N.SNP <- trim.out$N.SNP[inds]
+  Seurat@meta.data$demux.PRB.DBL <- trim.out$PRB.DBL[inds]
   if(verbose){
     print("  Checking for barcode duplicates",quote=F)
     print("",quote=F)
     print("",quote=F)}
   # Check if there are barcode duplicates accross 10X lanes.
-  demux.barcode.dup <- array(F, dim = length(OUT@cell.names))
+  demux.barcode.dup <- array(F, dim = length(cell.names))
   demux.barcode.dup[duplicated(inds, fromLast=F)|duplicated(inds, fromLast=T)] <- T
   if (sum(demux.barcode.dup)>0){
     print("Warning: Cell barcodes were duplicated accross lanes of this dataset and may have been therefore artificially called as doublets by demuxlet. Recommended: Modify how your demuxlet was run to account for this.",quote=F)
-    OUT@meta.data$demux.barcode.dup <- demux.barcode.dup
+    Seurat@meta.data$demux.barcode.dup <- demux.barcode.dup
     print("",quote=F)
     print("",quote=F)
   }
   print("SUMMARY:",quote=F)
-  print(paste0(length(Seurats),
-               " Seurat objects were combined with demuxlet data extracted into metadata."),quote=F)
-  print(paste0("The average number of SNPs per cell was: ",round(mean(OUT@meta.data$demux.N.SNP),1)),quote=F)
-  print(paste0("Out of ",length(OUT@cell.names)," cells total, Demuxlet assigned:"),quote=F)
-  print(paste0("     ",sum(OUT@meta.data$demux.doublet.call=="SNG", na.rm = TRUE), " cells or ", round(100*sum(OUT@meta.data$demux.doublet.call=="SNG")/length(OUT@cell.names),1), "% as singlets"),quote=F)
-  print(paste0("     ",sum(OUT@meta.data$demux.doublet.call=="DBL", na.rm = TRUE), " cells or ", round(100*sum(OUT@meta.data$demux.doublet.call=="DBL")/length(OUT@cell.names),1), "% as doublets"),quote=F)
-  print(paste0("     ",sum(OUT@meta.data$demux.doublet.call=="AMB", na.rm = TRUE), " cells as too ambiguous to call."),quote=F)
-  OUT
+  print(paste0(length(levels(lane.idents)),
+               " lanes were identified and named:"),
+        quote=F)
+  print(paste0(Lane.names[1:length(levels(lane.idents))], collapse = ", "),
+        quote=F)
+  print(paste0("The average number of SNPs per cell for all lanes was: ",round(mean(Seurat@meta.data$demux.N.SNP),1)),quote=F)
+  print(paste0("Out of ",length(cell.names)," cells total, Demuxlet assigned:"),quote=F)
+  print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE), " cells or ", round(100*sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE)/length(cell.names),1), "% as singlets"),quote=F)
+  print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE), " cells or ", round(100*sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE)/length(cell.names),1), "% as doublets"),quote=F)
+  print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="AMB", na.rm = TRUE), " cells as too ambiguous to call."),quote=F)
+  print(paste0("     ",sum(!(cells %in% DEMUX.call$barcode)), " cells were not annotated in the demuxlet.best file."),quote=F)
+  Seurat
 }
 
 #' Plots the number of SNPs sequenced per droplet
@@ -269,8 +180,8 @@ demux.calls.summary <- function(object = DEFAULT, singlets.only = TRUE,
                               panel.border = element_blank())
   }
 
-  dat <- as.data.frame.matrix(table(meta("Sample")[cells.use %in% all.cells],
-                                    meta("Lane")[cells.use %in% all.cells]))
+  dat <- as.data.frame.matrix(table(meta("Sample", object)[cells.use %in% all.cells],
+                                    meta("Lane", object)[cells.use %in% all.cells]))
   dat$Sample <- row.names(dat)
   dat.m <- reshape2::melt(dat, "Sample")
   p <- ggplot(data = dat.m) +

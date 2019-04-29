@@ -838,7 +838,8 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
 #' DBPlot_multi_var_summary(genes,
 #'                          group.by = "res.1", color.by = "res.1")
 #'
-#' # To change it to have the violin plot in the back, a jitter on top of that, and a white boxplot with no fill in front:
+#' # To change it to have the violin plot in the back, a jitter on
+#' #  top of that, and a white boxplot with no fill in front:
 #' DBPlot_multi_var_summary(genes, object = "pbmc",
 #'                          group.by = "res.1", color.by = "res.1",
 #'                          plots = c("vlnplot","jitter","boxplot"),
