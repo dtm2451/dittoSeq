@@ -691,6 +691,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
 #' @param cells.annotation FALSE/ the name of a metadata slot containing how the cells/samples should be annotated. Default = FALSE.
 #' @param cells.annotation.colors The colors to use for the annotations bar
 #' @param data.out = If set to TRUE, the output will be a list of objects and and the script that would have been used for inputing into pheatmap.  NOTE: currently, a row#### arguement is added that should not be there.  I will remove this in a later release, but for now, know that you should remove this before trying to run the script.
+#' @param highlight.genes = A list of genes whose names you would like to show, c("Gene1","Gene2","Gene3").  Only these genes will be named in the resulting heatmap.
 #' @param ... other arguments that will be passed to pheatmap. For scRNAseq data, I recommend running with cluster_cols=FALSE first because clustering of thousands of cells can tak a long time!  Common ones: main for adding a title, cluster_cols or cluster_rows = FALSE to turn clustering off for cells or genes, treeheight_row or treeheight_col = 0 to remove or a positive # for setting how large the trees on the side/top should be drawn
 #' @description This function is a wrapper for the pheatmap function of the pheatmap package.  Given a set of genes, it will spit out a basic heatmap from your RNAseq data, or just certain cells/samples.
 #' @return Makes a heatmap where
@@ -719,7 +720,8 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
                       cell.names.meta = NULL, data.type = "normalized",
                       heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
                       cells.annotation = FALSE, cells.annotation.colors = rep(list(MYcolors),length(cells.annotation)),
-                      data.out=FALSE, ...){
+                      data.out=FALSE, highlight.genes = NULL,
+                      ...){
 
   #If no genes given, "error out"
   if(is.null(genes)){
@@ -760,6 +762,19 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
     rownames(Col_annot) <- colnames(data)
   }
 
+  #Make a labels_row input for displaying only certain genes if genes were given to highlight.genes input
+  Row_names <- NULL
+  if(!(is.null(highlight.genes))){
+    if(sum(highlight.genes %in% genes)>0){
+      #Subset to highlight.genes in the genelist
+      highlight.genes <- highlight.genes[highlight.genes %in% genes]
+      #Make a Row_names variable with the rownames of the data.
+      Row_names <- rownames(data)
+      #Overwrite all non-highlight genes rownames to ""
+      Row_names[-(match(highlight.genes,Row_names))] <- ""
+    }
+  }
+
   #Establish cell/sample names
   Col_names <- NULL
   if(!(is.null(cell.names.meta))){
@@ -767,11 +782,11 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
   }
 
   if(data.out){
-    OUT <- list(data,heatmap.colors,Col_annot,Col_annot_colors, Col_names,
+    OUT <- list(data,heatmap.colors,Col_annot,Col_annot_colors, Col_names,Row_names,
                 paste0("pheatmap(mat = data, color = heatmap.colors, annotation_col = Col_annot, ",
                        "annotation_colors = Col_annot_colors, scale = 'row', ",
-                       "labels_col = Col_names"))
-    names(OUT)<- c("data","heatmap.colors","Col_annot","Col_annot_colors","Col_names","pheatmap.script")
+                       "labels_col = Col_names, labels_row = Row_names"))
+    names(OUT)<- c("data","heatmap.colors","Col_annot","Col_annot_colors","Col_names","Row_names","pheatmap.script")
     return(OUT)
   }
 
@@ -782,6 +797,7 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
                            annotation_colors = Col_annot_colors,
                            scale = "row",
                            labels_col = Col_names,
+                           labels_row = Row_names,
                            ...)
 
   #DONE: Return the heatmap

@@ -9,7 +9,8 @@ DBHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   cells.annotation = FALSE,
   cells.annotation.colors = rep(list(MYcolors),
-  length(cells.annotation)), data.out = FALSE, ...)
+  length(cells.annotation)), data.out = FALSE, highlight.genes = NULL,
+  ...)
 }
 \arguments{
 \item{genes}{c("gene1","gene2","gene3",...) = list of genes to put in the heatmap. REQUIRED.}
@@ -29,6 +30,8 @@ DBHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
 \item{cells.annotation.colors}{The colors to use for the annotations bar}
 
 \item{data.out}{= If set to TRUE, the output will be a list of objects and and the script that would have been used for inputing into pheatmap.  NOTE: currently, a row#### arguement is added that should not be there.  I will remove this in a later release, but for now, know that you should remove this before trying to run the script.}
+
+\item{highlight.genes}{= A list of genes whose names you would like to show, c("Gene1","Gene2","Gene3").  Only these genes will be named in the resulting heatmap.}
 
 \item{...}{other arguments that will be passed to pheatmap. For scRNAseq data, I recommend running with cluster_cols=FALSE first because clustering of thousands of cells can tak a long time!  Common ones: main for adding a title, cluster_cols or cluster_rows = FALSE to turn clustering off for cells or genes, treeheight_row or treeheight_col = 0 to remove or a positive # for setting how large the trees on the side/top should be drawn}
 }
