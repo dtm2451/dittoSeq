@@ -1119,7 +1119,7 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
                            show.legend = F,
                            ncol = 3, nrow = NULL,
                            add.title=T, axes.labels=F,
-                           OUT.List,
+                           OUT.List = F,
                            ...){
 
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
