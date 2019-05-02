@@ -267,7 +267,8 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   #Use theme_bw if 'theme' = NA (was not provided), or use prettyplot.1 if "prettyplot" was provided, or
   # use provided theme if a full one is provided, aka = a list.
   if (is.na(theme)){
-    p <- p + theme_bw()
+    p <- p + theme_bw() +
+      if (grepl("tsne|umap", tolower(reduction.use))){theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())}
   } else {
     p <- p + theme
   }
