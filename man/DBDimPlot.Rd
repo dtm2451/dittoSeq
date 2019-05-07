@@ -14,7 +14,7 @@ DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   label.size = 5, highlight.labels = T, rename.groups = NA,
   min.color = "#F0E442", max.color = "#0072B2", min = NULL,
   max = NULL, color.panel = MYcolors, colors = 1:length(color.panel),
-  do.letter = NA, do.hover = FALSE, data.hover = var)
+  do.letter = NA, do.hover = FALSE, data.hover = var, opacity = 1)
 }
 \arguments{
 \item{var}{Target Variable = either values or a metadata (in "quotes"), gene (in "quotes"), or "ident"}
@@ -86,6 +86,8 @@ DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
 \item{do.hover}{TRUE/FALSE. Default = F.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.}
 
 \item{data.hover}{list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.}
+
+\item{opacity}{Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.}
 }
 \value{
 Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA, ICA, ..., plot of choice.  var is the argument that sets how dots will be colored, and it can refer to either continuous (ex: "CD34" = gene expression) or discrete (ex: "ident" = clustering) data.

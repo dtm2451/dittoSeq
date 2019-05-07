@@ -5,7 +5,7 @@
 \title{Generates multiple DBDimPlots arranged into a grid.}
 \usage{
 multiDBDimPlot(vars, object = DEFAULT, show.legend = F, ncol = 3,
-  nrow = NULL, add.title = T, axes.labels = F, OUT.List, ...)
+  nrow = NULL, add.title = T, axes.labels = F, OUT.List = F, ...)
 }
 \arguments{
 \item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}

@@ -37,6 +37,7 @@
 #' @param do.letter TRUE/FALSE/NA. Whether letters should be added on top of the colored dots. For colorblindness compatibility.  NA by default, and if left that way, will be set to either TRUE or FALSE depending on the number of groups if a discrete var is given. For when there are lots of descrete variables, it can be hard to see by just color / shape.  NOTE: Lettering is incompatible with changing dots to shapes, so this will override a setting of distinct shapes based on the 'shape' variable!
 #' @param do.hover TRUE/FALSE. Default = F.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.
 #' @param data.hover list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
+#' @param opacity Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.
 #' @return Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA, ICA, ..., plot of choice.  var is the argument that sets how dots will be colored, and it can refer to either continuous (ex: "CD34" = gene expression) or discrete (ex: "ident" = clustering) data.
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -58,7 +59,8 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                       rename.groups = NA,
                       min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
                       color.panel = MYcolors, colors = 1:length(color.panel),
-                      do.letter = NA, do.hover = FALSE, data.hover = var){
+                      do.letter = NA, do.hover = FALSE, data.hover = var,
+                      opacity = 1){
 
   #Change object to character if not already
   object <- S4_2string(object)
@@ -164,7 +166,8 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
     p <- p + geom_point(data=Target_dat,
                         if(do.hover){aes(x = dim1, y = dim2, colour = Y, shape=shape, text = hover.string)
                         }else{aes(x = dim1, y = dim2, colour = Y, shape=shape)},
-                        size=size) +
+                        size=size,
+                        alpha = opacity) +
       # if(do.letter){geom_point(data=Target_dat, aes(x = dim1, y = dim2, shape = Y), color = letter.colors, size=size)} +
       scale_shape_manual(values = shapes[1:length(levels(as.factor(Target_dat$shape)))],
                          labels = levels(as.factor(as.character(Target_dat$shape))))
@@ -172,10 +175,10 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
     p <- p + geom_point(data=Target_dat,
                         if(do.hover){aes(x = dim1, y = dim2, colour = Y, text = hover.string)}
                         else{aes(x = dim1, y = dim2, colour = Y)},
-                        shape= Shape, size=size, stroke = 0)
+                        shape= Shape, size=size, stroke = 0, alpha = opacity)
     if(do.letter){
       p <- p +
-        geom_point(data=Target_dat, aes(x = dim1, y = dim2, shape = Y), color = "black", size=size/2) +
+        geom_point(data=Target_dat, aes(x = dim1, y = dim2, shape = Y), color = "black", size=size/2, alpha = opacity) +
         scale_shape_manual(name = legend.title,
                            values = letter.labels#,
                            # if(!(is.na(rename.groups[1]))){
