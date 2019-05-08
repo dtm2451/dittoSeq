@@ -72,6 +72,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 
   #If reduction.use = NA (was not provided), populate it to be tsne or pca.
   if (grepl("Seurat",classof(object)) & is.na(reduction.use)) {reduction.use <- "tsne"}
+  if (classof(object)=="SingleCellExperiment" & is.na(reduction.use)) {reduction.use <- "TSNE"}
   if (classof(object)=="RNAseq" & is.na(reduction.use)) {reduction.use <- "pca"}
 
   #Generate the x/y dimensional reduction data and axes labels.
@@ -1333,29 +1334,7 @@ is.meta <- function(test, object=DEFAULT){
 #' is.gene("CD14")
 
 is.gene <- function(test, object=DEFAULT){
-
-  if(typeof(object)=="character")
-  {
-    if (classof(object)=="Seurat.v2"){
-      return(test %in% rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
-    }
-    if (classof(object)=="Seurat.v3"){
-      return(test %in% rownames(eval(expr = parse(text = paste0(object)))))
-    }
-    if (classof(object)=="RNAseq"){
-      return(test %in% rownames(eval(expr = parse(text = paste0(object,"@counts")))))
-    }
-  } else {
-    if (class(object)=="Seurat.v2"){
-      return(test %in% rownames(object@raw.data))
-    }
-    if (classof(object)=="Seurat.v3"){
-      return(test %in% rownames(object))
-    }
-    if (class(object)=="RNAseq"){
-      return(test %in% rownames(object@counts))
-    }
-  }
+  test %in% get.genes(object)
 }
 
 #### get.metas: prints the names of all the metadata lists for the object ####
@@ -1371,10 +1350,17 @@ is.gene <- function(test, object=DEFAULT){
 #' get.metas()
 
 get.metas <- function(object=DEFAULT){
-
-  if(typeof(object)=="character"){
-    names(eval(expr = parse(text = paste0(object,"@meta.data"))))
-  } else {names(object@meta.data)}
+  if(classof(object)=="SingleCellExperiment"){
+  #SingleCellExperiment
+    if(typeof(object)=="character"){
+      names(eval(expr = parse(text = paste0(object,"@colData"))))
+    } else {names(object@colData)}
+  } else {
+  #Non- SingleCellExperiment
+    if(typeof(object)=="character"){
+      names(eval(expr = parse(text = paste0(object,"@meta.data"))))
+    } else {names(object@meta.data)}
+  }
 }
 
 #### get.genes: prints the names of all the genes for a Seurat or RNAseq ####
@@ -1390,7 +1376,6 @@ get.metas <- function(object=DEFAULT){
 #' get.genes()
 
 get.genes <- function(object=DEFAULT){
-
   if (classof(object)=="Seurat.v2"){
     if(typeof(object)=="character"){
       return(rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
@@ -1399,12 +1384,17 @@ get.genes <- function(object=DEFAULT){
   if (classof(object)=="Seurat.v3"){
     if(typeof(object)=="character"){
       return(rownames(eval(expr = parse(text = paste0(object)))))
-    } else {return(rownames(object@raw.data))}
+    } else {return(rownames(object))}
   }
   if (classof(object)=="RNAseq"){
     if(typeof(object)=="character"){
-      rownames(eval(expr = parse(text = paste0(object,"@counts"))))
-    } else {rownames(object@counts)}
+      return(rownames(eval(expr = parse(text = paste0(object,"@counts")))))
+    } else {return(rownames(object@counts))}
+  }
+  if (classof(object)=="SingleCellExperiment"){
+    if(typeof(object)=="character"){
+      return(return(rownames(counts(eval(expr = parse(text = paste0(object)))))))
+    } else {return(rownames(counts(object)))}
   }
 }
 
@@ -1423,19 +1413,43 @@ get.genes <- function(object=DEFAULT){
 
 meta <- function(meta, object=DEFAULT){
   if(typeof(object)=="character"){
-    if(meta=="ident"){
-      if(packageVersion("Seurat") >= '3.0.0'){
+    #Name of object given in "quotes"
+    if(meta=="ident" & grepl("Seurat", classof(object))){
+      if(eval(expr = parse(text = paste0(object, "@version"))) >= '3.0.0'){
+        #Seurat.v3, ident
         return(as.character(Idents(object = eval(expr = parse(text = paste0(object))))))
-      } else {return(as.character(eval(expr = parse(text = paste0(object,"@ident")))))}
+      } else {
+        #Seurat.v2, ident
+        return(as.character(eval(expr = parse(text = paste0(object,"@ident")))))
+      }
+    } else {
+      if (classof(object)=="SingleCellExperiment"){
+        #SingleCellExperiment
+        return(eval(expr = parse(text = paste0(object,"$'",meta,"'"))))
+      } else {
+        #RNAseq or Seurat non-ident
+        return(eval(expr = parse(text = paste0(object,"@meta.data$'",meta, "'"))))
+      }
     }
-    else{return(eval(expr = parse(text = paste0(object,"@meta.data$'",meta, "'"))))}
   } else {
+    # Actual object given
     if(meta=="ident"){
       if(packageVersion("Seurat") >= '3.0.0'){
+        #Seurat.v3, ident
         return(as.character(Idents(object)))
-      } else {return(as.character(object@ident))}
+      } else {
+        #Seurat.v2, ident
+        return(as.character(object@ident))
+      }
+    } else {
+      if (classof(object)=="SingleCellExperiment"){
+        #SingleCellExperiment
+        return(eval(expr = parse(text = paste0("object$'",meta,"'"))))
+      } else {
+        #RNAseq or Seurat non-ident
+        return(eval(expr = parse(text = paste0("object@meta.data$",meta))))
+      }
     }
-    else{return(eval(expr = parse(text = paste0("object@meta.data$",meta))))}
   }
 }
 
@@ -1459,6 +1473,7 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
   target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects", "@samples"),
                        Seurat.v2 = c("@data","@raw.data","@scale.data", "@cell.names"),
                        Seurat.v3 = c("nope", "counts", "scale.data", "nope"),
+                       SingleCellExperiment = c("logcounts", "counts", "error_do_not_use_scaled_for_SCE_objects", "nope"),
                        stringsAsFactors = F,
                        row.names = c("normalized","raw","scaled","sample.names"))
 
@@ -1473,7 +1488,7 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
     }
     #For all other data.type options...
   } else {
-    if (classof(object)!="Seurat.v3"){
+    if (classof(object)!="Seurat.v3" & classof(object)!="SingleCellExperiment"){
       OUT <- eval(expr = parse(text = paste0(object,
                                              target[data.type,classof(object)],
                                              "[gene,",
@@ -1485,13 +1500,19 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
       #Add names
       names(OUT) <- eval(expr = parse(text = paste0(object, target["sample.names",classof(object)])))
     } else {
-      #Go from "object" to the actual object if given in character form
-      object <- eval(expr = parse(text = paste0(object)))
-      #Obtain expression
-      if(data.type == "normalized"){
-        OUT <- Seurat::GetAssayData(object)[gene,]
+      if (classof(object)=="Seurat.v3"){
+        #Go from "object" to the actual object if given in character form
+        object <- eval(expr = parse(text = paste0(object)))
+        #Obtain expression
+        if(data.type == "normalized"){
+          OUT <- Seurat::GetAssayData(object)[gene,]
+        } else {
+          OUT <- Seurat::GetAssayData(object, slot = target[data.type,classof(object)])[gene,]
+        }
       } else {
-        OUT <- Seurat::GetAssayData(object, slot = target[data.type,classof(object)])[gene,]
+        #SingleCellExperiment
+        OUT <- eval(expr = parse(text = paste0(target[data.type,classof(object)],
+                                               "(", object, ")[gene,]")))
       }
       #Change from sparse form if sparse
       OUT <- as.numeric(OUT)
@@ -1539,24 +1560,31 @@ which_data <- function(data.type, object=DEFAULT){
   target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects"),
                        Seurat.v2 = c("@data","@raw.data","@scale.data"),
                        Seurat.v3 = c("nope", "counts", "scale.data"),
+                       SingleCellExperiment = c("logcounts", "counts", "error_do_not_use_scaled_for_SCE_objects"),
                        stringsAsFactors = F,
                        row.names = c("normalized","raw","scaled"))
-  if(classof(object)!="Seurat.v3"){
-    #For RNAseq or Seurat-v2
-    eval(expr = parse(text = paste0(object,
-                                    target[data.type,classof(object)]
-                                    )))
+  if(classof(object)=="SingleCellExperiment"){
+    OUT <- as.matrix(eval(expr = parse(text = paste0(target[data.type,classof(object)],
+                                                     "(", object, ")" ))))
   } else {
-    #For Seurat-v3
-    #Go from "object" to the actual object if given in character form
-    object <- eval(expr = parse(text = paste0(object)))
-    #Obtain expression
-    if(data.type == "normalized"){
-      OUT <- Seurat::GetAssayData(object)
+    if(classof(object)!="Seurat.v3"){
+      #For RNAseq or Seurat-v2
+      OUT <- eval(expr = parse(text = paste0(object,
+                                      target[data.type,classof(object)]
+                                      )))
     } else {
-      OUT <- Seurat::GetAssayData(object, slot = target[data.type,classof(object)])
+      #For Seurat-v3
+      #Go from "object" to the actual object if given in character form
+      object <- eval(expr = parse(text = paste0(object)))
+      #Obtain expression
+      if(data.type == "normalized"){
+        OUT <- Seurat::GetAssayData(object)
+      } else {
+        OUT <- Seurat::GetAssayData(object, slot = target[data.type,classof(object)])
+      }
     }
   }
+  OUT
 }
 
 #' Retrieves all the cells/samples
@@ -1571,7 +1599,7 @@ all_cells <- function(object = DEFAULT){
   object <- S4_2string(object)
   target <- data.frame(use = c("@samples", "@cell.names"),
                        row.names = c("RNAseq", "Seurat.v2"))
-  if (classof(object)=="Seurat.v3"){
+  if (classof(object)=="Seurat.v3" | classof(object)=="SingleCellExperiment"){
     return(colnames(x = eval(expr = parse(text = paste0(object)))))
   } else {
     eval(expr = parse(text = paste0(object, target[classof(object),])))
@@ -1720,6 +1748,12 @@ extDim <- function(reduction.use, dim=1, object=DEFAULT){
     OUT <- list(eval(expr = parse(text = paste0(object,"@reductions$",reduction.use,"$x[,",dim,"]"))))
     OUT[2] <- paste0(gen.key(reduction.use),dim)
   }
+
+  if (classof(object)=="SingleCellExperiment"){
+    OUT <- list(eval(expr = parse(text = paste0(object,"@reducedDims$",reduction.use,"[,",dim,"]"))))
+    OUT[2] <- paste0(gen.key(reduction.use),dim)
+  }
+
   names(OUT) <- c("embeddings","name")
   OUT
 }
@@ -1738,11 +1772,11 @@ extDim <- function(reduction.use, dim=1, object=DEFAULT){
 
 gen.key <- function (reduction.use){
   key <- reduction.use
-  if (grepl("pca", reduction.use)){key <- "PC"}
-  if (grepl("cca", reduction.use)){key <- "CC"}
+  if (grepl("pca|PCA", reduction.use)){key <- "PC"}
+  if (grepl("cca|CCA", reduction.use)){key <- "CC"}
   if (grepl("cca.aligned", reduction.use)){key <- "aligned.CC"}
-  if (grepl("ica", reduction.use)){key <- "IC"}
-  if (grepl("tsne", reduction.use)){key <- "tSNE_"}
+  if (grepl("ica|ICA", reduction.use)){key <- "IC"}
+  if (grepl("tsne|tSNE|TSNE", reduction.use)){key <- "tSNE_"}
   key
 }
 
