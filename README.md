@@ -1,6 +1,6 @@
 # DittoSeq [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2577576.svg)](https://doi.org/10.5281/zenodo.2577576)
 
-**A set of functions built to enable analysis and visualization of single cell and bulk RNA-sequencing data by novice and/or color blind coders**
+**A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by color blind coders**
 
 ![example1](Vignette/DBDimPlot2.png)
 ![example2](Vignette/DBBarPlot1.png)
@@ -13,11 +13,17 @@
 
 *For a description of how to use the Demuxlet import functions, click [here](Demuxlet-Vignette)*
 
-Package includes various helper and plotting functions for working with RNAseq data analyzed in other packages; Seurat (v2 or v3) for single-cell RNAseq data, DESeq for bulk RNAseq data. Additionally, contains import functions for [Demuxlet](https://github.com/statgen/demuxlet) cell annotations as Mux-seq datasets often consist of side-by-side bulk and single-cell RNAseq.
+All plotting functions spit out easy-to-read, color blind friendly, ggplot2 plots upon minimal coding input for your daily analysis needs, and they also allow sufficient manipulations to provide for out-of-the-box submission-quality figures.
 
-All plotting functions spit out easy-to-read, color blind friendly, ggplot plots upon minimal coding input for your daily analysis needs, and they also allow sufficient manipulations to provide for out-of-the-box submission-quality figures.
+Package includes various helper and plotting functions for working with RNAseq data analyzed in other packages; handles data stored in these object types:
 
-In addition to extending visualization functionality of the widely used Seurat package for single cell RNAseq data, the package allows generation of similar figures from bulk RNA sequencing data. Thus, it enables analysis of single cell and bulk data side-by-side.
+- Seurat (v2 & v3), single-cell RNAseq
+- SingleCellExperiment, single-cell RNAseq
+- DESeq, bulk RNAseq.
+
+Additionally, contains import functions for [Demuxlet](https://github.com/statgen/demuxlet) cell annotations as Mux-seq datasets often consist of side-by-side bulk and single-cell RNAseq.  (If you would like a pipeline for extraction of genotypes from bulk RNAseq to enable Demuxlet-calling of single-cell RNAseq, shoot me an email.)
+
+Extends the visualization functionality of the widely used Seurat package, and allows generation of similar figures from bulk RNA sequencing data. Thus, it enables analysis of single cell and bulk data side-by-side.
 
 NOTE: I use this package daily, and am constantly coming up with new ideas for tweaks and additional utility myself.  To report errors, give feedback, or suggest new features, you can do so either through [github](https://github.com/dtm2451/DittoSeq/issues), or by email at <daniel.bunis@ucsf.edu>.
 
@@ -40,11 +46,11 @@ For an explanation of the Demuxlet import functions, click [here](Demuxlet-Vigne
 
 ## Plotting Functions
 
-**`DBDimPlot()`** = handles all needs for Seurat TSNEPlot / PCAPlot / DimPlot functions.  Improves on the Seurat functions' capabilities to present continuous (including negative) numerical data, or descrete data (clustering, samples, batches, condition, etc.) in various ways.
+**`DBBarPlot()`** = No analogous function currently in Seurat, but incredibly useful! Most common use: Plotting the cluster breakdown of all cells within each sample. Essentially, it is similar to DBPlot, but for discrete variables. Handles plotting of discrete data on a per-sample or per-condition grouping.
 
-**`DBPlot()`** = handles needs of Seurat's VlnPlot function. Allows generation of jitter/dot-plot, boxplot, and/or violin-plot representation of numerical data, with order of what's on top easily settable. Data can be expression of particular genes or any numerical metadata like percent.mito, nUMI, and nGene.  Colors and grouping of cells is tunable through discrete inputs.
+**`DBDimPlot()`** = Analagous Seurat functions: TSNEPlot / PCAPlot / DimPlot.  Improves on Seurat functions' capabilities to present continuous (including negative) numerical data, or descrete data (clustering, samples, batches, condition, etc.) in various ways.
 
-**`DBBarPlot()`** = No analogous function currently in Seurat, which is a bit crazy imho. Most common use: Plotting the cluster breakdown of all cells of each sample. Essentially, it is similar to DBPlot, but for discrete variables. Handles plotting of discrete data on a per-sample or per-condition grouping.
+**`DBPlot()`** = Analagous Seurat function: VlnPlot. Allows generation of jitter/dot-plot, boxplot, and/or violin-plot representation of numerical data, with order of what's on top easily settable. Data can be expression of particular genes or any numerical metadata like percent.mito, nUMI, and nGene.  Colors and grouping of cells is tunable through discrete inputs.
 
 **`DBHeatmap()`** = Given a set of genes to focus on, outputs a heatmap.  Colors, cell annotations, names, are all tunable with discrete inputs.  Many others are possible as well; this function is a wrapper for pheatmap.
 
@@ -64,15 +70,15 @@ For an explanation of the Demuxlet import functions, click [here](Demuxlet-Vigne
 
 These make manipulating Seurat data, and using my plotting functons, easier.
 
-**`get.metas()`** and **`get.genes()`**: Returns the list of meta.data slots or the list of genes included in the dataset.  Works exactly like typing `names(object@meta.data)` or `rownames(object@raw.data)`, only easier.
+**`get.metas()`**, **`get.genes()`**, and **`get.reductions()`**: Returns the list of meta.data slots, the list of genes, or the names of dimensional reduction slots that exist in the dataset.  Works exactly like typing `names(object@meta.data)` or `rownames(object@data)` or `names(object@dr)` for a Seurat.v2 object, only easier and adapts to the object type.
 
-**`is.meta()`** and **`is.gene()`**: Returns TRUE or FALSE for whether a "meta.data" or "gene" input is part of the dataset.
+**`is.meta()`** and **`is.gene()`**: Returns TRUE or FALSE for whether a "meta.data" or "gene" input is part of the dataset.  Both work for testing multiple queries at once as well.
 
 **`meta()`**, **`gene()`**, and **`var_OR_get_meta_or_gene()`**: Returns the values of a meta.data for every cell or the expression data for all cells.  meta() and gene() are specific to one type. var_OR_get_meta_or_gene can be used to retrieve either type.
 
-**`meta.levels()`**: Returns the range of values of metadata. Like running `levels(as.factor(object@meta.data$meta))`. Alternatively, can reurn the counts of each value of the meta.data if the optional input `table.out` is set to `TRUE`.
+**`meta.levels()`**: Returns the range of values of metadata. Like running `levels(as.factor(object@meta.data$meta))`. Alternatively, can reurn the counts of each value of the meta.data is the optional input `table.out = TRUE` is set given.
 
-**`extDim()`**: extracts the loadings of each cell for a given dimensional reduction space.  The output has 2 slots: $embeddings = the loadings of each cell, $name = the suggested way of naming this reduction in text or as an axis of a plot.
+**`extDim()`**: extracts the loadings of each cell for a given dimensional reduction space.  The output has 2 slots: `$embeddings` = the loadings of each cell, `$name` = the suggested way of naming this reduction in text or as an axis of a plot.
 
 **`grab_legend()`**: Extracts and plots the legend from a ggplot
 
