@@ -1398,6 +1398,41 @@ get.genes <- function(object=DEFAULT){
   }
 }
 
+#### get.reductions: prints the names of all the dimensional reductions that have been run ####
+#' Returns the names of dimensional reduction slots within the object.
+#'
+#' @param object             the SingleCellExperiment, Seurat, or RNAseq object = REQUIRED unless `DEFAULT <- "object"` has been run.
+#' @return Returns the names of all dimensional reduction slots within the object.
+#' @examples
+#' pbmc <- Seurat::pbmc_small
+#' get.reductions(object = "pbmc")
+#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
+#' DEFAULT <- "pbmc"
+#' get.reductions()
+
+get.reductions <- function(object=DEFAULT){
+  if (classof(object)=="Seurat.v2"){
+    if(typeof(object)=="character"){
+      return(names(eval(expr = parse(text = paste0(object,"@dr")))))
+    } else {return(names(object@dr))}
+  }
+  if (classof(object)=="Seurat.v3"){
+    if(typeof(object)=="character"){
+      return(names(eval(expr = parse(text = paste0(object,"@reductions")))))
+    } else {return(names(object@reductions))}
+  }
+  if (classof(object)=="RNAseq"){
+    if(typeof(object)=="character"){
+      return(names(eval(expr = parse(text = paste0(object,"@reductions")))))
+    } else {return(names(object@reductions))}
+  }
+  if (classof(object)=="SingleCellExperiment"){
+    if(typeof(object)=="character"){
+      return(names(eval(expr = parse(text = paste0(object,"@reducedDims")))))
+    } else {return(names(object@reducedDims))}
+  }
+}
+
 #### meta: for extracting the values of a particular metadata for all cells/samples ####
 #' Returns the values of a meta.data  for all cells/samples
 #'
