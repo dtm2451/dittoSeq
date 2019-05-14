@@ -955,10 +955,10 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
     p <- p + ylim(min,max)
   } else {
     if (!(is.null(min))){
-      p <- p + ylim(min, max(Target_dat$Y))
+      p <- p + ylim(min, max(dat$Y))
     }
     if (!(is.null(max))){
-      p <- p + ylim(min(Target_dat$Y), max)
+      p <- p + ylim(min(dat$Y), max)
     }
   }
   #Add data based on what is requested in plots, *ordered by their order*
