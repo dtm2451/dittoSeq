@@ -16,6 +16,7 @@ Given a seurat or RNAseq object, will return the cell.names or samples slot.
 Retrieves all the cells/samples
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 all_cells("pbmc")
 }

@@ -20,6 +20,7 @@ Given a list of data to grab in data.hover, outputs the 'data name': data, 'data
 Outputs a string of gene expression / meta.data information for ploty hover display
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 make_hover_strings(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
 }

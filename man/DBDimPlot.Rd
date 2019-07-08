@@ -98,11 +98,13 @@ Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA
 Show data overlayed on a tsne or pca or other reduction-type
 }
 \examples{
+
+library(Seurat)
 pbmc <- Seurat::pbmc_small
-DBDimPlot("res.1", object = "pbmc")
+DBDimPlot("RNA_snn_res.1", object = "pbmc")
 DBDimPlot("ident", object = "pbmc", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
-DBDimPlot("res.1")
+DBDimPlot("RNA_snn_res.1")
 DBDimPlot("ident", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
 }

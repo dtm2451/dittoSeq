@@ -16,16 +16,19 @@ A ggplot plot with its legend removed.
 This function will remove the legend of any ggplot.
 }
 \examples{
+library(Seurat)
+
 #Grab data
 pbmc <- Seurat::pbmc_small
+DEFAULT <- "pbmc"
 
 #Make a plot
-DBDimPlot(pbmc)
+DBDimPlot("ident")
 
 #Remove the legend:
-remove_legend(DBDimPlot(pbmc))
+remove_legend(DBDimPlot("ident"))
 
 #Remove the legend of a stored plot:
-ggplot <- DBDimPlot(pbmc)
+ggplot <- DBDimPlot("ident")
 remove_legend(ggplot)
 }

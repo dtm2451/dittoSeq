@@ -22,8 +22,9 @@ Outputs any DittoSeq plot as it might look to a colorblind individual.
 Essentially a wrapper function for colorspace's deutan(), protan(), and tritan() functions. This function will output any DittoSeq plot as it might look to an individual with one of the common forms of colorblindness: deutanopia/deutanomaly, the most common, is when the cones mainly responsible for red vision are defective. Protanopia/protanomaly is when the cones mainly responsible for green vision are defective. In tritanopia/tritanomaly, the defective cones are responsible for blue vision. Note: there are more severe color deficiencies that are even more rare. Unfortunately, for these types of color vision deficiency, only non-color methods, like lettering or shapes, will do much to help.
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
-Simulate("deutan", DBDimPlot, var = "res.1", object = "pbmc", size = 2)
-Simulate("protan", DBDimPlot, var = "res.1", object = "pbmc", size = 2)
-Simulate("tritan", DBDimPlot, var = "res.1", object = "pbmc", size = 2)
+Simulate("deutan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
+Simulate("protan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
+Simulate("tritan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
 }

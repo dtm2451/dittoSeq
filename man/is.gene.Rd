@@ -18,6 +18,7 @@ Returns TRUE if there is a row in the objects' data slot named 'test'.
 Tests if an input is the name of a gene recovered in the dataset.
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 is.gene("CD14", object = "pbmc") # TRUE
 is.gene("CD4", pbmc) # FALSE

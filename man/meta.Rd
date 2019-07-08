@@ -18,9 +18,10 @@ Returns the values of a meta.data slot, or the ident (clustering) slot if "ident
 Returns the values of a meta.data  for all cells/samples
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
-meta("res.1", object = "pbmc")
+meta("RNA_snn_res.1", object = "pbmc")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
-meta("res.1")
+meta("RNA_snn_res.1")
 }

@@ -41,12 +41,14 @@
 #' @param opacity Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.
 #' @return Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA, ICA, ..., plot of choice.  var is the argument that sets how dots will be colored, and it can refer to either continuous (ex: "CD34" = gene expression) or discrete (ex: "ident" = clustering) data.
 #' @examples
+#'
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
-#' DBDimPlot("res.1", object = "pbmc")
+#' DBDimPlot("RNA_snn_res.1", object = "pbmc")
 #' DBDimPlot("ident", object = "pbmc", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
-#' DBDimPlot("res.1")
+#' DBDimPlot("RNA_snn_res.1")
 #' DBDimPlot("ident", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
 
 DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 = 1, dim.2 = 2, theme = NA,
@@ -335,10 +337,10 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' @examples
 #' library(Seurat)
 #' pbmc <- pbmc_small
-#' DBPlot("CD14", object = "pbmc", group.by = "res.1", color.by = "res.1")
+#' DBPlot("CD14", object = "pbmc", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
-#' DBPlot("CD14", group.by = "res.1", color.by = "res.1")
+#' DBPlot("CD14", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 
 DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    shape.by = "", cells.use = NULL, plots = c("jitter","vlnplot"),
@@ -866,22 +868,23 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
 #' @param hline.color            color(s) of the horizontal line(s)
 #' @return This function will output a DBPlot where each data point represents the average (or median) of expression of an individual gene, or of an individual metadata score, across a group of samples.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' genes <- get.genes("pbmc")[1:30]
 #' DBPlot_multi_var_summary(genes, object = "pbmc",
-#'                          group.by = "res.1", color.by = "res.1")
+#'                          group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object
 #'       # input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' DBPlot_multi_var_summary(genes,
-#'                          group.by = "res.1", color.by = "res.1")
+#'                          group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 #'
 #' # To change it to have the violin plot in the back, a jitter on
 #' #  top of that, and a white boxplot with no fill in front:
 #' DBPlot_multi_var_summary(genes, object = "pbmc",
-#'                          group.by = "res.1", color.by = "res.1",
+#'                          group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
 #'                          plots = c("vlnplot","jitter","boxplot"),
-#'                          boxplot.color = "white", boxplot.fill = F)
+#'                          boxplot.color = "white", boxplot.fill = FALSE)
 
 DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", color.by=NULL, cells.use = NULL,
                                      plots = c("vlnplot","jitter"), data.type = "relative", data.summary = "mean",
@@ -1067,25 +1070,26 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
 #' @param ...                other paramters that can be given to DBPlot function used in exactly the same way.
 #' @return Given multiple 'var' parameters, this function will output a DBPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBPlot can be adjusted here.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' genes <- c("CD8A","CD3E","FCER1A","CD14")
 #' multiDBPlot(genes, object = "pbmc",
-#'             group.by = "res.1", color.by = "res.1")
+#'             group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object
 #'       # input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' multiDBPlot(genes,
-#'             group.by = "res.1", color.by = "res.1")
+#'             group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 #' #To make it output a grid that is 2x2, to add y-axis labels
 #' # instead of titles, and to show legends...
 #' multiDBPlot(genes,
-#'             group.by = "res.1", color.by = "res.1",
+#'             group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
 #'             nrow = 2, ncol = 2,              #Make it 2x2
 #'             add.title = FALSE, ylab = TRUE,  #Add y axis labels instead of titles
 #'             show.legend = TRUE)              #Show legends
 #' # To eliminate the "expression", change ylab = TRUE to ylab = "var"
 #' multiDBPlot(genes,
-#'             group.by = "res.1", color.by = "res.1",
+#'             group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
 #'             nrow = 2, ncol = 2,              #Make it 2x2
 #'             add.title = FALSE, ylab = "var", #Add y axis labels without "expression"
 #'             show.legend = TRUE)              #Show legends
@@ -1131,6 +1135,7 @@ multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
 #' @param ...                other paramters that can be given to DBDimPlot function used in exactly the same way.
 #' @return Given multiple 'var' parameters, this function will output a DBDimPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each is 'var'.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' genes <- c("CD8A","CD3E","FCER1A","CD14","MS4A1")
 #' multiDBDimPlot(c(genes, "ident"), object = "pbmc")
@@ -1187,6 +1192,7 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 #' @param OUT.List           TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, the All.cells plot will be named "all" and the legend will be named "legend". Others will be named by which cells are in them.
 #' @return A function for quickly making multiple DBDimPlots arranged in a grid, where instead of varying the 'var' displayed, what varies is the cells that are shown. Most parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each plot is which cells get displayed. NOTE: This function is incompatible with changing the 'colors' input. If you need to change the order of when certain colrs are chosen, change the order in color.panel. Also note: if 'var' given refers to continuous data, then the min and max will be calculated at the beginning in order to make the scale consistent accross all plots.  You can still set your own range, and this would also create a consistent scale.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' multiDBDimPlot_vary_cells("CD14", object = "pbmc", cells.use.meta = "ident")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
@@ -1319,9 +1325,10 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
 #' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns TRUE if there is a meta.data slot named 'test' (or for Seurat objects, if test = "ident", will also give TRUE because my meta() function knows how to handle meta("ident"))
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' is.meta("age", object = pbmc) #Returns FALSE because there is not a meta slot named "age"
-#' is.meta("nUMI", object = pbmc) #Returns TRUE because there is a meta slot named "age"
+#' is.meta("nCount_RNA", object = pbmc) #Returns TRUE because there is a meta slot named "nCount_RNA"
 #' get.metas(object = pbmc) #get.metas() will give a list of all the meta.data slot names.
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
@@ -1344,6 +1351,7 @@ is.meta <- function(test, object=DEFAULT){
 #' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns TRUE if there is a row in the objects' data slot named 'test'.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' is.gene("CD14", object = "pbmc") # TRUE
 #' is.gene("CD4", pbmc) # FALSE
@@ -1361,6 +1369,7 @@ is.gene <- function(test, object=DEFAULT){
 #' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns the names of all meta.data slots in the object.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' get.metas(object = "pbmc")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
@@ -1387,6 +1396,7 @@ get.metas <- function(object=DEFAULT){
 #' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns the names of all genes within the data slot of the object.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' get.genes(object = "pbmc")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
@@ -1422,6 +1432,7 @@ get.genes <- function(object=DEFAULT){
 #' @param object             the SingleCellExperiment, Seurat, or RNAseq object = REQUIRED unless `DEFAULT <- "object"` has been run.
 #' @return Returns the names of all dimensional reduction slots within the object.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' get.reductions(object = "pbmc")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
@@ -1458,11 +1469,12 @@ get.reductions <- function(object=DEFAULT){
 #' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
-#' meta("res.1", object = "pbmc")
+#' meta("RNA_snn_res.1", object = "pbmc")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
-#' meta("res.1")
+#' meta("RNA_snn_res.1")
 
 meta <- function(meta, object=DEFAULT){
   if(typeof(object)=="character"){
@@ -1514,6 +1526,7 @@ meta <- function(meta, object=DEFAULT){
 #' @param data.type          Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation)? Default = "normalized"
 #' @return Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' gene("CD14", object = "pbmc")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
@@ -1584,11 +1597,12 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #' @param table.out          TRUE/FALSE. Default = FALSE. Whether the numbers of incidences of each level are wanted in addition to the level names themselves.
 #' @return Returns the distinct values of a meta.data slot, or ident (clustering) slot if "ident" was given and the object is a Seurat object.  Can also return the counts of each as well.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
-#' meta.levels("res.1", object = "pbmc")
+#' meta.levels("RNA_snn_res.1", object = "pbmc")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
-#' meta.levels("res.1")
+#' meta.levels("RNA_snn_res.1")
 
 meta.levels <- function(meta, object = DEFAULT, table.out = F){
 
@@ -1605,6 +1619,7 @@ meta.levels <- function(meta, object = DEFAULT, table.out = F){
 #' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Given "raw", "normalized", or "scaled", this function will output the proper slot of a seurat or RNAseq object.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' which_data("normalized", "pbmc")
 
@@ -1645,6 +1660,7 @@ which_data <- function(data.type, object=DEFAULT){
 #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Given a seurat or RNAseq object, will return the cell.names or samples slot.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' all_cells("pbmc")
 
@@ -1665,6 +1681,7 @@ all_cells <- function(object = DEFAULT){
 #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Given a logical or a list of names (or NULL) will output the list of cells names.  For retrieval / standardization.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' which_cells(meta("ident","pbmc")=="0", "pbmc")
 
@@ -1689,6 +1706,7 @@ which_cells <- function(cells.use, object = DEFAULT){
 #' @param data.type For when grabbing gene expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @return Given a list of data to grab in data.hover, outputs the 'data name': data, 'data name': data, ... for every cell of the object
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' make_hover_strings(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
 
@@ -1718,6 +1736,7 @@ make_hover_strings <- function(data.hover, object, data.type = "normalized"){
 #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return mainly for standardization within DittoSeq functions, outputs the string name and ensures objects can be handled in that form.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' S4_2string(pbmc)
 #' S4_2string("pbmc")
@@ -1737,10 +1756,11 @@ S4_2string <- function(object = DEFAULT){
 #' @param data.type For when extracting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @return determines what type of var is given, and outputs the gene expression data, metadata data, or clustering data.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' var_OR_get_meta_or_gene("CD14", "pbmc", "normalized")
 #' var_OR_get_meta_or_gene("ident", "pbmc")
-#' var_OR_get_meta_or_gene("nUMI", "pbmc")
+#' var_OR_get_meta_or_gene("nCount_RNA", "pbmc")
 
 var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type){
   OUT <- var
@@ -1765,6 +1785,7 @@ var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type){
 #' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Returns a list where [[1]]=embeddings = the loadings of cell/sample for a given dimensional reduction component, and [[2]] = name = the string name that should be used to refer to the components if going into a plot.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' out <- extDim("pca", 1, object = "pbmc")
 #' out$embeddings #will be the cell loadings
@@ -1774,8 +1795,8 @@ var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type){
 #'
 #' DBPlot(var = extDim("pca", 1, object = "pbmc")$embeddings,
 #'        object = "pbmc",
-#'        group.by = "res.1",
-#'        color.by = "res.1",
+#'        group.by = "RNA_snn_res.1",
+#'        color.by = "RNA_snn_res.1",
 #'        ylab = extDim("pca", 1, object = "pbmc")$name)
 #'
 
@@ -1839,7 +1860,7 @@ gen.key <- function (reduction.use){
 #' @param object      quoted "object" name
 #' @return Returns a the string name of the object's type.
 #' @examples
-#'
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' gen.key("pbmc")
 #' #Output: "seurat"
@@ -1874,17 +1895,20 @@ classof <- function (object = DEFAULT){
 #' @param ggplot The ggplot object that you would like to grab the legend from.  Can be any of the single plots from DittoSeq except DBHeatmap and demux.calls.summary
 #' @return The legend of a ggplot plot
 #' @examples
+#' library(Seurat)
+#'
 #' #Grab data
 #' pbmc <- Seurat::pbmc_small
+#' DEFAULT <- "pbmc"
 #'
 #' #Make a plot
-#' DBDimPlot(pbmc)
+#' DBDimPlot("ident")
 #'
 #' #Extract the legend:
-#' grab_legend(DBDimPlot(pbmc))
+#' grab_legend(DBDimPlot("ident"))
 #'
 #' #Extract the legend of a stored plot:
-#' ggplot <- DBDimPlot(pbmc)
+#' ggplot <- DBDimPlot("ident")
 #' grab_legend(ggplot)
 grab_legend <- function(ggplot){
   cowplot::ggdraw(cowplot::get_legend(ggplot))
@@ -1897,17 +1921,20 @@ grab_legend <- function(ggplot){
 #' @param ggplot The ggplot object that you would like to eliminate the legend from.  Can be any of the single plots from DittoSeq except DBHeatmap and demux.calls.summary
 #' @return A ggplot plot with its legend removed.
 #' @examples
+#' library(Seurat)
+#'
 #' #Grab data
 #' pbmc <- Seurat::pbmc_small
+#' DEFAULT <- "pbmc"
 #'
 #' #Make a plot
-#' DBDimPlot(pbmc)
+#' DBDimPlot("ident")
 #'
 #' #Remove the legend:
-#' remove_legend(DBDimPlot(pbmc))
+#' remove_legend(DBDimPlot("ident"))
 #'
 #' #Remove the legend of a stored plot:
-#' ggplot <- DBDimPlot(pbmc)
+#' ggplot <- DBDimPlot("ident")
 #' remove_legend(ggplot)
 remove_legend <- function(ggplot){
   ggplot + theme(legend.position = "none")
@@ -1965,10 +1992,11 @@ Lighten <- function(colors, percent.change = 0.25, relative = T){
 #' @param ... other paramters that can be given to DittoSeq plotting functions, including color.panel, used in exactly the same way they are used for those functions. (contrary to the look of this documentation, color.panel will still default to MYcolors when not provided.)
 #' @return Outputs any DittoSeq plot as it might look to a colorblind individual.
 #' @examples
+#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
-#' Simulate("deutan", DBDimPlot, var = "res.1", object = "pbmc", size = 2)
-#' Simulate("protan", DBDimPlot, var = "res.1", object = "pbmc", size = 2)
-#' Simulate("tritan", DBDimPlot, var = "res.1", object = "pbmc", size = 2)
+#' Simulate("deutan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
+#' Simulate("protan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
+#' Simulate("tritan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
 
 Simulate <- function(type = "deutan", plot.function, color.panel = NULL, ...){
 

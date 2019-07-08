@@ -16,16 +16,19 @@ The legend of a ggplot plot
 This function will extract the legend of any ggplot.
 }
 \examples{
+library(Seurat)
+
 #Grab data
 pbmc <- Seurat::pbmc_small
+DEFAULT <- "pbmc"
 
 #Make a plot
-DBDimPlot(pbmc)
+DBDimPlot("ident")
 
 #Extract the legend:
-grab_legend(DBDimPlot(pbmc))
+grab_legend(DBDimPlot("ident"))
 
 #Extract the legend of a stored plot:
-ggplot <- DBDimPlot(pbmc)
+ggplot <- DBDimPlot("ident")
 grab_legend(ggplot)
 }

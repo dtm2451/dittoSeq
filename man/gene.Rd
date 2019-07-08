@@ -20,6 +20,7 @@ Returns the values of a meta.data slot, or the ident (clustering) slot if "ident
 Returns the values of a gene for all cells/samples
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 gene("CD14", object = "pbmc")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.

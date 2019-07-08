@@ -33,6 +33,7 @@ Given multiple 'var' parameters, this function will output a DBDimPlot for each 
 Generates multiple DBDimPlots arranged into a grid.
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 genes <- c("CD8A","CD3E","FCER1A","CD14","MS4A1")
 multiDBDimPlot(c(genes, "ident"), object = "pbmc")

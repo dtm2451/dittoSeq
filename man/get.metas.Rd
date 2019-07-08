@@ -16,6 +16,7 @@ Returns the names of all meta.data slots in the object.
 Returns the names of all meta.data slots in the object.
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 get.metas(object = "pbmc")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.

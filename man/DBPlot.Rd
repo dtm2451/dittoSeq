@@ -107,8 +107,8 @@ Plots continuous data on the y-axis, grouped in a settable way in the x-axis
 \examples{
 library(Seurat)
 pbmc <- pbmc_small
-DBPlot("CD14", object = "pbmc", group.by = "res.1", color.by = "res.1")
+DBPlot("CD14", object = "pbmc", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
-DBPlot("CD14", group.by = "res.1", color.by = "res.1")
+DBPlot("CD14", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 }

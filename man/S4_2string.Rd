@@ -16,6 +16,7 @@ mainly for standardization within DittoSeq functions, outputs the string name an
 Turns an S4 object into it's name in string form
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 S4_2string(pbmc)
 S4_2string("pbmc")

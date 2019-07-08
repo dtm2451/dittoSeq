@@ -38,25 +38,26 @@ Given multiple 'var' parameters, this function will output a DBPlot for each one
 Generates multiple DBPlots arranged into a grid.
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 genes <- c("CD8A","CD3E","FCER1A","CD14")
 multiDBPlot(genes, object = "pbmc",
-            group.by = "res.1", color.by = "res.1")
+            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object
       # input can be skipped completely.
 DEFAULT <- "pbmc"
 multiDBPlot(genes,
-            group.by = "res.1", color.by = "res.1")
+            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 #To make it output a grid that is 2x2, to add y-axis labels
 # instead of titles, and to show legends...
 multiDBPlot(genes,
-            group.by = "res.1", color.by = "res.1",
+            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
             nrow = 2, ncol = 2,              #Make it 2x2
             add.title = FALSE, ylab = TRUE,  #Add y axis labels instead of titles
             show.legend = TRUE)              #Show legends
 # To eliminate the "expression", change ylab = TRUE to ylab = "var"
 multiDBPlot(genes,
-            group.by = "res.1", color.by = "res.1",
+            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
             nrow = 2, ncol = 2,              #Make it 2x2
             add.title = FALSE, ylab = "var", #Add y axis labels without "expression"
             show.legend = TRUE)              #Show legends

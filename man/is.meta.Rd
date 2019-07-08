@@ -18,9 +18,10 @@ Returns TRUE if there is a meta.data slot named 'test' (or for Seurat objects, i
 Tests if an input is the name of a meta.data slot.
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 is.meta("age", object = pbmc) #Returns FALSE because there is not a meta slot named "age"
-is.meta("nUMI", object = pbmc) #Returns TRUE because there is a meta slot named "age"
+is.meta("nCount_RNA", object = pbmc) #Returns TRUE because there is a meta slot named "nCount_RNA"
 get.metas(object = pbmc) #get.metas() will give a list of all the meta.data slot names.
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"

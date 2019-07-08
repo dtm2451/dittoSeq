@@ -16,6 +16,7 @@ Returns the names of all genes within the data slot of the object.
 Returns the names of all genes within the data slot of the object.
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 get.genes(object = "pbmc")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.

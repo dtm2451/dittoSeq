@@ -55,6 +55,7 @@ A function for quickly making multiple DBDimPlots arranged in a grid, where inst
 Generates multiple DBDimPlots, each showing different cells, arranged into a grid.
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 multiDBDimPlot_vary_cells("CD14", object = "pbmc", cells.use.meta = "ident")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.

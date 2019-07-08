@@ -16,6 +16,7 @@ Returns the names of all dimensional reduction slots within the object.
 Returns the names of dimensional reduction slots within the object.
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 get.reductions(object = "pbmc")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.

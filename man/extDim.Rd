@@ -20,6 +20,7 @@ Returns a list where [[1]]=embeddings = the loadings of cell/sample for a given 
 Extracts the PC/tsne/IC/dim.reduction loadings of each cell/sample
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 out <- extDim("pca", 1, object = "pbmc")
 out$embeddings #will be the cell loadings
@@ -29,8 +30,8 @@ out$name # for a "pca" reduction will typically be "PC#", which is the proper wa
 
 DBPlot(var = extDim("pca", 1, object = "pbmc")$embeddings,
        object = "pbmc",
-       group.by = "res.1",
-       color.by = "res.1",
+       group.by = "RNA_snn_res.1",
+       color.by = "RNA_snn_res.1",
        ylab = extDim("pca", 1, object = "pbmc")$name)
 
 }

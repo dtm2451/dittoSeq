@@ -20,8 +20,9 @@ determines what type of var is given, and outputs the gene expression data, meta
 Outputs gene expression data, metadata data, or clustering data
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 var_OR_get_meta_or_gene("CD14", "pbmc", "normalized")
 var_OR_get_meta_or_gene("ident", "pbmc")
-var_OR_get_meta_or_gene("nUMI", "pbmc")
+var_OR_get_meta_or_gene("nCount_RNA", "pbmc")
 }

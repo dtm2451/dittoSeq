@@ -20,9 +20,10 @@ Returns the distinct values of a meta.data slot, or ident (clustering) slot if "
 Gives the distinct values of a meta.data slot (or ident)
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
-meta.levels("res.1", object = "pbmc")
+meta.levels("RNA_snn_res.1", object = "pbmc")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
-meta.levels("res.1")
+meta.levels("RNA_snn_res.1")
 }

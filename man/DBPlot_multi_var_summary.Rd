@@ -96,20 +96,21 @@ This function will output a DBPlot where each data point represents the average 
 Generates a DBPlot where datapoints are gene(s)/metadata instead of cells/samples.
 }
 \examples{
+library(Seurat)
 pbmc <- Seurat::pbmc_small
 genes <- get.genes("pbmc")[1:30]
 DBPlot_multi_var_summary(genes, object = "pbmc",
-                         group.by = "res.1", color.by = "res.1")
+                         group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object
       # input can be skipped completely.
 DEFAULT <- "pbmc"
 DBPlot_multi_var_summary(genes,
-                         group.by = "res.1", color.by = "res.1")
+                         group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 
 # To change it to have the violin plot in the back, a jitter on
 #  top of that, and a white boxplot with no fill in front:
 DBPlot_multi_var_summary(genes, object = "pbmc",
-                         group.by = "res.1", color.by = "res.1",
+                         group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
                          plots = c("vlnplot","jitter","boxplot"),
-                         boxplot.color = "white", boxplot.fill = F)
+                         boxplot.color = "white", boxplot.fill = FALSE)
 }
