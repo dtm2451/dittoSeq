@@ -10,8 +10,8 @@ DBBarPlot(var = "ident", object = DEFAULT, group.by = "Sample",
   theme = theme_classic(), xlab = NULL, ylab = "make",
   x.labels = NA, rotate.labels = TRUE, y.breaks = c(0, 0.5, 1),
   main = "make", sub = NULL, rename.groups = NA,
-  legend.title = NULL, reorder.x = 1:length(meta.levels(group.by,
-  object)))
+  legend.show = TRUE, legend.title = NULL,
+  reorder.x = 1:length(meta.levels(group.by, object)))
 }
 \arguments{
 \item{var}{Target Variable = values, OR a metadata in "quotes". REQUIRED. Length must be same  as the number of cells in the Seurat object or Samples in the RNAseq object}
@@ -45,6 +45,8 @@ DBBarPlot(var = "ident", object = DEFAULT, group.by = "Sample",
 \item{sub}{"character". Plot subtitle.}
 
 \item{rename.groups}{new names for the identities of var.  Change to NULL to remove labeling altogether.}
+
+\item{legend.show}{TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.}
 
 \item{legend.title}{Title for the legend.  Default = blank / NULL}
 

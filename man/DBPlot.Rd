@@ -17,7 +17,7 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   boxplot.width = 0.2, boxplot.color = "black",
   boxplot.show.outliers = NA, boxplot.fill = T,
   vlnplot.lineweight = 1, reorder.x = 1:length(meta.levels(group.by,
-  object)), title.legend = F, auto.title = T)
+  object)), legend.show = TRUE, title.legend = F, auto.title = T)
 }
 \arguments{
 \item{var}{Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.}
@@ -91,6 +91,8 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 \item{vlnplot.lineweight}{sets the thickness of the line that outlines the violin plots.}
 
 \item{reorder.x}{sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order for the samples.  Default = alphabetical then numerical.}
+
+\item{legend.show}{TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.}
 
 \item{title.legend}{whether to leave the title for the plot's legend}
 

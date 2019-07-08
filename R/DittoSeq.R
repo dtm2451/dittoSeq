@@ -11,6 +11,7 @@
 #' @param size Number. Size of data points.  Default = 1.
 #' @param shape Number for setting shape OR name of metadata to use for setting shape
 #' @param shapes the shapes to use.  Default is a list of 6.  There are more, but not many of the default ggplot options are great.  I recommend using colors for any variable with 7+ options.
+#' @param legend.show TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.
 #' @param legend.size The size to increase the plotting of colors/letters legend shapes to (for discrete variable plotting)
 #' @param legend.title For adding a title for the colors/letters legend.  It is set to NULL (off) by default.
 #' @param shape.legend.size The size to increase the plotting of shapes legend shapes to.
@@ -50,7 +51,7 @@
 
 DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 = 1, dim.2 = 2, theme = NA,
                       size=1, shape=16, shapes=c(16,15,17,23,25,8),
-                      legend.size = 5, legend.title = NULL,
+                      legend.show = TRUE, legend.size = 5, legend.title = NULL,
                       shape.legend.size = 5, shape.legend.title = NULL,
                       data.type = "normalized",
                       main = NULL, sub = NULL, xlab="make", ylab ="make", auto.title = T,
@@ -277,6 +278,10 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
     p <- p + theme
   }
 
+  #Remove legend, if warrented
+  if (!legend.show) { p <- remove_legend(p) }
+
+  ### RETURN the PLOT ###
   if(do.hover){
     return(plotly::ggplotly(p, tooltip = "text"))
   } else {
@@ -320,10 +325,11 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' @param boxplot.width          the width/spread of the boxplot in the x direction
 #' @param boxplot.color          the color of the lines of the boxplot
 #' @param boxplot.show.outliers  whether outliers should by including in the boxplot. Default is FALSE when there is a jitter plotted, TRUE if no jitter.
-#' @param boxplot.fill          whether the boxplot should be filled in or not.
+#' @param boxplot.fill           whether the boxplot should be filled in or not.
 #' @param reorder.x              sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order for the samples.  Default = alphabetical then numerical.
+#' @param legend.show            TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.
 #' @param title.legend           whether to leave the title for the plot's legend
-#' @param auto.title              TRUE/FALSE = whether a default 'main' should be generated.
+#' @param auto.title             TRUE/FALSE = whether a default 'main' should be generated.
 #' @param vlnplot.lineweight sets the thickness of the line that outlines the violin plots.
 #' @return Makes a plot where continuous data, grouped by sample, age, cluster, etc., on the x-axis is shown on the y-axis by a violin plot, boxplot, and/or dots (or other shapes)
 #' @examples
@@ -347,7 +353,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA, boxplot.fill =T,
                    vlnplot.lineweight = 1,
                    reorder.x = 1:length(meta.levels(group.by, object)),
-                   title.legend = F, auto.title=T){
+                   legend.show = TRUE, title.legend = F, auto.title=T){
 
   #Turn the object into a "name" if a full object was given
   object <- S4_2string(object)
@@ -501,6 +507,9 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   p <- p + scale_fill_manual(values=color.panel[colors]) +
     ggtitle(main, sub) + xlab(xlab)
 
+  #Remove legend, if warrented
+  if (!legend.show) { p <- remove_legend(p) }
+
   #DONE. Return the plot
   if(do.hover & ("jitter" %in% plots)){
     return(plotly::ggplotly(p, tooltip = "text"))
@@ -528,6 +537,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
 #' @param main                   "character". Plot main title.
 #' @param sub                    "character". Plot subtitle.
 #' @param rename.groups          new names for the identities of var.  Change to NULL to remove labeling altogether.
+#' @param legend.show            TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.
 #' @param legend.title           Title for the legend.  Default = blank / NULL
 #' @param reorder.x              sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order for the samples.  Default = alphabetical then numerical.
 #' @return Makes a plot where discrete data is shown on the y-axis as "percent of total" in a stacked barplot, grouped by sample, age, cluster, etc., on the x-axis.
@@ -547,7 +557,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
                       xlab = NULL, ylab = "make", x.labels = NA, rotate.labels = TRUE,
                       y.breaks = c(0,0.5,1),
                       main = "make", sub = NULL, rename.groups = NA,
-                      legend.title = NULL,
+                      legend.show = TRUE, legend.title = NULL,
                       reorder.x = 1:length(meta.levels(group.by, object))
                       ){
 
@@ -679,6 +689,9 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
     # If it was not given, put the orig.names back
     p <- p + scale_x_discrete(labels=orig.names[order(reorder.x)])
   }
+
+  #Remove legend, if warrented
+  if (!legend.show) { p <- remove_legend(p) }
 
   #DONE. Return the plot
   if(do.hover){
@@ -1026,8 +1039,9 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
   }
   #Set titles and x-axis label
   p <- p + ggtitle(main, sub) + xlab(xlab) + ylab(ylab)
-  #Remove legend unless wanted
-  p <- p + theme(legend.position = ifelse(legend.show, "right", "none"))
+
+  #Remove legend, if warrented
+  if (!legend.show) { p <- remove_legend(p) }
 
   #DONE. Return the plot
   if(do.hover & ("jitter" %in% plots)){
@@ -1087,11 +1101,11 @@ multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
 
   ylab.input <- ylab
 
-  plots <- lapply(vars, function(X) { DBPlot(X, object, group.by, color.by,
-                                             ylab = if(typeof(ylab.input)=="character"){ifelse((ylab.input == "var"),X,return('Error: ylab must be TRUE/FALSE or "var"'))} else {if(ylab.input){"make"}else{NULL}},
-                                             auto.title = add.title,
-                                             ...) +
-      theme(legend.position = ifelse(show.legend, "right", "none"))
+  plots <- lapply(vars, function(X) {
+    DBPlot(X, object, group.by, color.by,
+           ylab = if(typeof(ylab.input)=="character"){ifelse((ylab.input == "var"),X,return('Error: ylab must be TRUE/FALSE or "var"'))} else {if(ylab.input){"make"}else{NULL}},
+           auto.title = add.title,
+           ...) + theme(legend.position = ifelse(show.legend, "right", "none"))
   })
 
   #Output
@@ -1135,12 +1149,12 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
   # If set to TRUE, set it to "make".
   lab <- if(!axes.labels) {NULL} else {"make"}
 
-  plots <- lapply(vars, function(X) { DBDimPlot(X, object,
-                                                auto.title = add.title,
-                                                xlab = lab,
-                                                ylab = lab,
-                                                ...) +
-      theme(legend.position = ifelse(show.legend, "right", "none"))
+  plots <- lapply(vars, function(X) {
+    DBDimPlot(X, object,
+              auto.title = add.title,
+              xlab = lab,
+              ylab = lab,
+              ...) + theme(legend.position = ifelse(show.legend, "right", "none"))
   })
   if (OUT.List){
     names(plots) <- vars

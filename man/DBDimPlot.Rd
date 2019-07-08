@@ -6,8 +6,8 @@
 \usage{
 DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   dim.1 = 1, dim.2 = 2, theme = NA, size = 1, shape = 16,
-  shapes = c(16, 15, 17, 23, 25, 8), legend.size = 5,
-  legend.title = NULL, shape.legend.size = 5,
+  shapes = c(16, 15, 17, 23, 25, 8), legend.show = TRUE,
+  legend.size = 5, legend.title = NULL, shape.legend.size = 5,
   shape.legend.title = NULL, data.type = "normalized", main = NULL,
   sub = NULL, xlab = "make", ylab = "make", auto.title = T,
   cells.use = NULL, show.others = TRUE, ellipse = F, do.label = F,
@@ -34,6 +34,8 @@ DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
 \item{shape}{Number for setting shape OR name of metadata to use for setting shape}
 
 \item{shapes}{the shapes to use.  Default is a list of 6.  There are more, but not many of the default ggplot options are great.  I recommend using colors for any variable with 7+ options.}
+
+\item{legend.show}{TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.}
 
 \item{legend.size}{The size to increase the plotting of colors/letters legend shapes to (for discrete variable plotting)}
 
