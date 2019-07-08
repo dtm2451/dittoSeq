@@ -57,7 +57,8 @@ Makes a plot where discrete data is shown on the y-axis as "percent of total" in
 Outputs a stacked bar plot to show the percent composition of samples or other cell groupings
 }
 \examples{
-pbmc <- Seurat::pbmc_small
+library(Seurat)
+pbmc <- pbmc_small
 DBBarPlot("ident", object = "pbmc", group.by = "orig.ident")
 #For real data, you will have more distinct samples than this truncated dataset.
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.

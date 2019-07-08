@@ -324,9 +324,11 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' @param reorder.x              sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order for the samples.  Default = alphabetical then numerical.
 #' @param title.legend           whether to leave the title for the plot's legend
 #' @param auto.title              TRUE/FALSE = whether a default 'main' should be generated.
+#' @param vlnplot.lineweight sets the thickness of the line that outlines the violin plots.
 #' @return Makes a plot where continuous data, grouped by sample, age, cluster, etc., on the x-axis is shown on the y-axis by a violin plot, boxplot, and/or dots (or other shapes)
 #' @examples
-#' pbmc <- Seurat::pbmc_small
+#' library(Seurat)
+#' pbmc <- pbmc_small
 #' DBPlot("CD14", object = "pbmc", group.by = "res.1", color.by = "res.1")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
@@ -343,6 +345,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    jitter.size=1, jitter.width=0.2, jitter.color = "black", jitter.shapes=c(16,15,17,23,25,8),
                    jitter.shape.legend.size = 3,
                    boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA, boxplot.fill =T,
+                   vlnplot.lineweight = 1,
                    reorder.x = 1:length(meta.levels(group.by, object)),
                    title.legend = F, auto.title=T){
 
@@ -469,7 +472,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
       }
     }
     if (plots[i] == "vlnplot") {
-      p <- p + geom_violin()
+      p <- p + geom_violin(size = vlnplot.lineweight)
     }
   }
 
@@ -529,7 +532,8 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
 #' @param reorder.x              sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order for the samples.  Default = alphabetical then numerical.
 #' @return Makes a plot where discrete data is shown on the y-axis as "percent of total" in a stacked barplot, grouped by sample, age, cluster, etc., on the x-axis.
 #' @examples
-#' pbmc <- Seurat::pbmc_small
+#' library(Seurat)
+#' pbmc <- pbmc_small
 #' DBBarPlot("ident", object = "pbmc", group.by = "orig.ident")
 #' #For real data, you will have more distinct samples than this truncated dataset.
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
@@ -700,8 +704,8 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
 #' @param ... other arguments that will be passed to pheatmap. For scRNAseq data, I recommend running with cluster_cols=FALSE first because clustering of thousands of cells can tak a long time!  Common ones: main for adding a title, cluster_cols or cluster_rows = FALSE to turn clustering off for cells or genes, treeheight_row or treeheight_col = 0 to remove or a positive # for setting how large the trees on the side/top should be drawn
 #' @description This function is a wrapper for the pheatmap function of the pheatmap package.  Given a set of genes, it will spit out a basic heatmap from your RNAseq data, or just certain cells/samples.
 #' @return Makes a heatmap where
-#' @examples
-#' pbmc <- Seurat::pbmc_small
+#' library(Seurat)
+#' pbmc <- pbmc_small
 #' DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'             "FCGR3A","LYZ","PPBP","CD8A"),
 #'           object = "pbmc",
@@ -1452,7 +1456,7 @@ meta <- function(meta, object=DEFAULT){
     if(meta=="ident" & grepl("Seurat", classof(object))){
       if(eval(expr = parse(text = paste0(object, "@version"))) >= '3.0.0'){
         #Seurat.v3, ident
-        return(as.character(Idents(object = eval(expr = parse(text = paste0(object))))))
+        return(as.character(Seurat::Idents(object = eval(expr = parse(text = paste0(object))))))
       } else {
         #Seurat.v2, ident
         return(as.character(eval(expr = parse(text = paste0(object,"@ident")))))
@@ -1471,7 +1475,7 @@ meta <- function(meta, object=DEFAULT){
     if(meta=="ident"){
       if(packageVersion("Seurat") >= '3.0.0'){
         #Seurat.v3, ident
-        return(as.character(Idents(object)))
+        return(as.character(Seurat::Idents(object)))
       } else {
         #Seurat.v2, ident
         return(as.character(object@ident))

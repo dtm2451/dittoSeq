@@ -16,8 +16,8 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   15, 17, 23, 25, 8), jitter.shape.legend.size = 3,
   boxplot.width = 0.2, boxplot.color = "black",
   boxplot.show.outliers = NA, boxplot.fill = T,
-  reorder.x = 1:length(meta.levels(group.by, object)),
-  title.legend = F, auto.title = T)
+  vlnplot.lineweight = 1, reorder.x = 1:length(meta.levels(group.by,
+  object)), title.legend = F, auto.title = T)
 }
 \arguments{
 \item{var}{Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.}
@@ -88,6 +88,8 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 
 \item{boxplot.fill}{whether the boxplot should be filled in or not.}
 
+\item{vlnplot.lineweight}{sets the thickness of the line that outlines the violin plots.}
+
 \item{reorder.x}{sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order for the samples.  Default = alphabetical then numerical.}
 
 \item{title.legend}{whether to leave the title for the plot's legend}
@@ -101,7 +103,8 @@ Makes a plot where continuous data, grouped by sample, age, cluster, etc., on th
 Plots continuous data on the y-axis, grouped in a settable way in the x-axis
 }
 \examples{
-pbmc <- Seurat::pbmc_small
+library(Seurat)
+pbmc <- pbmc_small
 DBPlot("CD14", object = "pbmc", group.by = "res.1", color.by = "res.1")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"

@@ -37,12 +37,8 @@ DBHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
 }
 \value{
 Makes a heatmap where
-}
-\description{
-This function is a wrapper for the pheatmap function of the pheatmap package.  Given a set of genes, it will spit out a basic heatmap from your RNAseq data, or just certain cells/samples.
-}
-\examples{
-pbmc <- Seurat::pbmc_small
+library(Seurat)
+pbmc <- pbmc_small
 DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
             "FCGR3A","LYZ","PPBP","CD8A"),
           object = "pbmc",
@@ -61,5 +57,7 @@ DEFAULT <- "pbmc"
 DBHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
             "FCGR3A","LYZ","PPBP","CD8A"),
           cells.annotation = "ident")
-
+}
+\description{
+This function is a wrapper for the pheatmap function of the pheatmap package.  Given a set of genes, it will spit out a basic heatmap from your RNAseq data, or just certain cells/samples.
 }
