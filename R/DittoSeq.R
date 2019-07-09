@@ -1347,20 +1347,40 @@ is.meta <- function(test, object=DEFAULT){
 #### is.gene: Is this the name of a gene in my dataset? ####
 #' Tests if an input is the name of a gene recovered in the dataset.
 #'
-#' @param test               "potential.gene.name" in quotes. REQUIRED.
-#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param test "potential.gene.name" in quotes. REQUIRED.
+#' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param value TRUE/FALSE. Default = FALSE.whether to return the gene names instead of TRUE/FALSE.
 #' @return Returns TRUE if there is a row in the objects' data slot named 'test'.
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
-#' is.gene("CD14", object = "pbmc") # TRUE
-#' is.gene("CD4", pbmc) # FALSE
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
+#'
+#' #For testing an individual query:
+#' is.gene("CD14", object = "pbmc")
+#'   # TRUE
+#' is.gene("CD12345", pbmc)
+#'   # FALSE, CD12345 is not a human gene.
+#'
+#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped.
 #' DEFAULT <- "pbmc"
 #' is.gene("CD14")
+#'   # TRUE
+#'
+#' #The function works for sets of gene-queries as well
+#' is.gene(c("CD14", "IL32", "CD3E", "CD12345"))
+#'   #TRUE TRUE TRUE FALSE
+#' # value input is especially useful in these cases.
+#' is.gene(c("CD14", "IL32", "CD3E", "CD12345"), value = TRUE)
+#'  #"CD14" "IL32" "CD3E"
 
-is.gene <- function(test, object=DEFAULT){
-  test %in% get.genes(object)
+is.gene <- function(test, object=DEFAULT, value = FALSE){
+  if (value){
+    #Return names of included genes
+    return(test[is.gene(test, object, value=FALSE)])
+  } else {
+    #Return T/F
+    return(test %in% get.genes(object))
+  }
 }
 
 #### get.metas: prints the names of all the metadata lists for the object ####
