@@ -2008,28 +2008,26 @@ Lighten <- function(colors, percent.change = 0.25, relative = T){
 #' @description Essentially a wrapper function for colorspace's deutan(), protan(), and tritan() functions. This function will output any DittoSeq plot as it might look to an individual with one of the common forms of colorblindness: deutanopia/deutanomaly, the most common, is when the cones mainly responsible for red vision are defective. Protanopia/protanomaly is when the cones mainly responsible for green vision are defective. In tritanopia/tritanomaly, the defective cones are responsible for blue vision. Note: there are more severe color deficiencies that are even more rare. Unfortunately, for these types of color vision deficiency, only non-color methods, like lettering or shapes, will do much to help.
 #' @param type The type of colorblindness that you want to simulate for. Options: "deutan", "protan", "tritan". Anything else, and you will get an error.
 #' @param plot.function The plotting function that you want to use/simulate. not quoted. and make sure to remove the () that R will try to add.
-#' @param color.panel The set of colors to be used.  Not required to be given, as contrary to the look of this documentation, it will still default to MYcolors when not provided.
 #' @param ... other paramters that can be given to DittoSeq plotting functions, including color.panel, used in exactly the same way they are used for those functions. (contrary to the look of this documentation, color.panel will still default to MYcolors when not provided.)
-#' @return Outputs any DittoSeq plot as it might look to a colorblind individual.
+#' @param color.panel The set of colors to be used.  Not required to be given, as contrary to the look of this documentation, it will still default to MYcolors when not provided.
+#' @return Outputs a DittoSeq plot with the color.panel updated as it might look to a colorblind individual. Note: Does not currently work for DBHeatmap or for continuous variable plotting in DBDimPlot.
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' Simulate("deutan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
-#' Simulate("protan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
-#' Simulate("tritan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
+#' Simulate("protan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
+#' Simulate("tritan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
 
-Simulate <- function(type = "deutan", plot.function, color.panel = NULL, ...){
+Simulate <- function(type = "deutan", plot.function, ..., color.panel = MYcolors){
 
   #Check that type was given properly
   if(!(type=="deutan"|type=="protan"|type=="tritan")){
-    return("type must be 'deutan', 'protan', or 'tritan'")
+    return("Error: type must be 'deutan', 'protan', or 'tritan'")
   }
-  #Set the color panel
-  if(is.null(color.panel)){
-    color.p <- eval(expr = parse(text = paste0("colorspace::",type,"(MYcolors)")))
-  } else {
-    color.p <- eval(expr = parse(text = paste0("colorspace::",type,"(",color.panel,")")))
-  }
+
+  #Simulate the color panel for the given color blindness type.
+  color.p <- eval(expr = parse(text = paste0("colorspace::",type,"(color.panel)")))
+
   #Make the plot!
   plot.function(color.panel = color.p, ... )
 }
