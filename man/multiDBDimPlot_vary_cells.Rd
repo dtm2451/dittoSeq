@@ -9,7 +9,7 @@ multiDBDimPlot_vary_cells(var, object = DEFAULT, cells.use.meta,
   all.cells.plot = T, show.legend = F, add.single.legend = T,
   ncol = 3, nrow = NULL, add.title = T, axes.labels = F,
   min = NULL, max = NULL, data.type = "normalized", OUT.List = F,
-  main = "make", all.cells.main = "All Cells", ...)
+  all.cells.main = "All Cells", ...)
 }
 \arguments{
 \item{var}{name of a "gene", "meta.data", "ident", or a vector the length of the #cells or #samples in 'object'. REQUIRED. A var with which to color the separate plots.  Referencing discrete or continuous data are both allowed.}
@@ -42,11 +42,11 @@ multiDBDimPlot_vary_cells(var, object = DEFAULT, cells.use.meta,
 
 \item{OUT.List}{TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, the All.cells plot will be named "all" and the legend will be named "legend". Others will be named by which cells are in them.}
 
-\item{main}{For setting a title for each individual plot.  Options: Leave as "make" and the titles will be which cells are in each plot.  "any.text" will set the same title for all plots.  NULL or "" will remove the titles.}
-
 \item{all.cells.main}{For setting the title of the All.cells plot.  Default is All Cells.  Set to NULL or "" to remove.}
 
 \item{...}{other paramters that can be given to DBDimPlot function used in the same way.}
+
+\item{main}{For setting a title for each individual plot.  Options: Leave as "make" and the titles will be which cells are in each plot.  "any.text" will set the same title for all plots.  NULL or "" will remove the titles.}
 }
 \value{
 A function for quickly making multiple DBDimPlots arranged in a grid, where instead of varying the 'var' displayed, what varies is the cells that are shown. Most parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each plot is which cells get displayed. NOTE: This function is incompatible with changing the 'colors' input. If you need to change the order of when certain colrs are chosen, change the order in color.panel. Also note: if 'var' given refers to continuous data, then the min and max will be calculated at the beginning in order to make the scale consistent accross all plots.  You can still set your own range, and this would also create a consistent scale.

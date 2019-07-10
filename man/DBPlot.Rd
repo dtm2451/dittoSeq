@@ -8,16 +8,16 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   cells.use = NULL, plots = c("jitter", "vlnplot"),
   data.type = "normalized", do.hover = FALSE, data.hover = var,
   color.panel = MYcolors, colors = c(1:length(color.panel)),
-  theme = theme_classic(), main = NULL, sub = NULL, ylab = "make",
-  y.breaks = NULL, min = NULL, max = NULL, xlab = NULL,
-  labels = NULL, rotate.labels = TRUE, hline = NULL,
+  theme = theme_classic(), main = "make", sub = NULL,
+  ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
+  xlab = NULL, labels = NULL, rotate.labels = TRUE, hline = NULL,
   hline.linetype = "dashed", hline.color = "black", jitter.size = 1,
   jitter.width = 0.2, jitter.color = "black", jitter.shapes = c(16,
   15, 17, 23, 25, 8), jitter.shape.legend.size = 3,
   boxplot.width = 0.2, boxplot.color = "black",
   boxplot.show.outliers = NA, boxplot.fill = T,
   vlnplot.lineweight = 1, reorder.x = 1:length(meta.levels(group.by,
-  object)), legend.show = TRUE, title.legend = F, auto.title = T)
+  object)), legend.show = TRUE, title.legend = F)
 }
 \arguments{
 \item{var}{Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.}
@@ -46,11 +46,11 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 
 \item{theme}{Allows setting of a theme. Default = theme_classic when nothing is provided.}
 
-\item{main}{plot title}
+\item{main}{plot title. Default = "make", if left as make, a title will be automatically generated.  To remove, set to NULL.}
 
 \item{sub}{plot subtitle}
 
-\item{ylab}{y axis label, default is "var" or "var expression" if var is a gene.}
+\item{ylab}{y axis label, defaults to "var" or "var expression" if var is a gene.  Set to NULL to remove.}
 
 \item{y.breaks}{a list of breaks that should be used as major gridlines. c(break1,break2,break3,etc.) NOTE: The low and highs of this variable will override `min` and `max`.}
 
@@ -95,8 +95,6 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 \item{legend.show}{TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.}
 
 \item{title.legend}{whether to leave the title for the plot's legend}
-
-\item{auto.title}{TRUE/FALSE = whether a default 'main' should be generated.}
 }
 \value{
 Makes a plot where continuous data, grouped by sample, age, cluster, etc., on the x-axis is shown on the y-axis by a violin plot, boxplot, and/or dots (or other shapes)

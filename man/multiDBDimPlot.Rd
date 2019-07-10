@@ -5,7 +5,7 @@
 \title{Generates multiple DBDimPlots arranged into a grid.}
 \usage{
 multiDBDimPlot(vars, object = DEFAULT, show.legend = F, ncol = 3,
-  nrow = NULL, add.title = T, axes.labels = F, OUT.List = F, ...)
+  nrow = NULL, axes.labels = F, OUT.List = F, ...)
 }
 \arguments{
 \item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
@@ -17,8 +17,6 @@ multiDBDimPlot(vars, object = DEFAULT, show.legend = F, ncol = 3,
 \item{ncol}{#. How many plots should be arranged per row.  Default = 3.}
 
 \item{nrow}{#/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.}
-
-\item{add.title}{TRUE/FALSE. Whether a title should be added.}
 
 \item{axes.labels}{TRUE/FALSE. Whether a axis labels should be added}
 
