@@ -43,7 +43,7 @@ ImportDemux2Seurat <- function(Seurat,
   #Create Lane.names if not given
   if(is.na(Lane.names[1])){
     if(is.null(Lane.info.meta)){
-      Lane.names <- paste0("Lane",seq_len(length(Seurats)))
+      Lane.names <- paste0("Lane",seq_along(Seurats))
     } else {
       Lane.names <- meta.levels(Lane.info.meta, Seurat)
     }

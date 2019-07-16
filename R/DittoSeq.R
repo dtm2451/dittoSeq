@@ -424,9 +424,9 @@ make_hover_strings <- function(data.hover, object, data.type = "normalized"){
     hover.string <- "Add gene or metadata \n names to hover.data"
   } else {
     features.info <- data.frame(row.names = all_cells(object))
-    fill <- sapply(seq_len(length(data.hover)), function(i)
+    fill <- sapply(seq_along(data.hover), function(i)
       (is.meta(data.hover[i],object) | is.gene(data.hover[i],object) | (data.hover[i]=="ident")))
-    features.info <- sapply(seq_len(length(data.hover))[fill], function(i)
+    features.info <- sapply(seq_along(data.hover)[fill], function(i)
       features.info[,dim(features.info)[2]+1] <-
         var_OR_get_meta_or_gene(data.hover[i],object, data.type))
     names(features.info) <- data.hover[fill]
