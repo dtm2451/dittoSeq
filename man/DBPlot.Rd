@@ -16,7 +16,7 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   15, 17, 23, 25, 8), jitter.shape.legend.size = 3,
   boxplot.width = 0.2, boxplot.color = "black",
   boxplot.show.outliers = NA, boxplot.fill = TRUE,
-  vlnplot.lineweight = 1, reorder.x = 1:length(meta.levels(group.by,
+  vlnplot.lineweight = 1, reorder.x = seq_along(meta.levels(group.by,
   object)), legend.show = TRUE, title.legend = FALSE)
 }
 \arguments{

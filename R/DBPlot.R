@@ -60,7 +60,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    jitter.shape.legend.size = 3,
                    boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA, boxplot.fill =TRUE,
                    vlnplot.lineweight = 1,
-                   reorder.x = 1:length(meta.levels(group.by, object)),
+                   reorder.x = seq_along(meta.levels(group.by, object)),
                    legend.show = TRUE, title.legend = FALSE){
 
   #Turn the object into a "name" if a full object was given
@@ -139,7 +139,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   }
 
   ###Add data based on what is requested in plots, *ordered by their order*
-  for (i in 1:length(plots)){
+  for (i in seq_along(plots)){
     #If next request is "boxplot", make a boxplot.
     if (plots[i] == "boxplot") {
       if (is.na(boxplot.show.outliers)){
@@ -167,7 +167,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                              else{aes(shape = shape)},
                              color = jitter.color)
         #Actually set the shapes to jitter.shapes.
-        p <- p + scale_shape_manual(values = jitter.shapes[1:length(levels(as.factor(Target_dat$shape)))],
+        p <- p + scale_shape_manual(values = jitter.shapes[seq_along(levels(as.factor(Target_dat$shape)))],
                                     labels = levels(as.factor(as.character(Target_dat$shape))))
         #Also change the size of the shape key in the legend, unless jitter.shape.legend.size was set to NA or "none".
         if (!is.na(jitter.shape.legend.size) & jitter.shape.legend.size!="none"){
@@ -362,7 +362,7 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
                                      main = NULL, sub = NULL,
                                      ylab = NULL, y.breaks = NULL, min = NULL, max = NULL,
                                      xlab = NULL, labels = NULL, rotate.labels = TRUE,
-                                     reorder.x = 1:length(meta.levels(group.by, object)),
+                                     reorder.x = seq_along(meta.levels(group.by, object)),
                                      jitter.size=1, jitter.width=0.2, jitter.color = "black",
                                      jitter.shape = 16,
                                      boxplot.width = 0.2, boxplot.color = "black",
@@ -450,7 +450,7 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
     }
   }
   #Add data based on what is requested in plots, *ordered by their order*
-  for (i in 1:length(plots)){
+  for (i in seq_along(plots)){
     #If next request is "boxplot", make a boxplot.
     if (plots[i] == "boxplot") {
       if (is.na(boxplot.show.outliers)){

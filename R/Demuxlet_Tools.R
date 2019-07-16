@@ -117,7 +117,7 @@ ImportDemux2Seurat <- function(Seurat,
   print(paste0(length(levels(lane.idents)),
                " lanes were identified and named:"),
         quote=FALSE)
-  print(paste0(Lane.names[1:length(levels(lane.idents))], collapse = ", "),
+  print(paste0(Lane.names[seq_along(levels(lane.idents))], collapse = ", "),
         quote=FALSE)
   print(paste0("The average number of SNPs per cell for all lanes was: ",round(mean(Seurat@meta.data$demux.N.SNP),1)),quote=FALSE)
   print(paste0("Out of ",length(cell.names)," cells total, Demuxlet assigned:"),quote=FALSE)

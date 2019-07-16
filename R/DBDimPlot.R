@@ -144,9 +144,9 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   # If adding letters, create a vector of what those labels should be
   if(do.letter){
     letter.labels <- c(LETTERS, letters, 0:9, "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-",
-                       "+", "_", "=", ";", "/", "|", "{", "}", "~")[1:length(levels(as.factor(Y)))]
+                       "+", "_", "=", ";", "/", "|", "{", "}", "~")[seq_along(levels(as.factor(Y)))]
     names(letter.labels) <- levels(Y)
-    letter.colors <- c(rep("white",7), rep("black",10),rep("white",9))[1:length(levels(as.factor(Y)))]
+    letter.colors <- c(rep("white",7), rep("black",10),rep("white",9))[seq_along(levels(as.factor(Y)))]
     names(letter.colors) <- levels(Y)
   }
 
@@ -172,7 +172,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                         size=size,
                         alpha = opacity) +
       # if(do.letter){geom_point(data=Target_dat, aes(x = dim1, y = dim2, shape = Y), color = letter.colors, size=size)} +
-      scale_shape_manual(values = shapes[1:length(levels(as.factor(Target_dat$shape)))],
+      scale_shape_manual(values = shapes[seq_along(levels(as.factor(Target_dat$shape)))],
                          labels = levels(as.factor(as.character(Target_dat$shape))))
   }  else {
     p <- p + geom_point(data=Target_dat,
@@ -423,7 +423,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
     } else { #If data is discrete, then we need to make sure the right colors are use in each plot!
       levels <- meta.levels(var,object)
       plots <- lapply(cells.use.levels, function(X) {
-        in.this.plot <- (1:length(levels))[levels %in%
+        in.this.plot <- (seq_along(levels))[levels %in%
                                              levels(as.factor(meta(var,object)[meta(cells.use.meta,object)==X]))]
         DBDimPlot(var, object,
                   cells.use = meta(cells.use.meta,object) == X,
@@ -443,7 +443,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
   #Need to vary the color with each new plot.
   if(var[1] == cells.use.meta){
     levels <- meta.levels(cells.use.meta, object)
-    plots <- lapply((1:length(levels))[levels %in% cells.use.levels], function(X) {
+    plots <- lapply((seq_along(levels))[levels %in% cells.use.levels], function(X) {
       DBDimPlot(var, object,
                 cells.use = meta(cells.use.meta,object) == levels[X],
                 colors = X,

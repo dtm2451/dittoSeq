@@ -65,7 +65,7 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
     Col_annot <- data.frame(as.factor(as.character(meta(cells.annotation[1], object)[all.cells %in% cells.use])),
                             row.names = cells.use)
     names(Col_annot) <- cells.annotation[1]
-    new_cols <- unlist(cells.annotation.colors[[1]])[1:length(levels(Col_annot[[1]]))]
+    new_cols <- unlist(cells.annotation.colors[[1]])[seq_along(levels(Col_annot[[1]]))]
     names(new_cols) <- levels(Col_annot[[1]])
     Col_annot_colors <- list(new_cols)
     names(Col_annot_colors) <- cells.annotation[1]
@@ -73,7 +73,7 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
       print(paste0("Currently, only one annotation per heatmap is supported. To create a plot with two or more, you can create separate heatmaps, and stitch them together manually in other software. Generating heatmap with '", cells.annotation[1], "'..."))
       # for (i in 2:length(cells.annotation[-1])){
       #   eval(expr = parse(text = paste0("Col_annot$'",cells.annotation[i],"' <- as.factor(as.character(meta(cells.annotation[i],object)[all.cells %in% cells.use]))")))
-      #   new_cols <- unlist(cells.annotation.colors[[i]])[1:length(levels(Col_annot[[i]]))]
+      #   new_cols <- unlist(cells.annotation.colors[[i]])[seq_along(levels(Col_annot[[i]]))]
       #   names(new_cols) <- levels(Col_annot[[i]])
       #   eval(expr = parse(text = paste0("Col_annot_colors$'",cells.annotation[i],"' <- list(new_cols)")))
       # }

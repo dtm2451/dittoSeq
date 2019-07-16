@@ -98,7 +98,7 @@ import.DESeq2 <- function(dds, #A DESeq object, *the output of DESeq()*
                             data.frame(object@dds@colData@listData)[(!duplicated(
                               c(names(data.frame(object@dds@colData@listData)),names(object@meta.data)),
                               fromLast=TRUE
-                            ))[1:length(object@dds@colData@listData)]])
+                            ))[seq_along(object@dds@colData@listData)]])
 
   ##populate data
   object@data <- SummarizedExperiment::assay(DESeq2::rlog(object@dds, blind = blind))
