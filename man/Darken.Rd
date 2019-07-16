@@ -4,14 +4,14 @@
 \alias{Darken}
 \title{Darkens input colors by a set amount}
 \usage{
-Darken(colors, percent.change = 0.25, relative = T)
+Darken(colors, percent.change = 0.25, relative = TRUE)
 }
 \arguments{
 \item{colors}{the color(s) input. Can be a list of colors, for example, MYcolors.}
 
 \item{percent.change}{# between 0 and 1. the percentage to darken by. Defaults to 0.25 if not given.}
 
-\item{relative}{TRUE/FALSE. Whether the percentage should be a relative change versus an absolute one. Default = T.}
+\item{relative}{TRUE/FALSE. Whether the percentage should be a relative change versus an absolute one. Default = TRUE.}
 }
 \value{
 Return a darkened version of the color in hexadecimal color form (="#RRGGBB" in base 16)

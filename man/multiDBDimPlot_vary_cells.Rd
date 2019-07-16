@@ -6,9 +6,10 @@
 \usage{
 multiDBDimPlot_vary_cells(var, object = DEFAULT, cells.use.meta,
   cells.use.levels = meta.levels(cells.use.meta, object),
-  all.cells.plot = T, show.legend = F, add.single.legend = T,
-  ncol = 3, nrow = NULL, add.title = T, axes.labels = F,
-  min = NULL, max = NULL, data.type = "normalized", OUT.List = F,
+  all.cells.plot = TRUE, show.legend = FALSE,
+  add.single.legend = TRUE, ncol = 3, nrow = NULL,
+  add.title = TRUE, axes.labels = FALSE, min = NULL, max = NULL,
+  data.type = "normalized", OUT.List = FALSE,
   all.cells.main = "All Cells", ...)
 }
 \arguments{

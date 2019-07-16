@@ -10,10 +10,10 @@ DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   legend.size = 5, legend.title = NULL, shape.legend.size = 5,
   shape.legend.title = NULL, data.type = "normalized", main = "make",
   sub = NULL, xlab = "make", ylab = "make", cells.use = NULL,
-  show.others = TRUE, ellipse = F, do.label = F, label.size = 5,
-  highlight.labels = T, rename.groups = NA, min.color = "#F0E442",
-  max.color = "#0072B2", min = NULL, max = NULL,
-  color.panel = MYcolors, colors = 1:length(color.panel),
+  show.others = TRUE, ellipse = FALSE, do.label = FALSE,
+  label.size = 5, highlight.labels = TRUE, rename.groups = NA,
+  min.color = "#F0E442", max.color = "#0072B2", min = NULL,
+  max = NULL, color.panel = MYcolors, colors = 1:length(color.panel),
   do.letter = NA, do.hover = FALSE, data.hover = var, opacity = 1)
 }
 \arguments{
@@ -83,7 +83,7 @@ DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
 
 \item{do.letter}{TRUE/FALSE/NA. Whether letters should be added on top of the colored dots. For colorblindness compatibility.  NA by default, and if left that way, will be set to either TRUE or FALSE depending on the number of groups if a discrete var is given. For when there are lots of descrete variables, it can be hard to see by just color / shape.  NOTE: Lettering is incompatible with changing dots to shapes, so this will override a setting of distinct shapes based on the 'shape' variable!}
 
-\item{do.hover}{TRUE/FALSE. Default = F.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.}
+\item{do.hover}{TRUE/FALSE. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.}
 
 \item{data.hover}{list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.}
 

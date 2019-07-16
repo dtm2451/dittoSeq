@@ -4,14 +4,14 @@
 #' @description A wrapper for the darken function of the colorspace package.
 #' @param colors the color(s) input. Can be a list of colors, for example, MYcolors.
 #' @param percent.change # between 0 and 1. the percentage to darken by. Defaults to 0.25 if not given.
-#' @param relative TRUE/FALSE. Whether the percentage should be a relative change versus an absolute one. Default = T.
+#' @param relative TRUE/FALSE. Whether the percentage should be a relative change versus an absolute one. Default = TRUE.
 #' @return Return a darkened version of the color in hexadecimal color form (="#RRGGBB" in base 16)
 #' @examples
 #' Darken("blue") #"blue" = "#0000FF"
 #' #Output: "#0000BF"
 #' Darken(MYcolors[1:8]) #Works for multiple color inputs as well.
 
-Darken <- function(colors, percent.change = 0.25, relative = T){
+Darken <- function(colors, percent.change = 0.25, relative = TRUE){
 
   colorspace::darken(colors, amount = percent.change, space = "HLS", fixup = TRUE, method = ifelse(relative,"relative","absolute"))
 }
@@ -22,14 +22,14 @@ Darken <- function(colors, percent.change = 0.25, relative = T){
 #' @description A wrapper for the lighten function of the colorspace package.
 #' @param colors the color(s) input. Can be a list of colors, for example, MYcolors.
 #' @param percent.change # between 0 and 1. the percentage to darken by. Defaults to 0.25 if not given.
-#' @param relative TRUE/FALSE. Whether the percentage should be a relative change versus an absolute one. Default = T.
+#' @param relative TRUE/FALSE. Whether the percentage should be a relative change versus an absolute one. Default = TRUE.
 #' @return Return a lighter version of the color in hexadecimal color form (="#RRGGBB" in base 16)
 #' @examples
 #' Lighten("blue") #"blue" = "#0000FF"
 #' #Output: "#4040FF"
 #' Lighten(MYcolors[1:8]) #Works for multiple color inputs as well.
 
-Lighten <- function(colors, percent.change = 0.25, relative = T){
+Lighten <- function(colors, percent.change = 0.25, relative = TRUE){
 
   colorspace::lighten(colors, amount = percent.change, space = "HLS", fixup = TRUE, method = ifelse(relative,"relative","absolute"))
 }

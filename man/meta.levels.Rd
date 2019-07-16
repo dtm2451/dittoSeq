@@ -4,7 +4,7 @@
 \alias{meta.levels}
 \title{Gives the distinct values of a meta.data slot (or ident)}
 \usage{
-meta.levels(meta, object = DEFAULT, table.out = F)
+meta.levels(meta, object = DEFAULT, table.out = FALSE)
 }
 \arguments{
 \item{meta}{quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.}

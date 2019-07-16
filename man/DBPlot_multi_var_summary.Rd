@@ -15,7 +15,7 @@ DBPlot_multi_var_summary(vars, object = DEFAULT, group.by = "Sample",
   object)), jitter.size = 1, jitter.width = 0.2,
   jitter.color = "black", jitter.shape = 16, boxplot.width = 0.2,
   boxplot.color = "black", boxplot.show.outliers = NA,
-  boxplot.fill = T, hline = NULL, hline.linetype = "dashed",
+  boxplot.fill = TRUE, hline = NULL, hline.linetype = "dashed",
   hline.color = "black")
 }
 \arguments{
@@ -35,7 +35,7 @@ DBPlot_multi_var_summary(vars, object = DEFAULT, group.by = "Sample",
 
 \item{data.summary}{"mean" or "median". = the summary statistic to use for summarizing expression/score accross the gorups. Default is to use the mean.}
 
-\item{do.hover}{TRUE/FALSE. Default = F.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  Data shown will be the gene name. ('data.hover' argument is NOT used with this function.)}
+\item{do.hover}{TRUE/FALSE. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  Data shown will be the gene name. ('data.hover' argument is NOT used with this function.)}
 
 \item{color.panel}{the set of colors to draw from}
 

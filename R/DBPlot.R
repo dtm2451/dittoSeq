@@ -9,7 +9,7 @@
 #' @param cells.use              Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. USE in object@cell.names[USE])
 #' @param plots                  types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.
 #' @param data.type              For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
-#' @param do.hover               TRUE/FALSE. Default = F.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.
+#' @param do.hover               TRUE/FALSE. Default = FALSE.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.
 #' @param data.hover             list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
 #' @param color.panel            the set of colors to draw from
 #' @param colors                 indexes / or order, of colors from color.panel to actual use
@@ -58,10 +58,10 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    hline=NULL, hline.linetype = "dashed", hline.color = "black",
                    jitter.size=1, jitter.width=0.2, jitter.color = "black", jitter.shapes=c(16,15,17,23,25,8),
                    jitter.shape.legend.size = 3,
-                   boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA, boxplot.fill =T,
+                   boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA, boxplot.fill =TRUE,
                    vlnplot.lineweight = 1,
                    reorder.x = 1:length(meta.levels(group.by, object)),
-                   legend.show = TRUE, title.legend = F){
+                   legend.show = TRUE, title.legend = FALSE){
 
   #Turn the object into a "name" if a full object was given
   object <- S4_2string(object)
@@ -90,7 +90,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   if (is.meta(shape.by, object)){Shape <- meta(shape.by, object)} else {Shape = NA}
 
   #Groundwork for plotly hover data:
-  #Overall: if do.hover=T and data.hover has a list of genes / metas,
+  #Overall: if do.hover=TRUE and data.hover has a list of genes / metas,
   # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
   hover.string <- NA
   if (do.hover) {
@@ -307,7 +307,7 @@ multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
 #' @param plots                  types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.
 #' @param data.type              In what format should the data for each var be summarized? DEFAULT = "relative".  Most other options are not as great for comparing accross genes that may have vastly different expression patterns. All options: "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)?
 #' @param data.summary           "mean" or "median". = the summary statistic to use for summarizing expression/score accross the gorups. Default is to use the mean.
-#' @param do.hover               TRUE/FALSE. Default = F.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  Data shown will be the gene name. ('data.hover' argument is NOT used with this function.)
+#' @param do.hover               TRUE/FALSE. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  Data shown will be the gene name. ('data.hover' argument is NOT used with this function.)
 #' @param color.panel            the set of colors to draw from
 #' @param colors                 indexes / or order, of colors from color.panel to actual use
 #' @param theme                  Allows setting of a theme. Default = theme_classic when nothing is provided.
@@ -366,7 +366,7 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
                                      jitter.size=1, jitter.width=0.2, jitter.color = "black",
                                      jitter.shape = 16,
                                      boxplot.width = 0.2, boxplot.color = "black",
-                                     boxplot.show.outliers = NA, boxplot.fill =T,
+                                     boxplot.show.outliers = NA, boxplot.fill =TRUE,
                                      hline=NULL, hline.linetype = "dashed", hline.color = "black"){
 
   #Turn the object into a "name" if a full object was given
@@ -405,7 +405,7 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
         sapply(vars, function(X) median(var_OR_get_meta_or_gene(X,object,data.type)[groupings==this.group])
         )))
     } else {
-      return(print("mean and median are the only summary statistics currently supported.", quote = F))
+      return(print("mean and median are the only summary statistics currently supported.", quote = FALSE))
     }
   }
 
@@ -428,7 +428,7 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
   dat$X <- as.factor(as.character(dat$X))
   #3-Names will be set back to orig.names (unless new labels were provided) further down in the code.
 
-  ####If do.hover = T, make the string for implementing it
+  ####If do.hover = TRUE, make the string for implementing it
   #Make data.frame genes x display data
   features.info <- data.frame(gene = dat$vars)
   hover.string <- sapply(seq_len(nrow(features.info)), function(row){

@@ -35,7 +35,7 @@
 #' @param color.panel a list of colors to be used for when plotting a discrete var.
 #' @param colors indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups
 #' @param do.letter TRUE/FALSE/NA. Whether letters should be added on top of the colored dots. For colorblindness compatibility.  NA by default, and if left that way, will be set to either TRUE or FALSE depending on the number of groups if a discrete var is given. For when there are lots of descrete variables, it can be hard to see by just color / shape.  NOTE: Lettering is incompatible with changing dots to shapes, so this will override a setting of distinct shapes based on the 'shape' variable!
-#' @param do.hover TRUE/FALSE. Default = F.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.
+#' @param do.hover TRUE/FALSE. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.
 #' @param data.hover list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
 #' @param opacity Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.
 #' @return Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA, ICA, ..., plot of choice.  var is the argument that sets how dots will be colored, and it can refer to either continuous (ex: "CD34" = gene expression) or discrete (ex: "ident" = clustering) data.
@@ -56,8 +56,8 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                       shape.legend.size = 5, shape.legend.title = NULL,
                       data.type = "normalized",
                       main = "make", sub = NULL, xlab = "make", ylab = "make",
-                      cells.use = NULL, show.others=TRUE, ellipse = F,
-                      do.label = F, label.size = 5, highlight.labels = T,
+                      cells.use = NULL, show.others=TRUE, ellipse = FALSE,
+                      do.label = FALSE, label.size = 5, highlight.labels = TRUE,
                       rename.groups = NA,
                       min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
                       color.panel = MYcolors, colors = 1:length(color.panel),
@@ -120,7 +120,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   } else {Shape <- shape}
 
   #Groundwork for plotly hover data:
-  #This does: if do.hover=T and data.hover has a list of genes / metas,
+  #This does: if do.hover=TRUE and data.hover has a list of genes / metas,
   # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
   hover.string <- NA
   if (do.hover) {
@@ -156,7 +156,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   #Then Add more layers:
 
   ###Add the data###
-  #Make gray dots on the bottom layer if show.others = T and cells.use is a subset of all the cells / samples.
+  #Make gray dots on the bottom layer if show.others = TRUE and cells.use is a subset of all the cells / samples.
   if (show.others & dim(Others_dat)[1]>1) {
     p <- p + geom_point(data=Others_dat,
                         if(do.hover){aes(x = dim1, y = dim2, text = hover.string)}else{aes(x = dim1, y = dim2)},
@@ -191,13 +191,13 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   }
 
   ###Add ellipse###
-  ### Draw an ellipse if ellipse = T.
+  ### Draw an ellipse if ellipse = TRUE.
   if (ellipse) { p <- p + stat_ellipse(data=Target_dat,
                                        aes(x = dim1, y = dim2, colour = Y),
                                        type = "t",
                                        linetype = 2,
                                        size = 0.5,
-                                       show.legend = F
+                                       show.legend = FALSE
   )}
 
   ###Add titles###
@@ -313,10 +313,10 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' multiDBDimPlot(c(genes, "ident"))
 
 multiDBDimPlot <- function(vars, object = DEFAULT,
-                           show.legend = F,
+                           show.legend = FALSE,
                            ncol = 3, nrow = NULL,
-                           axes.labels=F,
-                           OUT.List = F,
+                           axes.labels=FALSE,
+                           OUT.List = FALSE,
                            ...){
 
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
@@ -370,14 +370,14 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                                       cells.use.meta,
                                       cells.use.levels = meta.levels(cells.use.meta,object),
-                                      all.cells.plot = T,
-                                      show.legend = F,
-                                      add.single.legend = T,
+                                      all.cells.plot = TRUE,
+                                      show.legend = FALSE,
+                                      add.single.legend = TRUE,
                                       ncol = 3, nrow = NULL,
-                                      add.title=T, axes.labels=F,
+                                      add.title=TRUE, axes.labels=FALSE,
                                       min = NULL, max = NULL,
                                       data.type = "normalized",
-                                      OUT.List = F,
+                                      OUT.List = FALSE,
                                       all.cells.main = "All Cells",
                                       ...){
 

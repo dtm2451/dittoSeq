@@ -26,7 +26,7 @@ import.DESeq2(dds, run_PCA = FALSE, pc.genes = NULL, Ngenes = 2500,
 Outputs an RNAseq object.
 }
 \description{
-The first step of visualization of DESeq-analyzed bulk RNAseq data is running this function. Doing will extract meta.data information from the DESeq object, data using the rlog function, and if run_PCA=T, will populate all other slots as well.
+The first step of visualization of DESeq-analyzed bulk RNAseq data is running this function. Doing will extract meta.data information from the DESeq object, data using the rlog function, and if run_PCA=TRUE, will populate all other slots as well.
 }
 \examples{
 

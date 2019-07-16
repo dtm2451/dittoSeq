@@ -60,7 +60,7 @@ is.gene <- function(test, object=DEFAULT, value = FALSE){
     #Return names of included genes
     return(test[is.gene(test, object, value=FALSE)])
   } else {
-    #Return T/F
+    #Return TRUE/FALSE
     return(test %in% get.genes(object))
   }
 }
@@ -242,17 +242,22 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
                        Seurat.v2 = c("@data","@raw.data","@scale.data", "@cell.names"),
                        Seurat.v3 = c("nope", "counts", "scale.data", "nope"),
                        SingleCellExperiment = c("logcounts", "counts", "error_do_not_use_scaled_for_SCE_objects", "nope"),
-                       stringsAsFactors = F,
+                       stringsAsFactors = FALSE,
                        row.names = c("normalized","raw","scaled","sample.names"))
 
   #Distinct functions if data.type = "relative" or "normalized.to.max" compared to all other options:
-  if(data.type == "relative" | data.type == "normalized.to.max"){
+  if(data.type == "relative" | data.type == "normalized.to.max" | data.type == "raw.normalized.to.max"){
     if(data.type == "relative"){
       #For "relative", recursive call to grab the 'normalized'  data that then has scaling run on top of it.
       OUT <- as.numeric(scale(gene(gene, object, "normalized")))
-    } else {
+    }
+    if(data.type == "normalized.to.max"){
       #For "normalized.to.max", recursive call to grab the 'normalized' data, then divide by its max.
       OUT <- gene(gene, object, "normalized")/max(gene(gene, object, "normalized"))
+    }
+    if(data.type == "raw.normalized.to.max"){
+      #For "raw.normalized.to.max", recursive call to grab the 'raw' data, then divide by its max.
+      OUT <- gene(gene, object, "raw")/max(gene(gene, object, "raw"))
     }
     #For all other data.type options...
   } else {
@@ -306,7 +311,7 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #' DEFAULT <- "pbmc"
 #' meta.levels("RNA_snn_res.1")
 
-meta.levels <- function(meta, object = DEFAULT, table.out = F){
+meta.levels <- function(meta, object = DEFAULT, table.out = FALSE){
 
   if (table.out){
     table(meta(meta, object))
@@ -331,7 +336,7 @@ which_data <- function(data.type, object=DEFAULT){
                        Seurat.v2 = c("@data","@raw.data","@scale.data"),
                        Seurat.v3 = c("nope", "counts", "scale.data"),
                        SingleCellExperiment = c("logcounts", "counts", "error_do_not_use_scaled_for_SCE_objects"),
-                       stringsAsFactors = F,
+                       stringsAsFactors = FALSE,
                        row.names = c("normalized","raw","scaled"))
   if(classof(object)=="SingleCellExperiment"){
     OUT <- as.matrix(eval(expr = parse(text = paste0(target[data.type,classof(object)],
@@ -413,7 +418,7 @@ which_cells <- function(cells.use, object = DEFAULT){
 #' make_hover_strings(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
 
 make_hover_strings <- function(data.hover, object, data.type = "normalized"){
-  #Overall: if do.hover=T and data.hover has a list of genes / metas,
+  #Overall: if do.hover=TRUE and data.hover has a list of genes / metas,
   # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
   if (is.null(data.hover)) {
     hover.string <- "Add gene or metadata \n names to hover.data"

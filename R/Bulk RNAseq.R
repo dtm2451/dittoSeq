@@ -29,7 +29,7 @@ Class <- setClass("RNAseq",
 #### import.DESeq2 builds an RNAseq object with a DESeq input.  Can run PCA as well. ####
 #' Creates an RNAseq object from a DESeq object.
 #'
-#' @description The first step of visualization of DESeq-analyzed bulk RNAseq data is running this function. Doing will extract meta.data information from the DESeq object, data using the rlog function, and if run_PCA=T, will populate all other slots as well.
+#' @description The first step of visualization of DESeq-analyzed bulk RNAseq data is running this function. Doing will extract meta.data information from the DESeq object, data using the rlog function, and if run_PCA=TRUE, will populate all other slots as well.
 #' @param dds                The output of running DESeq() on your data. = The DESeq2 object for your data. REQUIRED.
 #' @param counts             Matrix. The raw counts data matrix.  Not required but HIGHLY RECOMMENDED.
 #' @param run_PCA            TRUE/FALSE. Default is False. If set to true, prcomp PCA calculation will be carried out with the PCAcalc function.  var.genes, reductions$pca, exp.filter, and CVs slots will then all be populated. For more info, run ?PCAcalc
@@ -97,7 +97,7 @@ import.DESeq2 <- function(dds, #A DESeq object, *the output of DESeq()*
   object@meta.data <- cbind(object@meta.data,
                             data.frame(object@dds@colData@listData)[(!duplicated(
                               c(names(data.frame(object@dds@colData@listData)),names(object@meta.data)),
-                              fromLast=T
+                              fromLast=TRUE
                             ))[1:length(object@dds@colData@listData)]])
 
   ##populate data
@@ -174,18 +174,18 @@ PCAcalc <- function(object = DEFAULT,
     object@CVs <- apply(X = object@data, MARGIN = 1, FUN = sd)/apply(X = object@data, MARGIN = 1, FUN = mean)
     #Trim rlog data and RawCV_rlog by expression filter variable = object@exp.filter
     #arrange by CV_rank, higher CVs first
-    data_for_prcomp<- data_for_prcomp[order(object@CVs[object@exp.filter], decreasing = T),]
+    data_for_prcomp<- data_for_prcomp[order(object@CVs[object@exp.filter], decreasing = TRUE),]
     ##populate var.genes
     object@var.genes <- rownames(data_for_prcomp)[1:(min(Ngenes,dim(data_for_prcomp)[1]))]
     ##populate pca : Run PCA on the top Ngenes CV genes that survive the cutoff% expression per condition filter
-    object@reductions$a1b2c3d57 <- prcomp(t(data_for_prcomp[1:Ngenes,]), center = T, scale = T)
+    object@reductions$a1b2c3d57 <- prcomp(t(data_for_prcomp[1:Ngenes,]), center = TRUE, scale = TRUE)
   }
   ######### IF genes.use given, use them  ###########
   if(!(is.null(genes.use))){
     #Filter rlog to only the genes in genes.use
     data_for_prcomp <- as.data.frame(object@data)[genes.use,]
     ##populate pca : Run PCA on the top given genes.  DOES NOT USE THE Ngenes or percent.samples inputs!
-    object@reductions$a1b2c3d57 <- list(prcomp(t(data_for_prcomp), center = T, scale = T))
+    object@reductions$a1b2c3d57 <- list(prcomp(t(data_for_prcomp), center = TRUE, scale = TRUE))
   }
 
   names(object@reductions)[grep("a1b2c3d57",names(object@reductions))] <- name

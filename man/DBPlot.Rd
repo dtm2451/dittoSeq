@@ -15,9 +15,9 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   jitter.width = 0.2, jitter.color = "black", jitter.shapes = c(16,
   15, 17, 23, 25, 8), jitter.shape.legend.size = 3,
   boxplot.width = 0.2, boxplot.color = "black",
-  boxplot.show.outliers = NA, boxplot.fill = T,
+  boxplot.show.outliers = NA, boxplot.fill = TRUE,
   vlnplot.lineweight = 1, reorder.x = 1:length(meta.levels(group.by,
-  object)), legend.show = TRUE, title.legend = F)
+  object)), legend.show = TRUE, title.legend = FALSE)
 }
 \arguments{
 \item{var}{Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.}
@@ -36,7 +36,7 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 
 \item{data.type}{For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
 
-\item{do.hover}{TRUE/FALSE. Default = F.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.}
+\item{do.hover}{TRUE/FALSE. Default = FALSE.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.}
 
 \item{data.hover}{list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.}
 

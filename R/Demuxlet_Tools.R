@@ -29,13 +29,13 @@ ImportDemux2Seurat <- function(Seurat,
       print(paste0("Caution: '",
                    paste0(Check[Check %in% get.metas(Seurat)], collapse = "' and '"),
                    "' are going to bw overwritten."),
-            quote = F)
+            quote = FALSE)
     } else {
       print("To proceed anyway, set `bypass.chech = TRUE`.")
       print(paste0("WARNING: ",
                    paste0(Check[Check %in% get.metas(Seurat)], collapse = " and "),
                    " would be overwritten."),
-            quote = F)
+            quote = FALSE)
       return(Seurat)
     }
   }
@@ -59,7 +59,7 @@ ImportDemux2Seurat <- function(Seurat,
   }
 
   #Add lane metadata information
-  if(verbose){print("Adding 'Lane' information as meta.data",quote=F)}
+  if(verbose){print("Adding 'Lane' information as meta.data",quote=FALSE)}
   if(!(is.null(Lane.info.meta))){
     Seurat@meta.data$Lane <- meta(Lane.info.meta, Seurat)
     lane.idents <- as.factor(as.character(meta(Lane.info.meta, Seurat)))
@@ -76,14 +76,14 @@ ImportDemux2Seurat <- function(Seurat,
   Seurat@meta.data$Lane <- as.factor(as.character(Seurat@meta.data$Lane))
 
   #Extract Demuxlet data
-  if(verbose){print("Extracting the Demuxlet information",quote=F)}
+  if(verbose){print("Extracting the Demuxlet information",quote=FALSE)}
   DEMUX.raw <- read.csv(Demuxlet.best, header=TRUE, sep="\t")
   DEMUX.call <- data.frame(doublet=sapply(as.character(DEMUX.raw$BEST),
                                           function(X) strsplit(X,'-')[[1]][[1]]),
                            sample=sapply(as.character(DEMUX.raw$BEST),
                                          function(x){strsplit(x,"-")[[1]][[2]]}),
                            barcode=as.character(DEMUX.raw$BARCODE))
-  if(verbose){print("  Matching barcodes",quote=F)}
+  if(verbose){print("  Matching barcodes",quote=FALSE)}
   # Strip barcodes in cell.names from any of the extra info that may have been added by Seurat (normally "text_" at start of names)
   cells <- sapply(cell.names, function(X) strsplit(X, split = "_")[[1]][length(strsplit(X, split = "_")[[1]])])
   # Remove any uneccesary cells from the Demux output (= cells not in this Seurat object)
@@ -91,7 +91,7 @@ ImportDemux2Seurat <- function(Seurat,
   # Determine the indices to match Seurat cells to Demux matrix.
   inds <- sapply(cells,function(X) match(X,trim$barcode))
   # Add demux info
-  if(verbose){print("  Adding Demuxlet as meta.data",quote=F)}
+  if(verbose){print("  Adding Demuxlet as meta.data",quote=FALSE)}
   Seurat@meta.data$Sample <- as.character(trim$sample[inds])
   Seurat@meta.data$demux.doublet.call <- trim$doublet[inds]
   trim.out <- DEMUX.raw[DEMUX.call$barcode %in% cells,]
@@ -101,30 +101,30 @@ ImportDemux2Seurat <- function(Seurat,
   Seurat@meta.data$demux.N.SNP <- trim.out$N.SNP[inds]
   Seurat@meta.data$demux.PRB.DBL <- trim.out$PRB.DBL[inds]
   if(verbose){
-    print("  Checking for barcode duplicates",quote=F)
-    print("",quote=F)
-    print("",quote=F)}
+    print("  Checking for barcode duplicates",quote=FALSE)
+    print("",quote=FALSE)
+    print("",quote=FALSE)}
   # Check if there are barcode duplicates accross 10X lanes.
-  demux.barcode.dup <- array(F, dim = length(cell.names))
-  demux.barcode.dup[duplicated(inds, fromLast=F)|duplicated(inds, fromLast=T)] <- T
+  demux.barcode.dup <- array(FALSE, dim = length(cell.names))
+  demux.barcode.dup[duplicated(inds, fromLast=FALSE)|duplicated(inds, fromLast=TRUE)] <- TRUE
   if (sum(demux.barcode.dup)>0){
-    print("Warning: Cell barcodes were duplicated accross lanes of this dataset and may have been therefore artificially called as doublets by demuxlet. Recommended: Modify how your demuxlet was run to account for this.",quote=F)
+    print("Warning: Cell barcodes were duplicated accross lanes of this dataset and may have been therefore artificially called as doublets by demuxlet. Recommended: Modify how your demuxlet was run to account for this.",quote=FALSE)
     Seurat@meta.data$demux.barcode.dup <- demux.barcode.dup
-    print("",quote=F)
-    print("",quote=F)
+    print("",quote=FALSE)
+    print("",quote=FALSE)
   }
-  print("SUMMARY:",quote=F)
+  print("SUMMARY:",quote=FALSE)
   print(paste0(length(levels(lane.idents)),
                " lanes were identified and named:"),
-        quote=F)
+        quote=FALSE)
   print(paste0(Lane.names[1:length(levels(lane.idents))], collapse = ", "),
-        quote=F)
-  print(paste0("The average number of SNPs per cell for all lanes was: ",round(mean(Seurat@meta.data$demux.N.SNP),1)),quote=F)
-  print(paste0("Out of ",length(cell.names)," cells total, Demuxlet assigned:"),quote=F)
-  print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE), " cells or ", round(100*sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE)/length(cell.names),1), "% as singlets"),quote=F)
-  print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE), " cells or ", round(100*sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE)/length(cell.names),1), "% as doublets"),quote=F)
-  print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="AMB", na.rm = TRUE), " cells as too ambiguous to call."),quote=F)
-  print(paste0("     ",sum(!(cells %in% DEMUX.call$barcode)), " cells were not annotated in the demuxlet.best file."),quote=F)
+        quote=FALSE)
+  print(paste0("The average number of SNPs per cell for all lanes was: ",round(mean(Seurat@meta.data$demux.N.SNP),1)),quote=FALSE)
+  print(paste0("Out of ",length(cell.names)," cells total, Demuxlet assigned:"),quote=FALSE)
+  print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE), " cells or ", round(100*sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE)/length(cell.names),1), "% as singlets"),quote=FALSE)
+  print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE), " cells or ", round(100*sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE)/length(cell.names),1), "% as doublets"),quote=FALSE)
+  print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="AMB", na.rm = TRUE), " cells as too ambiguous to call."),quote=FALSE)
+  print(paste0("     ",sum(!(cells %in% DEMUX.call$barcode)), " cells were not annotated in the demuxlet.best file."),quote=FALSE)
   Seurat
 }
 
