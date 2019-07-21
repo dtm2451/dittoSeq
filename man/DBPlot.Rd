@@ -16,8 +16,9 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   15, 17, 23, 25, 8), jitter.shape.legend.size = 3,
   boxplot.width = 0.2, boxplot.color = "black",
   boxplot.show.outliers = NA, boxplot.fill = TRUE,
-  vlnplot.lineweight = 1, reorder.x = seq_along(meta.levels(group.by,
-  object)), legend.show = TRUE, title.legend = FALSE)
+  vlnplot.lineweight = 1, vlnplot.width = 1,
+  reorder.x = seq_along(meta.levels(group.by, object)),
+  legend.show = TRUE, title.legend = FALSE)
 }
 \arguments{
 \item{var}{Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.}
@@ -89,6 +90,8 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
 \item{boxplot.fill}{whether the boxplot should be filled in or not.}
 
 \item{vlnplot.lineweight}{sets the thickness of the line that outlines the violin plots.}
+
+\item{vlnplot.width}{the width/spread of the jitter in the x direction}
 
 \item{reorder.x}{sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order for the samples.  Default = alphabetical then numerical.}
 

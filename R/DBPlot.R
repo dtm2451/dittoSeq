@@ -35,10 +35,11 @@
 #' @param boxplot.color          the color of the lines of the boxplot
 #' @param boxplot.show.outliers  whether outliers should by including in the boxplot. Default is FALSE when there is a jitter plotted, TRUE if no jitter.
 #' @param boxplot.fill           whether the boxplot should be filled in or not.
+#' @param vlnplot.lineweight sets the thickness of the line that outlines the violin plots.
+#' @param vlnplot.width the width/spread of the jitter in the x direction
 #' @param reorder.x              sequence of numbers from 1:length(meta.levels(group.by)) for providing a new order for the samples.  Default = alphabetical then numerical.
 #' @param legend.show            TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.
 #' @param title.legend           whether to leave the title for the plot's legend
-#' @param vlnplot.lineweight sets the thickness of the line that outlines the violin plots.
 #' @return Makes a plot where continuous data, grouped by sample, age, cluster, etc., on the x-axis is shown on the y-axis by a violin plot, boxplot, and/or dots (or other shapes)
 #' @examples
 #' library(Seurat)
@@ -59,7 +60,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    jitter.size=1, jitter.width=0.2, jitter.color = "black", jitter.shapes=c(16,15,17,23,25,8),
                    jitter.shape.legend.size = 3,
                    boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA, boxplot.fill =TRUE,
-                   vlnplot.lineweight = 1,
+                   vlnplot.lineweight = 1, vlnplot.width = 1,
                    reorder.x = seq_along(meta.levels(group.by, object)),
                    legend.show = TRUE, title.legend = FALSE){
 
@@ -186,7 +187,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
       }
     }
     if (plots[i] == "vlnplot") {
-      p <- p + geom_violin(size = vlnplot.lineweight)
+      p <- p + geom_violin(size = vlnplot.lineweight, width = vlnplot.width)
     }
   }
 
