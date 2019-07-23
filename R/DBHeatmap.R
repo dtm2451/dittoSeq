@@ -8,7 +8,8 @@
 #' @param cell.names.meta quoted "name" of a meta.data slot to use for naming the columns instead of the raw cell/sample names.  Default = just use the raw cell/sample names in the data slot.
 #' @param heatmap.colors the colors to use for the expression matrix. Default is a ramp from navy to white to red with 50 slices.
 #' @param cells.annotation FALSE/ the name of a metadata slot containing how the cells/samples should be annotated. Default = FALSE.
-#' @param cells.annotation.colors The colors to use for the annotations bar
+#' @param cells.annotation.colors Vector of colors. The colors to use for the annotations bar. MYcolors by default.
+#' @param override_annotation_colors Parameter to override use of DBHeatmap-generated color object in the call to pheatmap.  Use is exactly the same as pheatmap's annotation_colors arguement.
 #' @param data.out = If set to TRUE, the output will be a list of objects and and the script that would have been used for inputing into pheatmap.  NOTE: currently, a row#### arguement is added that should not be there.  I will remove this in a later release, but for now, know that you should remove this before trying to run the script.
 #' @param highlight.genes = A list of genes whose names you would like to show, c("Gene1","Gene2","Gene3").  Only these genes will be named in the resulting heatmap.
 #' @param ... other arguments that will be passed to pheatmap. For scRNAseq data, I recommend running with cluster_cols=FALSE first because clustering of thousands of cells can tak a long time!  Common ones: main for adding a title, cluster_cols or cluster_rows = FALSE to turn clustering off for cells or genes, treeheight_row or treeheight_col = 0 to remove or a positive # for setting how large the trees on the side/top should be drawn
@@ -39,7 +40,7 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
                       cell.names.meta = NULL, data.type = "normalized",
                       heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
                       cells.annotation = FALSE, cells.annotation.colors = rep(list(MYcolors),length(cells.annotation)),
-                      data.out=FALSE, highlight.genes = NULL,
+                      data.out=FALSE, highlight.genes = NULL, override_annotation_colors = NULL,
                       ...){
 
   #If no genes given, "error out"
@@ -101,7 +102,15 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
   }
 
   if(data.out){
-    OUT <- list(data,heatmap.colors,Col_annot,Col_annot_colors, Col_names,Row_names,
+    OUT <- list(data,
+                heatmap.colors,
+                Col_annot,
+                if (is.null(override_annotation_colors)){
+                  Col_annot_colors
+                } else {
+                  override_annotation_colors
+                },
+                Col_names,Row_names,
                 paste0("pheatmap(mat = data, color = heatmap.colors, annotation_col = Col_annot, ",
                        "annotation_colors = Col_annot_colors, scale = 'row', ",
                        "labels_col = Col_names, labels_row = Row_names"))
@@ -113,7 +122,10 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
   HM <- pheatmap::pheatmap(mat = data,
                            color = heatmap.colors,
                            annotation_col = Col_annot,
-                           annotation_colors = Col_annot_colors,
+                           annotation_colors = if (is.null(override_annotation_colors)){
+                               Col_annot_colors
+                             } else {
+                               override_annotation_colors},
                            scale = "row",
                            labels_col = Col_names,
                            labels_row = Row_names,
