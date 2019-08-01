@@ -17,3 +17,8 @@ Given "raw", "normalized", or "scaled", this function will output the proper slo
 \description{
 Retrieves the proper slot of data
 }
+\examples{
+library(Seurat)
+pbmc <- Seurat::pbmc_small
+which_data("normalized", "pbmc")
+}

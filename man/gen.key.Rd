@@ -18,6 +18,6 @@ Creates a 'key' for properly refering to a dimensional reduction component when 
 \examples{
 gen.key("pca_5000_genes") # The function sees that pca is in the reduction name, so it outputs "PC"
 #Output: "PC"
-gen.key("tsne_5000_genes") # The function sees that pca is in the reduction name, so it outputs "PC"
+gen.key("tsne_5000_genes") # The function sees that tsne is in the reduction name, so it outputs "tSNE_"
 #Output: "tSNE_"
 }
