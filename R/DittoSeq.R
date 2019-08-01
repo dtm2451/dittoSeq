@@ -333,10 +333,6 @@ meta.levels <- function(meta, object = DEFAULT, table.out = FALSE){
 #' @param data.type          "raw", "normalized", or "scaled". REQUIRED. which type of data is requested
 #' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Given "raw", "normalized", or "scaled", this function will output the proper slot of a seurat or RNAseq object.
-#' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' which_data("normalized", "pbmc")
 
 which_data <- function(data.type, object=DEFAULT){
   #Set up data frame for establishing how to deal with different input object types
@@ -374,10 +370,6 @@ which_data <- function(data.type, object=DEFAULT){
 #'
 #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Given a seurat or RNAseq object, will return the cell.names or samples slot.
-#' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' all_cells("pbmc")
 
 all_cells <- function(object = DEFAULT){
   object <- S4_2string(object)
@@ -395,10 +387,6 @@ all_cells <- function(object = DEFAULT){
 #' @param cells.use either a logical or a list of names.
 #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return Given a logical or a list of names (or NULL) will output the list of cells names.  For retrieval / standardization.
-#' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' which_cells(meta("ident","pbmc")=="0", "pbmc")
 
 which_cells <- function(cells.use, object = DEFAULT){
   all.cells <- all_cells(object)
@@ -420,10 +408,6 @@ which_cells <- function(cells.use, object = DEFAULT){
 #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param data.type For when grabbing gene expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @return Given a list of data to grab in data.hover, outputs the 'data name': data, 'data name': data, ... for every cell of the object
-#' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' make_hover_strings(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
 
 make_hover_strings <- function(data.hover, object, data.type = "normalized"){
   #Overall: if do.hover=TRUE and data.hover has a list of genes / metas,
@@ -450,11 +434,6 @@ make_hover_strings <- function(data.hover, object, data.type = "normalized"){
 #'
 #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @return mainly for standardization within DittoSeq functions, outputs the string name and ensures objects can be handled in that form.
-#' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' S4_2string(pbmc)
-#' S4_2string("pbmc")
 
 S4_2string <- function(object = DEFAULT){
   #Turn the object into a "name" if a full object was given
@@ -559,7 +538,7 @@ extDim <- function(reduction.use, dim=1, object=DEFAULT){
 #' #Output: "PC"
 #' gen.key("tsne_5000_genes") # The function sees that pca is in the reduction name, so it outputs "PC"
 #' #Output: "tSNE_"
-#'
+#' @export
 
 gen.key <- function (reduction.use){
   key <- reduction.use
@@ -576,11 +555,6 @@ gen.key <- function (reduction.use){
 #'
 #' @param object quoted "object" name
 #' @return Returns a the string name of the object's type.
-#' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' gen.key("pbmc")
-#' #Output: "seurat"
 
 classof <- function (object = DEFAULT){
   #DittoSeq works with the object in "string" form to work with it's DEFAULT setting method.

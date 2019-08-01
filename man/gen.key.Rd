@@ -20,5 +20,4 @@ gen.key("pca_5000_genes") # The function sees that pca is in the reduction name,
 #Output: "PC"
 gen.key("tsne_5000_genes") # The function sees that pca is in the reduction name, so it outputs "PC"
 #Output: "tSNE_"
-
 }

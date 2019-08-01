@@ -17,8 +17,3 @@ Given a logical or a list of names (or NULL) will output the list of cells names
 \description{
 Retrieves the list of cells.names to use
 }
-\examples{
-library(Seurat)
-pbmc <- Seurat::pbmc_small
-which_cells(meta("ident","pbmc")=="0", "pbmc")
-}
