@@ -15,8 +15,3 @@ Returns a the string name of the object's type.
 \description{
 Returns the class of an object when given the name of the object in "quotes"
 }
-\examples{
-#' library(Seurat)
-pbmc <- Seurat::pbmc_small
-classof("pbmc")
-}
