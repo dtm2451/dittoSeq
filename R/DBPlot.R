@@ -1,5 +1,6 @@
 ################################# DBPlot ####################################
 #' Plots continuous data on the y-axis, grouped in a settable way in the x-axis
+#' @import ggplot2
 #'
 #' @param var                    Target Variable = values, OR a gene or metadata in "quotes". REQUIRED.
 #' @param object                 the Seurat or RNAseq Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
@@ -48,6 +49,7 @@
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' DBPlot("CD14", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
+#' @export
 
 DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    shape.by = "", cells.use = NULL, plots = c("jitter","vlnplot"),
@@ -270,6 +272,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
 #'             nrow = 2, ncol = 2,              #Make it 2x2
 #'             add.title = FALSE, ylab = "var", #Add y axis labels without "expression"
 #'             show.legend = TRUE)              #Show legends
+#' @export
 
 multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
                         show.legend = FALSE,
@@ -354,6 +357,7 @@ multiDBPlot <- function(vars, object = DEFAULT, group.by, color.by,
 #'                          group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
 #'                          plots = c("vlnplot","jitter","boxplot"),
 #'                          boxplot.color = "white", boxplot.fill = FALSE)
+#' @export
 
 DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", color.by=NULL, cells.use = NULL,
                                      plots = c("vlnplot","jitter"), data.type = "relative", data.summary = "mean",

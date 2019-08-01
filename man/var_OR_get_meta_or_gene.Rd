@@ -2,7 +2,7 @@
 % Please edit documentation in R/DittoSeq.R
 \name{var_OR_get_meta_or_gene}
 \alias{var_OR_get_meta_or_gene}
-\title{Outputs gene expression data, metadata data, or clustering data}
+\title{Outputs the given data, gene expression data, metadata data, or clustering data}
 \usage{
 var_OR_get_meta_or_gene(var, object = DEFAULT, data.type)
 }
@@ -14,10 +14,10 @@ var_OR_get_meta_or_gene(var, object = DEFAULT, data.type)
 \item{data.type}{For when extracting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
 }
 \value{
-determines what type of var is given, and outputs the gene expression data, metadata data, or clustering data.
+determines what type of var is given, and outputs var itself or the gene expression data, metadata data, or clustering data refered to.
 }
 \description{
-Outputs gene expression data, metadata data, or clustering data
+Outputs the given data, gene expression data, metadata data, or clustering data
 }
 \examples{
 library(Seurat)

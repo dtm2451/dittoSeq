@@ -45,4 +45,5 @@ dds <- DESeq(dds)
 #NOTE: the PCA calculation fails on this fake data because of it was normally randomized.
 # Minimal input:
 obj <- import.DESeq2(dds)
+
 }

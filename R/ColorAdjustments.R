@@ -10,9 +10,8 @@
 #' Darken("blue") #"blue" = "#0000FF"
 #' #Output: "#0000BF"
 #' Darken(MYcolors[1:8]) #Works for multiple color inputs as well.
-
+#' @export
 Darken <- function(colors, percent.change = 0.25, relative = TRUE){
-
   colorspace::darken(colors, amount = percent.change, space = "HLS", fixup = TRUE, method = ifelse(relative,"relative","absolute"))
 }
 
@@ -28,9 +27,8 @@ Darken <- function(colors, percent.change = 0.25, relative = TRUE){
 #' Lighten("blue") #"blue" = "#0000FF"
 #' #Output: "#4040FF"
 #' Lighten(MYcolors[1:8]) #Works for multiple color inputs as well.
-
+#' @export
 Lighten <- function(colors, percent.change = 0.25, relative = TRUE){
-
   colorspace::lighten(colors, amount = percent.change, space = "HLS", fixup = TRUE, method = ifelse(relative,"relative","absolute"))
 }
 
@@ -49,17 +47,14 @@ Lighten <- function(colors, percent.change = 0.25, relative = TRUE){
 #' Simulate("deutan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
 #' Simulate("protan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
 #' Simulate("tritan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
-
+#' @export
 Simulate <- function(type = "deutan", plot.function, ..., color.panel = MYcolors){
-
   #Check that type was given properly
   if(!(type=="deutan"|type=="protan"|type=="tritan")){
     return("Error: type must be 'deutan', 'protan', or 'tritan'")
   }
-
   #Simulate the color panel for the given color blindness type.
   color.p <- eval(expr = parse(text = paste0("colorspace::",type,"(color.panel)")))
-
   #Make the plot!
   plot.function(color.panel = color.p, ... )
 }

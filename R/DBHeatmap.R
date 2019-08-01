@@ -1,5 +1,7 @@
 ########## DBHeatmap: Builds a heatmap with given genes using a pretty fast heatmap algorithm.  Unfortunately, it's a bit buggy. ##########
 #' Outputs a heatmap of the object
+#' @importFrom grDevices colorRampPalette
+#' @import ggplot2
 #'
 #' @param genes c("gene1","gene2","gene3",...) = list of genes to put in the heatmap. REQUIRED.
 #' @param object the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
@@ -36,6 +38,7 @@
 #'             "FCGR3A","LYZ","PPBP","CD8A"),
 #'           cells.annotation = "ident")
 #'
+#' @export
 DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
                       cell.names.meta = NULL, data.type = "normalized",
                       heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),

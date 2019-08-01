@@ -1,6 +1,7 @@
 ################# DBDimPlot ####################
 
 #' Show data overlayed on a tsne or pca or other reduction-type
+#' @import ggplot2
 #'
 #' @param var Target Variable = either values or a metadata (in "quotes"), gene (in "quotes"), or "ident"
 #' @param object the Seurat or RNAseq object to work on
@@ -49,6 +50,7 @@
 #' DEFAULT <- "pbmc"
 #' DBDimPlot("RNA_snn_res.1")
 #' DBDimPlot("ident", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
+#' @export
 
 DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 = 1, dim.2 = 2, theme = NA,
                       size=1, shape=16, shapes=c(16,15,17,23,25,8),
@@ -311,6 +313,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' multiDBDimPlot(c(genes, "ident"))
+#' @export
 
 multiDBDimPlot <- function(vars, object = DEFAULT,
                            show.legend = FALSE,
@@ -366,6 +369,7 @@ multiDBDimPlot <- function(vars, object = DEFAULT,
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' multiDBDimPlot_vary_cells("CD14", cells.use.meta = "ident")
+#' @export
 
 multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                                       cells.use.meta,
@@ -431,7 +435,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                   colors = in.this.plot,
                   ylab = lab,
                   main = X,
-                  min = min, max = max,,
+                  min = min, max = max,
                   data.type = data.type,
                   ...) +
           theme(legend.position = ifelse(show.legend, "right", "none"))
@@ -450,7 +454,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                 xlab = lab,
                 ylab = lab,
                 main = levels[X],
-                min = min, max = max,,
+                min = min, max = max,
                 data.type = data.type,
                 ...) +
         theme(legend.position = ifelse(show.legend, "right", "none"))

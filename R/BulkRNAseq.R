@@ -1,4 +1,6 @@
 #' The RNAseq Class
+#' @importFrom methods new slotNames
+#' @importFrom stats median prcomp sd
 #'
 #' @description The RNAseq object stores data analyzed in DESeq2 in a structure similar to a Seurat-object.  This is the data structure required for DittoSeq plottign functions to access bulk RNAseq data.  All that is needed to create an RNAseq object is a DESeqDataSet output from the DESeq() function.
 #' @slot counts a matrix. The raw genes x samples counts data. It is recommended, but not required, that one of these should be given when a new RNBAseq object is created.
@@ -11,6 +13,7 @@
 #' @slot exp.filter a logical vector showing whether each gene passed the expression filter (default: at least 1 count in 75 percent of samples from each condition)
 #' @slot CVs a numeric vector showing the coefficient of variation (mean divided by sd) for each gene in the dataset.
 #' @slot other A great place to store any other data associated with your bulk experiment that does not fit elsewhere in the object.  Components of the list can be of any type.  Left empty by default, and is not altered or used by any of the DittoSeq functions.
+#' @export
 
 Class <- setClass("RNAseq",
                   representation(
@@ -55,6 +58,8 @@ Class <- setClass("RNAseq",
 #' #NOTE: the PCA calculation fails on this fake data because of it was normally randomized.
 #' # Minimal input:
 #' obj <- import.DESeq2(dds)
+#'
+#' @export
 
 import.DESeq2 <- function(dds, #A DESeq object, *the output of DESeq()*
                           run_PCA = FALSE,#If changed to TRUE, function will:
@@ -131,6 +136,8 @@ import.DESeq2 <- function(dds, #A DESeq object, *the output of DESeq()*
 #' # PCAcalc("bulkObject", Ngenes = 2500, percent.samples = 75, name = "pca")
 #' # Minimal input that does the same thing:
 #' # PCAcalc("bulkObject")
+#'
+#' @export
 
 PCAcalc <- function(object = DEFAULT,
                     genes.use = NULL,

@@ -1,4 +1,5 @@
 #' Extracts Demuxlet information into a pre-made Seurat object
+#' @importFrom utils read.csv
 #'
 #' @param Seurat The Seurat object to add meta.datas to.
 #' @param Lane.info.meta A meta.data
@@ -11,6 +12,7 @@
 #' #Data required for an example would be rather large.
 #' # For an example, see the online vignette at:
 #' # https://github.com/dtm2451/DittoSeq/tree/master/Demuxlet-Vignette
+#' @export
 
 ImportDemux2Seurat <- function(Seurat,
                                Lane.info.meta = NULL, Lane.names=NA,
@@ -139,11 +141,13 @@ ImportDemux2Seurat <- function(Seurat,
 #' @return For a given Seurat object, plots a summary of how many SNPs were available to Demuxlet for making sample annotation calls.  Assumes that the number of SNPs are stored in a 'demux.N.SNPs' metadata slot, as would be the case if the Seurat object was created with the Import10XDemux function.
 #' @examples
 #' #Data required for an example would be rather large.  For an example, see the online vignette.
+#' @export
 demux.SNP.summary <- function(object = DEFAULT, group.by = "Lane", color.by = "Lane", plots = c("jitter","boxplot"), boxplot.color = "grey30", ...){
   DBPlot("demux.N.SNP", object, group.by = group.by, color.by = color.by, plots = plots, boxplot.color = boxplot.color, ...)
 }
 
 #' Plots the number of annotations per sample, per lane
+#' @import ggplot2
 #'
 #' @param object the Seurat Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param singlets.only Whether to only show data for cells called as singlets by demuxlet. Default is TRUE. Note: if doublets are included, only one of their sample calls will be used.
@@ -157,6 +161,7 @@ demux.SNP.summary <- function(object = DEFAULT, group.by = "Lane", color.by = "L
 #' @return For a given Seurat object, summarizes how many cells in each lane were anotated to each sample.  Assumes that the Sample calls of each cells, and which lane each cell belonged to, are stored in 'Sample' and 'Lane' metadata slots, respectively, as would be the case if the Seurat object was created with the Import10XDemux function.
 #' @examples
 #' #Data required for an example would be rather large.  For an example, see the online vignette.
+#' @export
 demux.calls.summary <- function(object = DEFAULT, singlets.only = TRUE,
                                 main = "Sample Annotations by Lane", sub = NULL,
                                 ylab = "Annotations", xlab = "Sample",

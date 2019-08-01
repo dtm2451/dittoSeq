@@ -1,7 +1,6 @@
-#################### Helper Functions ########################
-
 #### is.meta: Is this the name of a meta.data slot in my dataset? ####
 #' Tests if an input is the name of a meta.data slot.
+#' @importFrom utils packageVersion
 #'
 #' @param test               "potential.meta.data.name" in quotes. REQUIRED.
 #' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
@@ -16,6 +15,8 @@
 #' DEFAULT <- "pbmc"
 #' is.meta("age")
 #' get.metas()
+#' @export
+#' @import ggplot2
 
 is.meta <- function(test, object=DEFAULT){
 
@@ -54,6 +55,7 @@ is.meta <- function(test, object=DEFAULT){
 #' # value input is especially useful in these cases.
 #' is.gene(c("CD14", "IL32", "CD3E", "CD12345"), value = TRUE)
 #'  #"CD14" "IL32" "CD3E"
+#' @export
 
 is.gene <- function(test, object=DEFAULT, value = FALSE){
   if (value){
@@ -77,6 +79,7 @@ is.gene <- function(test, object=DEFAULT, value = FALSE){
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' get.metas()
+#' @export
 
 get.metas <- function(object=DEFAULT){
   if(classof(object)=="SingleCellExperiment"){
@@ -104,6 +107,7 @@ get.metas <- function(object=DEFAULT){
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' get.genes()
+#' @export
 
 get.genes <- function(object=DEFAULT){
   if (classof(object)=="Seurat.v2"){
@@ -140,6 +144,7 @@ get.genes <- function(object=DEFAULT){
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' get.reductions()
+#' @export
 
 get.reductions <- function(object=DEFAULT){
   if (classof(object)=="Seurat.v2"){
@@ -177,6 +182,7 @@ get.reductions <- function(object=DEFAULT){
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' meta("RNA_snn_res.1")
+#' @export
 
 meta <- function(meta, object=DEFAULT){
   if(typeof(object)=="character"){
@@ -234,6 +240,7 @@ meta <- function(meta, object=DEFAULT){
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' gene("CD14")
+#' @export
 
 gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 
@@ -310,6 +317,7 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' meta.levels("RNA_snn_res.1")
+#' @export
 
 meta.levels <- function(meta, object = DEFAULT, table.out = FALSE){
 
@@ -456,18 +464,19 @@ S4_2string <- function(object = DEFAULT){
   object
 }
 
-#' Outputs gene expression data, metadata data, or clustering data
+#' Outputs the given data, gene expression data, metadata data, or clustering data
 #'
 #' @param var name of a metadata, gene, or "ident". = the data that should be grabbed
 #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param data.type For when extracting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
-#' @return determines what type of var is given, and outputs the gene expression data, metadata data, or clustering data.
+#' @return determines what type of var is given, and outputs var itself or the gene expression data, metadata data, or clustering data refered to.
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' var_OR_get_meta_or_gene("CD14", "pbmc", "normalized")
 #' var_OR_get_meta_or_gene("ident", "pbmc")
 #' var_OR_get_meta_or_gene("nCount_RNA", "pbmc")
+#' @export
 
 var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type){
   OUT <- var
@@ -506,6 +515,7 @@ var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type){
 #'        color.by = "RNA_snn_res.1",
 #'        ylab = extDim("pca", 1, object = "pbmc")$name)
 #'
+#' @export
 
 extDim <- function(reduction.use, dim=1, object=DEFAULT){
 
@@ -564,7 +574,7 @@ gen.key <- function (reduction.use){
 #### classof: for determining if 'object' is a Seurat or RNAseq ####
 #' Returns the class of an object when given the name of the object in "quotes"
 #'
-#' @param object      quoted "object" name
+#' @param object quoted "object" name
 #' @return Returns a the string name of the object's type.
 #' @examples
 #' library(Seurat)
@@ -617,6 +627,7 @@ classof <- function (object = DEFAULT){
 #' #Extract the legend of a stored plot:
 #' ggplot <- DBDimPlot("ident")
 #' grab_legend(ggplot)
+#' @export
 grab_legend <- function(ggplot){
   cowplot::ggdraw(cowplot::get_legend(ggplot))
 }
@@ -643,6 +654,7 @@ grab_legend <- function(ggplot){
 #' #Remove the legend of a stored plot:
 #' ggplot <- DBDimPlot("ident")
 #' remove_legend(ggplot)
+#' @export
 remove_legend <- function(ggplot){
   ggplot + theme(legend.position = "none")
 }

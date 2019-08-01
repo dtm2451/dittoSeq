@@ -1,5 +1,7 @@
+
 ########## DBBarPlot: Builds a stacked bar plot to show the composition of samples / ages / 'group.by' ##########
 #' Outputs a stacked bar plot to show the percent composition of samples or other cell groupings
+#' @import ggplot2
 #'
 #' @param var                    Target Variable = values, OR a metadata in "quotes". REQUIRED. Length must be same  as the number of cells in the Seurat object or Samples in the RNAseq object
 #' @param object                 the Seurat or RNAseq object to draw from = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
@@ -29,6 +31,7 @@
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' DBBarPlot("ident", group.by = "orig.ident")
+#' @export
 
 DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
                       cells.use = NULL,

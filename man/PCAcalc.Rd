@@ -29,4 +29,5 @@ This function will run prcomp PCA calculation on either a set of genes given by 
 # PCAcalc("bulkObject", Ngenes = 2500, percent.samples = 75, name = "pca")
 # Minimal input that does the same thing:
 # PCAcalc("bulkObject")
+
 }
