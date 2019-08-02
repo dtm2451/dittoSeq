@@ -185,46 +185,30 @@ get.reductions <- function(object=DEFAULT){
 #' @export
 
 meta <- function(meta, object=DEFAULT){
-  if(typeof(object)=="character"){
-    #Name of object given in "quotes"
-    if(meta=="ident" & grepl("Seurat", classof(object))){
-      if(eval(expr = parse(text = paste0(object, "@version"))) >= '3.0.0'){
-        #Seurat.v3, ident
-        return(as.character(Seurat::Idents(object = eval(expr = parse(text = paste0(object))))))
-      } else {
-        #Seurat.v2, ident
-        return(as.character(eval(expr = parse(text = paste0(object,"@ident")))))
-      }
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4"){
+    object <- deparse(substitute(object))
+  }
+  #Name of object given in "quotes"
+  if(meta=="ident" & grepl("Seurat", classof(object))){
+    if(eval(expr = parse(text = paste0(object, "@version"))) >= '3.0.0'){
+      #Seurat.v3, ident
+      return(as.character(Seurat::Idents(object = eval(expr = parse(text = paste0(object))))))
     } else {
-      if (classof(object)=="SingleCellExperiment"){
-        #SingleCellExperiment
-        return(eval(expr = parse(text = paste0(object,"$'",meta,"'"))))
-      } else {
-        #RNAseq or Seurat non-ident
-        return(eval(expr = parse(text = paste0(object,"@meta.data$'",meta, "'"))))
-      }
+      #Seurat.v2, ident
+      return(as.character(eval(expr = parse(text = paste0(object,"@ident")))))
     }
   } else {
-    # Actual object given
-    if(meta=="ident"){
-      if(packageVersion("Seurat") >= '3.0.0'){
-        #Seurat.v3, ident
-        return(as.character(Seurat::Idents(object)))
-      } else {
-        #Seurat.v2, ident
-        return(as.character(object@ident))
-      }
+    if (classof(object)=="SingleCellExperiment"){
+      #SingleCellExperiment
+      return(eval(expr = parse(text = paste0(object,"$'",meta,"'"))))
     } else {
-      if (classof(object)=="SingleCellExperiment"){
-        #SingleCellExperiment
-        return(eval(expr = parse(text = paste0("object$'",meta,"'"))))
-      } else {
-        #RNAseq or Seurat non-ident
-        return(eval(expr = parse(text = paste0("object@meta.data$",meta))))
-      }
+      #RNAseq or Seurat non-ident
+      return(eval(expr = parse(text = paste0(object,"@meta.data$'",meta, "'"))))
     }
   }
 }
+
 
 #### gene: for extracting the expression values of a particular gene for all cells/samples ####
 #' Returns the values of a gene for all cells/samples
@@ -243,7 +227,10 @@ meta <- function(meta, object=DEFAULT){
 #' @export
 
 gene <- function(gene, object=DEFAULT, data.type = "normalized"){
-
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4"){
+    object <- deparse(substitute(object))
+  }
   #Set up data frame for establishing how to deal with RNAseq or Seurat-v2 objects
   target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects", "@samples"),
                        Seurat.v2 = c("@data","@raw.data","@scale.data", "@cell.names"),
@@ -252,10 +239,10 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
                        stringsAsFactors = FALSE,
                        row.names = c("normalized","raw","scaled","sample.names"))
 
-  #Distinct functions if data.type = "relative" or "normalized.to.max" compared to all other options:
+  #Distinct functions if data.type = "relative", "normalized.to.max", or "raw.normalized.to.max" compared to all other options:
   if(data.type == "relative" | data.type == "normalized.to.max" | data.type == "raw.normalized.to.max"){
     if(data.type == "relative"){
-      #For "relative", recursive call to grab the 'normalized'  data that then has scaling run on top of it.
+      #For "relative", recursive call to grab the 'normalized' data, then has scale run on top of it.
       OUT <- as.numeric(scale(gene(gene, object, "normalized")))
     }
     if(data.type == "normalized.to.max"){
@@ -320,7 +307,6 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #' @export
 
 meta.levels <- function(meta, object = DEFAULT, table.out = FALSE){
-
   if (table.out){
     table(meta(meta, object))
   } else {
@@ -382,7 +368,10 @@ which_data <- function(data.type, object=DEFAULT){
 #' @export
 
 all_cells <- function(object = DEFAULT){
-  object <- S4_2string(object)
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4"){
+    object <- deparse(substitute(object))
+  }
   target <- data.frame(use = c("@samples", "@cell.names"),
                        row.names = c("RNAseq", "Seurat.v2"))
   if (classof(object)=="Seurat.v3" | classof(object)=="SingleCellExperiment"){
@@ -573,10 +562,10 @@ gen.key <- function (reduction.use){
 }
 
 #### classof: for determining if 'object' is a Seurat or RNAseq ####
-#' Returns the class of an object when given the name of the object in "quotes"
+#' Returns the class of an object even when given the name of the object in "quotes"
 #'
 #' @param object quoted "object" name
-#' @return Returns a the string name of the object's type.
+#' @return Returns a the string name of the object's type.  For Seurat objects, also returns whetehr it is a v2 or v3 object.
 #' @examples
 #' #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
@@ -584,14 +573,12 @@ gen.key <- function (reduction.use){
 #' @export
 
 classof <- function (object = DEFAULT){
-  #DittoSeq works with the object in "string" form to work with it's DEFAULT setting method.
 
   #if object in "string" form, convert to the actual object
   if (typeof(object)=="character"){
     object <- eval(expr = parse(text = paste0(object)))
   }
 
-  #class <- class(object)
   class <- class(object)
 
   #If a Seurat, need to add what version

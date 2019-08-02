@@ -2,7 +2,7 @@
 % Please edit documentation in R/DittoSeq.R
 \name{classof}
 \alias{classof}
-\title{Returns the class of an object when given the name of the object in "quotes"}
+\title{Returns the class of an object even when given the name of the object in "quotes"}
 \usage{
 classof(object = DEFAULT)
 }
@@ -10,10 +10,10 @@ classof(object = DEFAULT)
 \item{object}{quoted "object" name}
 }
 \value{
-Returns a the string name of the object's type.
+Returns a the string name of the object's type.  For Seurat objects, also returns whetehr it is a v2 or v3 object.
 }
 \description{
-Returns the class of an object when given the name of the object in "quotes"
+Returns the class of an object even when given the name of the object in "quotes"
 }
 \examples{
 #' library(Seurat)
