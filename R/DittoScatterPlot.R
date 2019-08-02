@@ -20,7 +20,8 @@
 #' @param shapes If multiple shapes are needed, this sets the sahpes to pull from.  Default is a list of 6, \code{c(16,15,17,23,25,8)}.  There are more, but not many of the default ggplot options are great.  Unfortunately, shape is also harder to see when points are on top of each other.  For these reasons, even as a color blind person myself, I recommend use of colors for variables with 7+ options.
 #' @param size Number. Size of data points.  Default = 1.
 #' @param opacity Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.
-#' @param rename.color.groups Character vector containing new names for the identities of var.
+#' @param rename.color.groups Character vector containing new names for the identities of the color overlay.
+#' @param rename.shape.groups Character vector containing new names for the identities of the shape overlay.
 #' @param legend.show TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.
 #' @param legend.color.title For adding a title to the colors legend.  Set to \code{NULL} to turn off.
 #' @param legend.color.size Override for legend size of the color variable.
@@ -37,19 +38,24 @@
 #' @param theme Allows setting of a theme. Default = theme_bw when nothing is provided.
 #' @param out.List Whether just the plot should be output, or a list with the plot and Target_dat and Others_dat dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
 #' @return Makes a plot where colored dots and/or shapes representing individual cells/samples are overlayed onto a scatterplot where x and y can be gene expression (or any numeric metadata) of those cells/samples.
+#' @export
 DittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.shape.var = NULL,
                              object = DEFAULT, cells.use = NULL, show.others = FALSE,
                              color.panel = MYcolors, colors = 1:24,
                              data.type.x = "normalized", data.type.y = "normalized",
                              data.type.color = "normalized", do.hover = FALSE, data.hover = NULL, data.type.hover = "normalized",
                              shape = 16, shapes=c(16,15,17,23,25,8), size = 1, opacity = 1,
-                             rename.color.groups,
+                             rename.color.groups = NA, rename.shape.groups = NA,
                              legend.show = TRUE,
                              legend.color.title = overlay.color.var, legend.color.size = 5,
                              legend.shape.title = overlay.shape.var, legend.shape.size = 5,
                              min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
                              xlab = x.var, ylab = y.var, main = NULL, sub = NULL, theme = theme_bw(),
                              out.List = FALSE){
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4"){
+    object <- deparse(substitute(object))
+  }
   #Populate cells.use with a list of names if it was given anything else.
   cells.use <- which_cells(cells.use, object)
   #Establish the full list of cell/sample names
@@ -74,11 +80,14 @@ DittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
   Target_dat <- dat[cells.use,]
   Others_dat <- dat[!(all.cells %in% cells.use),]
   ###Start building the plot###
-  p <- ggplot() + ylab(ylab) + xlab(xlab) + ggtitle(main,sub) + theme +
+  p <- ggplot() + ylab(ylab) + xlab(xlab) + ggtitle(main,sub) + theme
+  if(!(is.null(overlay.shape.var))){ p <- p +
     scale_shape_manual(values = shapes[seq_along(levels(as.factor(Target_dat$shape)))],
-                       labels = levels(as.factor(Target_dat$shape)),
+                       label = if (!(is.na(rename.shape.groups[1]))){rename.shape.groups}
+                               else {levels(as.factor(var_OR_get_meta_or_gene(overlay.shape.var, object)))},
                        name = legend.shape.title) +
     guides(shape = guide_legend(override.aes = list(size=legend.shape.size)))
+  }
   if(do.color){
     if (is.color.numeric){ p <- p +
       scale_colour_gradient(low= min.color, high = max.color,
@@ -88,7 +97,9 @@ DittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
     } else { p <- p +
       scale_colour_manual(name = legend.color.title,
                           values = color.panel[colors],
-                          if (!(is.na(rename.groups[1]))){labels = rename.color.groups}) +
+                          label = if (!(is.na(rename.color.groups[1]))){rename.color.groups}
+                                  else {levels(as.factor(var_OR_get_meta_or_gene(overlay.color.var, object, data.type.color)))}
+      ) +
       guides(color = guide_legend(override.aes = list(size=legend.color.size)))
     }
   }

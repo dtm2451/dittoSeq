@@ -11,12 +11,13 @@ DittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
   data.type.color = "normalized", do.hover = FALSE,
   data.hover = NULL, data.type.hover = "normalized", shape = 16,
   shapes = c(16, 15, 17, 23, 25, 8), size = 1, opacity = 1,
-  rename.color.groups, legend.show = TRUE,
-  legend.color.title = overlay.color.var, legend.color.size = 5,
-  legend.shape.title = overlay.shape.var, legend.shape.size = 5,
-  min.color = "#F0E442", max.color = "#0072B2", min = NULL,
-  max = NULL, xlab = x.var, ylab = y.var, main = NULL,
-  sub = NULL, theme = theme_bw(), out.List = FALSE)
+  rename.color.groups = NA, rename.shape.groups = NA,
+  legend.show = TRUE, legend.color.title = overlay.color.var,
+  legend.color.size = 5, legend.shape.title = overlay.shape.var,
+  legend.shape.size = 5, min.color = "#F0E442",
+  max.color = "#0072B2", min = NULL, max = NULL, xlab = x.var,
+  ylab = y.var, main = NULL, sub = NULL, theme = theme_bw(),
+  out.List = FALSE)
 }
 \arguments{
 \item{x.var}{Variable for setting x-axis position of cells/samples.  Can be the name of a gene, meta-data, or "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.}
@@ -57,7 +58,9 @@ DittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
 
 \item{opacity}{Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.}
 
-\item{rename.color.groups}{Character vector containing new names for the identities of var.}
+\item{rename.color.groups}{Character vector containing new names for the identities of the color overlay.}
+
+\item{rename.shape.groups}{Character vector containing new names for the identities of the shape overlay.}
 
 \item{legend.show}{TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.}
 

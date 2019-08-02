@@ -1,6 +1,6 @@
 ################# DBDimPlot ####################
 
-#' Show data overlayed on a tsne or pca or other reduction-type
+#' (Deprecated) Shows data overlayed on a tsne, pca, or similar type of plot
 #' @import ggplot2
 #'
 #' @param var Target Variable = either values or a metadata (in "quotes"), gene (in "quotes"), or "ident"
