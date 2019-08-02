@@ -4,11 +4,11 @@
 \alias{ImportDemux2Seurat}
 \title{Extracts Demuxlet information into a pre-made Seurat object}
 \usage{
-ImportDemux2Seurat(Seurat, Lane.info.meta = NULL, Lane.names = NA,
+ImportDemux2Seurat(Seurat.name, Lane.info.meta = NULL, Lane.names = NA,
   Demuxlet.best, bypass.check = FALSE, verbose = TRUE)
 }
 \arguments{
-\item{Seurat}{The Seurat object to add meta.datas to.}
+\item{Seurat.name}{The "quoted" name of the Seurat object to add demuxlet information to.}
 
 \item{Lane.info.meta}{A meta.data}
 

@@ -1,7 +1,7 @@
 #' Extracts Demuxlet information into a pre-made Seurat object
 #' @importFrom utils read.csv
 #'
-#' @param Seurat The Seurat object to add meta.datas to.
+#' @param Seurat.name The "quoted" name of the Seurat object to add demuxlet information to.
 #' @param Lane.info.meta A meta.data
 #' @param Lane.names how the lanes should be named (if you want to give them something different from the default = Lane1, Lane2, Lane3...)
 #' @param Demuxlet.best the location of the .best output file from running of demuxlet
@@ -14,57 +14,42 @@
 #' # https://github.com/dtm2451/DittoSeq/tree/master/Demuxlet-Vignette
 #' @export
 
-ImportDemux2Seurat <- function(Seurat,
+ImportDemux2Seurat <- function(Seurat.name,
                                Lane.info.meta = NULL, Lane.names=NA,
                                Demuxlet.best,
                                bypass.check = FALSE,
                                verbose = TRUE){
-  #Seurat = The Seurat object to add meta.datas to.  Lane info must be in the form of a "-#" at the end of the cell.names.
-  #Lane.names = how the lanes should be named, if you want to give them something different from Lane1, Lane2, Lane3...
-  #Demux.best = the .best output file from running of demuxlet
+  Seurat <- eval(expr = parse(text = Seurat.name))
 
   #Check if there are meta.data that would be over.written
   Check <- c("Lane", "Sample", "demux.doublet.call", "demux.RD.TOTL", "demux.RD.PASS",
              "demux.RD.UNIQ", "demux.N.SNP", "demux.PRB.DBL", "demux.barcode.dup")
-  if (sum(Check %in% get.metas(Seurat))>0){
+  if (sum(Check %in% get.metas(Seurat.name))>0){
     if(bypass.check){
       print(paste0("Caution: '",
-                   paste0(Check[Check %in% get.metas(Seurat)], collapse = "' and '"),
+                   paste0(Check[Check %in% get.metas(Seurat.name)], collapse = "' and '"),
                    "' are going to bw overwritten."),
             quote = FALSE)
     } else {
-      print("To proceed anyway, set `bypass.chech = TRUE`.")
+      print("To proceed anyway, set `bypass.check = TRUE`.")
       print(paste0("WARNING: ",
-                   paste0(Check[Check %in% get.metas(Seurat)], collapse = " and "),
+                   paste0(Check[Check %in% get.metas(Seurat.name)], collapse = " and "),
                    " would be overwritten."),
             quote = FALSE)
       return(Seurat)
     }
   }
-
   #Create Lane.names if not given
   if(is.na(Lane.names[1])){
-    if(is.null(Lane.info.meta)){
-      Lane.names <- paste0("Lane",seq_along(Seurats))
-    } else {
-      Lane.names <- meta.levels(Lane.info.meta, Seurat)
-    }
+    Lane.names <- meta.levels(Lane.info.meta, Seurat.name)
   }
-
   # Obtain the cell.names
-  if(Seurat@version < '3.0.0'){
-    #If Seurat-v2:
-    cell.names <- Seurat@cell.names
-  } else {
-    #Seurat-v3:
-    cell.names <- colnames(Seurat)
-  }
-
+  cell.names <- all_cells(Seurat.name)
   #Add lane metadata information
   if(verbose){print("Adding 'Lane' information as meta.data",quote=FALSE)}
   if(!(is.null(Lane.info.meta))){
-    Seurat@meta.data$Lane <- meta(Lane.info.meta, Seurat)
-    lane.idents <- as.factor(as.character(meta(Lane.info.meta, Seurat)))
+    Seurat@meta.data$Lane <- meta(Lane.info.meta, Seurat.name)
+    lane.idents <- as.factor(as.character(meta(Lane.info.meta, Seurat.name)))
   } else {
     # Make object with just the `#` of `-#` parts of cellnames
     lane.idents <- as.factor(c(sapply(cell.names, function(X){
