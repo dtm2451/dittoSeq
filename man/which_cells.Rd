@@ -12,8 +12,15 @@ which_cells(cells.use, object = DEFAULT)
 \item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 }
 \value{
-Given a logical or a list of names (or NULL) will output the list of cells names.  For retrieval / standardization.
+Given either a logical or a list of names (or NULL) will output the list of cells names.  For retrieval / standardization.
 }
 \description{
 Retrieves the list of cells.names to use
+}
+\examples{
+library(Seurat)
+pbmc <- Seurat::pbmc_small
+DEFAULT <- "pbmc"
+which_cells(colnames(pbmc)[meta("ident")==0])
+which_cells(meta("ident")=="0")
 }

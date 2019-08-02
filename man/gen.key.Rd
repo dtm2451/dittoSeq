@@ -16,8 +16,8 @@ Returns a string name that should be used to refer to the components if going in
 Creates a 'key' for properly refering to a dimensional reduction component when the full name (ex: PCA1) woul dbe wrong.
 }
 \examples{
-gen.key("pca_5000_genes") # The function sees that pca is in the reduction name, so it outputs "PC"
+gen.key("pca_5000_genes") # The function sees that pca is in the reduction name
 #Output: "PC"
-gen.key("tsne_5000_genes") # The function sees that pca is in the reduction name, so it outputs "PC"
+gen.key("tsne_5000_genes") # The function sees that tsne is in the reduction name
 #Output: "tSNE_"
 }
