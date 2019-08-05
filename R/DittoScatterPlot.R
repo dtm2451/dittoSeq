@@ -84,7 +84,7 @@ DittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
   if(!(is.null(overlay.shape.var))){ p <- p +
     scale_shape_manual(values = shapes[seq_along(levels(as.factor(Target_dat$shape)))],
                        label = if (!(is.na(rename.shape.groups[1]))){rename.shape.groups}
-                               else {levels(as.factor(var_OR_get_meta_or_gene(overlay.shape.var, object)))},
+                               else {levels(as.factor(Target_dat$shape))},
                        name = legend.shape.title) +
     guides(shape = guide_legend(override.aes = list(size=legend.shape.size)))
   }
@@ -98,7 +98,7 @@ DittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
       scale_colour_manual(name = legend.color.title,
                           values = color.panel[colors],
                           label = if (!(is.na(rename.color.groups[1]))){rename.color.groups}
-                                  else {levels(as.factor(var_OR_get_meta_or_gene(overlay.color.var, object, data.type.color)))}
+                                  else {levels(as.factor(Target_dat$color))}
       ) +
       guides(color = guide_legend(override.aes = list(size=legend.color.size)))
     }
