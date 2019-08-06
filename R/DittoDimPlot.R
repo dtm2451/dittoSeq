@@ -179,3 +179,50 @@ DittoDimPlot.addLabels <- function(p, Target_dat, highlight.labels, rename.group
   }
   p
 }
+
+#### multiDittoDimPlot : a function for quickly making multiple DBDimPlots arranged in a grid.
+#' Generates multiple DittoDimPlots arranged in a grid.
+#'
+#' @param vars               c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
+#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param show.legend        TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE
+#' @param ncol               #. How many plots should be arranged per row.  Default = 3 unless \code{length(vars)} is shorter.
+#' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
+#' @param axes.labels        TRUE/FALSE. Whether a axis labels should be added
+#' @param OUT.List           TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.
+#' @param ...                other paramters that can be given to DBDimPlot function used in exactly the same way.
+#' @return Given multiple 'var' parameters, this function will output a DBDimPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each is 'var'.
+#' @examples
+#' library(Seurat)
+#' pbmc <- Seurat::pbmc_small
+#' genes <- c("CD8A","CD3E","FCER1A","CD14","MS4A1")
+#' multiDittoDimPlot(c(genes, "ident"), object = "pbmc")
+#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
+#' DEFAULT <- "pbmc"
+#' multiDittoDimPlot(c(genes, "ident"))
+#' @export
+
+multiDittoDimPlot <- function(vars, object = DEFAULT,
+                              show.legend = FALSE,
+                              ncol = min(3,length(vars)), nrow = NULL,
+                              axes.labels=FALSE,
+                              OUT.List = FALSE,
+                              ...){
+
+  #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
+  # If set to TRUE, set it to "make".
+  lab <- if(!axes.labels) {NULL} else {"make"}
+
+  plots <- lapply(vars, function(X) {
+    DittoDimPlot(X, object,
+              xlab = lab,
+              ylab = lab,
+              ...) + theme(legend.position = ifelse(show.legend, "right", "none"))
+  })
+  if (OUT.List){
+    names(plots) <- vars
+    return(plots)
+  } else {
+    return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
+  }
+}
