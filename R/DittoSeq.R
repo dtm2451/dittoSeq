@@ -531,7 +531,7 @@ extDim <- function(reduction.use, dim=1, object=DEFAULT){
   }
 
   if (classof(object)=="SingleCellExperiment"){
-    OUT <- list(eval(expr = parse(text = paste0(object,"@reducedDims$",reduction.use,"[,",dim,"]"))))
+    OUT <- list(eval(expr = parse(text = paste0("reducedDim(",object,", type = '",reduction.use,"')[,",dim,"]"))))
     OUT[2] <- paste0(gen.key(reduction.use),dim)
   }
 
