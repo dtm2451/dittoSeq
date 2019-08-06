@@ -294,7 +294,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 }
 
 #### multiDBDimPlot : a function for quickly making multiple DBDimPlots arranged in a grid.
-#' Generates multiple DBDimPlots arranged into a grid.
+#' (Deprecated) Generates multiple DBDimPlots arranged into a grid.
 #'
 #' @param vars               c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
 #' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
