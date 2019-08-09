@@ -23,7 +23,7 @@ Package includes various helper and plotting functions for working with RNAseq d
 
 Additionally, contains import functions for [Demuxlet](https://github.com/statgen/demuxlet) cell annotations as Mux-seq datasets often consist of side-by-side bulk and single-cell RNAseq.  (If you would like a pipeline for extraction of genotypes from bulk RNAseq to enable Demuxlet-calling of single-cell RNAseq, shoot me an email.)
 
-Extends the visualization functionality of the widely used Seurat package, and allows generation of similar figures from bulk RNA sequencing data. Thus, it enables analysis of single cell and bulk data side-by-side.
+Extends the visualization functionality of the widely used Seurat package, and allows generation of similar figures from alternatively encoded single-cell data, or bulk RNA sequencing data. Thus, it enables analysis of single cell and bulk data side-by-side.
 
 NOTE: I use this package daily, and am constantly coming up with new ideas for tweaks and additional utility myself.  To report errors, give feedback, or suggest new features, you can do so either through [github](https://github.com/dtm2451/DittoSeq/issues), or by email at <daniel.bunis@ucsf.edu>.
 
@@ -40,11 +40,23 @@ install.packages("devtools")
 devtools::install_github("dtm2451/DittoSeq")
 ```
 
-For an explanation on how to use the visualization functions, see the vignette [here](Vignette).
+## Development:
 
-For an explanation of the Demuxlet import functions, click [here](Demuxlet-Vignette)
+Updated functionality is on the way!  I am currently going through the process of overhauling most DittoSeq visualizations prior to submission to CRAN / Bioconductor.  To test out what's new, check out the development node.
+
+New plotters will be named "ditto"PlottingFunction instead of "DB"PlottingFunction, so installing development versions should not break any old code.  Be warned though that any "ditto"PlottingFunction is subject to change until such time that version 1.0.0 is released.
+
+To install the development version, run:
+
+```
+devtools::install_github("dtm2451/DittoSeq@development")
+```
+
+# DittoSeq Functions (as of DittoSeq-0.2.06)
 
 ## Plotting Functions
+
+For an explanation on how to use the visualization functions, see the vignette [here](Vignette).
 
 **`DBBarPlot()`** = No analogous function currently in Seurat, but incredibly useful! Most common use: Plotting the cluster breakdown of all cells within each sample. Essentially, it is similar to DBPlot, but for discrete variables. Handles plotting of discrete data on a per-sample or per-condition grouping.
 
@@ -85,6 +97,8 @@ These make manipulating Seurat data, and using my plotting functons, easier.
 **`remove_legend()`**: Replots a ggplot without its legend.
 
 ## Demuxlet functions
+
+For an explanation of the Demuxlet import functions, click [here](Demuxlet-Vignette)
 
 **`ImportDemux2Seurat()`** - Imports demuxlet info into a pre-made Seurat object.
 
