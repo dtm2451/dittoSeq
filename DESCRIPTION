@@ -1,7 +1,7 @@
 Package: DittoSeq
 Type: Package
 Title: User Friendly Single-cell and Bulk RNA Sequencing Visualization
-Version: 0.2.05
+Version: 0.2.06
 Author: Daniel Bunis
 Maintainer: Daniel Bunis <daniel.bunis@ucsf.edu>
 Description: A set of functions for generating publication-ready (sc)RNAseq figures with as simple of coding input as possible.  This package attempts to be colorblind friendly by default & novice-to-coding user-friendly.  It mimics and extends Seurat plotting capabilities, and enables side-by-side analysis of bulk and scRNAseq data through the creation of a Seurat-like S4 data structure for the analysis of bulk sequencing data.
