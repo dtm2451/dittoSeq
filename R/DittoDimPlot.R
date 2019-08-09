@@ -1,5 +1,5 @@
 
-################# DittoDimPlot ####################
+################# dittoDimPlot ####################
 
 #' Shows data overlayed on a tsne, pca, or similar type of plot
 #' @import ggplot2
@@ -46,18 +46,18 @@
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
-#' DittoDimPlot("RNA_snn_res.1", object = "pbmc")
+#' dittoDimPlot("RNA_snn_res.1", object = "pbmc")
 #' #To show currently set clustering, you can use "ident".
 #' #To change the dimensional reduction type, use reduction.use.
 #' #MANY other tweaks are possible!
-#' DittoDimPlot("ident", object = "pbmc", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
+#' dittoDimPlot("ident", object = "pbmc", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
 #'
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
-#' DittoDimPlot("RNA_snn_res.1")
-#' DittoDimPlot("ident", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
+#' dittoDimPlot("RNA_snn_res.1")
+#' dittoDimPlot("ident", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
 
-DittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 = 1, dim.2 = 2,
+dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 = 1, dim.2 = 2,
                          theme = NA, size=1, shape=16, shapes=c(16,15,17,23,25,8),
                          legend.show = TRUE, legend.size = 5, legend.title = NULL,
                          shape.legend.size = 5, shape.legend.title = NULL,
@@ -113,7 +113,7 @@ DittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
       } else { do.letter <- FALSE }
     }
   }
-  p.df <- DittoScatterPlot(x.var = xdat$embeddings, y.var = ydat$embeddings, overlay.color.var = var,
+  p.df <- dittoScatterPlot(x.var = xdat$embeddings, y.var = ydat$embeddings, overlay.color.var = var,
                            if(!do.letter & is.character(shape)){overlay.shape.var = shape},
                            if(!do.letter & is.numeric(shape)){shape = shape},
                            object = object, cells.use = cells.use, show.others = show.others,
@@ -147,7 +147,7 @@ DittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
   if (ellipse) { p <- p + stat_ellipse(data=Target_dat, aes(x = X, y = Y, colour = color),
                                        type = "t", linetype = 2, size = 0.5, show.legend = FALSE)}
   #Add labels
-  if(do.label){p <- DittoDimPlot.addLabels(p, Target_dat, highlight.labels, rename.var.groups, label.size)}
+  if(do.label){p <- dittoDimPlot.addLabels(p, Target_dat, highlight.labels, rename.var.groups, label.size)}
   #Remove legend, if warrented
   if (!legend.show) { p <- remove_legend(p) }
   ### RETURN the PLOT ###
@@ -158,7 +158,7 @@ DittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
   }
 }
 
-DittoDimPlot.addLabels <- function(p, Target_dat, highlight.labels, rename.groups, label.size) {
+dittoDimPlot.addLabels <- function(p, Target_dat, highlight.labels, rename.groups, label.size) {
   #Make a text plot at the median x and y values for each cluster
   #Determine medians
   cent.1 = sapply(levels(as.factor(Target_dat[,3])), function(X) median(Target_dat$X[Target_dat[,3]==X]))
@@ -180,8 +180,8 @@ DittoDimPlot.addLabels <- function(p, Target_dat, highlight.labels, rename.group
   p
 }
 
-#### multiDittoDimPlot : a function for quickly making multiple DBDimPlots arranged in a grid.
-#' Generates multiple DittoDimPlots arranged in a grid.
+#### multi_dittoDimPlot : a function for quickly making multiple DBDimPlots arranged in a grid.
+#' Generates multiple dittoDimPlots arranged in a grid.
 #'
 #' @param vars               c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
 #' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
@@ -196,13 +196,13 @@ DittoDimPlot.addLabels <- function(p, Target_dat, highlight.labels, rename.group
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' genes <- c("CD8A","CD3E","FCER1A","CD14","MS4A1")
-#' multiDittoDimPlot(c(genes, "ident"), object = "pbmc")
+#' multi_dittoDimPlot(c(genes, "ident"), object = "pbmc")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
-#' multiDittoDimPlot(c(genes, "ident"))
+#' multi_dittoDimPlot(c(genes, "ident"))
 #' @export
 
-multiDittoDimPlot <- function(vars, object = DEFAULT,
+multi_dittoDimPlot <- function(vars, object = DEFAULT,
                               show.legend = FALSE,
                               ncol = min(3,length(vars)), nrow = NULL,
                               axes.labels=FALSE,
@@ -214,7 +214,7 @@ multiDittoDimPlot <- function(vars, object = DEFAULT,
   lab <- if(!axes.labels) {NULL} else {"make"}
 
   plots <- lapply(vars, function(X) {
-    DittoDimPlot(X, object,
+    dittoDimPlot(X, object,
               xlab = lab,
               ylab = lab,
               ...) + theme(legend.position = ifelse(show.legend, "right", "none"))

@@ -39,7 +39,7 @@
 #' @param out.List Whether just the plot should be output, or a list with the plot and Target_dat and Others_dat dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
 #' @return Makes a plot where colored dots and/or shapes representing individual cells/samples are overlayed onto a scatterplot where x and y can be gene expression (or any numeric metadata) of those cells/samples.
 #' @export
-DittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.shape.var = NULL,
+dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.shape.var = NULL,
                              object = DEFAULT, cells.use = NULL, show.others = FALSE,
                              color.panel = MYcolors, colors = 1:24,
                              data.type.x = "normalized", data.type.y = "normalized",
