@@ -36,7 +36,7 @@
 #' @param xlab label for y axes.  Default = \code{x.var}. To remove, set to NULL.
 #' @param ylab label for y axes.  Default = \code{x.var}. To remove, set to NULL.
 #' @param theme Allows setting of a theme. Default = theme_bw when nothing is provided.
-#' @param out.List Whether just the plot should be output, or a list with the plot and Target_dat and Others_dat dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
+#' @param data.out Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
 #' @return Makes a plot where colored dots and/or shapes representing individual cells/samples are overlayed onto a scatterplot where x and y can be gene expression (or any numeric metadata) of those cells/samples.
 #' @export
 dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.shape.var = NULL,
@@ -51,7 +51,7 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
                              legend.shape.title = overlay.shape.var, legend.shape.size = 5,
                              min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
                              xlab = x.var, ylab = y.var, main = NULL, sub = NULL, theme = theme_bw(),
-                             out.List = FALSE){
+                             data.out = FALSE){
   #Turn the object into a "name" if a full object was given
   if (typeof(object)=="S4"){
     object <- deparse(substitute(object))
@@ -77,36 +77,36 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
     hover.string <- make_hover_strings(data.hover, object, data.type.hover)
   } else {hover.string <- NA}
   #Split data to target vs other
-  Target_dat <- dat[cells.use,]
-  Others_dat <- dat[!(all.cells %in% cells.use),]
+  Target_data <- dat[cells.use,]
+  Others_data <- dat[!(all.cells %in% cells.use),]
   ###Start building the plot###
   p <- ggplot() + ylab(ylab) + xlab(xlab) + ggtitle(main,sub) + theme
   if(!(is.null(overlay.shape.var))){ p <- p +
-    scale_shape_manual(values = shapes[seq_along(levels(as.factor(Target_dat$shape)))],
+    scale_shape_manual(values = shapes[seq_along(levels(as.factor(Target_data$shape)))],
                        label = if (!(is.na(rename.shape.groups[1]))){rename.shape.groups}
-                               else {levels(as.factor(Target_dat$shape))},
+                               else {levels(as.factor(Target_data$shape))},
                        name = legend.shape.title) +
     guides(shape = guide_legend(override.aes = list(size=legend.shape.size)))
   }
   if(do.color){
     if (is.color.numeric){ p <- p +
       scale_colour_gradient(low= min.color, high = max.color,
-                            limits = c(ifelse(is.null(min), min(Target_dat$color), min),
-                                       ifelse(is.null(max), max(Target_dat$color), max)),
+                            limits = c(ifelse(is.null(min), min(Target_data$color), min),
+                                       ifelse(is.null(max), max(Target_data$color), max)),
                             name = legend.color.title)
     } else { p <- p +
       scale_colour_manual(name = legend.color.title,
                           values = color.panel[colors],
                           label = if (!(is.na(rename.color.groups[1]))){rename.color.groups}
-                                  else {levels(as.factor(Target_dat$color))}
+                                  else {levels(as.factor(Target_data$color))}
       ) +
       guides(color = guide_legend(override.aes = list(size=legend.color.size)))
     }
   }
   ###Add the data###
   #Make gray dots on the bottom layer if show.others = TRUE and cells.use is a subset of all the cells / samples.
-  if (show.others & dim(Others_dat)[1]>1) {
-    p <- p + geom_point(data=Others_dat,
+  if (show.others & dim(Others_data)[1]>1) {
+    p <- p + geom_point(data=Others_data,
                         if(do.hover){aes(x = X, y = Y, text = hover.string)}else{aes(x = X, y = Y)},
                         size=0.5, color = "gray90")
   }
@@ -114,25 +114,25 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
   # If 'shape' input was the name of a meta.data, aka type=character, treat shape as an aesthetic for performing grouping.
   # Otherwise it is a number and belongs outside of aes.
   if(!(is.null(overlay.color.var)) & !(is.null(overlay.shape.var))){
-    p <- p + geom_point(data=Target_dat,
+    p <- p + geom_point(data=Target_data,
                         if(do.hover){aes(x = X, y = Y, colour = color, shape=shape, text = hover.string)}
                         else{aes(x = X, y = Y, colour = color, shape=shape)},
                         size=size, alpha = opacity)
   }
   if(!(is.null(overlay.color.var)) & is.null(overlay.shape.var)){
-    p <- p + geom_point(data=Target_dat,
+    p <- p + geom_point(data=Target_data,
                         if(do.hover){aes(x = X, y = Y, colour = color, text = hover.string)}
                         else{aes(x = X, y = Y, colour = color)},
                         shape= shape, size=size, alpha = opacity)
   }
   if(is.null(overlay.color.var) & !(is.null(overlay.shape.var))){
-    p <- p + geom_point(data=Target_dat,
+    p <- p + geom_point(data=Target_data,
                         if(do.hover){aes(x = X, y = Y, shape=shape, text = hover.string)}
                         else{aes(x = X, y = Y, shape=shape)},
                         colour= "black", size=size, alpha = opacity)
   }
   if(is.null(overlay.color.var) & is.null(overlay.shape.var)){
-    p <- p + geom_point(data=Target_dat,
+    p <- p + geom_point(data=Target_data,
                         if(do.hover){aes(x = X, y = Y, text = hover.string)}
                         else{aes(x = X, y = Y)},
                         colour= "black", shape = shape, size=size, alpha = opacity)
@@ -140,9 +140,9 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
   #Remove legend, if warrented
   if (!legend.show) { p <- remove_legend(p) }
   ### RETURN the PLOT ###
-  if(out.List){return(list(plot = p,
-                           Target_dat = Target_dat,
-                           Others_dat = Others_dat))}
+  if(data.out){return(list(plot = p,
+                           Target_data = Target_data,
+                           Others_data = Others_data))}
   else{
     if(do.hover){ return(plotly::ggplotly(p, tooltip = "text")) }
     else { return(p) }

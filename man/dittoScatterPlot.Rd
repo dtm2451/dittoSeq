@@ -17,7 +17,7 @@ dittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
   legend.shape.size = 5, min.color = "#F0E442",
   max.color = "#0072B2", min = NULL, max = NULL, xlab = x.var,
   ylab = y.var, main = NULL, sub = NULL, theme = theme_bw(),
-  out.List = FALSE)
+  data.out = FALSE)
 }
 \arguments{
 \item{x.var}{Variable for setting x-axis position of cells/samples.  Can be the name of a gene, meta-data, or "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.}
@@ -90,7 +90,7 @@ dittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
 
 \item{theme}{Allows setting of a theme. Default = theme_bw when nothing is provided.}
 
-\item{out.List}{Whether just the plot should be output, or a list with the plot and Target_dat and Others_dat dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
+\item{data.out}{Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
 }
 \value{
 Makes a plot where colored dots and/or shapes representing individual cells/samples are overlayed onto a scatterplot where x and y can be gene expression (or any numeric metadata) of those cells/samples.
