@@ -66,8 +66,8 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
                       do.letter = NA, do.hover = FALSE, data.hover = var,
                       opacity = 1){
 
-  #Change object to character if not already
-  object <- S4_2string(object)
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
 
   #Populate cells.use with a list of names if it was given anything else.
   cells.use <- which_cells(cells.use, object)

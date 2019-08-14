@@ -52,7 +52,7 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
   }
 
   #Turn the object into a "name" if a full object was given
-  object <- S4_2string(object)
+  if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
 
   #Populate cells.use with a list of names if it was given anything else.
   cells.use <- which_cells(cells.use, object)
