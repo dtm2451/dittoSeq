@@ -7,8 +7,14 @@
 NULL
 
 #' Protanope and Deuteranope friendly colors adapted from Wong, B. Nature Methods, 2011.
+#' @author Daniel Bunis
+#' @description A Character vector of 24 colors in hexadecimal form. Default color.panel for DittoSeq Visualizations
 #'
-#' @description A vector of 24 colors. 1-8 = Suggested color panel from Wong, B. Nature Methods, 2011; 9-16 = 25% darker versions of colors 1-8; 17-24 = 25% lighter versions of colors 1-8
+#' 1-7 = Suggested color panel from Wong, B. Nature Methods, 2011;
+#' 8 = gray40;
+#' 9-16 = 25% darker versions of colors 1-8;
+#' 17-24 = 25% lighter versions of colors 1-8
+#'
 "MYcolors"
 
 
