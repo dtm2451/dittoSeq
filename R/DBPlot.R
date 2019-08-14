@@ -67,7 +67,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    legend.show = TRUE, title.legend = FALSE){
 
   #Turn the object into a "name" if a full object was given
-  object <- S4_2string(object)
+  if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
 
   #Populate cells.use with a list of names if it was given anything else.
   cells.use <- which_cells(cells.use, object)
@@ -391,15 +391,14 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
   #### Ensure that there are no ambiguities between group.by and color.by
   grp.color.check.matrix <- as.matrix(table(meta(group.by,object),meta(color.by,object)))
   grp.color.check.matrix <- data.frame(grp.color.check.matrix>0)
-  if(sum(rowSums(grp.color.check.matrix)!=1)){return(print("Unable to interpret color.by input.  group.by and color.by metadatas must match so that only one color will be assigned to each group."))}
+  if(sum(rowSums(grp.color.check.matrix)!=1)){return(print("Unable to interpret color.by input.  'group.by' data must be subsets of 'color.by data'."))}
   color <- sapply(seq_len(dim(grp.color.check.matrix)[1]), function(X)
     names(grp.color.check.matrix)[grp.color.check.matrix[X,]==TRUE])
   names(color) <- row.names(grp.color.check.matrix)
 
-
   #### Create data table
   # Summarizes data and creates vars x groupings table
-  groupings <- as.factor(meta(group.by, object)[cells.use %in% all.cells])
+  groupings <- as.factor(as.character(meta(group.by, object)[all.cells %in% cells.use]))
   if(data.summary=="mean"){
     summarys <- data.frame(sapply(levels(groupings), function(this.group)
       sapply(vars, function(X) mean(var_OR_get_meta_or_gene(X,object,data.type)[groupings==this.group])

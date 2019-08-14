@@ -19,6 +19,9 @@ ImportDemux2Seurat <- function(Seurat.name,
                                Demuxlet.best,
                                bypass.check = FALSE,
                                verbose = TRUE){
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
+
   Seurat <- eval(expr = parse(text = Seurat.name))
 
   #Check if there are meta.data that would be over.written
