@@ -16,7 +16,8 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   max.color = "#0072B2", min = NULL, max = NULL,
   color.panel = MYcolors, colors = 1:length(color.panel),
   do.letter = NA, do.hover = FALSE, data.hover = var, opacity = 1,
-  data.out = FALSE)
+  data.out = FALSE, add.trajectories = NULL, trajectory.clusters,
+  trajectory.arrow.size = 0.15)
 }
 \arguments{
 \item{var}{Target Variable = either values or a metadata (in "quotes"), gene (in "quotes"), or "ident"}
@@ -94,6 +95,13 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
 \item{opacity}{Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.}
 
 \item{data.out}{Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
+
+\item{add.trajectories}{List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.clusters} input.
+If Slingshot package was used for trajectory analysis, you can use \code{SlingshotDataSet(SCE_with_slingshot)$lineages}.}
+
+\item{trajectory.clusters}{String name of metadata containing the clusters that were used for generating trajectories.  Names of clusters must be the same as the contents of \code{add.trajectories} vectors.}
+
+\item{trajectory.arrow.size}{Number representing the size of trajectory arrows in inches.  Default = 0.15.}
 }
 \value{
 Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA, CCA, ..., plot of choice.  var is the argument that sets how dots will be colored, and it can refer to either continuous (ex: "CD34" = gene expression) or discrete (ex: "ident" = clustering) data.

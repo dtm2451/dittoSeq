@@ -41,6 +41,10 @@
 #' @param do.hover TRUE/FALSE. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.
 #' @param data.hover list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
 #' @param opacity Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.
+#' @param add.trajectories List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.clusters} input.
+#' If Slingshot package was used for trajectory analysis, you can use \code{SlingshotDataSet(SCE_with_slingshot)$lineages}.
+#' @param trajectory.clusters String name of metadata containing the clusters that were used for generating trajectories.  Names of clusters must be the same as the contents of \code{add.trajectories} vectors.
+#' @param trajectory.arrow.size Number representing the size of trajectory arrows in inches.  Default = 0.15.
 #' @param data.out Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
 #' @return Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA, CCA, ..., plot of choice.  var is the argument that sets how dots will be colored, and it can refer to either continuous (ex: "CD34" = gene expression) or discrete (ex: "ident" = clustering) data.
 #' @details
@@ -72,7 +76,8 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
                          min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
                          color.panel = MYcolors, colors = 1:length(color.panel),
                          do.letter = NA, do.hover = FALSE, data.hover = var,
-                         opacity = 1, data.out = FALSE){
+                         opacity = 1, data.out = FALSE,
+                         add.trajectories = NULL, trajectory.clusters, trajectory.arrow.size = 0.15){
   #Turn the object into a "name" if a full object was given
   if (typeof(object)=="S4"){
     object <- deparse(substitute(object))
@@ -151,7 +156,12 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
   if (ellipse) { p <- p + stat_ellipse(data=Target_data, aes(x = X, y = Y, colour = color),
                                        type = "t", linetype = 2, size = 0.5, show.legend = FALSE)}
   #Add labels
-  if(do.label){p <- dittoDimPlot.addLabels(p, Target_data, highlight.labels, rename.var.groups, label.size)}
+  if(do.label) { p <- dittoDimPlot.addLabels(p, Target_data, highlight.labels, rename.var.groups, label.size)}
+  #Add trajectories
+  if(!is.null(add.trajectories)) {
+    p <- dittoDimPlot.addTrajectory(
+      p, trajectories = add.trajectories, clusters = trajectory.clusters, arrow.size = trajectory.arrow.size,
+      object = object, reduction.use = reduction.use, dim.1 = dim.1, dim.2 = dim.2)}
   #Remove legend, if warrented
   if (!legend.show) { p <- remove_legend(p) }
   ### RETURN the PLOT ###
@@ -167,21 +177,41 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
 dittoDimPlot.addLabels <- function(p, Target_data, highlight.labels, rename.groups, label.size) {
   #Make a text plot at the median x and y values for each cluster
   #Determine medians
-  cent.1 = sapply(levels(as.factor(Target_data[,3])), function(X) median(Target_data$X[Target_data[,3]==X]))
-  cent.2 = sapply(levels(as.factor(Target_data[,3])), function(X) median(Target_data$Y[Target_data[,3]==X]))
+  cent.x = sapply(levels(as.factor(Target_data[,3])), function(X) median(Target_data$X[Target_data[,3]==X]))
+  cent.y = sapply(levels(as.factor(Target_data[,3])), function(X) median(Target_data$Y[Target_data[,3]==X]))
   #Add labels
   if (highlight.labels){
     #Add labels with a white background
     p <- p +
-      geom_label(data = data.frame(x=cent.1, y=cent.2),
+      geom_label(data = data.frame(x=cent.x, y=cent.y),
                  aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_data[,3]))}),
                  size = label.size)
   } else {
     #Add labels without a white background
     p <- p +
-      geom_text(data = data.frame(x=cent.1, y=cent.2),
+      geom_text(data = data.frame(x=cent.x, y=cent.y),
                 aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_data[,3]))}),
                 size = label.size)
+  }
+  p
+}
+
+dittoDimPlot.addTrajectory <- function(p, trajectories, clusters, arrow.size = 0.15, object, reduction.use, dim.1, dim.2) {
+  # p = the $p output of a dittoDimPlot(any.var,..., data.out = TRUE) in the same dimensional reduction space and dims as Target_data is built on, though can be any data, not just the original clustering
+  # Target_data = the $Target output of a dittoDimPlot("clustering.meta.data.name", data.out = TRUE) where "clustering.meta.data.name" is the name of the metadata slot that holds the clusters used for slingshot::getLineages
+  # trajectories = List os lists of cluster paths. Also, the output of SlingshotDataSet(SCE_with_slingshot)$lineages
+  # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
+  #
+  #Determine medians
+  data <- data.frame(cent.x = sapply(meta.levels(clusters, object),
+                                     function(X) median(extDim(reduction.use, dim.1, object)$embedding[meta(clusters, object)==X])),
+                     cent.y = sapply(meta.levels(clusters, object),
+                                     function(X) median(extDim(reduction.use, dim.2, object)$embedding[meta(clusters, object)==X])))
+  #Add trajectories
+  for (i in seq_along(trajectories)){
+    p <- p + geom_path(data = data[trajectories[[i]],],
+                       aes(x = cent.x, y = cent.y),
+                       arrow = arrow(angle = 20, type = "closed", length = unit(arrow.size, "inches")))
   }
   p
 }
