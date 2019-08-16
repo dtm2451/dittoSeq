@@ -20,7 +20,7 @@ ImportDemux2Seurat <- function(Seurat.name,
                                bypass.check = FALSE,
                                verbose = TRUE){
   #Turn the object into a "name" if a full object was given
-  if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
+  if (typeof(Seurat.name)=="S4"){ Seurat.name <- deparse(substitute(Seurat.name)) }
 
   Seurat <- eval(expr = parse(text = Seurat.name))
 
