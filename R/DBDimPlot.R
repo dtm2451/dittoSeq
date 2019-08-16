@@ -385,6 +385,9 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
                                       all.cells.main = "All Cells",
                                       ...){
 
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
+
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
   # If set to TRUE, set it to "make".
   lab <- if(!axes.labels) {NULL} else {"make"}
