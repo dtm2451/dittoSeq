@@ -11,10 +11,10 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   shape.legend.title = NULL, data.type = "normalized", main = "make",
   sub = NULL, xlab = "make", ylab = "make", cells.use = NULL,
   show.others = TRUE, ellipse = FALSE, do.label = FALSE,
-  label.size = 5, highlight.labels = TRUE, rename.var.groups = NA,
-  rename.shape.groups = NA, min.color = "#F0E442",
-  max.color = "#0072B2", min = NULL, max = NULL,
-  color.panel = MYcolors, colors = 1:length(color.panel),
+  label.size = 5, highlight.labels = TRUE, labels.repel = FALSE,
+  rename.var.groups = NA, rename.shape.groups = NA,
+  min.color = "#F0E442", max.color = "#0072B2", min = NULL,
+  max = NULL, color.panel = MYcolors, colors = 1:length(color.panel),
   do.letter = NA, do.hover = FALSE, data.hover = var, opacity = 1,
   data.out = FALSE, add.trajectories = NULL, trajectory.clusters,
   trajectory.arrow.size = 0.15)
@@ -69,6 +69,9 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
 \item{label.size}{Size of the the labels text}
 
 \item{highlight.labels}{TRUE/FALSE. Whether the labels should have a box behind them}
+
+\item{labels.repel}{TRUE/FALSE. Whether the labels' placements should be adjusted to avoid covering underlying cells.
+FALSE by defualt as it is untested.}
 
 \item{rename.var.groups}{new names for the identities of var.  Change to NULL to remove labeling altogether.}
 

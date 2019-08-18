@@ -29,6 +29,8 @@
 #' @param do.label  TRUE/FALSE. Whether to add text labels at the center (median) of clusters for grouping vars
 #' @param label.size Size of the the labels text
 #' @param highlight.labels TRUE/FALSE. Whether the labels should have a box behind them
+#' @param labels.repel TRUE/FALSE. Whether the labels' placements should be adjusted to avoid covering underlying cells.
+#' FALSE by defualt as it is untested.
 #' @param rename.var.groups new names for the identities of var.  Change to NULL to remove labeling altogether.
 #' @param rename.shape.groups new names for the identities of shape groups.  Change to NULL to remove labeling altogether.
 #' @param min.color color for lowest values of var/min
@@ -71,7 +73,7 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
                          data.type = "normalized",
                          main = "make", sub = NULL, xlab = "make", ylab = "make",
                          cells.use = NULL, show.others=TRUE, ellipse = FALSE,
-                         do.label = FALSE, label.size = 5, highlight.labels = TRUE,
+                         do.label = FALSE, label.size = 5, highlight.labels = TRUE, labels.repel = FALSE,
                          rename.var.groups = NA, rename.shape.groups = NA,
                          min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
                          color.panel = MYcolors, colors = 1:length(color.panel),
@@ -156,7 +158,7 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
   if (ellipse) { p <- p + stat_ellipse(data=Target_data, aes(x = X, y = Y, colour = color),
                                        type = "t", linetype = 2, size = 0.5, show.legend = FALSE)}
   #Add labels
-  if(do.label) { p <- dittoDimPlot.addLabels(p, Target_data, highlight.labels, rename.var.groups, label.size)}
+  if(do.label) { p <- dittoDimPlot.addLabels(p, Target_data, highlight.labels, rename.var.groups, label.size, labels.repel)}
   #Add trajectories
   if(!is.null(add.trajectories)) {
     p <- dittoDimPlot.addTrajectory(
@@ -174,24 +176,24 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
   }
 }
 
-dittoDimPlot.addLabels <- function(p, Target_data, highlight.labels, rename.groups, label.size) {
+dittoDimPlot.addLabels <- function(p, Target_data, highlight.labels, rename.groups, label.size, labels.repel) {
   #Make a text plot at the median x and y values for each cluster
   #Determine medians
   cent.x = sapply(levels(as.factor(Target_data[,3])), function(X) median(Target_data$X[Target_data[,3]==X]))
   cent.y = sapply(levels(as.factor(Target_data[,3])), function(X) median(Target_data$Y[Target_data[,3]==X]))
   #Add labels
+  args <- list(
+      data = data.frame(x=cent.x, y=cent.y),
+      aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_data[,3]))}),
+      size = label.size)
   if (highlight.labels){
-    #Add labels with a white background
-    p <- p +
-      geom_label(data = data.frame(x=cent.x, y=cent.y),
-                 aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_data[,3]))}),
-                 size = label.size)
+      #Add labels with a white background
+      if (labels.repel) { p <- p + do.call(geom_label_repel, args) }
+      else { p <- p + do.call(geom_label, args) }
   } else {
-    #Add labels without a white background
-    p <- p +
-      geom_text(data = data.frame(x=cent.x, y=cent.y),
-                aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_data[,3]))}),
-                size = label.size)
+      #Add labels without a white background
+      if (labels.repel) { p <- p + do.call(geom_text_repel, args) }
+      else { p <- p + do.call(geom_text, args) }
   }
   p
 }
