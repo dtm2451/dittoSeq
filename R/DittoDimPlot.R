@@ -3,6 +3,7 @@
 
 #' Shows data overlayed on a tsne, pca, or similar type of plot
 #' @import ggplot2
+#' @importFrom ggrepel geom_text_repel geom_label_repel
 #'
 #' @param var Target Variable = either values or a metadata (in "quotes"), gene (in "quotes"), or "ident"
 #' @param object the Seurat or RNAseq object to work on
