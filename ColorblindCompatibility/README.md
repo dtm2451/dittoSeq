@@ -28,9 +28,9 @@ The Simulate() function's inputs are:
 - `plot.function` = the function you want to use.  R may try to add (), but delete that if it does.
 - `...` = any and all inputs that go into the plotting function you want to use.
 
-## 5. To alter colors going into any plots not generated with my funcitons:
+## 5. To alter colors going into any plots not generated with my functions:
 
-This is based on functions from the colorspace package.  I utilized this package in my Simulate() funciton, as well as the Darken() and Lighten() functions that are also included in the package.  Credit where credit is due and all.
+This is based on functions from the colorspace package.  I utilized this package in my Simulate() function, as well as the Darken() and Lighten() functions that are also included in the package.  Credit where credit is due and all.
 
 If you have followed the instructions to install this package already, you will have the updated colorspace package.  So:
 
