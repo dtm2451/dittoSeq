@@ -60,9 +60,9 @@ For an explanation on how to use the visualization functions, see the vignette [
 
 **`DBBarPlot()`** = No analogous function currently in Seurat, but incredibly useful! Most common use: Plotting the cluster breakdown of all cells within each sample. Essentially, it is similar to DBPlot, but for discrete variables. Handles plotting of discrete data on a per-sample or per-condition grouping.
 
-**`DBDimPlot()`** = Analagous Seurat functions: TSNEPlot / PCAPlot / DimPlot.  Improves on Seurat functions' capabilities to present continuous (including negative) numerical data, or descrete data (clustering, samples, batches, condition, etc.) in various ways.
+**`DBDimPlot()`** = Analogous Seurat functions: TSNEPlot / PCAPlot / DimPlot.  Improves on Seurat functions' capabilities to present continuous (including negative) numerical data, or descrete data (clustering, samples, batches, condition, etc.) in various ways.
 
-**`DBPlot()`** = Analagous Seurat function: VlnPlot. Allows generation of jitter/dot-plot, boxplot, and/or violin-plot representation of numerical data, with order of what's on top easily settable. Data can be expression of particular genes or any numerical metadata like percent.mito, nUMI, and nGene.  Colors and grouping of cells is tunable through discrete inputs.
+**`DBPlot()`** = Analogous Seurat function: VlnPlot. Allows generation of jitter/dot-plot, boxplot, and/or violin-plot representation of numerical data, with order of what's on top easily settable. Data can be expression of particular genes or any numerical metadata like percent.mito, nUMI, and nGene.  Colors and grouping of cells is tunable through discrete inputs.
 
 **`DBHeatmap()`** = Given a set of genes to focus on, outputs a heatmap.  Colors, cell annotations, names, are all tunable with discrete inputs.  Many others are possible as well; this function is a wrapper for pheatmap.
 
