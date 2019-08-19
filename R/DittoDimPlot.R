@@ -3,6 +3,7 @@
 
 #' Shows data overlayed on a tsne, pca, or similar type of plot
 #' @import ggplot2
+#' @importFrom ggrepel geom_text_repel geom_label_repel
 #'
 #' @param var Target Variable = either values or a metadata (in "quotes"), gene (in "quotes"), or "ident"
 #' @param object the Seurat or RNAseq object to work on
@@ -13,7 +14,7 @@
 #' @param size Number. Size of data points.  Default = 1.
 #' @param shape Number for setting shape OR name of metadata to use for setting shape
 #' @param shapes the shapes to use.  Default is a list of 6.  There are more, but not many of the default ggplot options are great.  I recommend using colors for any variable with 7+ options.
-#' @param legend.show TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.
+#' @param legend.show Logical. Whether the legend should be displayed. Default = TRUE.
 #' @param legend.size The size to increase the plotting of colors/letters legend shapes to (for discrete variable plotting)
 #' @param legend.title For adding a title for the colors/letters legend.  It is set to NULL (off) by default.
 #' @param shape.legend.size The size to increase the plotting of shapes legend shapes to.
@@ -24,11 +25,13 @@
 #' @param xlab label for y axes.  Default labels are generated if you do not give this a specific value.  To remove, set to NULL.
 #' @param ylab label for y axes.  Default labels are generated if you do not give this a specific value.  To remove, set to NULL.
 #' @param cells.use cells to show: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. *THIS*: object@cell.names[*THIS*])
-#' @param show.others TRUE/FALSE. TRUE by default, whether other cells should be shown in the background
-#' @param ellipse TRUE/FALSE. Whether the groups should be surrounded by an ellipse.
-#' @param do.label  TRUE/FALSE. Whether to add text labels at the center (median) of clusters for grouping vars
+#' @param show.others Logical. TRUE by default, whether other cells should be shown in the background
+#' @param ellipse Logical. Whether the groups should be surrounded by an ellipse.
+#' @param do.label  Logical. Whether to add text labels at the center (median) of clusters for grouping vars
 #' @param label.size Size of the the labels text
-#' @param highlight.labels TRUE/FALSE. Whether the labels should have a box behind them
+#' @param highlight.labels Logical. Whether the labels should have a box behind them
+#' @param labels.repel Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
+#' TRUE by default.
 #' @param rename.var.groups new names for the identities of var.  Change to NULL to remove labeling altogether.
 #' @param rename.shape.groups new names for the identities of shape groups.  Change to NULL to remove labeling altogether.
 #' @param min.color color for lowest values of var/min
@@ -37,8 +40,8 @@
 #' @param max set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it's likely because min > max.
 #' @param color.panel a list of colors to be used for when plotting a discrete var.
 #' @param colors indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups
-#' @param do.letter TRUE/FALSE/NA. Whether letters should be added on top of the colored dots. For colorblindness compatibility.  NA by default, and if left that way, will be set to either TRUE or FALSE depending on the number of groups if a discrete var is given. For when there are lots of descrete variables, it can be hard to see by just color / shape.  NOTE: Lettering is incompatible with changing dots to shapes, so this will override a setting of distinct shapes based on the 'shape' variable!
-#' @param do.hover TRUE/FALSE. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.
+#' @param do.letter Logical/NA. Whether letters should be added on top of the colored dots. For colorblindness compatibility.  NA by default, and if left that way, will be set to either TRUE or FALSE depending on the number of groups if a discrete var is given. For when there are lots of descrete variables, it can be hard to see by just color / shape.  NOTE: Lettering is incompatible with changing dots to shapes, so this will override a setting of distinct shapes based on the 'shape' variable!
+#' @param do.hover Logical. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.
 #' @param data.hover list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
 #' @param opacity Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.
 #' @param add.trajectories List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.clusters} input.
@@ -71,7 +74,7 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
                          data.type = "normalized",
                          main = "make", sub = NULL, xlab = "make", ylab = "make",
                          cells.use = NULL, show.others=TRUE, ellipse = FALSE,
-                         do.label = FALSE, label.size = 5, highlight.labels = TRUE,
+                         do.label = FALSE, label.size = 5, highlight.labels = TRUE, labels.repel = TRUE,
                          rename.var.groups = NA, rename.shape.groups = NA,
                          min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
                          color.panel = MYcolors, colors = 1:length(color.panel),
@@ -156,7 +159,7 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
   if (ellipse) { p <- p + stat_ellipse(data=Target_data, aes(x = X, y = Y, colour = color),
                                        type = "t", linetype = 2, size = 0.5, show.legend = FALSE)}
   #Add labels
-  if(do.label) { p <- dittoDimPlot.addLabels(p, Target_data, highlight.labels, rename.var.groups, label.size)}
+  if(do.label) { p <- dittoDimPlot.addLabels(p, Target_data, highlight.labels, rename.var.groups, label.size, labels.repel)}
   #Add trajectories
   if(!is.null(add.trajectories)) {
     p <- dittoDimPlot.addTrajectory(
@@ -174,24 +177,24 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
   }
 }
 
-dittoDimPlot.addLabels <- function(p, Target_data, highlight.labels, rename.groups, label.size) {
+dittoDimPlot.addLabels <- function(p, Target_data, highlight.labels, rename.groups, label.size, labels.repel) {
   #Make a text plot at the median x and y values for each cluster
   #Determine medians
   cent.x = sapply(levels(as.factor(Target_data[,3])), function(X) median(Target_data$X[Target_data[,3]==X]))
   cent.y = sapply(levels(as.factor(Target_data[,3])), function(X) median(Target_data$Y[Target_data[,3]==X]))
   #Add labels
+  args <- list(
+      data = data.frame(x=cent.x, y=cent.y),
+      aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_data[,3]))}),
+      size = label.size)
   if (highlight.labels){
-    #Add labels with a white background
-    p <- p +
-      geom_label(data = data.frame(x=cent.x, y=cent.y),
-                 aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_data[,3]))}),
-                 size = label.size)
+      #Add labels with a white background
+      if (labels.repel) { p <- p + do.call(geom_label_repel, args) }
+      else { p <- p + do.call(geom_label, args) }
   } else {
-    #Add labels without a white background
-    p <- p +
-      geom_text(data = data.frame(x=cent.x, y=cent.y),
-                aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_data[,3]))}),
-                size = label.size)
+      #Add labels without a white background
+      if (labels.repel) { p <- p + do.call(geom_text_repel, args) }
+      else { p <- p + do.call(geom_text, args) }
   }
   p
 }
@@ -221,11 +224,11 @@ dittoDimPlot.addTrajectory <- function(p, trajectories, clusters, arrow.size = 0
 #'
 #' @param vars               c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
 #' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param show.legend        TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE
+#' @param show.legend        Logical. Whether or not you would like a legend to be plotted.  Default = FALSE
 #' @param ncol               #. How many plots should be arranged per row.  Default = 3 unless \code{length(vars)} is shorter.
 #' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
-#' @param axes.labels        TRUE/FALSE. Whether a axis labels should be added
-#' @param OUT.List           TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.
+#' @param axes.labels        Logical. Whether a axis labels should be added
+#' @param OUT.List           Logical. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.
 #' @param ...                other paramters that can be given to DBDimPlot function used in exactly the same way.
 #' @return Given multiple 'var' parameters, this function will output a DBDimPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each is 'var'.
 #' @examples

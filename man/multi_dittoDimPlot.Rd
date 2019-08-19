@@ -13,15 +13,15 @@ multi_dittoDimPlot(vars, object = DEFAULT, show.legend = FALSE,
 
 \item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
-\item{show.legend}{TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE}
+\item{show.legend}{Logical. Whether or not you would like a legend to be plotted.  Default = FALSE}
 
 \item{ncol}{#. How many plots should be arranged per row.  Default = 3 unless \code{length(vars)} is shorter.}
 
 \item{nrow}{#/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.}
 
-\item{axes.labels}{TRUE/FALSE. Whether a axis labels should be added}
+\item{axes.labels}{Logical. Whether a axis labels should be added}
 
-\item{OUT.List}{TRUE/FALSE. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.}
+\item{OUT.List}{Logical. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.}
 
 \item{...}{other paramters that can be given to DBDimPlot function used in exactly the same way.}
 }
