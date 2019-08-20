@@ -95,7 +95,7 @@
 #' dittoRidgePlot("CD14", group.by = "RNA_snn_res.1")
 #'
 #' # Quickly make a Boxplot
-#' dittoRidgePlot("CD14", group.by = "RNA_snn_res.1")
+#' dittoBoxPlot("CD14", group.by = "RNA_snn_res.1")
 #' @export
 
 dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,

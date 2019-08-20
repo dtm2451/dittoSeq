@@ -176,5 +176,5 @@ dittoPlot("CD14", group.by = "RNA_snn_res.1",
 dittoRidgePlot("CD14", group.by = "RNA_snn_res.1")
 
 # Quickly make a Boxplot
-dittoRidgePlot("CD14", group.by = "RNA_snn_res.1")
+dittoBoxPlot("CD14", group.by = "RNA_snn_res.1")
 }
