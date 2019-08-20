@@ -38,6 +38,7 @@
 #' @param max.color color for highest values of var/max
 #' @param min set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.
 #' @param max set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it's likely because min > max.
+#' @param breaks Numeric vector. Sets the discrete values to show in the color-scale legend for continuous data.
 #' @param color.panel a list of colors to be used for when plotting a discrete var.
 #' @param colors indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups
 #' @param do.letter Logical/NA. Whether letters should be added on top of the colored dots. For colorblindness compatibility.  NA by default, and if left that way, will be set to either TRUE or FALSE depending on the number of groups if a discrete var is given. For when there are lots of descrete variables, it can be hard to see by just color / shape.  NOTE: Lettering is incompatible with changing dots to shapes, so this will override a setting of distinct shapes based on the 'shape' variable!
@@ -76,7 +77,7 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
                          cells.use = NULL, show.others=TRUE, ellipse = FALSE,
                          do.label = FALSE, label.size = 5, highlight.labels = TRUE, labels.repel = TRUE,
                          rename.var.groups = NA, rename.shape.groups = NA,
-                         min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
+                         min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL, breaks = waiver(),
                          color.panel = MYcolors, colors = 1:length(color.panel),
                          do.letter = NA, do.hover = FALSE, data.hover = var,
                          opacity = 1, data.out = FALSE,
@@ -135,7 +136,7 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
                            shapes = shapes, size = size, opacity = opacity,
                            legend.show = legend.show, legend.color.title = legend.title,
                            legend.color.size = legend.size, legend.shape.size = legend.size,
-                           min.color = min.color, max.color = max.color, min = min, max = max,
+                           min.color = min.color, max.color = max.color, min = min, max = max, breaks = breaks,
                            xlab = xlab, ylab = ylab, main = main, sub = sub, theme = theme,
                            data.out = TRUE)
   p <- p.df$plot

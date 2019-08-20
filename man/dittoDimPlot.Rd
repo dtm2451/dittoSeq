@@ -14,9 +14,10 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   label.size = 5, highlight.labels = TRUE, labels.repel = TRUE,
   rename.var.groups = NA, rename.shape.groups = NA,
   min.color = "#F0E442", max.color = "#0072B2", min = NULL,
-  max = NULL, color.panel = MYcolors, colors = 1:length(color.panel),
-  do.letter = NA, do.hover = FALSE, data.hover = var, opacity = 1,
-  data.out = FALSE, add.trajectories = NULL, trajectory.clusters,
+  max = NULL, breaks = waiver(), color.panel = MYcolors,
+  colors = 1:length(color.panel), do.letter = NA, do.hover = FALSE,
+  data.hover = var, opacity = 1, data.out = FALSE,
+  add.trajectories = NULL, trajectory.clusters,
   trajectory.arrow.size = 0.15)
 }
 \arguments{
@@ -84,6 +85,8 @@ TRUE by default.}
 \item{min}{set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.}
 
 \item{max}{set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it's likely because min > max.}
+
+\item{breaks}{Numeric vector. Sets the discrete values to show in the color-scale legend for continuous data.}
 
 \item{color.panel}{a list of colors to be used for when plotting a discrete var.}
 

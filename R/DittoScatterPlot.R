@@ -31,6 +31,7 @@
 #' @param max.color color for highest values shown of the color overlay.  Default is \code{MYcolors[5]}, a dark blue.
 #' @param min set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.
 #' @param max set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it may be because min > max.
+#' @param breaks Numeric vector. Sets the discrete values to show in the color-scale legend for continuous data.
 #' @param main plot title.  Default = \code{NULL}
 #' @param sub plot subtitle.  Default = \code{NULL}
 #' @param xlab label for y axes.  Default = \code{x.var}. To remove, set to NULL.
@@ -49,7 +50,7 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
                              legend.show = TRUE,
                              legend.color.title = overlay.color.var, legend.color.size = 5,
                              legend.shape.title = overlay.shape.var, legend.shape.size = 5,
-                             min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
+                             min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL, breaks = waiver(),
                              xlab = x.var, ylab = y.var, main = NULL, sub = NULL, theme = theme_bw(),
                              data.out = FALSE){
   #Turn the object into a "name" if a full object was given
@@ -93,6 +94,7 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
       scale_colour_gradient(low= min.color, high = max.color,
                             limits = c(ifelse(is.null(min), min(Target_data$color), min),
                                        ifelse(is.null(max), max(Target_data$color), max)),
+                            breaks = breaks,
                             name = legend.color.title)
     } else { p <- p +
       scale_colour_manual(name = legend.color.title,

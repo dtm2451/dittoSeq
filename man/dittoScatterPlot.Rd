@@ -15,9 +15,9 @@ dittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
   legend.show = TRUE, legend.color.title = overlay.color.var,
   legend.color.size = 5, legend.shape.title = overlay.shape.var,
   legend.shape.size = 5, min.color = "#F0E442",
-  max.color = "#0072B2", min = NULL, max = NULL, xlab = x.var,
-  ylab = y.var, main = NULL, sub = NULL, theme = theme_bw(),
-  data.out = FALSE)
+  max.color = "#0072B2", min = NULL, max = NULL, breaks = waiver(),
+  xlab = x.var, ylab = y.var, main = NULL, sub = NULL,
+  theme = theme_bw(), data.out = FALSE)
 }
 \arguments{
 \item{x.var}{Variable for setting x-axis position of cells/samples.  Can be the name of a gene, meta-data, or "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.}
@@ -79,6 +79,8 @@ dittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
 \item{min}{set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.}
 
 \item{max}{set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it may be because min > max.}
+
+\item{breaks}{Numeric vector. Sets the discrete values to show in the color-scale legend for continuous data.}
 
 \item{xlab}{label for y axes.  Default = \code{x.var}. To remove, set to NULL.}
 
