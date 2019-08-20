@@ -32,6 +32,7 @@
 #' @param min set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.
 #' @param max set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it may be because min > max.
 #' @param breaks Numeric vector. Sets the discrete values to show in the color-scale legend for continuous data.
+#' @param breaks.labels String vector with same length as \code{breaks}. Renames the values displayed next to the color-scale.
 #' @param main plot title.  Default = \code{NULL}
 #' @param sub plot subtitle.  Default = \code{NULL}
 #' @param xlab label for y axes.  Default = \code{x.var}. To remove, set to NULL.
@@ -50,7 +51,8 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
                              legend.show = TRUE,
                              legend.color.title = overlay.color.var, legend.color.size = 5,
                              legend.shape.title = overlay.shape.var, legend.shape.size = 5,
-                             min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL, breaks = waiver(),
+                             min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
+                             breaks = waiver(), breaks.labels = waiver(),
                              xlab = x.var, ylab = y.var, main = NULL, sub = NULL, theme = theme_bw(),
                              data.out = FALSE){
   #Turn the object into a "name" if a full object was given
@@ -94,7 +96,7 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
       scale_colour_gradient(low= min.color, high = max.color,
                             limits = c(ifelse(is.null(min), min(Target_data$color), min),
                                        ifelse(is.null(max), max(Target_data$color), max)),
-                            breaks = breaks,
+                            breaks = breaks, labels = breaks.labels,
                             name = legend.color.title)
     } else { p <- p +
       scale_colour_manual(name = legend.color.title,
@@ -110,7 +112,7 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
   if (show.others & dim(Others_data)[1]>1) {
     p <- p + geom_point(data=Others_data,
                         if(do.hover){aes(x = X, y = Y, text = hover.string)}else{aes(x = X, y = Y)},
-                        size=0.5, color = "gray90")
+                        size=size, color = "gray90")
   }
   #Overlay the target data on top
   # If 'shape' input was the name of a meta.data, aka type=character, treat shape as an aesthetic for performing grouping.
