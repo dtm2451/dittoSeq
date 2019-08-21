@@ -29,9 +29,9 @@
 #' @param min,max Scalars which set a custom minimum / maximum y-value to show.  Default = set based on the limits of the data in var.
 #' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.  NOTE: you need to give at least as many labels as there are discrete values in the group.by data.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging their order.
-#' Method: Make a first plot without this input. First \code{x.reorder} value then sets where the originally leftmost goruping will be.
-#' Second \code{x.reorder} value sets where the grouping that was originally second-from-the-left will go.
-#' Values: 1 = move to left-most, 2 = move to second from the left, and so on.
+#' Method: Make a first plot without this input.
+#' Then treating the leftmost grouping as index 1, and the rightmost as index n.
+#' Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.
 #' @param rotate.labels Logical. whether the labels should be rotated.  Default = \code{FALSE} = vertical labels.
 #' @param add.line numeric value(s) where a dashed horizontal line should go
 #' @param line.linetype String which sets the type of line.  Any ggplot linetype should work.  Defaults to "dashed"
@@ -51,8 +51,13 @@
 #' @param boxplot.fill Logical, whether the boxplot should be filled in or not.
 #' @param vlnplot.lineweight Scalar which sets the thickness of the line that outlines the violin plots.
 #' @param vlnplot.width Scalar which sets the width/spread of the jitter in the x direction
+#' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to eachother.
+#' Options are "area", "count", and "width". If the deafult is not right for your data, I recommend trying "width".
+#' For a detailed explanation of each, see \code{\link{geom_violin}}.
 #' @param ridgeplot.lineweight Scalar which sets the thickness of the ridgeplot outline.
-#' @param ridgeplot.scale Scalar which sets the distance/overlap between ridgeplots. A value of 1 means the tallest density curve just touches the baseline of the next higher one.  Higher numbers lead to greater overlap.  Default = 1.25
+#' @param ridgeplot.scale Scalar which sets the distance/overlap between ridgeplots.
+#' A value of 1 means the tallest density curve just touches the baseline of the next higher one.
+#' Higher numbers lead to greater overlap.  Default = 1.25
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
 #' @param legend.title String or \code{NULL}, sets the title for the main legend. It is set to \code{NULL} (off) by default.
 #' @param data.out Logical that sets whether just the plot should be output, or a list containing the plot (\code{p}) and data (\code{data}).  Note: plotly output is turned off in this setting, but hover.data is still calculated.
@@ -110,7 +115,7 @@ dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
                       jitter.shapes=c(16,15,17,23,25,8), jitter.shape.legend.size = NA,
                       jitter.shape.legend.show = TRUE,
                       boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA, boxplot.fill =TRUE,
-                      vlnplot.lineweight = 1, vlnplot.width = 1,
+                      vlnplot.lineweight = 1, vlnplot.width = 1, vlnplot.scaling = "area",
                       ridgeplot.lineweight = 1, ridgeplot.scale = 1.25,
                       add.line = NULL, line.linetype = "dashed", line.color = "black",
                       legend.show = TRUE, legend.title = NULL, data.out = FALSE){
@@ -150,11 +155,11 @@ dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
   #Add plots
   if(!("ridgeplot" %in% plots)) {
     p <- dittoYPlotMaker(
-      p, Target_data, plots, xlab, ylab, shape, jitter.size, jitter.width, jitter.color,
-      jitter.shapes, jitter.shape.legend.size, jitter.shape.legend.show,
+      p, Target_data, plots, xlab, ylab, shape, jitter.size, jitter.width,
+      jitter.color,jitter.shapes, jitter.shape.legend.size, jitter.shape.legend.show,
       boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
-      vlnplot.lineweight, vlnplot.width, add.line, line.linetype,
-      line.color, rotate.labels, do.hover, y.breaks, min, max)
+      vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
+      line.linetype, line.color, rotate.labels, do.hover, y.breaks, min, max)
   } else {
     p <- dittoXPlotMaker(
       p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
@@ -177,18 +182,17 @@ dittoRidgePlot <- function(..., plots = c("ridgeplot","jitter")){ dittoPlot(...,
 
 #' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings in boxplot form
 #' @export
-dittoBoxPlot <- function(..., plots = c("jitter", "boxplot")){ dittoPlot(..., plots = plots) }
+dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plots = plots) }
 
-dittoYPlotMaker <- function(p, Target_data, plots, xlab, ylab, shape = 16,
-                            jitter.size=1, jitter.width=0.2, jitter.color = "black",
-                            jitter.shapes=c(16,15,17,23,25,8), jitter.shape.legend.size = NA,
-                            jitter.shape.legend.show=TRUE,
-                            boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA,
-                            boxplot.fill =TRUE, vlnplot.lineweight = 1, vlnplot.width = 1,
-                            add.line=NULL, line.linetype = "dashed", line.color = "black",
-                            rotate.labels = TRUE, do.hover, y.breaks, min, max) {
-  #This function takes in a partial dittoPlot ggplot object without any data overlay, and parses adding the main data visualizations.
-  # It adds plots based on what is requested in plots, *ordered by their order*
+dittoYPlotMaker <- function(
+  p, Target_data, plots, xlab, ylab, shape, jitter.size, jitter.width,
+  jitter.color,jitter.shapes, jitter.shape.legend.size, jitter.shape.legend.show,
+  boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
+  vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
+  line.linetype, line.color, rotate.labels, do.hover, y.breaks, min, max) {
+  # This function takes in a partial dittoPlot ggplot object without any data overlay,
+  # and parses adding the main data visualizations.
+  # It adds plots based on what is requested in plots, ordered by their order.
 
   # Now that we know the plot's direction, set y-axis limits
   if (!is.null(y.breaks)) {
@@ -233,7 +237,7 @@ dittoYPlotMaker <- function(p, Target_data, plots, xlab, ylab, shape = 16,
       }
     }
     if (plots[i] == "vlnplot") {
-      p <- p + geom_violin(size = vlnplot.lineweight, width = vlnplot.width)
+      p <- p + geom_violin(size = vlnplot.lineweight, width = vlnplot.width, scale = vlnplot.scaling)
     }
   }
   p

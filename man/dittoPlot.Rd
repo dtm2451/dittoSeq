@@ -20,13 +20,14 @@ dittoPlot(var, object = DEFAULT, group.by, color.by = group.by,
   boxplot.width = 0.2, boxplot.color = "black",
   boxplot.show.outliers = NA, boxplot.fill = TRUE,
   vlnplot.lineweight = 1, vlnplot.width = 1,
-  ridgeplot.lineweight = 1, ridgeplot.scale = 1.25, add.line = NULL,
-  line.linetype = "dashed", line.color = "black", legend.show = TRUE,
-  legend.title = NULL, data.out = FALSE)
+  vlnplot.scaling = "area", ridgeplot.lineweight = 1,
+  ridgeplot.scale = 1.25, add.line = NULL, line.linetype = "dashed",
+  line.color = "black", legend.show = TRUE, legend.title = NULL,
+  data.out = FALSE)
 
 dittoRidgePlot(..., plots = c("ridgeplot", "jitter"))
 
-dittoBoxPlot(..., plots = c("jitter", "boxplot"))
+dittoBoxPlot(..., plots = c("boxplot", "jitter"))
 }
 \arguments{
 \item{var}{Single String representing a metadata or gene OR a numeric vector with length equal to the total number of cells/samples in the dataset.
@@ -77,9 +78,9 @@ Set to \code{NULL} to remove.}
 \item{rotate.labels}{Logical. whether the labels should be rotated.  Default = \code{FALSE} = vertical labels.}
 
 \item{x.reorder}{Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging their order.
-Method: Make a first plot without this input. First \code{x.reorder} value then sets where the originally leftmost goruping will be.
-Second \code{x.reorder} value sets where the grouping that was originally second-from-the-left will go.
-Values: 1 = move to left-most, 2 = move to second from the left, and so on.}
+Method: Make a first plot without this input.
+Then treating the leftmost grouping as index 1, and the rightmost as index n.
+Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.}
 
 \item{jitter.size}{Scalare which sets the size of the jitter shapes.}
 
@@ -108,9 +109,15 @@ Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is 
 
 \item{vlnplot.width}{Scalar which sets the width/spread of the jitter in the x direction}
 
+\item{vlnplot.scaling}{String which sets how the widths of the of violin plots are set in relation to eachother.
+Options are "area", "count", and "width". If the deafult is not right for your data, I recommend trying "width".
+For a detailed explanation of each, see \code{\link{geom_violin}}.}
+
 \item{ridgeplot.lineweight}{Scalar which sets the thickness of the ridgeplot outline.}
 
-\item{ridgeplot.scale}{Scalar which sets the distance/overlap between ridgeplots. A value of 1 means the tallest density curve just touches the baseline of the next higher one.  Higher numbers lead to greater overlap.  Default = 1.25}
+\item{ridgeplot.scale}{Scalar which sets the distance/overlap between ridgeplots.
+A value of 1 means the tallest density curve just touches the baseline of the next higher one.
+Higher numbers lead to greater overlap.  Default = 1.25}
 
 \item{add.line}{numeric value(s) where a dashed horizontal line should go}
 
