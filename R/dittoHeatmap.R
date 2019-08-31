@@ -15,7 +15,7 @@
 #' @param main String that sets the title for the heatmap.
 #' @param cell.names.meta quoted "name" of a meta.data slot to use for naming the columns instead of the raw cell/sample names.
 #' @param col.annotation.metas String name of a metadata slot containing how the cells/samples should be annotated. Default = \code{NULL}.
-#' @param annotation.colors List of String (color) vectors where each vector is the set of colors for an individual annotation bar.
+#' @param annotation.colors String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.
 #' @param show.rownames,show.colnames Logical which sets whether rownames or colnames will be shown.
 #' Note: if gene names are provided to \code{highlight.genes}, the \code{show.colnames} parameter is ignored.
 #' @param data.out = If set to TRUE, the output will be a list containing \code{args},
@@ -79,23 +79,23 @@ dittoHeatmap <- function(
     scaled.to.max = FALSE,
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
     col.annotation.metas = NULL,
-    annotation.colors = rep(list(MYcolors),length(col.annotation.metas)),
+    annotation.colors = rep(MYcolors,10),
     data.out=FALSE, highlight.genes = NULL, show.colnames = TRUE,
     show.rownames = TRUE, ...) {
 
-    #If no genes given, "error out"
     if (is.null(genes)) {
         stop('This function is not set up to select which genes to use.\nPlease provide a list of genes a set of genes.')
     }
-
-    #Turn the object into a "name"
     if (typeof(object)=="S4") {
         object <- deparse(substitute(object))
     }
-
     #If cells.use given as logical, populate as names.
     cells.use <- which_cells(cells.use, object)
     all.cells <- all_cells(object)
+
+    if (is.null(main)) {
+        main <- NA
+    }
 
     #Make the data matrix
     data <- as.matrix(which_data(data.type,object)[genes,cells.use])
@@ -105,18 +105,10 @@ dittoHeatmap <- function(
         heatmap.colors <- heatmap.colors.max.scaled
     }
 
-    if (is.null(main)) {
-        main <- NA
-    }
-
     args <- list(
-        mat = data,
-        main = main,
-        show_colnames = show.colnames,
-        show_rownames = show.rownames,
-        color = heatmap.colors,
-        scale = ifelse(scaled.to.max, "none", "row"),
-        ...)
+        mat = data, main = main, show_colnames = show.colnames,
+        show_rownames = show.rownames, color = heatmap.colors,
+        scale = ifelse(scaled.to.max, "none", "row"), ...)
 
     if (is.null(args$border_color)) {
       args$border_color <- NA
@@ -144,14 +136,11 @@ dittoHeatmap <- function(
                 function(X) as.character(meta(X,object)[all.cells %in% cells.use]),
                 FUN.VALUE = character(length(cells.use))),
             row.names = cells.use)
-        if (is.null(names(annotation.colors))) {
-            names(annotation.colors)[seq_along(col.annotation.metas)] <- col.annotation.metas
-            for (i in seq_along(col.annotation.metas)){
-                names(annotation.colors[[i]]) <- levels(as.factor(args$annotation_col[,i]))
-                annotation.colors[[i]] <- annotation.colors[[i]][seq_along(levels(as.factor(args$annotation_col[,i])))]
-            }
-        }
-        args$annotation_colors <- annotation.colors
+    }
+
+    #Make the annotation colors
+    if (is.null(args$annotation_colors) && !is.null(args$annotation_col) || !is.null(args$annotation_row)) {
+        args <- .make_heatmap_annotation_colors(args, annotation.colors)
     }
 
     if (data.out) {
@@ -160,4 +149,48 @@ dittoHeatmap <- function(
         OUT <- do.call(pheatmap::pheatmap, args)
     }
     OUT
+}
+
+.make_heatmap_annotation_colors <- function(args, annotation.colors) {
+    next.color <- 1
+    col_colors <- NULL
+    row_colors <- NULL
+    if (!is.null(args$annotation_col)) {
+        for (i in seq_len(ncol(args$annotation_col))){
+            # Determine the distinct contents of the first annotation
+            in.this.annot <- levels(as.factor(args$annotation_col[,i]))
+            # Make colors for each, and name them.
+            new.colors <- annotation.colors[
+                seq_along(in.this.annot) + next.color - 1
+                ]
+            names(new.colors) <- in.this.annot
+            # Add the new colors as a list.
+            col_colors <- c(
+                col_colors,
+                list(new.colors))
+
+            next.color <- next.color + length(in.this.annot)
+        }
+        names(col_colors) <- names(args$annotation_col)
+    }
+    if (!is.null(args$annotation_row)) {
+        for (i in seq_len(ncol(args$annotation_row))){
+            # Determine the distinct contents of the first annotation
+            in.this.annot <- levels(as.factor(args$annotation_row[,i]))
+            # Make colors for each, and name them.
+            new.colors <- annotation.colors[
+                seq_along(in.this.annot) + next.color - 1
+                ]
+            names(new.colors) <- in.this.annot
+            # Add the new colors as a list.
+            row_colors <- c(
+                row_colors,
+                list(new.colors))
+
+            next.color <- next.color + length(in.this.annot)
+        }
+        names(row_colors) <- names(args$annotation_row)
+    }
+    args$annotation_colors <- c(col_colors, row_colors)
+    args
 }

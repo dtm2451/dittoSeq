@@ -9,10 +9,9 @@ dittoHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
-  col.annotation.metas = NULL, annotation.colors = rep(list(MYcolors),
-  length(col.annotation.metas)), data.out = FALSE,
-  highlight.genes = NULL, show.colnames = TRUE, show.rownames = TRUE,
-  ...)
+  col.annotation.metas = NULL, annotation.colors = rep(MYcolors, 10),
+  data.out = FALSE, highlight.genes = NULL, show.colnames = TRUE,
+  show.rownames = TRUE, ...)
 }
 \arguments{
 \item{genes}{c("gene1","gene2","gene3",...) = list of genes to put in the heatmap. REQUIRED.}
@@ -38,7 +37,7 @@ Default is a ramp from white to red with 25 slices.}
 
 \item{col.annotation.metas}{String name of a metadata slot containing how the cells/samples should be annotated. Default = \code{NULL}.}
 
-\item{annotation.colors}{List of String (color) vectors where each vector is the set of colors for an individual annotation bar.}
+\item{annotation.colors}{String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.}
 
 \item{data.out}{= If set to TRUE, the output will be a list containing \code{args},
 a list of arguments passed to \code{pheatmap},
