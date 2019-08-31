@@ -22,22 +22,21 @@
 #' a list of arguments passed to \code{pheatmap},
 #' and \code{call} containing how \code{pheatmap} would have been called.
 #' @param highlight.genes = A list of genes whose names you would like to show, c("Gene1","Gene2","Gene3").  Only these genes will be named in the resulting heatmap.
-#' @param ... other arguments that will be passed to \code{\link[pheatmap]{pheatmap}}.
-#' For scRNAseq data, I recommend running with \code{cluster_cols=FALSE} first because clustering of thousands of cells can tak a long time!
-#' Common options are \code{main} for adding a title,\code{cluster_cols} or \code{cluster_rows} for controlling clustering, \code{treeheight_row} or \code{treeheight_col} for setting how large the trees on the side/top should be drawn.
-#' @description This function is a wrapper for the \code{\link[pheatmap]{pheatmap}} function of the \code{pheatmap} package.
-#' Given a set of genes, cells, and annotation metadata names, it will retrieve the expression data for those genes and cells, and the annotation data for those cells,
-#' then it will utilize the \code{pheatmap} function to make a heatmap.
-#' @details
+#' @param ... other arguments passed to \code{pheatmap}.
+#' @description Given a set of genes, cells/samples, and metadata names for column annotations, it will retrieve the expression data for those genes and cells, and the annotation data for those cells.
+#' It will then utilize these data to make a heatmap using the \code{\link[pheatmap]{pheatmap}} function of the \code{pheatmap} package.
 #'
-#' Notes on adding row annotations:
+#' @note For scRNAseq data, running with \code{cluster_cols=FALSE} first is recommended because clustering of thousands of cells can tak a long time!
 #'
-#' When \code{annotation_row} parameter in \code{\link[pheatmap]{pheatmap}} is used to add row annotations,
-#' extra color vectors must be added to the \code{annotation.colors} input to accomodate these.
-#' The extra vectors should be named with the annotation bar titles, should come after vectors provided for column annotations.
-#' If the vectors are not named, the \code{pheatmap}'s default colors will be used instead.
 #' @return A \code{pheatmap} object.
 #' @seealso \code{\link[pheatmap]{pheatmap}}, for how to add additional heatmap tweaks.
+#' Some examples of useful \code{pheatmap} parameters are:
+#' \itemize{
+#' \item \code{cluster_cols} and \code{cluster_rows} for controlling clustering
+#' \item \code{treeheight_row} and \code{treeheight_col} for setting how large the trees on the side/top should be drawn.
+#' \item \code{cutree_col} and \code{cutree_row} for spliting the heatmap based on kmeans clustering
+#' }
+#'
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
