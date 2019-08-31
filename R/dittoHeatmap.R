@@ -132,16 +132,14 @@ dittoHeatmap <- function(
 
     #Make the columns annotations data for colored annotation bars
     if (!is.null(col.annotation.metas)) {
-        args$annotation_col <- data.frame(
-            vapply(
-                col.annotation.metas,
-                function(X) as.character(meta(X,object)[all.cells %in% cells.use]),
-                FUN.VALUE = character(length(cells.use))),
-            row.names = cells.use)
+        args$annotation_col <- data.frame(row.names = cells.use)
+        for (i in seq_along(col.annotation.metas)) {
+            args$annotation_col[,i] <- meta(col.annotation.metas[i], object)
+        }
     }
 
     #Make the annotation colors
-    if (is.null(args$annotation_colors) && !is.null(args$annotation_col) || !is.null(args$annotation_row)) {
+    if (is.null(args$annotation_colors)) {
         args <- .make_heatmap_annotation_colors(args, annotation.colors)
     }
 
@@ -153,46 +151,90 @@ dittoHeatmap <- function(
     OUT
 }
 
+#This next function creates pheatmap annotations_colors dataframe
+    # list of character vectors, all named.
+        # vector names = annotation titles
+        # vector members' (colors') names = annotation identities
 .make_heatmap_annotation_colors <- function(args, annotation.colors) {
-    next.color <- 1
+
+    # Extract a default color-set
+    annotation.colors.d <- annotation.colors
+    annotation.colors.n <- rev(annotation.colors)[-seq_len(9)]
+
+    # Initiate variables
+    next.color.index.discrete <- 1
+    next.color.index.numeric <- 1
     col_colors <- NULL
     row_colors <- NULL
+
+    # Columns First (if there)
     if (!is.null(args$annotation_col)) {
-        for (i in seq_len(ncol(args$annotation_col))){
-            # Determine the distinct contents of the first annotation
-            in.this.annot <- levels(as.factor(args$annotation_col[,i]))
-            # Make colors for each, and name them.
-            new.colors <- annotation.colors[
-                seq_along(in.this.annot) + next.color - 1
-                ]
-            names(new.colors) <- in.this.annot
-            # Add the new colors as a list.
-            col_colors <- c(
-                col_colors,
-                list(new.colors))
-
-            next.color <- next.color + length(in.this.annot)
-        }
-        names(col_colors) <- names(args$annotation_col)
+        dfcolors_out <- .pick_colors_for_df(
+            args$annotation_col,
+            next.color.index.discrete, next.color.index.numeric,
+            annotation.colors.d, annotation.colors.n)
+        col_colors <- dfcolors_out$df_colors
+        next.color.index.discrete <- dfcolors_out$next.color.index.discrete
+        next.color.index.numeric <- dfcolors_out$next.color.index.numeric
     }
-    if (!is.null(args$annotation_row)) {
-        for (i in seq_len(ncol(args$annotation_row))){
-            # Determine the distinct contents of the first annotation
-            in.this.annot <- levels(as.factor(args$annotation_row[,i]))
-            # Make colors for each, and name them.
-            new.colors <- annotation.colors[
-                seq_along(in.this.annot) + next.color - 1
-                ]
-            names(new.colors) <- in.this.annot
-            # Add the new colors as a list.
-            row_colors <- c(
-                row_colors,
-                list(new.colors))
 
-            next.color <- next.color + length(in.this.annot)
-        }
-        names(row_colors) <- names(args$annotation_row)
+    # Rows Second (if there)
+    if (!is.null(args$annotation_col)) {
+        dfcolors_out <- .pick_colors_for_df(
+            args$annotation_col,
+            next.color.index.discrete, next.color.index.numeric,
+            annotation.colors.d, annotation.colors.n)
+        row_colors <- dfcolors_out$df_colors
+        next.color.index.discrete <- dfcolors_out$next.color.index.discrete
+        next.color.index.numeric <- dfcolors_out$next.color.index.numeric
     }
+
     args$annotation_colors <- c(col_colors, row_colors)
     args
+}
+
+# Interpret annotations dataframe,
+# Pick, name, and add colors.
+.pick_colors_for_df <- function(
+    annotation_df,
+    next.color.index.discrete, next.color.index.numeric,
+    annotation.colors.d, annotation.colors.n
+    ) {
+    df_colors <- NULL
+    for (i in seq_len(ncol(annotation_df))){
+
+        # Determine the distinct contents of the first annotation
+        in.this.annot <- levels(as.factor(annotation_df[,i]))
+
+        # Make new colors
+        if(!is.numeric(annotation_df[,i])){
+            # Take colors for each, and name them.
+            new.colors <- annotation.colors.d[
+                seq_along(in.this.annot) + next.color.index.discrete - 1
+                ]
+            names(new.colors) <- in.this.annot
+
+            next.color.index.discrete <-
+                next.color.index.discrete + length(in.this.annot)
+        } else {
+            # Make a 100 color split as in pheatmap code.
+            a <- cut(
+                annotation_df[order(annotation_df[,i]),i],
+                breaks = 100)
+            # Assign to colors.
+            this.ramp <- annotation.colors.n[next.color.index.numeric]
+            new.colors <-
+                grDevices::colorRampPalette(c("white",this.ramp))(100)[a]
+
+            next.color.index.numeric <- next.color.index.numeric + 1
+        }
+        # Add the new colors as the list
+        df_colors <- c(
+            df_colors,
+            list(new.colors))
+    }
+    names(df_colors) <- names(annotation_df)
+    list(df_colors = df_colors,
+         next.color.index.discrete = next.color.index.discrete,
+         next.color.index.numeric = next.color.index.numeric)
 }
