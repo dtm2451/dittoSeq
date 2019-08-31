@@ -6,18 +6,19 @@
 \usage{
 dittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
   overlay.shape.var = NULL, object = DEFAULT, cells.use = NULL,
-  show.others = FALSE, color.panel = MYcolors, colors = 1:24,
-  data.type.x = "normalized", data.type.y = "normalized",
-  data.type.color = "normalized", do.hover = FALSE,
-  data.hover = NULL, data.type.hover = "normalized", shape = 16,
-  shapes = c(16, 15, 17, 23, 25, 8), size = 1, opacity = 1,
-  rename.color.groups = NA, rename.shape.groups = NA,
-  legend.show = TRUE, legend.color.title = overlay.color.var,
-  legend.color.size = 5, legend.shape.title = overlay.shape.var,
-  legend.shape.size = 5, min.color = "#F0E442",
-  max.color = "#0072B2", min = NULL, max = NULL, breaks = waiver(),
-  breaks.labels = waiver(), xlab = x.var, ylab = y.var,
-  main = NULL, sub = NULL, theme = theme_bw(), data.out = FALSE)
+  show.others = FALSE, color.panel = MYcolors,
+  colors = seq_along(color.panel), data.type.x = "normalized",
+  data.type.y = "normalized", data.type.color = "normalized",
+  do.hover = FALSE, data.hover = NULL,
+  data.type.hover = "normalized", shape = 16, shapes = c(16, 15, 17,
+  23, 25, 8), size = 1, opacity = 1, rename.color.groups = NA,
+  rename.shape.groups = NA, legend.show = TRUE,
+  legend.color.title = overlay.color.var, legend.color.size = 5,
+  legend.shape.title = overlay.shape.var, legend.shape.size = 5,
+  min.color = "#F0E442", max.color = "#0072B2", min = NULL,
+  max = NULL, breaks = waiver(), breaks.labels = waiver(),
+  xlab = x.var, ylab = y.var, main = NULL, sub = NULL,
+  theme = theme_bw(), data.out = FALSE)
 }
 \arguments{
 \item{x.var}{Variable for setting x-axis position of cells/samples.  Can be the name of a gene, meta-data, or "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.}
@@ -101,4 +102,15 @@ Makes a plot where colored dots and/or shapes representing individual cells/samp
 }
 \description{
 Show RNAseq data overlayed on a scatter plot
+}
+\examples{
+
+library(Seurat)
+pbmc <- pbmc_small
+dittoScatterPlot(
+    x.var = "nCount_RNA", y.var = "nFeature_RNA",
+    object = "pbmc", overlay.color.var = "RNA_snn_res.1")
+
+# Note: scatterplots like this can be very useful for dataset QC, epecially
+#   with percentage of reads coming from genes as the color overlay.
 }

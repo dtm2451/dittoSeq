@@ -7,6 +7,8 @@
 dittoHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
   main = NA, cell.names.meta = NULL, data.type = "normalized",
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
+  scaled.to.max = FALSE,
+  heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
   col.annotation.metas = NULL, annotation.colors = rep(list(MYcolors),
   length(col.annotation.metas)), data.out = FALSE,
   highlight.genes = NULL, show.colnames = TRUE, show.rownames = TRUE,
@@ -25,7 +27,11 @@ dittoHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
 
 \item{data.type}{String. Options are "normalized" (data slot, default), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects). Note: scaling is performed on the data matrix by default.}
 
-\item{heatmap.colors}{the colors to use for the expression matrix. Default is a ramp from navy to white to red with 50 slices.}
+\item{heatmap.colors}{the colors to use within the heatmap.
+Default is a ramp from navy to white to red with 50 slices.}
+
+\item{heatmap.colors.max.scaled}{the colors to use within the heatmap when \code{scaled.to.max} is set to \code{TRUE}.
+Default is a ramp from white to red with 25 slices.}
 
 \item{col.annotation.metas}{String name of a metadata slot containing how the cells/samples should be annotated. Default = \code{NULL}.}
 
@@ -43,6 +49,9 @@ Note: if gene names are provided to \code{highlight.genes}, the \code{show.colna
 \item{...}{other arguments that will be passed to \code{\link[pheatmap]{pheatmap}}.
 For scRNAseq data, I recommend running with \code{cluster_cols=FALSE} first because clustering of thousands of cells can tak a long time!
 Common options are \code{main} for adding a title,\code{cluster_cols} or \code{cluster_rows} for controlling clustering, \code{treeheight_row} or \code{treeheight_col} for setting how large the trees on the side/top should be drawn.}
+
+\item{scale.to.max}{Logical which sets whether expression shoud be scaled between [0, 1].
+This is recommended for single-cell datasets as they are generally enriched in 0s.}
 }
 \value{
 A \code{pheatmap} object.

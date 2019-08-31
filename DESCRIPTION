@@ -16,7 +16,10 @@ Imports: methods,
     cowplot,
     reshape2,
     ggrepel,
-    ggridges
+    ggridges,
+    grDevices,
+    stats,
+    utils
 Suggests: plotly,
     Seurat (>= 2.2),
     DESeq2,
