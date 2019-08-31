@@ -30,6 +30,9 @@ dittoHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
 \item{heatmap.colors}{the colors to use within the heatmap.
 Default is a ramp from navy to white to red with 50 slices.}
 
+\item{scaled.to.max}{Logical which sets whether expression shoud be scaled between [0, 1].
+This is recommended for single-cell datasets as they are generally enriched in 0s.}
+
 \item{heatmap.colors.max.scaled}{the colors to use within the heatmap when \code{scaled.to.max} is set to \code{TRUE}.
 Default is a ramp from white to red with 25 slices.}
 
@@ -49,9 +52,6 @@ Note: if gene names are provided to \code{highlight.genes}, the \code{show.colna
 \item{...}{other arguments that will be passed to \code{\link[pheatmap]{pheatmap}}.
 For scRNAseq data, I recommend running with \code{cluster_cols=FALSE} first because clustering of thousands of cells can tak a long time!
 Common options are \code{main} for adding a title,\code{cluster_cols} or \code{cluster_rows} for controlling clustering, \code{treeheight_row} or \code{treeheight_col} for setting how large the trees on the side/top should be drawn.}
-
-\item{scale.to.max}{Logical which sets whether expression shoud be scaled between [0, 1].
-This is recommended for single-cell datasets as they are generally enriched in 0s.}
 }
 \value{
 A \code{pheatmap} object.
@@ -69,26 +69,39 @@ extra color vectors must be added to the \code{annotation.colors} input to accom
 The extra vectors should be named with the annotation bar titles, should come after vectors provided for column annotations.
 If the vectors are not named, the \code{pheatmap}'s default colors will be used instead.
 }
-\seealso{
-\code{\link[pheatmap]{pheatmap}}, for how to add additional heatmap tweaks.
+\examples{
 library(Seurat)
 pbmc <- Seurat::pbmc_small
 dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
     object = "pbmc",
     col.annotation.metas = "ident")
-#For real data, you will have more cells than this truncated dataset,
-# so I recommend turning off cell clustering when you are trying out tweaks by
-# adding cluster_cols=FALSE
+# For real data, you will have more cells than this truncated dataset,
+#   so turning off cell clustering when trying out tweaks is recommended.
+#   Do so by adding cluster_cols=FALSE
 dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
     object = "pbmc",
     col.annotation.metas = "ident",
     cluster_cols=FALSE)
 
+# Additionally, it is recommended for single-cell data that the parameter
+#   scaled.to.max be set to TRUE, because these data are generally enriched
+#   for zeros that otherwise get scaled to a negative value.
+dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+    "FCGR3A","LYZ","PPBP","CD8A"),
+    object = "pbmc",
+    col.annotation.metas = "ident",
+    scaled.to.max = TRUE)
+
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
 dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
-    col.annotation.metas = "ident")
+    col.annotation.metas = "ident",
+    scaled.to.max = TRUE)
+
+}
+\seealso{
+\code{\link[pheatmap]{pheatmap}}, for how to add additional heatmap tweaks.
 }
