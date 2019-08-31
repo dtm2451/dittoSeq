@@ -41,9 +41,19 @@
 #' @param data.out Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
 #' @return Makes a plot where colored dots and/or shapes representing individual cells/samples are overlayed onto a scatterplot where x and y can be gene expression (or any numeric metadata) of those cells/samples.
 #' @export
+#' @examples
+#'
+#' library(Seurat)
+#' pbmc <- pbmc_small
+#' dittoScatterPlot(
+#'     x.var = "nCount_RNA", y.var = "nFeature_RNA",
+#'     object = "pbmc", overlay.color.var = "RNA_snn_res.1")
+#'
+#' # Note: scatterplots like this can be very useful for dataset QC, epecially
+#' #   with percentage of reads coming from genes as the color overlay.
 dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.shape.var = NULL,
                              object = DEFAULT, cells.use = NULL, show.others = FALSE,
-                             color.panel = MYcolors, colors = 1:24,
+                             color.panel = MYcolors, colors = seq_along(color.panel),
                              data.type.x = "normalized", data.type.y = "normalized",
                              data.type.color = "normalized", do.hover = FALSE, data.hover = NULL, data.type.hover = "normalized",
                              shape = 16, shapes=c(16,15,17,23,25,8), size = 1, opacity = 1,
