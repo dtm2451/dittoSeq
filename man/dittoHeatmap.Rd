@@ -14,7 +14,7 @@ dittoHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
   show.rownames = TRUE, ...)
 }
 \arguments{
-\item{genes}{c("gene1","gene2","gene3",...) = list of genes to put in the heatmap. REQUIRED.}
+\item{genes}{String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap. REQUIRED.}
 
 \item{object}{String name of the object to draw from.  Alternatively, the \code{\link[Seurat]{Seurat}},  or \code{\linkS4class{RNAseq}}, or \code{\link[SingleCellExperiment]{SingleCellExperiment}} object itself. REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
@@ -22,7 +22,7 @@ dittoHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
 
 \item{main}{String that sets the title for the heatmap.}
 
-\item{cell.names.meta}{quoted "name" of a meta.data slot to use for naming the columns instead of the raw cell/sample names.}
+\item{cell.names.meta}{quoted "name" of a meta.data slot to use for naming the columns instead of using the raw cell/sample names.}
 
 \item{data.type}{String. Options are "normalized" (data slot, default), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects). Note: scaling is performed on the data matrix by default.}
 
@@ -35,15 +35,15 @@ This is recommended for single-cell datasets as they are generally enriched in 0
 \item{heatmap.colors.max.scaled}{the colors to use within the heatmap when \code{scaled.to.max} is set to \code{TRUE}.
 Default is a ramp from white to red with 25 slices.}
 
-\item{col.annotation.metas}{String name of a metadata slot containing how the cells/samples should be annotated. Default = \code{NULL}.}
+\item{col.annotation.metas}{String name of a metadata slot containing how the cells/samples should be annotated.}
 
 \item{annotation.colors}{String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.}
 
-\item{data.out}{= If set to TRUE, the output will be a list containing \code{args},
-a list of arguments passed to \code{pheatmap},
-and \code{call} containing how \code{pheatmap} would have been called.}
+\item{data.out}{Logical that changes the output of the function.
+If set to \code{TRUE}, the output will be a list containing the data that would have been used for generating the heatmap,
+and a String showing how \code{\link[pheatmap]{pheatmap}} would have been called.}
 
-\item{highlight.genes}{= A list of genes whose names you would like to show, c("Gene1","Gene2","Gene3").  Only these genes will be named in the resulting heatmap.}
+\item{highlight.genes}{String vector of genes whose names you would like to show. Only these genes will be named in the resulting heatmap.}
 
 \item{show.rownames, show.colnames}{Logical which sets whether rownames or colnames will be shown.
 Note: if gene names are provided to \code{highlight.genes}, the \code{show.colnames} parameter is ignored.}
@@ -52,6 +52,9 @@ Note: if gene names are provided to \code{highlight.genes}, the \code{show.colna
 }
 \value{
 A \code{pheatmap} object.
+Alternatively, if \code{data.out} was set to \code{TRUE}, a list containing
+\code{args} = a list of arguments passed to \code{pheatmap}, and
+and \code{call} = String showing how \code{pheatmap} would have been called.
 }
 \description{
 Given a set of genes, cells/samples, and metadata names for column annotations, it will retrieve the expression data for those genes and cells, and the annotation data for those cells.
