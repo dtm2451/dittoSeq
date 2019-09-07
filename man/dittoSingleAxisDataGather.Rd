@@ -7,7 +7,7 @@
 dittoSingleAxisDataGather(main.var, object = DEFAULT,
   group.by = "Sample", color.by = group.by, extra.vars = NULL,
   cells.use = NULL, data.type = "normalized", do.hover = FALSE,
-  data.hover = c(var, extra.vars))
+  data.hover = c(main.var, extra.vars))
 }
 \arguments{
 \item{main.var}{Character representing the name of a metadata, gene, or "ident" to be plotted. OR character, numeric, or factor vector of length equal to the total # cells in the dataset.}
