@@ -108,13 +108,16 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
                                        ifelse(is.null(max), max(Target_data$color), max)),
                             breaks = breaks, labels = breaks.labels,
                             name = legend.color.title)
-    } else { p <- p +
-      scale_colour_manual(name = legend.color.title,
-                          values = color.panel[colors],
-                          label = if (!(is.na(rename.color.groups[1]))){rename.color.groups}
-                                  else {levels(as.factor(Target_data$color))}
-      ) +
-      guides(color = guide_legend(override.aes = list(size=legend.color.size)))
+    } else {
+      args.colour <- list(
+          name = legend.color.title,
+          values = color.panel[colors])
+      if (!(is.na(rename.color.groups[1]))) {
+          args.colour$label <- rename.color.groups
+      }
+      p <- p +
+          do.call(scale_colour_manual, args.colour) +
+          guides(color = guide_legend(override.aes = list(size=legend.color.size)))
     }
   }
   ###Add the data###
