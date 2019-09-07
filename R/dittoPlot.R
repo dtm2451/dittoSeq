@@ -106,7 +106,7 @@
 dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
                       shape = 16, cells.use = NULL, plots = c("jitter","vlnplot"),
                       data.type = "normalized", do.hover = FALSE, data.hover = var,
-                      color.panel = MYcolors, colors = c(1:length(color.panel)),
+                      color.panel = MYcolors, colors = seq_along(color.panel),
                       theme = theme_classic(), main = "make", sub = NULL,
                       ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
                       xlab = group.by, x.labels = NULL, rotate.labels = NA,
@@ -127,15 +127,15 @@ dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
   all.cells <- all_cells(object)
 
   #Parse Title Defaults
-  if (!(is.null(ylab))) { if (ylab == "make" & length(var)==1 & is.character(var)) {
-      if (is.meta(var, object) | ylab=="var") { ylab <- var }
-      if (is.gene(var, object)) { ylab <- paste0(var," expression") }
-    }
-    else if (ylab == "make") { ylab <- NULL }
+  #ylab
+  if (!(is.null(ylab)) && length(var)==1 && is.character(var)) {
+      if (is.gene(var, object) && ylab == "make") { ylab <- paste0(var," expression") }
+      if (ylab == "make" | ylab=="var") { ylab <- var }
+  } else if (ylab == "make") { ylab <- NULL }
+  #main
+  if (!is.null(main) && main == "make") {
+      if (length(var)==1) { main <- var } else { main <- NULL }
   }
-  if (!is.null(main)){ if (main == "make") {
-    if (length(var)==1) { main <- var } else { main <- NULL }
-  } }
 
   #Grab the data
   if (is.meta(shape, object)) { extra.vars = shape } else { extra.vars = NULL }
@@ -152,7 +152,7 @@ dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
   p <- ggplot(Target_data, aes(fill=color)) +
     theme + scale_fill_manual(name = legend.title, values=color.panel[colors]) +
     ggtitle(main, sub)
-  #Add plots
+  #Add data
   if(!("ridgeplot" %in% plots)) {
     p <- dittoYPlotMaker(
       p, Target_data, plots, xlab, ylab, shape, jitter.size, jitter.width,
@@ -255,7 +255,7 @@ dittoXPlotMaker <- function(p, Target_data, plots, xlab, ylab,
 
   # Now that we know the plot's direction, set continuous-axis limits
   # if (!is.null(y.breaks)) {
-  #   p <- p + scale_x_continuous(breaks = y.breaks, expand = expansion(mult=c(0, 0))) +
+  #   p <- p + scale_x_continuous(breaks = y.breaks, expand = expand_scale(mult=c(0, 0))) +
   #     coord_cartesian(xlim=c(min(y.breaks),max(y.breaks)))
   # } else {
   #   if (is.null(min)){
@@ -265,12 +265,12 @@ dittoXPlotMaker <- function(p, Target_data, plots, xlab, ylab,
   #     max <- max(Target_data$var.data)
   #     exp.max <- 2} else {exp.max = 1}
   #   p <- p + coord_cartesian(xlim=c(min,max)) +
-  #   scale_x_continuous(expand = expansion(mult=c(exp.min, exp.max)))
+  #   scale_x_continuous(expand = expand_scale(mult=c(exp.min, exp.max)))
   # }
 
   # Add labels and, if requested, lines
   p <- p + aes(x = var.data, y = grouping) + xlab(ylab) + ylab(xlab) +
-  scale_y_discrete(expand = expansion(mult = c(0, 1.9)))
+  scale_y_discrete(expand = expand_scale(mult = c(0, 1.9)))
 
   if (is.na(rotate.labels)) {rotate.labels <- FALSE}
   if (rotate.labels) {p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1, size=12))}
@@ -302,7 +302,7 @@ dittoXPlotMaker <- function(p, Target_data, plots, xlab, ylab,
 
 dittoSingleAxisDataGather <- function(main.var, object = DEFAULT, group.by = "Sample", color.by = group.by,
                                       extra.vars = NULL, cells.use = NULL, data.type = "normalized",
-                                      do.hover = FALSE, data.hover = c(var, extra.vars)){
+                                      do.hover = FALSE, data.hover = c(main.var, extra.vars)){
   #Turn the object into a "name" if a full object was given
   if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
   #Populate cells.use with a list of names if it was given anything else.
