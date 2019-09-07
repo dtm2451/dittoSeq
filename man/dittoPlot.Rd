@@ -25,7 +25,7 @@ dittoPlot(var, object = DEFAULT, group.by, color.by = group.by,
   line.color = "black", legend.show = TRUE, legend.title = NULL,
   data.out = FALSE)
 
-dittoRidgePlot(..., plots = c("ridgeplot", "jitter"))
+dittoRidgePlot(..., plots = c("ridgeplot"))
 
 dittoBoxPlot(..., plots = c("boxplot", "jitter"))
 }

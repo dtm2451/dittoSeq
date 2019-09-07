@@ -178,7 +178,7 @@ dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
 
 #' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings horizontally in a desnsity representation
 #' @export
-dittoRidgePlot <- function(..., plots = c("ridgeplot","jitter")){ dittoPlot(..., plots = plots) }
+dittoRidgePlot <- function(..., plots = c("ridgeplot")){ dittoPlot(..., plots = plots) }
 
 #' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings in boxplot form
 #' @export
@@ -270,7 +270,7 @@ dittoXPlotMaker <- function(p, Target_data, plots, xlab, ylab,
 
   # Add labels and, if requested, lines
   p <- p + aes(x = var.data, y = grouping) + xlab(ylab) + ylab(xlab) +
-  scale_y_discrete(expand = expand_scale(mult = c(0, 1.9)))
+  scale_y_discrete(expand = expand_scale(mult = c(0.02, 0.05)))
 
   if (is.na(rotate.labels)) {rotate.labels <- FALSE}
   if (rotate.labels) {p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1, size=12))}
