@@ -85,20 +85,30 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
   # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
   hover.string <- NA
   if (do.hover) {
-    features.info <- data.frame(name = rep(meta.levels(var), length(levels(x.var))),
-                                y.counts = c(sapply(levels(as.factor(x.var)), function(X)
-                                  unlist(sapply(levels(as.factor(y.var)), function(Y)
-                                    #Number of Xs that are Ys
-                                    sum(y.var==Y & x.var == X))))),
-                                y.percents = c(sapply(levels(as.factor(x.var)), function(X)
-                                  unlist(sapply(levels(as.factor(y.var)), function(Y)
-                                    #Number of Xs that are Ys, divided by the total number of Xs.
-                                    sum(y.var==Y & x.var == X)/sum(x.var == X))))))
-    names(features.info)<-c("Identity","Count","Percent of total")
-    hover.string <- sapply(1:nrow(features.info), function(row){
-      paste(as.character(sapply(1:ncol(features.info), function(col){
-        paste0(names(features.info)[col],": ",features.info[row,col])})),collapse = "\n")
-    })
+      features.info <- data.frame(
+          name = rep(meta.levels(var, object), length(levels(x.var))),
+          y.counts = c(sapply(
+              levels(as.factor(x.var)),
+              function(X) {
+                  unlist(sapply(levels(as.factor(y.var)), function(Y)
+                    #Number of Xs that are Ys
+                    sum(y.var==Y & x.var == X)))
+                  })),
+          y.percents = c(sapply(
+              levels(as.factor(x.var)),
+              function(X) {
+                  unlist(sapply(
+                      levels(as.factor(y.var)),
+                      function(Y) {
+                          #Number of Xs that are Ys, divided by the total number of Xs.
+                          sum(y.var==Y & x.var == X)/sum(x.var == X)
+                      }))
+                })))
+      names(features.info)<-c("Identity","Count","Percent of total")
+      hover.string <- sapply(1:nrow(features.info), function(row){
+        paste(as.character(sapply(1:ncol(features.info), function(col){
+          paste0(names(features.info)[col],": ",features.info[row,col])})),collapse = "\n")
+      })
   }
 
   #Build data (Make a dataframe while calculating the percent makeup of x.var groups by y.var identities.)

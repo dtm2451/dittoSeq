@@ -126,7 +126,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
   hover.string <- NA
   if (do.hover) {
-    hover.string <- make_hover_strings(data.hover, object, data.type)
+    hover.string <- .make_hover_strings(data.hover, object, data.type)
   }
 
   #Populate the data.frame to be used for plotting

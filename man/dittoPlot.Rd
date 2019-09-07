@@ -48,7 +48,11 @@ Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so 
 
 \item{data.type}{String, for when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
 
-\item{do.hover}{Logical. Default = \code{FALSE}.  If set to \code{TRUE} (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.}
+\item{do.hover}{Logical. Default = \code{FALSE}.
+If set to \code{TRUE} (and if there is a jitter - the data it will work with): object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them,
+and 'data.hover' argument will be used to determine what data to use.
+
+Note: Currently, incompatible with RidgePlots as plotly does not support the geom.}
 
 \item{data.hover}{String vector, a list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show upon hover when do.hover is set to \code{TRUE}.}
 
