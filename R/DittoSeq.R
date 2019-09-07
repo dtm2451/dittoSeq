@@ -407,37 +407,64 @@ which_cells <- function(cells.use, object = DEFAULT){
 }
 
 
-#' Outputs a string of gene expression / meta.data information for ploty hover display
-#'
-#' @param data.hover The data needed in the text output. = A list of metadata names, genes, or "ident", in quotes.
-#' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param data.type For when grabbing gene expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
-#' @return Given a list of data to grab in data.hover, outputs the 'data name': data, 'data name': data, ... for every cell of the object
-#' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' make_hover_strings(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
-#' @export
-#'
-make_hover_strings <- function(data.hover, object, data.type = "normalized"){
-  #Overall: if do.hover=TRUE and data.hover has a list of genes / metas,
-  # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
-  if (is.null(data.hover)) {
-    hover.string <- "Add gene or metadata \n names to hover.data"
-  } else {
+# #' Outputs a string of gene expression / meta.data information for ploty hover display
+# #'
+# #' @param data.hover The data needed in the text output. = A list of metadata names, genes, or "ident", in quotes.
+# #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+# #' @param data.type For when grabbing gene expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
+# #' @return Given a list of data to grab in data.hover, outputs the 'data name': data, 'data name': data, ... for every cell of the object
+# #' @examples
+# #' library(Seurat)
+# #' pbmc <- Seurat::pbmc_small
+# #' .make_hover_strings(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
+# #'
+.make_hover_strings <- function(data.hover, object, data.type){
+    # Overall: if do.hover=TRUE and data.hover has a list of genes / metas called
+      # c(var1, var2, var3, ...), then for all cells, make a string:
+      # "var1: var1-value\nvar2: var2-value\nvar3: var3-value\n..."
+      # vars that are not genes of metadata are ignored.
+    fillable <- vapply(
+        seq_along(data.hover),
+        function(i)
+            (is.meta(data.hover[i],object) |
+                is.gene(data.hover[i],object) |
+                (data.hover[i]=="ident")),
+        logical(1))
+    data.hover <- data.hover[fillable]
+    if (is.null(data.hover)) {
+        stop("No genes or metadata names added to `hover.data`")
+    }
+
+    # Create dataframe to contain the hover.info
     features.info <- data.frame(row.names = all_cells(object))
-    fill <- sapply(seq_along(data.hover), function(i)
-      (is.meta(data.hover[i],object) | is.gene(data.hover[i],object) | (data.hover[i]=="ident")))
-    features.info <- sapply(seq_along(data.hover)[fill], function(i)
-      features.info[,dim(features.info)[2]+1] <-
-        var_OR_get_meta_or_gene(data.hover[i],object, data.type))
-    names(features.info) <- data.hover[fill]
-    hover.string <- sapply(seq_len(nrow(features.info)), function(row){
-      paste(as.character(sapply(seq_len(ncol(features.info)), function(col){
-        paste0(names(features.info)[col],": ",features.info[row,col])})),collapse = "\n")
-    })
-  }
-  hover.string
+    features.info <- vapply(
+        data.hover,
+        function(this.data)
+            as.character(var_OR_get_meta_or_gene(this.data,object, data.type)),
+        character(nrow(features.info)))
+    names(features.info) <- data.hover[fillable]
+
+    # Convert each row of dataframe to 'colname1: data1\ncolname2: data2\n...'
+    hover.strings <-
+        vapply(
+            seq_len(nrow(features.info)),
+            function(row) {
+                paste(as.character(
+                    vapply(
+                        seq_along(data.hover),
+                        function(col) {
+                            # Make entry each column.
+                            paste0(names(features.info)[col],
+                            ": ",
+                            features.info[row,col])
+                        },
+                        character(1))),
+                    # Collapse column entries for each row with newline char.
+                    collapse = "\n")
+            },
+            character(1))
+
+    hover.strings
 }
 
 #' Turns an S4 object into it's name in string form
