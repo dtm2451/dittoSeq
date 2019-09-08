@@ -48,9 +48,9 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
   if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
 
   #Populate cells.use with a list of names if it was given anything else.
-  cells.use <- which_cells(cells.use, object)
+  cells.use <- .which_cells(cells.use, object)
   #Establish the full list of cell/sample names
-  all.cells <- all_cells(object)
+  all.cells <- .all_cells(object)
 
   ####Retrieve metas: var, group.by
   #var to y.var
@@ -138,7 +138,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
   #Populate ylab if left as "make".
   if(!(is.null(ylab))){
     if(ylab == "make"){ ylab <- paste0("Percent of ",
-                                       ifelse(grepl("RNAseq",classof(object)),
+                                       ifelse(grepl("RNAseq",.class_of(object)),
                                               "samples",
                                               "cells"))
     }

@@ -1,6 +1,5 @@
 #### is.meta: Is this the name of a meta.data slot in my dataset? ####
 #' Tests if an input is the name of a meta.data slot.
-#' @importFrom utils packageVersion
 #'
 #' @param test               "potential.meta.data.name" in quotes. REQUIRED.
 #' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
@@ -17,11 +16,12 @@
 #' get.metas()
 #' @export
 #' @import ggplot2
+#' @importFrom utils packageVersion
 
 is.meta <- function(test, object=DEFAULT){
 
   #Bypass for ident for Seurat objects
-  if(test=="ident" & grepl("Seurat",classof(object))) {return(TRUE)}
+  if(test=="ident" & grepl("Seurat",.class_of(object))) {return(TRUE)}
 
   #For all other cases...
   test %in% get.metas(object)
@@ -82,7 +82,7 @@ is.gene <- function(test, object=DEFAULT, value = FALSE){
 #' @export
 
 get.metas <- function(object=DEFAULT){
-  if(classof(object)=="SingleCellExperiment"){
+  if(.class_of(object)=="SingleCellExperiment"){
     #SingleCellExperiment
     if(typeof(object)=="character"){
       names(eval(expr = parse(text = paste0(object,"@colData"))))
@@ -110,22 +110,22 @@ get.metas <- function(object=DEFAULT){
 #' @export
 
 get.genes <- function(object=DEFAULT){
-  if (classof(object)=="Seurat.v2"){
+  if (.class_of(object)=="Seurat.v2"){
     if(typeof(object)=="character"){
       return(rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
     } else {return(rownames(object@raw.data))}
   }
-  if (classof(object)=="Seurat.v3"){
+  if (.class_of(object)=="Seurat.v3"){
     if(typeof(object)=="character"){
       return(rownames(eval(expr = parse(text = paste0(object)))))
     } else {return(rownames(object))}
   }
-  if (classof(object)=="RNAseq"){
+  if (.class_of(object)=="RNAseq"){
     if(typeof(object)=="character"){
       return(rownames(eval(expr = parse(text = paste0(object,"@counts")))))
     } else {return(rownames(object@counts))}
   }
-  if (classof(object)=="SingleCellExperiment"){
+  if (.class_of(object)=="SingleCellExperiment"){
     if(typeof(object)=="character"){
       return(return(rownames(counts(eval(expr = parse(text = paste0(object)))))))
     } else {return(rownames(counts(object)))}
@@ -147,22 +147,22 @@ get.genes <- function(object=DEFAULT){
 #' @export
 
 get.reductions <- function(object=DEFAULT){
-  if (classof(object)=="Seurat.v2"){
+  if (.class_of(object)=="Seurat.v2"){
     if(typeof(object)=="character"){
       return(names(eval(expr = parse(text = paste0(object,"@dr")))))
     } else {return(names(object@dr))}
   }
-  if (classof(object)=="Seurat.v3"){
+  if (.class_of(object)=="Seurat.v3"){
     if(typeof(object)=="character"){
       return(names(eval(expr = parse(text = paste0(object,"@reductions")))))
     } else {return(names(object@reductions))}
   }
-  if (classof(object)=="RNAseq"){
+  if (.class_of(object)=="RNAseq"){
     if(typeof(object)=="character"){
       return(names(eval(expr = parse(text = paste0(object,"@reductions")))))
     } else {return(names(object@reductions))}
   }
-  if (classof(object)=="SingleCellExperiment"){
+  if (.class_of(object)=="SingleCellExperiment"){
     if(typeof(object)=="character"){
       return(names(eval(expr = parse(text = paste0(object,"@reducedDims")))))
     } else {return(names(object@reducedDims))}
@@ -190,7 +190,7 @@ meta <- function(meta, object=DEFAULT){
     object <- deparse(substitute(object))
   }
   #Name of object given in "quotes"
-  if(meta=="ident" & grepl("Seurat", classof(object))){
+  if(meta=="ident" & grepl("Seurat", .class_of(object))){
     if(eval(expr = parse(text = paste0(object, "@version"))) >= '3.0.0'){
       #Seurat.v3, ident
       return(as.character(Seurat::Idents(object = eval(expr = parse(text = paste0(object))))))
@@ -199,7 +199,7 @@ meta <- function(meta, object=DEFAULT){
       return(as.character(eval(expr = parse(text = paste0(object,"@ident")))))
     }
   } else {
-    if (classof(object)=="SingleCellExperiment"){
+    if (.class_of(object)=="SingleCellExperiment"){
       #SingleCellExperiment
       return(eval(expr = parse(text = paste0(object,"$'",meta,"'"))))
     } else {
@@ -255,30 +255,30 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
     }
     #For all other data.type options...
   } else {
-    if (classof(object)!="Seurat.v3" & classof(object)!="SingleCellExperiment"){
+    if (.class_of(object)!="Seurat.v3" & .class_of(object)!="SingleCellExperiment"){
       OUT <- eval(expr = parse(text = paste0(object,
-                                             target[data.type,classof(object)],
+                                             target[data.type,.class_of(object)],
                                              "[gene,",
                                              object,
-                                             target["sample.names",classof(object)],
+                                             target["sample.names",.class_of(object)],
                                              "]")))
       #Change from sparse form if sparse
       OUT <- as.numeric(OUT)
       #Add names
-      names(OUT) <- eval(expr = parse(text = paste0(object, target["sample.names",classof(object)])))
+      names(OUT) <- eval(expr = parse(text = paste0(object, target["sample.names",.class_of(object)])))
     } else {
-      if (classof(object)=="Seurat.v3"){
+      if (.class_of(object)=="Seurat.v3"){
         #Go from "object" to the actual object if given in character form
         object <- eval(expr = parse(text = paste0(object)))
         #Obtain expression
         if(data.type == "normalized"){
           OUT <- Seurat::GetAssayData(object)[gene,]
         } else {
-          OUT <- Seurat::GetAssayData(object, slot = target[data.type,classof(object)])[gene,]
+          OUT <- Seurat::GetAssayData(object, slot = target[data.type,.class_of(object)])[gene,]
         }
       } else {
         #SingleCellExperiment
-        OUT <- eval(expr = parse(text = paste0(target[data.type,classof(object)],
+        OUT <- eval(expr = parse(text = paste0(target[data.type,.class_of(object)],
                                                "(", object, ")[gene,]")))
       }
       #Change from sparse form if sparse

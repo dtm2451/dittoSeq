@@ -47,7 +47,7 @@ ImportDemux2Seurat <- function(Seurat.name,
     Lane.names <- meta.levels(Lane.info.meta, Seurat.name)
   }
   # Obtain the cell.names
-  cell.names <- all_cells(Seurat.name)
+  cell.names <- .all_cells(Seurat.name)
   #Add lane metadata information
   if(verbose){print("Adding 'Lane' information as meta.data",quote=FALSE)}
   if(!(is.null(Lane.info.meta))){
@@ -155,16 +155,16 @@ demux.calls.summary <- function(object = DEFAULT, singlets.only = TRUE,
                                 ylab = "Annotations", xlab = "Sample",
                                 color = MYcolors[2], theme = NULL, rotate.labels = TRUE
 ){
-  #Change object to character if not already
-  object <- S4_2string(object)
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4") { object <- deparse(substitute(object)) }
   #Populate cells.use with a list of names, based on the singlets.only variable.
   cells.use <- if(singlets.only){
-    which_cells(meta("demux.doublet.call",object)=="SNG", object)
+    .which_cells(meta("demux.doublet.call",object)=="SNG", object)
   } else {
-    all_cells(object)
+    .all_cells(object)
   }
   #Establish the full list of cell/sample names
-  all.cells <- all_cells(object)
+  all.cells <- .all_cells(object)
   #Set theme
   if(is.null(theme)){
     theme <- theme_bw()+theme(panel.grid.major = element_blank(),
