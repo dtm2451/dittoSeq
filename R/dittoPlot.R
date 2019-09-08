@@ -126,9 +126,9 @@ dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
   #Turn the object into a "name" if a full object was given
   if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
   #Populate cells.use with a list of names if it was given anything else.
-  cells.use <- which_cells(cells.use, object)
+  cells.use <- .which_cells(cells.use, object)
   #Establish the full list of cell/sample names
-  all.cells <- all_cells(object)
+  all.cells <- .all_cells(object)
 
   #Parse Title Defaults
   #ylab
@@ -313,11 +313,11 @@ dittoSingleAxisDataGather <- function(main.var, object = DEFAULT, group.by = "Sa
         object <- deparse(substitute(object))
     }
     # Populate cells.use with a list of names if it was given anything else.
-    cells.use <- which_cells(cells.use, object)
+    cells.use <- .which_cells(cells.use, object)
     # Establish the full list of cell/sample names
-    all.cells <- all_cells(object)
+    all.cells <- .all_cells(object)
     ### Make dataframe for storing the plotting data:
-    full_data <- data.frame(var.data = var_OR_get_meta_or_gene(main.var, object, data.type),
+    full_data <- data.frame(var.data = .var_OR_get_meta_or_gene(main.var, object, data.type),
                             grouping = meta(group.by, object),
                             color = meta(color.by, object),
                             row.names = all.cells)
@@ -325,7 +325,7 @@ dittoSingleAxisDataGather <- function(main.var, object = DEFAULT, group.by = "Sa
     # Add Extra data
     if(length(extra.vars)>0){
       for (i in seq_along(extra.vars)){
-        full_data <- cbind(full_data, var_OR_get_meta_or_gene(extra.vars, object, data.type))
+        full_data <- cbind(full_data, .var_OR_get_meta_or_gene(extra.vars, object, data.type))
       }
       names <- c(names, extra.vars)
     }

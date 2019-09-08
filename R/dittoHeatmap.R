@@ -92,15 +92,15 @@ dittoHeatmap <- function(
         object <- deparse(substitute(object))
     }
     #If cells.use given as logical, populate as names.
-    cells.use <- which_cells(cells.use, object)
-    all.cells <- all_cells(object)
+    cells.use <- .which_cells(cells.use, object)
+    all.cells <- .all_cells(object)
 
     if (is.null(main)) {
         main <- NA
     }
 
     #Make the data matrix
-    data <- as.matrix(which_data(data.type,object)[genes,cells.use])
+    data <- as.matrix(.which_data(data.type,object)[genes,cells.use])
     if (scaled.to.max) {
         maxs <- apply(data,1,max)
         data <- data/maxs

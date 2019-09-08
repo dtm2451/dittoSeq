@@ -1,0 +1,202 @@
+.all_cells <- function(object = DEFAULT){
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4"){
+    object <- deparse(substitute(object))
+  }
+  target <- data.frame(use = c("@samples", "@cell.names"),
+                       row.names = c("RNAseq", "Seurat.v2"))
+  if (.class_of(object)=="Seurat.v3" | .class_of(object)=="SingleCellExperiment"){
+    return(colnames(x = eval(expr = parse(text = paste0(object)))))
+  } else {
+    eval(expr = parse(text = paste0(object, target[.class_of(object),])))
+  }
+}
+
+.which_cells <- function(cells.use, object = DEFAULT){
+  all.cells <- .all_cells(object)
+  if (is.null(cells.use)){
+    return(all.cells)
+  }
+  if (is.logical(cells.use)){
+    OUT <- all.cells[cells.use]
+  } else {
+    OUT <- cells.use
+  }
+  OUT
+}
+
+.class_of <- function (object = DEFAULT){
+
+  #if object in "string" form, convert to the actual object
+  if (typeof(object)=="character"){
+    object <- eval(expr = parse(text = paste0(object)))
+  }
+
+  class <- class(object)
+
+  #If a Seurat, need to add what version
+  if (grepl("Seurat|seurat",class)){
+    if(object@version >= '3.0.0') {
+      #Then needs to be
+      class <- "Seurat.v3"
+    } else {
+      class <- "Seurat.v2"
+    }
+  }
+  class
+}
+
+
+
+
+
+
+
+.var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type){
+  OUT <- var
+  if(length(var)==1 & typeof(var)=="character"){
+    #If "ident" pull the @ident object from the seurat object
+    if(var == "ident"){OUT <- meta(var, object)}
+    #If "is.meta" pull the @meta.data$"var" from the RNAseq or seurat object
+    if(is.meta(var, object)){OUT <- meta(var, object)}
+    #If "is.gene" pull the gene expression data from the RNAseq or seurat object
+    if(is.gene(var, object)){OUT <- gene(var, object, data.type)}
+    #Otherwise, var is likely a full set of data already, so just make Y = var
+  }
+  names(OUT) <- .all_cells(object)
+  OUT
+}
+
+.which_data <- function(data.type, object=DEFAULT){
+  #Set up data frame for establishing how to deal with different input object types
+  target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects"),
+                       Seurat.v2 = c("@data","@raw.data","@scale.data"),
+                       Seurat.v3 = c("nope", "counts", "scale.data"),
+                       SingleCellExperiment = c("logcounts", "counts", "error_do_not_use_scaled_for_SCE_objects"),
+                       stringsAsFactors = FALSE,
+                       row.names = c("normalized","raw","scaled"))
+  if(.class_of(object)=="SingleCellExperiment"){
+    OUT <- as.matrix(eval(expr = parse(text = paste0(target[data.type,.class_of(object)],
+                                                     "(", object, ")" ))))
+  } else {
+    if(.class_of(object)!="Seurat.v3"){
+      #For RNAseq or Seurat-v2
+      OUT <- eval(expr = parse(text = paste0(object,
+                                             target[data.type,.class_of(object)]
+      )))
+    } else {
+      #For Seurat-v3
+      #Go from "object" to the actual object if given in character form
+      object <- eval(expr = parse(text = paste0(object)))
+      #Obtain expression
+      if(data.type == "normalized"){
+        OUT <- Seurat::GetAssayData(object)
+      } else {
+        OUT <- Seurat::GetAssayData(object, slot = target[data.type,.class_of(object)])
+      }
+    }
+  }
+  OUT
+}
+
+.extract_Reduced_Dim <- function(reduction.use, dim=1, object=DEFAULT){
+
+  #Turn the object into a "name" if a full object was given
+  if (typeof(object)=="S4"){
+    object <- deparse(substitute(object))
+  }
+
+  # If object is a Seurat object
+  if (grepl("Seurat",.class_of(object))){
+    if ("dr" %in% slotNames(eval(expr = parse(text = paste0(object))))){
+      OUT <- list(eval(expr = parse(text = paste0(object,"@dr$",reduction.use,"@cell.embeddings[,",dim,"]"))))
+      OUT[2] <- paste0(eval(expr = parse(text = paste0(object,"@dr$",reduction.use,"@key"))),dim)
+    } else {
+      OUT <- list(eval(expr = parse(text = paste0(object,"@reductions$",reduction.use,"@cell.embeddings[,",dim,"]"))))
+      OUT[2] <- paste0(eval(expr = parse(text = paste0(object,"@reductions$",reduction.use,"@key"))),dim)
+    }
+  }
+
+  if (.class_of(object)=="RNAseq"){
+    OUT <- list(eval(expr = parse(text = paste0(object,"@reductions$",reduction.use,"$x[,",dim,"]"))))
+    OUT[2] <- paste0(.gen_key(reduction.use),dim)
+  }
+
+  if (.class_of(object)=="SingleCellExperiment"){
+    OUT <- list(eval(expr = parse(text = paste0("reducedDim(",object,", type = '",reduction.use,"')[,",dim,"]"))))
+    OUT[2] <- paste0(.gen_key(reduction.use),dim)
+  }
+
+  names(OUT) <- c("embeddings","name")
+  OUT
+}
+
+.gen_key <- function (reduction.use){
+  key <- reduction.use
+  if (grepl("pca|PCA", reduction.use)){key <- "PC"}
+  if (grepl("cca|CCA", reduction.use)){key <- "CC"}
+  if (grepl("cca.aligned", reduction.use)){key <- "aligned.CC"}
+  if (grepl("ica|ICA", reduction.use)){key <- "IC"}
+  if (grepl("tsne|tSNE|TSNE", reduction.use)){key <- "tSNE_"}
+  key
+}
+
+# #' Outputs a string of gene expression / meta.data information for ploty hover display
+# #'
+# #' @param data.hover The data needed in the text output. = A list of metadata names, genes, or "ident", in quotes.
+# #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+# #' @param data.type For when grabbing gene expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
+# #' @return Given a list of data to grab in data.hover, outputs the 'data name': data, 'data name': data, ... for every cell of the object
+# #' @examples
+# #' library(Seurat)
+# #' pbmc <- Seurat::pbmc_small
+# #' .make_hover_strings(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
+# #'
+.make_hover_strings <- function(data.hover, object, data.type){
+    # Overall: if do.hover=TRUE and data.hover has a list of genes / metas called
+      # c(var1, var2, var3, ...), then for all cells, make a string:
+      # "var1: var1-value\nvar2: var2-value\nvar3: var3-value\n..."
+      # vars that are not genes of metadata are ignored.
+    fillable <- vapply(
+        seq_along(data.hover),
+        function(i)
+            (is.meta(data.hover[i],object) |
+                is.gene(data.hover[i],object) |
+                (data.hover[i]=="ident")),
+        logical(1))
+    data.hover <- data.hover[fillable]
+    if (is.null(data.hover)) {
+        stop("No genes or metadata names added to `hover.data`")
+    }
+
+    # Create dataframe to contain the hover.info
+    features.info <- data.frame(row.names = .all_cells(object))
+    features.info <- vapply(
+        data.hover,
+        function(this.data)
+            as.character(.var_OR_get_meta_or_gene(this.data,object, data.type)),
+        character(nrow(features.info)))
+    names(features.info) <- data.hover[fillable]
+
+    # Convert each row of dataframe to 'colname1: data1\ncolname2: data2\n...'
+    hover.strings <-
+        vapply(
+            seq_len(nrow(features.info)),
+            function(row) {
+                paste(as.character(
+                    vapply(
+                        seq_along(data.hover),
+                        function(col) {
+                            # Make entry each column.
+                            paste0(names(features.info)[col],
+                            ": ",
+                            features.info[row,col])
+                        },
+                        character(1))),
+                    # Collapse column entries for each row with newline char.
+                    collapse = "\n")
+            },
+            character(1))
+
+    hover.strings
+}

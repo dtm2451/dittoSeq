@@ -55,12 +55,12 @@ DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
   if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
 
   #Populate cells.use with a list of names if it was given anything else.
-  cells.use <- which_cells(cells.use, object)
+  cells.use <- .which_cells(cells.use, object)
   #Establish the full list of cell/sample names
-  all.cells <- all_cells(object)
+  all.cells <- .all_cells(object)
 
   #Make the data matrix
-  data <- as.matrix(which_data(data.type,object)[genes,cells.use])
+  data <- as.matrix(.which_data(data.type,object)[genes,cells.use])
 
   #Make the cells.annotations data for color annotation bar
   Col_annot <- NA

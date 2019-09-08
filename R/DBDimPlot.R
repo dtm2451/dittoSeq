@@ -70,18 +70,18 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
   if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
 
   #Populate cells.use with a list of names if it was given anything else.
-  cells.use <- which_cells(cells.use, object)
+  cells.use <- .which_cells(cells.use, object)
   #Establish the full list of cell/sample names
-  all.cells <- all_cells(object)
+  all.cells <- .all_cells(object)
 
   #If reduction.use = NA (was not provided), populate it to be tsne or pca.
-  if (grepl("Seurat",classof(object)) & is.na(reduction.use)) {reduction.use <- "tsne"}
-  if (classof(object)=="SingleCellExperiment" & is.na(reduction.use)) {reduction.use <- "TSNE"}
-  if (classof(object)=="RNAseq" & is.na(reduction.use)) {reduction.use <- "pca"}
+  if (grepl("Seurat",.class_of(object)) & is.na(reduction.use)) {reduction.use <- "tsne"}
+  if (.class_of(object)=="SingleCellExperiment" & is.na(reduction.use)) {reduction.use <- "TSNE"}
+  if (.class_of(object)=="RNAseq" & is.na(reduction.use)) {reduction.use <- "pca"}
 
   #Generate the x/y dimensional reduction data and axes labels.
-  xdat <- extDim(reduction.use, dim.1, object)
-  ydat <- extDim(reduction.use, dim.2, object)
+  xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
+  ydat <- .extract_Reduced_Dim(reduction.use, dim.2, object)
   #If xlab/ylab left as "make", use default axis labels generated in the extDim call (ex. "tSNE_1" or "PC2").
   if (!(is.null(xlab))) {
     if (xlab=="make") {
@@ -96,7 +96,7 @@ DBDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 =
 
   #Build data for populating dat, the data.frame for plotyting.
   #Determine the identity of the provided 'var' and populate Y, the variable used for coloring.
-  Y <- var_OR_get_meta_or_gene(var, object, data.type)
+  Y <- .var_OR_get_meta_or_gene(var, object, data.type)
 
   #Decide if letters should be added or not
   #If#1) if do.hover was set to TRUE, lettering will not work, so set to FALSE.
@@ -405,7 +405,7 @@ multiDBDimPlot_vary_cells <- function(var, object = DEFAULT,
 
   #Set a range if the var represents continuous data, (is.gene() or typeof(meta)!=integer OR character).
   if(continuous){
-    the.range <- range(var_OR_get_meta_or_gene(var,object, data.type))
+    the.range <- range(.var_OR_get_meta_or_gene(var,object, data.type))
     min <- ifelse(is.null(min), the.range[1], min)
     max <- ifelse(is.null(max), the.range[2], max)
   }

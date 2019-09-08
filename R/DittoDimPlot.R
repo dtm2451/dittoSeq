@@ -90,15 +90,15 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
   }
   #Generate the x/y dimensional reduction data and axes labels.
   #If reduction.use = NA (was not provided), populate it to be tsne or pca.
-  if (grepl("Seurat",classof(object)) & is.na(reduction.use)) {reduction.use <- "tsne"}
-  if (classof(object)=="SingleCellExperiment" & is.na(reduction.use)) {reduction.use <- "TSNE"}
-  if (classof(object)=="RNAseq" & is.na(reduction.use)) {reduction.use <- "pca"}
-  xdat <- extDim(reduction.use, dim.1, object)
-  ydat <- extDim(reduction.use, dim.2, object)
+  if (grepl("Seurat",.class_of(object)) & is.na(reduction.use)) {reduction.use <- "tsne"}
+  if (.class_of(object)=="SingleCellExperiment" & is.na(reduction.use)) {reduction.use <- "TSNE"}
+  if (.class_of(object)=="RNAseq" & is.na(reduction.use)) {reduction.use <- "pca"}
+  xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
+  ydat <- .extract_Reduced_Dim(reduction.use, dim.2, object)
   #Standardize cells.use to a list of names.
-  cells.use <- which_cells(cells.use, object)
+  cells.use <- .which_cells(cells.use, object)
   #Establish the full list of cell/sample names
-  all.cells <- all_cells(object)
+  all.cells <- .all_cells(object)
   #Set Titles
   if (!(is.null(xlab))) { if (xlab=="make") { xlab <- xdat$name } }
   if (!(is.null(ylab))) { if (ylab=="make") { ylab <- ydat$name } }
@@ -119,9 +119,9 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
     #IF#2) if do.letter was already set, we'll just go with what the user wanted!
     if(is.na(do.letter)){
       #If#2) if the data is discrete, continue. (Otherwise, it is continuous so letters would not make sense!)
-      if(!(is.numeric(var_OR_get_meta_or_gene(var, object=object, data.type=data.type)))){
+      if(!(is.numeric(.var_OR_get_meta_or_gene(var, object=object, data.type=data.type)))){
         #If#3) if the number of groups is 8 or more, letters are recommended.
-        if(length(levels(as.factor(var_OR_get_meta_or_gene(var, object=object, data.type=data.type))))>=8){
+        if(length(levels(as.factor(.var_OR_get_meta_or_gene(var, object=object, data.type=data.type))))>=8){
           do.letter <- TRUE
         } else { do.letter <- FALSE }
       } else { do.letter <- FALSE }
@@ -210,10 +210,13 @@ dittoDimPlot.addTrajectory <- function(p, trajectories, clusters, arrow.size = 0
   # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
   #
   #Determine medians
-  data <- data.frame(cent.x = sapply(meta.levels(clusters, object),
-                                     function(X) median(extDim(reduction.use, dim.1, object)$embedding[meta(clusters, object)==X])),
-                     cent.y = sapply(meta.levels(clusters, object),
-                                     function(X) median(extDim(reduction.use, dim.2, object)$embedding[meta(clusters, object)==X])))
+  data <- data.frame(
+      cent.x = sapply(
+          meta.levels(clusters, object),
+          function(X) median(.extract_Reduced_Dim(reduction.use, dim.1, object)$embedding[meta(clusters, object)==X])),
+      cent.y = sapply(
+          meta.levels(clusters, object),
+          function(X) median(.extract_Reduced_Dim(reduction.use, dim.2, object)$embedding[meta(clusters, object)==X])))
   #Add trajectories
   for (i in seq_along(trajectories)){
     p <- p + geom_path(data = data[trajectories[[i]],],

@@ -70,14 +70,14 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
 
   #Populate cells.use with a list of names if it was given anything else.
-  cells.use <- which_cells(cells.use, object)
+  cells.use <- .which_cells(cells.use, object)
   #Establish the full list of cell/sample names
-  all.cells <- all_cells(object)
+  all.cells <- .all_cells(object)
 
   ###Determine what the y-axis should be.
   #non-direct input options are: the name of a metadata or a gene (in "quotes").
   # Both these options also get a default axis title.
-  Y <- var_OR_get_meta_or_gene(var, object, data.type)
+  Y <- .var_OR_get_meta_or_gene(var, object, data.type)
 
   #Unless ylab has been changed from default ("make"), set default y-labels if var is "metadata" or "gene".
   # If set to "var" use the 'var'.  If set to 'NULL', ylab will be removed later.
@@ -375,12 +375,12 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
                                      hline=NULL, hline.linetype = "dashed", hline.color = "black"){
 
   #Turn the object into a "name" if a full object was given
-  object <- S4_2string(object)
+  if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
 
   #Populate cells.use with a list of names if it was given anything else.
-  cells.use <- which_cells(cells.use, object)
+  cells.use <- .which_cells(cells.use, object)
   #Establish the full list of cell/sample names
-  all.cells <- all_cells(object)
+  all.cells <- .all_cells(object)
 
   #### Ensure that vars is a list of numerical values.
 
@@ -401,12 +401,12 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
   groupings <- as.factor(as.character(meta(group.by, object)[all.cells %in% cells.use]))
   if(data.summary=="mean"){
     summarys <- data.frame(sapply(levels(groupings), function(this.group)
-      sapply(vars, function(X) mean(var_OR_get_meta_or_gene(X,object,data.type)[groupings==this.group])
+      sapply(vars, function(X) mean(.var_OR_get_meta_or_gene(X,object,data.type)[groupings==this.group])
       )))
   } else {
     if(data.summary=="median"){
       summarys <- data.frame(sapply(levels(groupings), function(this.group)
-        sapply(vars, function(X) median(var_OR_get_meta_or_gene(X,object,data.type)[groupings==this.group])
+        sapply(vars, function(X) median(.var_OR_get_meta_or_gene(X,object,data.type)[groupings==this.group])
         )))
     } else {
       return(print("mean and median are the only summary statistics currently supported.", quote = FALSE))

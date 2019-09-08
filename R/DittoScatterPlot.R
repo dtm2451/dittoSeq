@@ -70,20 +70,20 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
     object <- deparse(substitute(object))
   }
   #Populate cells.use with a list of names if it was given anything else.
-  cells.use <- which_cells(cells.use, object)
+  cells.use <- .which_cells(cells.use, object)
   #Establish the full list of cell/sample names
-  all.cells <- all_cells(object)
+  all.cells <- .all_cells(object)
   #Grab data
-  dat <- data.frame(X = var_OR_get_meta_or_gene(x.var, object, data.type.x),
-                    Y = var_OR_get_meta_or_gene(y.var, object, data.type.y),
+  dat <- data.frame(X = .var_OR_get_meta_or_gene(x.var, object, data.type.x),
+                    Y = .var_OR_get_meta_or_gene(y.var, object, data.type.y),
                     row.names = all.cells)
   if(!(is.null(overlay.color.var))){
-    dat$color <- var_OR_get_meta_or_gene(overlay.color.var, object, data.type.color)
+    dat$color <- .var_OR_get_meta_or_gene(overlay.color.var, object, data.type.color)
     do.color <- TRUE
     is.color.numeric <- is.numeric(dat$color)
   } else {do.color = FALSE}
   if(!(is.null(overlay.shape.var))){
-    dat$shape <- var_OR_get_meta_or_gene(overlay.shape.var, object, data.type.color)
+    dat$shape <- .var_OR_get_meta_or_gene(overlay.shape.var, object, data.type.color)
   }
   #Grab data for hovering
   if (do.hover) {
