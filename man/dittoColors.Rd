@@ -8,12 +8,17 @@ dittoColors()
 }
 \description{
 Creates a colors vector of 24 colors in hexadecimal form,
-a modification of the protanope and deuteranope friendly colors from Wong, B. Nature Methods, 2011:
+a modification of the protanope and deuteranope friendly colors from Wong, B. Nature Methods, 2011.
 
-1-7 = Suggested color panel from Wong, B. Nature Methods, 2011, minus black;
-8 = gray40;
-9-16 = 25% darker versions of colors 1-8;
-17-24 = 25% lighter versions of colors 1-8
+The colors are:
+
+1-7 = Suggested color panel from Wong, B. Nature Methods, 2011, minus black
+
+8 = gray40
+
+9-16 = 25\% darker versions of colors 1-8
+
+17-24 = 25\% lighter versions of colors 1-8
 }
 \author{
 Daniel Bunis
