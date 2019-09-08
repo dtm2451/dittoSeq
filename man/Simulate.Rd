@@ -4,16 +4,17 @@
 \alias{Simulate}
 \title{Simulates what a colorblind person would see for any DittoSeq plot!}
 \usage{
-Simulate(type = "deutan", plot.function, ..., color.panel = MYcolors)
+Simulate(type = "deutan", plot.function, ...,
+  color.panel = dittoColors())
 }
 \arguments{
 \item{type}{The type of colorblindness that you want to simulate for. Options: "deutan", "protan", "tritan". Anything else, and you will get an error.}
 
 \item{plot.function}{The plotting function that you want to use/simulate. not quoted. and make sure to remove the () that R will try to add.}
 
-\item{...}{other paramters that can be given to DittoSeq plotting functions, including color.panel, used in exactly the same way they are used for those functions. (contrary to the look of this documentation, color.panel will still default to MYcolors when not provided.)}
+\item{...}{other paramters that can be given to DittoSeq plotting functions, including color.panel, used in exactly the same way they are used for those functions. (contrary to the look of this documentation, color.panel will still default to dittoColors() when not provided.)}
 
-\item{color.panel}{The set of colors to be used.  Not required to be given, as contrary to the look of this documentation, it will still default to MYcolors when not provided.}
+\item{color.panel}{The set of colors to be used.  Not required to be given, as contrary to the look of this documentation, it will still default to dittoColors() when not provided.}
 }
 \value{
 Outputs a DittoSeq plot with the color.panel updated as it might look to a colorblind individual. Note: Does not currently work for DBHeatmap or for continuous variable plotting in DBDimPlot.

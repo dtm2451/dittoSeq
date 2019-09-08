@@ -10,7 +10,7 @@
 #' @param cell.names.meta quoted "name" of a meta.data slot to use for naming the columns instead of the raw cell/sample names.  Default = just use the raw cell/sample names in the data slot.
 #' @param heatmap.colors the colors to use for the expression matrix. Default is a ramp from navy to white to red with 50 slices.
 #' @param cells.annotation FALSE/ the name of a metadata slot containing how the cells/samples should be annotated. Default = FALSE.
-#' @param cells.annotation.colors Vector of colors. The colors to use for the annotations bar. MYcolors by default.
+#' @param cells.annotation.colors Vector of colors. The colors to use for the annotations bar. \code{dittoColors()} by default.
 #' @param override_annotation_colors Parameter to override use of DBHeatmap-generated color object in the call to pheatmap.  Use is exactly the same as pheatmap's annotation_colors arguement.
 #' @param data.out = If set to TRUE, the output will be a list of objects and and the script that would have been used for inputing into pheatmap.  NOTE: currently, a row#### arguement is added that should not be there.  I will remove this in a later release, but for now, know that you should remove this before trying to run the script.
 #' @param highlight.genes = A list of genes whose names you would like to show, c("Gene1","Gene2","Gene3").  Only these genes will be named in the resulting heatmap.
@@ -42,7 +42,7 @@
 DBHeatmap <- function(genes=NULL, object = DEFAULT, cells.use = NULL,
                       cell.names.meta = NULL, data.type = "normalized",
                       heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
-                      cells.annotation = FALSE, cells.annotation.colors = rep(list(MYcolors),length(cells.annotation)),
+                      cells.annotation = FALSE, cells.annotation.colors = rep(list(dittoColors()),length(cells.annotation)),
                       data.out=FALSE, highlight.genes = NULL, override_annotation_colors = NULL,
                       ...){
 

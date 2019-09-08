@@ -13,8 +13,9 @@ DBDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   show.others = TRUE, ellipse = FALSE, do.label = FALSE,
   label.size = 5, highlight.labels = TRUE, rename.groups = NA,
   min.color = "#F0E442", max.color = "#0072B2", min = NULL,
-  max = NULL, color.panel = MYcolors, colors = 1:length(color.panel),
-  do.letter = NA, do.hover = FALSE, data.hover = var, opacity = 1)
+  max = NULL, color.panel = dittoColors(),
+  colors = 1:length(color.panel), do.letter = NA, do.hover = FALSE,
+  data.hover = var, opacity = 1)
 }
 \arguments{
 \item{var}{Target Variable = either values or a metadata (in "quotes"), gene (in "quotes"), or "ident"}

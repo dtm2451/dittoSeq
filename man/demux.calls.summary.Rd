@@ -6,7 +6,7 @@
 \usage{
 demux.calls.summary(object = DEFAULT, singlets.only = TRUE,
   main = "Sample Annotations by Lane", sub = NULL,
-  ylab = "Annotations", xlab = "Sample", color = MYcolors[2],
+  ylab = "Annotations", xlab = "Sample", color = dittoColors()[2],
   theme = NULL, rotate.labels = TRUE)
 }
 \arguments{

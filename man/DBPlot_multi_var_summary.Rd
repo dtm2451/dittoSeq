@@ -7,7 +7,7 @@
 DBPlot_multi_var_summary(vars, object = DEFAULT, group.by = "Sample",
   color.by = NULL, cells.use = NULL, plots = c("vlnplot", "jitter"),
   data.type = "relative", data.summary = "mean", do.hover = FALSE,
-  color.panel = MYcolors, colors = c(1:length(color.panel)),
+  color.panel = dittoColors(), colors = c(1:length(color.panel)),
   theme = theme_classic(), legend.show = FALSE, legend.title = FALSE,
   main = NULL, sub = NULL, ylab = NULL, y.breaks = NULL,
   min = NULL, max = NULL, xlab = NULL, labels = NULL,

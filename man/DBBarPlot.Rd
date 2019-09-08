@@ -5,7 +5,7 @@
 \title{Outputs a stacked bar plot to show the percent composition of samples or other cell groupings}
 \usage{
 DBBarPlot(var = "ident", object = DEFAULT, group.by = "Sample",
-  cells.use = NULL, color.panel = MYcolors,
+  cells.use = NULL, color.panel = dittoColors(),
   colors = c(1:length(color.panel)), do.hover = FALSE,
   theme = theme_classic(), xlab = NULL, ylab = "make",
   x.labels = NA, rotate.labels = TRUE, y.breaks = c(0, 0.5, 1),

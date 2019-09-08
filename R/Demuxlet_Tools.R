@@ -153,7 +153,7 @@ demux.SNP.summary <- function(object = DEFAULT, group.by = "Lane", color.by = "L
 demux.calls.summary <- function(object = DEFAULT, singlets.only = TRUE,
                                 main = "Sample Annotations by Lane", sub = NULL,
                                 ylab = "Annotations", xlab = "Sample",
-                                color = MYcolors[2], theme = NULL, rotate.labels = TRUE
+                                color = dittoColors()[2], theme = NULL, rotate.labels = TRUE
 ){
   #Turn the object into a "name" if a full object was given
   if (typeof(object)=="S4") { object <- deparse(substitute(object)) }

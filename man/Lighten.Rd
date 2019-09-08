@@ -7,7 +7,7 @@
 Lighten(colors, percent.change = 0.25, relative = TRUE)
 }
 \arguments{
-\item{colors}{the color(s) input. Can be a list of colors, for example, MYcolors.}
+\item{colors}{the color(s) input. Can be a list of colors, for example, /code{dittoColors()}.}
 
 \item{percent.change}{# between 0 and 1. the percentage to darken by. Defaults to 0.25 if not given.}
 
@@ -22,5 +22,5 @@ A wrapper for the lighten function of the colorspace package.
 \examples{
 Lighten("blue") #"blue" = "#0000FF"
 #Output: "#4040FF"
-Lighten(MYcolors[1:8]) #Works for multiple color inputs as well.
+Lighten(dittoColors()[1:8]) #Works for multiple color inputs as well.
 }

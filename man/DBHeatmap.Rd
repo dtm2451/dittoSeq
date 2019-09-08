@@ -8,7 +8,7 @@ DBHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
   cell.names.meta = NULL, data.type = "normalized",
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   cells.annotation = FALSE,
-  cells.annotation.colors = rep(list(MYcolors),
+  cells.annotation.colors = rep(list(dittoColors()),
   length(cells.annotation)), data.out = FALSE, highlight.genes = NULL,
   override_annotation_colors = NULL, ...)
 }
@@ -27,7 +27,7 @@ DBHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
 
 \item{cells.annotation}{FALSE/ the name of a metadata slot containing how the cells/samples should be annotated. Default = FALSE.}
 
-\item{cells.annotation.colors}{Vector of colors. The colors to use for the annotations bar. MYcolors by default.}
+\item{cells.annotation.colors}{Vector of colors. The colors to use for the annotations bar. \code{dittoColors()} by default.}
 
 \item{data.out}{= If set to TRUE, the output will be a list of objects and and the script that would have been used for inputing into pheatmap.  NOTE: currently, a row#### arguement is added that should not be there.  I will remove this in a later release, but for now, know that you should remove this before trying to run the script.}
 

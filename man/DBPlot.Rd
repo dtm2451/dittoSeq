@@ -7,7 +7,7 @@
 DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   cells.use = NULL, plots = c("jitter", "vlnplot"),
   data.type = "normalized", do.hover = FALSE, data.hover = var,
-  color.panel = MYcolors, colors = c(1:length(color.panel)),
+  color.panel = dittoColors(), colors = c(1:length(color.panel)),
   theme = theme_classic(), main = "make", sub = NULL,
   ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
   xlab = NULL, labels = NULL, rotate.labels = TRUE, hline = NULL,
