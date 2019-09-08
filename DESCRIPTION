@@ -17,6 +17,8 @@ Imports: methods,
     reshape2,
     pheatmap,
     grDevices,
+    ggrepel,
+    ggridges,
     stats,
     utils
 Suggests: plotly,

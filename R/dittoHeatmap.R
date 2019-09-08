@@ -81,7 +81,7 @@ dittoHeatmap <- function(
     scaled.to.max = FALSE,
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
     col.annotation.metas = NULL,
-    annotation.colors = rep(MYcolors,10),
+    annotation.colors = rep(dittoColors(),10),
     data.out=FALSE, highlight.genes = NULL, show.colnames = TRUE,
     show.rownames = TRUE, ...) {
 

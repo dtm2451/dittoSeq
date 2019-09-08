@@ -6,7 +6,7 @@
 \usage{
 dittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
   overlay.shape.var = NULL, object = DEFAULT, cells.use = NULL,
-  show.others = FALSE, color.panel = MYcolors,
+  show.others = FALSE, color.panel = dittoColors(),
   colors = seq_along(color.panel), data.type.x = "normalized",
   data.type.y = "normalized", data.type.color = "normalized",
   do.hover = FALSE, data.hover = NULL,
@@ -73,9 +73,9 @@ dittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
 
 \item{legend.shape.size}{Override for legend size of the shape variable.}
 
-\item{min.color}{color for lowest values shown of the color overlay.  Default is \code{MYcolors[4]}, a yellow.}
+\item{min.color}{color for lowest values shown of the color overlay.  Default is \code{dittoColors()[4]}, a yellow.}
 
-\item{max.color}{color for highest values shown of the color overlay.  Default is \code{MYcolors[5]}, a dark blue.}
+\item{max.color}{color for highest values shown of the color overlay.  Default is \code{dittoColors()[5]}, a dark blue.}
 
 \item{min}{set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.}
 

@@ -27,8 +27,8 @@
 #' @param legend.color.size Override for legend size of the color variable.
 #' @param legend.shape.title For adding a title for the colors legend.  Set to \code{NULL} to turn off
 #' @param legend.shape.size Override for legend size of the shape variable.
-#' @param min.color color for lowest values shown of the color overlay.  Default is \code{MYcolors[4]}, a yellow.
-#' @param max.color color for highest values shown of the color overlay.  Default is \code{MYcolors[5]}, a dark blue.
+#' @param min.color color for lowest values shown of the color overlay.  Default is \code{dittoColors()[4]}, a yellow.
+#' @param max.color color for highest values shown of the color overlay.  Default is \code{dittoColors()[5]}, a dark blue.
 #' @param min set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.
 #' @param max set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it may be because min > max.
 #' @param breaks Numeric vector. Sets the discrete values to show in the color-scale legend for continuous data.
@@ -53,7 +53,7 @@
 #' #   with percentage of reads coming from genes as the color overlay.
 dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.shape.var = NULL,
                              object = DEFAULT, cells.use = NULL, show.others = FALSE,
-                             color.panel = MYcolors, colors = seq_along(color.panel),
+                             color.panel = dittoColors(), colors = seq_along(color.panel),
                              data.type.x = "normalized", data.type.y = "normalized",
                              data.type.color = "normalized", do.hover = FALSE, data.hover = NULL, data.type.hover = "normalized",
                              shape = 16, shapes=c(16,15,17,23,25,8), size = 1, opacity = 1,

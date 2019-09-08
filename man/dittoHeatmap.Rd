@@ -9,9 +9,9 @@ dittoHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
-  col.annotation.metas = NULL, annotation.colors = rep(MYcolors, 10),
-  data.out = FALSE, highlight.genes = NULL, show.colnames = TRUE,
-  show.rownames = TRUE, ...)
+  col.annotation.metas = NULL, annotation.colors = rep(dittoColors(),
+  10), data.out = FALSE, highlight.genes = NULL,
+  show.colnames = TRUE, show.rownames = TRUE, ...)
 }
 \arguments{
 \item{genes}{String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap. REQUIRED.}

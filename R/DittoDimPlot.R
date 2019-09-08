@@ -80,7 +80,7 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
                          rename.var.groups = NA, rename.shape.groups = NA,
                          min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
                          breaks = waiver(), breaks.labels = waiver(),
-                         color.panel = MYcolors, colors = seq_along(color.panel),
+                         color.panel = dittoColors(), colors = seq_along(color.panel),
                          do.letter = NA, do.hover = FALSE, data.hover = var,
                          opacity = 1, data.out = FALSE,
                          add.trajectories = NULL, trajectory.clusters, trajectory.arrow.size = 0.15){

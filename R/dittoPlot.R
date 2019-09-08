@@ -19,7 +19,7 @@
 #'
 #' Note: Currently, incompatible with RidgePlots as plotly does not support the geom.
 #' @param data.hover String vector, a list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show upon hover when do.hover is set to \code{TRUE}.
-#' @param color.panel String vector which the set of colors to draw from.  MYcolors by default.
+#' @param color.panel String vector which the set of colors to draw from. \code{dittoColors()} by default.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
 #' @param main String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.
 #' @param sub String, sets the plot subtitle
@@ -110,7 +110,7 @@
 dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
                       shape = 16, cells.use = NULL, plots = c("jitter","vlnplot"),
                       data.type = "normalized", do.hover = FALSE, data.hover = var,
-                      color.panel = MYcolors, colors = seq_along(color.panel),
+                      color.panel = dittoColors(), colors = seq_along(color.panel),
                       theme = theme_classic(), main = "make", sub = NULL,
                       ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
                       xlab = group.by, x.labels = NULL, rotate.labels = NA,

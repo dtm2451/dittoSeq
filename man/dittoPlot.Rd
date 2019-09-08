@@ -9,7 +9,7 @@
 dittoPlot(var, object = DEFAULT, group.by, color.by = group.by,
   shape = 16, cells.use = NULL, plots = c("jitter", "vlnplot"),
   data.type = "normalized", do.hover = FALSE, data.hover = var,
-  color.panel = MYcolors, colors = seq_along(color.panel),
+  color.panel = dittoColors(), colors = seq_along(color.panel),
   theme = theme_classic(), main = "make", sub = NULL,
   ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
   xlab = group.by, x.labels = NULL, rotate.labels = NA,
@@ -56,7 +56,7 @@ Note: Currently, incompatible with RidgePlots as plotly does not support the geo
 
 \item{data.hover}{String vector, a list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show upon hover when do.hover is set to \code{TRUE}.}
 
-\item{color.panel}{String vector which the set of colors to draw from.  MYcolors by default.}
+\item{color.panel}{String vector which the set of colors to draw from. \code{dittoColors()} by default.}
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
