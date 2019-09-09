@@ -14,12 +14,15 @@ NOTE: I use this package daily, and am constantly coming up with new ideas for t
 
 ## Colors:
 
-The default colors of this package are color blind friendly.  Source: [Wong B, "Points of view: Color blindness." Nature Methods, 2011.](https://www.nature.com/articles/nmeth.1618)  Currently, when you source my package into your workspace, a variable called MYcolors is created that has the 8 colors referenced in the Points of View paper stored inside.  Lighter and darker versions of these same colors are then appended to make it a 24 color vector.
+The default colors of this package are red-green color blind friendly.  Adapted from: [Wong B, "Points of view: Color blindness." Nature Methods, 2011.](https://www.nature.com/articles/nmeth.1618) They can be sourced to your workspace by using `dittoColors()`
 
 ## Installation.
 
 ```
 devtools::install_github("dtm2451/DittoSeq")
+
+# Or, for newer functions updated more recently than this vignette:
+devtools::install_github("dtm2451/DittoSeq@development")
 ```
 
 ## Plotting Functions
