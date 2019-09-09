@@ -4,7 +4,10 @@
 \alias{dittoColors}
 \title{Extracts the DittoSeq default colors}
 \usage{
-dittoColors()
+dittoColors(get.names = FALSE)
+}
+\arguments{
+\item{get.names}{Logical, whether only the names of the default DittoSeq color panel should be returned instead}
 }
 \description{
 Creates a colors vector of 24 colors in hexadecimal form,
@@ -19,6 +22,12 @@ The colors are:
 9-16 = 25\% darker versions of colors 1-8
 
 17-24 = 25\% lighter versions of colors 1-8
+}
+\examples{
+dittoColors()
+
+#To retrieve names:
+dittoColors(get.names = TRUE)
 }
 \author{
 Daniel Bunis
