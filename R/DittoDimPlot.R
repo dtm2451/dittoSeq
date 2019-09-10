@@ -24,6 +24,7 @@
 #' @param sub plot subtitle
 #' @param xlab label for y axes.  Default labels are generated if you do not give this a specific value.  To remove, set to NULL.
 #' @param ylab label for y axes.  Default labels are generated if you do not give this a specific value.  To remove, set to NULL.
+#' @param numbers.show Logical which controls whether the axes values should be displayed.
 #' @param cells.use cells to show: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. *THIS*: object@cell.names[*THIS*])
 #' @param show.others Logical. TRUE by default, whether other cells should be shown in the background
 #' @param ellipse Logical. Whether the groups should be surrounded by an ellipse.
@@ -74,7 +75,7 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
                          legend.show = TRUE, legend.size = 5, legend.title = NULL,
                          shape.legend.size = 5, shape.legend.title = NULL,
                          data.type = "normalized",
-                         main = "make", sub = NULL, xlab = "make", ylab = "make",
+                         main = "make", sub = NULL, xlab = "make", ylab = "make", numbers.show = TRUE,
                          cells.use = NULL, show.others=TRUE, ellipse = FALSE,
                          do.label = FALSE, label.size = 5, highlight.labels = TRUE, labels.repel = TRUE,
                          rename.var.groups = NA, rename.shape.groups = NA,
@@ -171,6 +172,10 @@ dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.
       object = object, reduction.use = reduction.use, dim.1 = dim.1, dim.2 = dim.2)}
   #Remove legend, if warrented
   if (!legend.show) { p <- remove_legend(p) }
+  #Remove axes numbers, if warranted
+  if (!numbers.show) {
+    p <- p + theme(axis.text.x=element_blank(),axis.text.y=element_blank())
+  }
   ### RETURN the PLOT ###
   if(data.out){return(list(plot = p,
                            Target_data = Target_data,

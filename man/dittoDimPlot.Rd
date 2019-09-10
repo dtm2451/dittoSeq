@@ -9,15 +9,16 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   shapes = c(16, 15, 17, 23, 25, 8), legend.show = TRUE,
   legend.size = 5, legend.title = NULL, shape.legend.size = 5,
   shape.legend.title = NULL, data.type = "normalized", main = "make",
-  sub = NULL, xlab = "make", ylab = "make", cells.use = NULL,
-  show.others = TRUE, ellipse = FALSE, do.label = FALSE,
-  label.size = 5, highlight.labels = TRUE, labels.repel = TRUE,
-  rename.var.groups = NA, rename.shape.groups = NA,
-  min.color = "#F0E442", max.color = "#0072B2", min = NULL,
-  max = NULL, breaks = waiver(), breaks.labels = waiver(),
-  color.panel = dittoColors(), colors = seq_along(color.panel),
-  do.letter = NA, do.hover = FALSE, data.hover = var, opacity = 1,
-  data.out = FALSE, add.trajectories = NULL, trajectory.clusters,
+  sub = NULL, xlab = "make", ylab = "make", numbers.show = TRUE,
+  cells.use = NULL, show.others = TRUE, ellipse = FALSE,
+  do.label = FALSE, label.size = 5, highlight.labels = TRUE,
+  labels.repel = TRUE, rename.var.groups = NA,
+  rename.shape.groups = NA, min.color = "#F0E442",
+  max.color = "#0072B2", min = NULL, max = NULL, breaks = waiver(),
+  breaks.labels = waiver(), color.panel = dittoColors(),
+  colors = seq_along(color.panel), do.letter = NA, do.hover = FALSE,
+  data.hover = var, opacity = 1, data.out = FALSE,
+  add.trajectories = NULL, trajectory.clusters,
   trajectory.arrow.size = 0.15)
 }
 \arguments{
@@ -58,6 +59,8 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
 \item{xlab}{label for y axes.  Default labels are generated if you do not give this a specific value.  To remove, set to NULL.}
 
 \item{ylab}{label for y axes.  Default labels are generated if you do not give this a specific value.  To remove, set to NULL.}
+
+\item{numbers.show}{Logical which controls whether the axes values should be displayed.}
 
 \item{cells.use}{cells to show: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. *THIS*: object@cell.names[*THIS*])}
 
