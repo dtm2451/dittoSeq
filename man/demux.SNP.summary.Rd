@@ -5,28 +5,50 @@
 \title{Plots the number of SNPs sequenced per droplet}
 \usage{
 demux.SNP.summary(object = DEFAULT, group.by = "Lane",
-  color.by = "Lane", plots = c("jitter", "boxplot"),
-  boxplot.color = "grey30", ...)
+  color.by = group.by, plots = c("jitter", "boxplot"),
+  boxplot.color = "grey30", add.line = 50, min = 0, ...)
 }
 \arguments{
-\item{object}{the Seurat Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{A Seurat or SingleCellExperiment object containing , or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.}
 
-\item{group.by}{"metadata" to use for separating values. Default is "Lane".}
+\item{group.by}{String "name" of a metadata to use for grouping values.
+Default is "Lane".}
 
-\item{color.by}{"metadata" to use for coloring. Default is "Lane".}
+\item{color.by}{String "name" of a metadata to use for coloring.
+Default is whatever was provided to \code{group.by}.}
 
-\item{plots}{Default = c("jitter","boxplot"). = the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot". NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.}
+\item{plots}{String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
+NOTE: The order matters, so use c("back","middle","front") when inputing multiple to put them in the order you want.}
 
 \item{boxplot.color}{The color of the lines of the boxplot.}
 
-\item{...}{extra arguments passed to DBPlot}
+\item{add.line}{numeric value(s) where a dashed horizontal line should go.
+Default = 50, a high confidence minimum number of SNPs per cell for highly accurate demuxlet sample deconvolution.}
+
+\item{min}{numeric value which sets the minimum value shown on the y-axis.}
+
+\item{...}{extra arguments passed to \code{\link{dittoPlot}}}
 }
 \value{
-For a given Seurat object, plots a summary of how many SNPs were available to Demuxlet for making sample annotation calls.  Assumes that the number of SNPs are stored in a 'demux.N.SNPs' metadata slot, as would be the case if the Seurat object was created with the Import10XDemux function.
+For a given single cell object, plots a summary of how many SNPs were available to Demuxlet for making sample annotation calls.  Assumes that the number of SNPs are stored in a 'demux.N.SNPs' metadata slot, as would be the case if the Seurat object was created with the Import10XDemux function.
 }
 \description{
 Plots the number of SNPs sequenced per droplet
 }
 \examples{
-#Data required for an example would be rather large.  For an example, see the online vignette.
+pbmc <- Seurat::pbmc_small
+
+# Generate some mock lane, sample, and doublet.call metadata
+pbmc@meta.data$demux.N.SNP <- rnorm(ncol(pbmc),75, 5)
+pbmc@meta.data$Lane <- sample(
+    c("Lane1", "Lane2", "Lane3", "Lane4"),
+    ncol(pbmc),
+    replace = TRUE)
+
+demux.SNP.summary("pbmc")
+}
+\seealso{
+\code{\link{dittoPlot}}, as \code{demux.SNP.summary} is essentially just as \code{dittoPlot} wrapper.
+
+\code{\link{importDemux2Seurat}}, for import of relevant demuxlet metadata.
 }
