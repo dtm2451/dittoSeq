@@ -1,13 +1,8 @@
-# DittoSeq [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2577576.svg)](https://doi.org/10.5281/zenodo.2577576)
+# dittoSeq [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2577576.svg)](https://doi.org/10.5281/zenodo.2577576)
 
 **A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by color blind coders**
 
-![example1](Vignette/DBDimPlot2.png)
-![example2](Vignette/DBBarPlot1.png)
-![example3](Vignette/DBPlot2.png)
-![example4](Vignette/multiDBDimPlot1.png)
-
-![example5](Vignette/DemuxCall.png)
+![Overview](Vignette/dittoSeq.gif)
 
 *For a description of how to use the visualization functions, click [here](Vignette)*
 
@@ -37,19 +32,19 @@ Simply run this code:
 
 ```
 install.packages("devtools")
-devtools::install_github("dtm2451/DittoSeq")
+devtools::install_github("dtm2451/dittoSeq")
 ```
 
 ## Development:
 
-Updated functionality is on the way!  I am currently going through the process of overhauling most DittoSeq visualizations prior to submission to CRAN / Bioconductor.  To test out what's new, check out the development node.
+Updated functionality is on the way!  I am currently going through the process of overhauling most dittoSeq visualizations prior to submission to CRAN / Bioconductor.  To test out what's new, check out the development node.
 
 New plotters will be named "ditto"PlottingFunction instead of "DB"PlottingFunction, so installing development versions should not break any old code.  Be warned though that any "ditto"PlottingFunction is subject to change until such time that version 1.0.0 is released.
 
 To install the development version, run:
 
 ```
-devtools::install_github("dtm2451/DittoSeq@development")
+devtools::install_github("dtm2451/dittoSeq@development")
 ```
 
 # DittoSeq Functions (as of DittoSeq-0.2.06)
