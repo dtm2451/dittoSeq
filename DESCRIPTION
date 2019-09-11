@@ -1,4 +1,4 @@
-Package: DittoSeq
+Package: dittoSeq
 Type: Package
 Title: User Friendly Single-cell and Bulk RNA Sequencing Visualization
 Version: 0.2.10
