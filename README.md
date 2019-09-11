@@ -22,6 +22,24 @@ Extends the visualization functionality of the widely used Seurat package, and a
 
 NOTE: I use this package daily, and am constantly coming up with new ideas for tweaks and additional utility myself.  To report errors, give feedback, or suggest new features, you can do so either through [github](https://github.com/dtm2451/DittoSeq/issues), or by email at <daniel.bunis@ucsf.edu>.
 
+## News:
+
+**Name Change:** I recently changed the package name from DittoSeq to dittoSeq to abide by camelCase package naming, as suggested by Bioconductor.  If you get issues loading the package after an update, you likely just need to change `library(DittoSeq)` to `library(dittoSeq)`.
+
+**Colors Storage:** I also updated how the default colors are stored: The package used to add a `MYcolors` object within the workspace.  Now, the colors can be accessed using a `dittoColors()` function.  If you used  `MYcolors` before in your code, just swap that our for `dittoColors()` after updating.
+
+**New functions updated in the development branch:** (from "old" `DB` version to "new" `ditto` versions)
+
+- dittoDimPlot
+- multi_dittoDimPlot
+- dittoHeatmap
+- dittoPlot
+  - Also added Ridgeplot capability & wrappers `dittoRidgePlot()` + `dittoBoxPlot()`
+  
+**Entirely new functions in the development branch:**
+
+- dittoScatterPlot() - allows plotting of gene x gene / metadata x metadata / gene x metadata... scatterplots, with potential to overlay colors or shapes.  Similar to dittoDimPlot, but with more flexible axes.
+
 ## Color blindness friendliness:
 
 The default colors of this package are meant to be red-green color blindness friendly.  To make it so, I used the suggested colors from this source: [Wong B, "Points of view: Color blindness." Nature Methods, 2011.](https://www.nature.com/articles/nmeth.1618) and adapted them slightly by appending darker and lighter versions to create a 24 color vector.  All plotting functions use these colors, stored in `dittoColors()`, by default.  Also included is a `Simulate()` function that allows you to see what your function might look like to a colorblind individual.  For more info on that, see my [Colorblindness Compatibility Page](ColorblindCompatibility)
