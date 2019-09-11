@@ -136,6 +136,7 @@ dittoHeatmap <- function(
         for (i in seq_along(col.annotation.metas)) {
             args$annotation_col[,i] <- meta(col.annotation.metas[i], object)
         }
+        names(args$annotation_col) <- col.annotation.metas
     }
 
     #Make the annotation colors
@@ -179,14 +180,12 @@ dittoHeatmap <- function(
     }
 
     # Rows Second (if there)
-    if (!is.null(args$annotation_col)) {
+    if (!is.null(args$annotation_row)) {
         dfcolors_out <- .pick_colors_for_df(
-            args$annotation_col,
+            args$annotation_row,
             next.color.index.discrete, next.color.index.numeric,
             annotation.colors.d, annotation.colors.n)
         row_colors <- dfcolors_out$df_colors
-        next.color.index.discrete <- dfcolors_out$next.color.index.discrete
-        next.color.index.numeric <- dfcolors_out$next.color.index.numeric
     }
 
     args$annotation_colors <- c(col_colors, row_colors)
