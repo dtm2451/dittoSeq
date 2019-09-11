@@ -33,7 +33,7 @@ For this option, you need to have pre-made a meta.data slot that includes info o
 
 ```
 library(Seurat)
-library(DittoSeq)
+library(dittoSeq)
 
 #Make a lane info meta.data
 Object@meta.data$LANE.INFO <- LANE.INFO
@@ -68,13 +68,13 @@ The import function spits out a quick summary of what was done at the end which 
 
 -	**`demux.SNP.summary()`** - Useful for checking if you have a lot of cells with very few SNPs. Creates a plot of the number of SNPs per cell that is grouped by individual lane by default.  This function is a simple wrapper for DBPlot() function with var="demux.N.SNP" and with a number of input defaults are adjusted (such as group.by and color.by = "Lane" so that the grouping is done according to 'Lane' metadata.
 
--	Both of these work with the same object=DEFAULT shortcut as all other DittoSeq functions, 
+-	Both of these work with the same object=DEFAULT shortcut as all other dittoSeq functions, 
 
 Examples:
 
 ```
 library(Seurat)
-library(DittoSeq)
+library(dittoSeq)
 
 #Method1
 demux.SNP.summary(Seurat.object)
