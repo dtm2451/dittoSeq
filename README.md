@@ -41,6 +41,8 @@ NOTE: I use this package daily, and am constantly coming up with new ideas for t
 
 - dittoScatterPlot() - allows plotting of gene x gene / metadata x metadata / gene x metadata... scatterplots, with potential to overlay colors or shapes.  Similar to dittoDimPlot, but with more flexible axes.
 
+**Updated vignettes with these functions coming soon.** Hopefully, R documentation (example: `?dittoDimPlot`) can suffice in the meantime.
+
 ## Color blindness friendliness:
 
 The default colors of this package are meant to be red-green color blindness friendly.  To make it so, I used the suggested colors from this source: [Wong B, "Points of view: Color blindness." Nature Methods, 2011.](https://www.nature.com/articles/nmeth.1618) and adapted them slightly by appending darker and lighter versions to create a 24 color vector.  All plotting functions use these colors, stored in `dittoColors()`, by default.  Also included is a `Simulate()` function that allows you to see what your function might look like to a colorblind individual.  For more info on that, see my [Colorblindness Compatibility Page](ColorblindCompatibility)
