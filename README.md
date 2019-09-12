@@ -1,13 +1,8 @@
-# DittoSeq [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2577576.svg)](https://doi.org/10.5281/zenodo.2577576)
+# dittoSeq [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2577576.svg)](https://doi.org/10.5281/zenodo.2577576)
 
 **A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by color blind coders**
 
-![example1](Vignette/DBDimPlot2.png)
-![example2](Vignette/DBBarPlot1.png)
-![example3](Vignette/DBPlot2.png)
-![example4](Vignette/multiDBDimPlot1.png)
-
-![example5](Vignette/DemuxCall.png)
+![Overview](Vignette/dittoSeq.gif)
 
 *For a description of how to use the visualization functions, click [here](Vignette)*
 
@@ -25,7 +20,25 @@ Additionally, contains import functions for [Demuxlet](https://github.com/statge
 
 Extends the visualization functionality of the widely used Seurat package, and allows generation of similar figures from alternatively encoded single-cell data, or bulk RNA sequencing data. Thus, it enables analysis of single cell and bulk data side-by-side.
 
-NOTE: I use this package daily, and am constantly coming up with new ideas for tweaks and additional utility myself.  To report errors, give feedback, or suggest new features, you can do so either through [github](https://github.com/dtm2451/DittoSeq/issues), or by email at <daniel.bunis@ucsf.edu>.
+NOTE: I use this package daily, and am constantly coming up with new ideas for tweaks and additional utility myself.  To report errors, give feedback, or suggest new features, you can do so either through [github](https://github.com/dtm2451/dittoSeq/issues), or by email at <daniel.bunis@ucsf.edu>.
+
+## News:
+
+**Name Change:** I recently changed the package name from DittoSeq to dittoSeq to abide by camelCase package naming, as suggested by Bioconductor.  If you get issues loading the package after an update, you likely just need to change `library(DittoSeq)` to `library(dittoSeq)`.
+
+**Colors Storage:** I also updated how the default colors are stored: The package used to add a `MYcolors` object within the workspace.  Now, the colors can be accessed using a `dittoColors()` function.  If you used  `MYcolors` before in your code, just swap that our for `dittoColors()` after updating.
+
+**New functions updated in the development branch:** (from "old" `DB` version to "new" `ditto` versions)
+
+- dittoDimPlot
+- multi_dittoDimPlot
+- dittoHeatmap
+- dittoPlot
+  - Also added Ridgeplot capability & wrappers `dittoRidgePlot()` + `dittoBoxPlot()`
+  
+**Entirely new functions in the development branch:**
+
+- dittoScatterPlot() - allows plotting of gene x gene / metadata x metadata / gene x metadata... scatterplots, with potential to overlay colors or shapes.  Similar to dittoDimPlot, but with more flexible axes.
 
 ## Color blindness friendliness:
 
@@ -37,7 +50,7 @@ Simply run this code:
 
 ```
 install.packages("devtools")
-devtools::install_github("dtm2451/DittoSeq")
+devtools::install_github("dtm2451/dittoSeq")
 ```
 
 ## Development:
@@ -49,10 +62,10 @@ New plotters will be named "ditto"PlottingFunction instead of "DB"PlottingFuncti
 To install the development version, run:
 
 ```
-devtools::install_github("dtm2451/DittoSeq@development")
+devtools::install_github("dtm2451/dittoSeq@development")
 ```
 
-# DittoSeq Functions (as of DittoSeq-0.2.06)
+# dittoSeq Functions (as of dittoSeq-0.2.06)
 
 ## Plotting Functions
 

@@ -1,12 +1,12 @@
-# DittoSeq Vignette
+# dittoSeq Vignette
 
 **For a play-along tutorial, you can download this pre-processed [public scRNAseq data, 272MB](https://ucsf.box.com/s/3lwwwingjinshfj69y3diyhaoa1b5b6w) and download and follow this [tutorial](https://ucsf.box.com/s/vegebc44n4kqlyhrh5wp71dkiasaj5ho)**
 
-Below is a demonstration of the power of DittoSeq's functions for exploring (sc)RNAseq data and creating publication-ready functions with descriptions of basic use and an explanation of many of the tweakable inputs.  I recommend going through the "Basic use" and "Intuitive inputs" sections of this page, then switching to the tutorial linked above.
+Below is a demonstration of the power of dittoSeq's functions for exploring (sc)RNAseq data and creating publication-ready functions with descriptions of basic use and an explanation of many of the tweakable inputs.  I recommend going through the "Basic use" and "Intuitive inputs" sections of this page, then switching to the tutorial linked above.
 
 ## Overview
 
-DittoSeq.R includes various helper and plotting functions for working with RNAseq data. All plotting functions spit out easy-to-read, color blind friendly, ggplot plots upon minimal coding input for your daily analysis needs, and they also allow sufficient manipulations to provide for out-of-the-box submission-quality figures.
+dittoSeq includes various helper and plotting functions for working with RNAseq data. All plotting functions spit out easy-to-read, color blind friendly, ggplot plots upon minimal coding input for your daily analysis needs, and they also allow sufficient manipulations to provide for out-of-the-box submission-quality figures.
 
 In addition to significantly extending visualization functionality of the widely used Seurat package for single cell RNAseq data, the package allows generation of similar figures from bulk RNA sequencing data. Thus, it enables analysis of single cell and bulk data side-by-side. To do so, the package establishes an S4 structure object for bulk RNA sequencing data that is similar to the [Seurat](https://satijalab.org/seurat/) data structure. I will describe that further in a separate vignette. Currently, bulk capabilities only extend to bulk data that has been analyzed in DESeq, but I plan to add functionality for edgeR in the near future. I will add more information about handling bulk data with these functions at that time.
 
@@ -19,10 +19,10 @@ The default colors of this package are color blind friendly.  Source: [Wong B, "
 ## Installation.
 
 ```
-devtools::install_github("dtm2451/DittoSeq")
+devtools::install_github("dtm2451/dittoSeq")
 
 # Or, for newer functions updated more recently than this vignette:
-devtools::install_github("dtm2451/DittoSeq@development")
+devtools::install_github("dtm2451/dittoSeq@development")
 ```
 
 ## Plotting Functions
@@ -51,7 +51,7 @@ The basic use of most functions, including all of the plotting functions is `fun
 - "quoted" name of the object
 - or left out completely after setting `DEFAULT <- "object"`
 
-**`DEFAULT`** - Every function in DittoSeq has `object = DEFAULT` as it's default setup. Thus, if you do not provide an `object` input, it will look for a variable named DEFAULT within your workspace. Try this: Store your quoted object name as a variable named DEFAULT, code = `DEFAULT <- "object"`, to skip the object input altogether! For example, if I start by running `DEFAULT <- "HSPCs"`, then a t-SNE plot with datapoints colored by their age can be generated with just `DBDimPlot("age")` rather than with `DBDimPlot("age","HSPCs")`.
+**`DEFAULT`** - Every function in dittoSeq has `object = DEFAULT` as it's default setup. Thus, if you do not provide an `object` input, it will look for a variable named DEFAULT within your workspace. Try this: Store your quoted object name as a variable named DEFAULT, code = `DEFAULT <- "object"`, to skip the object input altogether! For example, if I start by running `DEFAULT <- "HSPCs"`, then a t-SNE plot with datapoints colored by their age can be generated with just `DBDimPlot("age")` rather than with `DBDimPlot("age","HSPCs")`.
 
 Other Required Inputs, **`group.by` and `color.by`** - DBBarPlot(var, object, group.by) and DBPlot(var, object, group.by, color.by) have 1 and 2 other required inputs.  For both, group.by is required in order to set the x axis groupings.  For DBPlot, color.by is required as well for setting the fill color of the violin-plotting or box-plotting.  The inputs for each of these variables are the "quoted" name of a meta.data of the object.  These should be whatever metadata you wish to have the data grouped by / colored by.
 
