@@ -303,7 +303,7 @@ dittoXPlotMaker <- function(p, Target_data, plots, xlab, ylab,
 # #' @param data.type              For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 # #' @param do.hover               TRUE/FALSE. Default = FALSE.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.
 # #' @param data.hover             list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
-# #' @return Generates Target_data and Others_data data.frames for use by single-axis DittoSeq plotters.
+# #' @return Generates Target_data and Others_data data.frames for use by single-axis dittoSeq plotters.
 
 dittoSingleAxisDataGather <- function(main.var, object = DEFAULT, group.by = "Sample", color.by = group.by,
                                       extra.vars = NULL, cells.use = NULL, data.type = "normalized",

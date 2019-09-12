@@ -2,12 +2,12 @@
 % Please edit documentation in R/dittoColors.R
 \name{dittoColors}
 \alias{dittoColors}
-\title{Extracts the DittoSeq default colors}
+\title{Extracts the dittoSeq default colors}
 \usage{
 dittoColors(get.names = FALSE)
 }
 \arguments{
-\item{get.names}{Logical, whether only the names of the default DittoSeq color panel should be returned instead}
+\item{get.names}{Logical, whether only the names of the default dittoSeq color panel should be returned instead}
 }
 \description{
 Creates a colors vector of 24 colors in hexadecimal form,

@@ -33,14 +33,14 @@ Lighten <- function(colors, percent.change = 0.25, relative = TRUE){
 }
 
 #### Simulate: For simulating what a plot would look like as seen by a colorblind person ####
-#' Simulates what a colorblind person would see for any DittoSeq plot!
+#' Simulates what a colorblind person would see for any dittoSeq plot!
 #'
-#' @description Essentially a wrapper function for colorspace's deutan(), protan(), and tritan() functions. This function will output any DittoSeq plot as it might look to an individual with one of the common forms of colorblindness: deutanopia/deutanomaly, the most common, is when the cones mainly responsible for red vision are defective. Protanopia/protanomaly is when the cones mainly responsible for green vision are defective. In tritanopia/tritanomaly, the defective cones are responsible for blue vision. Note: there are more severe color deficiencies that are even more rare. Unfortunately, for these types of color vision deficiency, only non-color methods, like lettering or shapes, will do much to help.
+#' @description Essentially a wrapper function for colorspace's deutan(), protan(), and tritan() functions. This function will output any dittoSeq plot as it might look to an individual with one of the common forms of colorblindness: deutanopia/deutanomaly, the most common, is when the cones mainly responsible for red vision are defective. Protanopia/protanomaly is when the cones mainly responsible for green vision are defective. In tritanopia/tritanomaly, the defective cones are responsible for blue vision. Note: there are more severe color deficiencies that are even more rare. Unfortunately, for these types of color vision deficiency, only non-color methods, like lettering or shapes, will do much to help.
 #' @param type The type of colorblindness that you want to simulate for. Options: "deutan", "protan", "tritan". Anything else, and you will get an error.
 #' @param plot.function The plotting function that you want to use/simulate. not quoted. and make sure to remove the () that R will try to add.
-#' @param ... other paramters that can be given to DittoSeq plotting functions, including color.panel, used in exactly the same way they are used for those functions. (contrary to the look of this documentation, color.panel will still default to dittoColors() when not provided.)
+#' @param ... other paramters that can be given to dittoSeq plotting functions, including color.panel, used in exactly the same way they are used for those functions. (contrary to the look of this documentation, color.panel will still default to dittoColors() when not provided.)
 #' @param color.panel The set of colors to be used.  Not required to be given, as contrary to the look of this documentation, it will still default to dittoColors() when not provided.
-#' @return Outputs a DittoSeq plot with the color.panel updated as it might look to a colorblind individual. Note: Does not currently work for DBHeatmap or for continuous variable plotting in DBDimPlot.
+#' @return Outputs a dittoSeq plot with the color.panel updated as it might look to a colorblind individual. Note: Does not currently work for DBHeatmap or for continuous variable plotting in DBDimPlot.
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small

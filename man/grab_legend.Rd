@@ -7,7 +7,7 @@
 grab_legend(ggplot)
 }
 \arguments{
-\item{ggplot}{The ggplot object that you would like to grab the legend from.  Can be any of the single plots from DittoSeq except DBHeatmap and demux.calls.summary}
+\item{ggplot}{The ggplot object that you would like to grab the legend from.  Can be any of the single plots from dittoSeq except DBHeatmap and demux.calls.summary}
 }
 \value{
 The legend of a ggplot plot

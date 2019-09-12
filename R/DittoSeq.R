@@ -318,7 +318,7 @@ meta.levels <- function(meta, object = DEFAULT, table.out = FALSE){
 #' Extract the legend from a ggplot
 #'
 #' @description This function will extract the legend of any ggplot.
-#' @param ggplot The ggplot object that you would like to grab the legend from.  Can be any of the single plots from DittoSeq except DBHeatmap and demux.calls.summary
+#' @param ggplot The ggplot object that you would like to grab the legend from.  Can be any of the single plots from dittoSeq except DBHeatmap and demux.calls.summary
 #' @return The legend of a ggplot plot
 #' @examples
 #' library(Seurat)
@@ -345,7 +345,7 @@ grab_legend <- function(ggplot){
 #' Remove the legend from a ggplot
 #'
 #' @description This function will remove the legend of any ggplot.
-#' @param ggplot The ggplot object that you would like to eliminate the legend from.  Can be any of the single plots from DittoSeq except DBHeatmap and demux.calls.summary
+#' @param ggplot The ggplot object that you would like to eliminate the legend from.  Can be any of the single plots from dittoSeq except DBHeatmap and demux.calls.summary
 #' @return A ggplot plot with its legend removed.
 #' @examples
 #' library(Seurat)

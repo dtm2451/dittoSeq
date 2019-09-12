@@ -39,17 +39,17 @@ dittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
 
 \item{colors}{indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups}
 
-\item{data.type.x}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[DittoSeq]{gene}. DEFAULT = "normalized"}
+\item{data.type.x}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene}. DEFAULT = "normalized"}
 
-\item{data.type.y}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[DittoSeq]{gene}. DEFAULT = "normalized"}
+\item{data.type.y}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene}. DEFAULT = "normalized"}
 
-\item{data.type.color}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[DittoSeq]{gene}. DEFAULT = "normalized"}
+\item{data.type.color}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene}. DEFAULT = "normalized"}
 
 \item{do.hover}{TRUE/FALSE. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.}
 
 \item{data.hover}{list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.}
 
-\item{data.type.hover}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[DittoSeq]{gene}. DEFAULT = "normalized" For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
+\item{data.type.hover}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene}. DEFAULT = "normalized" For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
 
 \item{shape}{Number for setting the shape}
 
