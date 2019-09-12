@@ -173,7 +173,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
   p <- p + xlab(xlab) +
     ggtitle(main, subtitle = sub) +
     theme(axis.text.x= element_text(size=10)) +
-    if (rotate.labels) {theme(axis.text.x= element_text(angle=45, hjust = 1.3, vjust = 1.2, size=12))} +
+    if (rotate.labels) {theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1, size=12))} +
     theme(legend.title=element_text(size=12)) +
     theme(legend.text=element_text(size=14))
 
