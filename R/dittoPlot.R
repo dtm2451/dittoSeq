@@ -132,10 +132,12 @@ dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
 
   #Parse Title Defaults
   #ylab
-  if (!(is.null(ylab)) && length(var)==1 && is.character(var)) {
+  if ((!is.null(ylab)) && length(var)==1 && is.character(var)) {
       if (is.gene(var, object) && ylab == "make") { ylab <- paste0(var," expression") }
       if (ylab == "make" | ylab=="var") { ylab <- var }
-  } else if (ylab == "make") { ylab <- NULL }
+  } else if ((!is.null(ylab)) && ylab == "make") {
+      ylab <- NULL
+  }
   #main
   if (!is.null(main) && main == "make") {
       if (length(var)==1) { main <- var } else { main <- NULL }
@@ -178,6 +180,95 @@ dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
     return(plotly::ggplotly(p, tooltip = "text")) }
     else { return(p) }
   }
+}
+
+#### multi_dittoPlot : a function for quickly making multiple DBPlots arranged in a grid.
+#' Generates multiple dittoPlots arranged into a grid.
+#'
+#' @param vars c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
+#' @param object the Seurat, SingleCellExperiment, or RNAseq object to draw from, or the "quoted" name of such an object. REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param group.by "metadata" to use for separating values. REQUIRED.
+#' @param color.by "metadata" to use for coloring. Affects boxplot, vlnplot, or ridgeplot fills. Defaults to \code{group.by} if not provided.
+#' @param show.legend TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE
+#' @param ncol Integer which sets how many plots will be arranged per row.  Default = 3.
+#' @param nrow  Integer which sets how many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
+#' @param add.title Logical which sets whether a title should be added to each individual plot
+#' @param ylab Logical or string (with "var" being a special case).
+#' If logical, sets whether a y-axis title should be added.
+#' When set to \code{TRUE}, default dittoPlot behavior will be observed: y-label for any gene vars will be "'var' expression"
+#' When set to \code{"var"}, then the \code{vars} names alone will be used.
+#' When set as any other string, that string will be used as the y-axis label for every plot.
+#' @param OUT.List Logical which sets whether the output should be a list of objects instead of the plots arranged into a single plot grid.
+#' Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.
+#' In the list, all plots will be named by the element of \code{vars} the represent.
+#' @param ... other paramters passed along to dittoPlot.
+#' @return Given multiple 'var' parameters, this function will output a DBPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBPlot can be adjusted here.
+#' @seealso
+#' \code{\link{dittoPlot}} for the single plot version of this function
+#' @examples
+#' library(Seurat)
+#' pbmc <- Seurat::pbmc_small
+#' genes <- c("CD8A","CD3E","FCER1A","CD14")
+#' multi_dittoPlot(genes, object = "pbmc",
+#'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
+#'
+#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object
+#'       # input can be skipped completely.
+#' DEFAULT <- "pbmc"
+#' multi_dittoPlot(genes,
+#'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
+#'
+#' #To make it output a grid that is 2x2, to add y-axis labels
+#' # instead of titles, and to show legends...
+#' multi_dittoPlot(genes,
+#'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+#'     nrow = 2, ncol = 2,
+#'     add.title = FALSE, ylab = TRUE,  #Add y axis labels instead of titles
+#'     show.legend = TRUE)              #Show legends
+#' # To eliminate the "expression", change ylab = TRUE to ylab = "var"
+#' multi_dittoPlot(genes,
+#'             group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+#'             nrow = 2, ncol = 2,              #Make it 2x2
+#'             add.title = FALSE, ylab = "var", #Add y axis labels without "expression"
+#'             show.legend = TRUE)              #Show legends
+#' @export
+
+multi_dittoPlot <- function(
+    vars, object = DEFAULT, group.by, color.by = group.by, show.legend = FALSE,
+    ncol = 3, nrow = NULL, add.title=TRUE, ylab = FALSE, OUT.List = FALSE,
+    ...) {
+
+    #Turn the object into a "name" if a full object was given
+    if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
+
+    ylab.input <- ylab
+
+    plots <- lapply(vars, function(X) {
+        dittoPlot(X, object, group.by, color.by,
+            ylab =
+                if (is(ylab.input, "character")) {
+                    ifelse(
+                        ylab.input == "var",
+                        X,
+                        ylab.input)
+                } else {
+                    if (ylab.input) {
+                        "make" }
+                    else {
+                        NULL
+                    }
+                },
+            ...) +
+            theme(legend.position = ifelse(show.legend, "right", "none"))
+    })
+
+    #Output
+    if (OUT.List){
+        names(plots) <- vars
+        return(plots)
+    } else {
+        return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
+    }
 }
 
 #' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings horizontally in a desnsity representation
