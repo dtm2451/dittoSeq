@@ -6,7 +6,7 @@
 \alias{Class}
 \title{The RNAseq Class}
 \description{
-The RNAseq object stores data analyzed in DESeq2 in a structure similar to a Seurat-object.  This is the data structure required for DittoSeq plottign functions to access bulk RNAseq data.  All that is needed to create an RNAseq object is a DESeqDataSet output from the DESeq() function.
+The RNAseq object stores data analyzed in DESeq2 in a structure similar to a Seurat-object.  This is the data structure required for dittoSeq plottign functions to access bulk RNAseq data.  All that is needed to create an RNAseq object is a DESeqDataSet output from the DESeq() function.
 }
 \section{Slots}{
 
@@ -29,6 +29,6 @@ The RNAseq object stores data analyzed in DESeq2 in a structure similar to a Seu
 
 \item{\code{CVs}}{a numeric vector showing the coefficient of variation (mean divided by sd) for each gene in the dataset.}
 
-\item{\code{other}}{A great place to store any other data associated with your bulk experiment that does not fit elsewhere in the object.  Components of the list can be of any type.  Left empty by default, and is not altered or used by any of the DittoSeq functions.}
+\item{\code{other}}{A great place to store any other data associated with your bulk experiment that does not fit elsewhere in the object.  Components of the list can be of any type.  Left empty by default, and is not altered or used by any of the dittoSeq functions.}
 }}
 

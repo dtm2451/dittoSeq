@@ -7,7 +7,7 @@
 remove_legend(ggplot)
 }
 \arguments{
-\item{ggplot}{The ggplot object that you would like to eliminate the legend from.  Can be any of the single plots from DittoSeq except DBHeatmap and demux.calls.summary}
+\item{ggplot}{The ggplot object that you would like to eliminate the legend from.  Can be any of the single plots from dittoSeq except DBHeatmap and demux.calls.summary}
 }
 \value{
 A ggplot plot with its legend removed.
