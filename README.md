@@ -35,6 +35,7 @@ NOTE: I use this package daily, and am constantly coming up with new ideas for t
 - dittoHeatmap
 - dittoPlot
   - Also added Ridgeplot capability & wrappers `dittoRidgePlot()` + `dittoBoxPlot()`
+- multi_dittoPlot
   
 **Entirely new functions in the development branch:**
 
