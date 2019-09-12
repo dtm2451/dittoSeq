@@ -198,6 +198,8 @@ dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
 #' When set to \code{TRUE}, default dittoPlot behavior will be observed: y-label for any gene vars will be "'var' expression"
 #' When set to \code{"var"}, then the \code{vars} names alone will be used.
 #' When set as any other string, that string will be used as the y-axis label for every plot.
+#' @param xlab String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
+#' Default is \code{NULL}, which removes it from plotting.
 #' @param OUT.List Logical which sets whether the output should be a list of objects instead of the plots arranged into a single plot grid.
 #' Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.
 #' In the list, all plots will be named by the element of \code{vars} the represent.
@@ -235,7 +237,7 @@ dittoPlot <- function(var, object = DEFAULT, group.by, color.by = group.by,
 
 multi_dittoPlot <- function(
     vars, object = DEFAULT, group.by, color.by = group.by, show.legend = FALSE,
-    ncol = 3, nrow = NULL, add.title=TRUE, ylab = FALSE, OUT.List = FALSE,
+    ncol = 3, nrow = NULL, add.title=TRUE, ylab = FALSE, xlab = NULL, OUT.List = FALSE,
     ...) {
 
     #Turn the object into a "name" if a full object was given
@@ -244,7 +246,7 @@ multi_dittoPlot <- function(
     ylab.input <- ylab
 
     plots <- lapply(vars, function(X) {
-        dittoPlot(X, object, group.by, color.by,
+        dittoPlot(X, object, group.by, color.by, xlab = xlab,
             ylab =
                 if (is(ylab.input, "character")) {
                     ifelse(
@@ -257,6 +259,12 @@ multi_dittoPlot <- function(
                     else {
                         NULL
                     }
+                },
+            main =
+                if (add.title) {
+                    "make"
+                } else {
+                    NULL
                 },
             ...) +
             theme(legend.position = ifelse(show.legend, "right", "none"))
@@ -291,11 +299,12 @@ dittoYPlotMaker <- function(
 
   # Now that we know the plot's direction, set y-axis limits
   if (!is.null(y.breaks)) {
-    p <- p + scale_y_continuous(breaks = y.breaks) + coord_cartesian(ylim=c(min(y.breaks),max(y.breaks)))
+    p <- p + scale_y_continuous(breaks = y.breaks) +
+      coord_cartesian(ylim=c(min(y.breaks),max(y.breaks)), clip = "off")
   } else {
     if (is.null(min)){min <- min(Target_data$var.data)}
     if (is.null(max)){max <- max(Target_data$var.data)}
-    p <- p + coord_cartesian(ylim=c(min,max))
+    p <- p + coord_cartesian(ylim=c(min,max), clip = "off")
   }
 
   # Add labels and, if requested, lines
@@ -365,7 +374,8 @@ dittoXPlotMaker <- function(p, Target_data, plots, xlab, ylab,
 
   # Add labels and, if requested, lines
   p <- p + aes(x = var.data, y = grouping) + xlab(ylab) + ylab(xlab) +
-  scale_y_discrete(expand = expand_scale(mult = c(0.02, 0.05)))
+      scale_y_discrete(expand = expand_scale(mult = c(0.02, 0.05))) +
+      coord_cartesian(clip = "off")
 
   if (is.na(rotate.labels)) {rotate.labels <- FALSE}
   if (rotate.labels) {p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1, size=12))}
