@@ -110,6 +110,18 @@ dittoBarPlot <- function(
     } else {
         y.show <- "count"
     }
+
+    # Rename and/or reorder x groupings
+    rename.args <- list(x = data$grouping)
+    if (!(is.null(x.reorder))) {
+        rename.args$levels <- levels(factor(rename.args$x))[x.reorder]
+    }
+    if (!(is.null(x.labels))) {
+        rename.args$labels <- x.labels
+    }
+    data$grouping <- do.call(factor, args = rename.args)
+
+    # Add hover info
     if (do.hover) {
         hover.data <- data[,names(data) %in% c("label", "count", "percent")]
         names(hover.data)[1] <- var
@@ -126,12 +138,6 @@ dittoBarPlot <- function(
             }, FUN.VALUE = character(1))
         data$hover.string <- hover.string
     }
-
-    #Rename and/or reorder x groupings
-    rename.args <- list(x = data$grouping)
-    if (!(is.null(x.reorder))){rename.args$levels <- levels(factor(rename.args$x))[x.reorder]}
-    if (!(is.null(x.labels))){rename.args$labels <- x.labels}
-    data$grouping <- do.call(factor, args = rename.args)
 
     #Build Plot
     p <- ggplot(
