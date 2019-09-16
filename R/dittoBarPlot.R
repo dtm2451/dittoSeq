@@ -112,7 +112,7 @@ dittoBarPlot <- function(
     }
     if (do.hover) {
         hover.data <- data[,names(data) %in% c("label", "count", "percent")]
-        names(hover.data)[c(1,2)] <- c(var,group.by)
+        names(hover.data)[1] <- var
         # Make hover srtings, "data.type: data" \n "data.type: data"
         hover.string <- vapply(
             seq_len(nrow(hover.data)),
