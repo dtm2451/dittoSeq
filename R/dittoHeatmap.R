@@ -45,23 +45,33 @@
 #' pbmc <- Seurat::pbmc_small
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
-#'     object = "pbmc",
+#'     object = pbmc,
 #'     col.annotation.metas = "ident")
-#' # For real data, you will have more cells than this truncated dataset,
+#' # For real single cell data, you will have more cells than
+#' #   in this truncated dataset,
 #' #   so turning off cell clustering when trying out tweaks is recommended.
 #' #   Do so by adding cluster_cols=FALSE
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
-#'     object = "pbmc",
+#'     object = pbmc,
 #'     col.annotation.metas = "ident",
 #'     cluster_cols=FALSE)
+#'
+#' # When there are many cells, showing names becomes less useful.
+#'   # Names can be turned off with the show.colnames parameter.
+#' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+#'     "FCGR3A","LYZ","PPBP","CD8A"),
+#'     object = pbmc,
+#'     col.annotation.metas = "ident",
+#'     cluster_cols=FALSE,
+#'     show.colnames = FALSE)
 #'
 #' # Additionally, it is recommended for single-cell data that the parameter
 #' #   scaled.to.max be set to TRUE, because these data are generally enriched
 #' #   for zeros that otherwise get scaled to a negative value.
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
-#'     object = "pbmc",
+#'     object = pbmc,
 #'     col.annotation.metas = "ident",
 #'     scaled.to.max = TRUE)
 #'
@@ -86,7 +96,7 @@ dittoHeatmap <- function(
     show.rownames = TRUE, ...) {
 
     if (is.null(genes)) {
-        stop('This function is not set up to select which genes to use.\nPlease provide a list of genes a set of genes.')
+        stop('This function is not set up to select which genes to use.\nPlease provide a set of genes.')
     }
     if (typeof(object)=="S4") {
         object <- deparse(substitute(object))
