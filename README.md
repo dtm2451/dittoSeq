@@ -36,6 +36,7 @@ NOTE: I use this package daily, and am constantly coming up with new ideas for t
 - dittoPlot
   - Also added Ridgeplot capability & wrappers `dittoRidgePlot()` + `dittoBoxPlot()`
 - multi_dittoPlot
+- dittoBarPlot
   
 **Entirely new functions in the development branch:**
 
