@@ -12,7 +12,7 @@ dittoPlot(var, object = DEFAULT, group.by, color.by = group.by,
   color.panel = dittoColors(), colors = seq_along(color.panel),
   theme = theme_classic(), main = "make", sub = NULL,
   ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
-  xlab = group.by, x.labels = NULL, rotate.labels = NA,
+  xlab = group.by, x.labels = NULL, x.labels.rotate = NA,
   x.reorder = seq_along(meta.levels(group.by, object)),
   jitter.size = 1, jitter.width = 0.2, jitter.color = "black",
   jitter.shapes = c(16, 15, 17, 23, 25, 8),
@@ -37,7 +37,7 @@ This is the data that will be displayed.}
 
 \item{group.by}{String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.}
 
-\item{color.by}{String representing the name of a "metadata" to use for settin color.
+\item{color.by}{String representing the name of a "metadata" to use for setting color.
 Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so this input can be skipped if both are the same.}
 
 \item{shape}{Integer representing a ggplot shape, OR String representing the name of a "metadata" to use for setting the shape of the jitter points.  Default = 16, dots.}
@@ -56,7 +56,7 @@ Note: Currently, incompatible with RidgePlots as plotly does not support the geo
 
 \item{data.hover}{String vector, a list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show upon hover when do.hover is set to \code{TRUE}.}
 
-\item{color.panel}{String vector which the set of colors to draw from. \code{dittoColors()} by default.}
+\item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default.}
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
@@ -69,7 +69,7 @@ Note: Currently, incompatible with RidgePlots as plotly does not support the geo
 \item{ylab}{String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
 Defaults to "\code{var}" or "\code{var} expression" if var is a gene.}
 
-\item{y.breaks}{Numeric vector a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.) NOTE: The low and highs of this variable will override `min` and `max`.}
+\item{y.breaks}{Numeric vector, a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.) NOTE: The low and highs of this variable will override `min` and `max`.}
 
 \item{min, max}{Scalars which set a custom minimum / maximum y-value to show.  Default = set based on the limits of the data in var.}
 
@@ -79,11 +79,13 @@ Set to \code{NULL} to remove.}
 
 \item{x.labels}{String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.  NOTE: you need to give at least as many labels as there are discrete values in the group.by data.}
 
-\item{rotate.labels}{Logical. whether the labels should be rotated.  Default = \code{FALSE} = vertical labels.}
+\item{x.labels.rotate}{Logical which sets whether the labels should be rotated.
+Default: \code{TRUE} for violin and box plots, but \code{FALSE} for ridgeplots.}
 
-\item{x.reorder}{Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging their order.
+\item{x.reorder}{Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
+
 Method: Make a first plot without this input.
-Then treating the leftmost grouping as index 1, and the rightmost as index n.
+Then, treating the leftmost grouping as index 1, and the rightmost as index n.
 Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.}
 
 \item{jitter.size}{Scalare which sets the size of the jitter shapes.}
@@ -133,7 +135,7 @@ Higher numbers lead to greater overlap.  Default = 1.25}
 
 \item{legend.title}{String or \code{NULL}, sets the title for the main legend. It is set to \code{NULL} (off) by default.}
 
-\item{data.out}{Logical that sets whether just the plot should be output, or a list containing the plot (\code{p}) and data (\code{data}).  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
+\item{data.out}{Logical which sets whether just the plot should be output, or a list containing the plot (\code{p}) and data (\code{data}).  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
 
 \item{...}{arguments passed to dittoPlot by dittoRidgePlot.  Options are all the ones above.}
 }
