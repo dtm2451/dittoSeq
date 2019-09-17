@@ -47,6 +47,13 @@
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
 #'     col.annotation.metas = "ident")
+#'
+#' #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
+#' DEFAULT <- "pbmc"
+#' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+#'     "FCGR3A","LYZ","PPBP","CD8A"),
+#'     col.annotation.metas = "ident")
+#'
 #' # For real single cell data, you will have more cells than
 #' #   in this truncated dataset,
 #' #   so turning off cell clustering when trying out tweaks is recommended.
@@ -58,7 +65,7 @@
 #'     cluster_cols=FALSE)
 #'
 #' # When there are many cells, showing names becomes less useful.
-#'   # Names can be turned off with the show.colnames parameter.
+#' #   Names can be turned off with the show.colnames parameter.
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
@@ -67,20 +74,23 @@
 #'     show.colnames = FALSE)
 #'
 #' # Additionally, it is recommended for single-cell data that the parameter
-#' #   scaled.to.max be set to TRUE, because these data are generally enriched
-#' #   for zeros that otherwise get scaled to a negative value.
+#' #   scaled.to.max be set to TRUE, or scaling be turned off altogether,
+#' #   because these data are generally enriched for zeros that otherwise get
+#' #   scaled to a negative value.
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
 #'     col.annotation.metas = "ident",
+#'     show.colnames = FALSE,
 #'     scaled.to.max = TRUE)
-#'
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
+#'     object = pbmc,
 #'     col.annotation.metas = "ident",
-#'     scaled.to.max = TRUE)
+#'     show.colnames = FALSE,
+#'     scaled.to.max = FALSE,
+#'     scale = "none",
+#'     heatmap.colors = colorRampPalette(c("white", "red"))(25))
 #'
 #' @export
 
@@ -120,7 +130,11 @@ dittoHeatmap <- function(
     args <- list(
         mat = data, main = main, show_colnames = show.colnames,
         show_rownames = show.rownames, color = heatmap.colors,
-        scale = ifelse(scaled.to.max, "none", "row"), ...)
+        ...)
+
+    if (is.null(args$scale)) {
+        args$scale <- ifelse(scaled.to.max, "none", "row")
+    }
 
     if (is.null(args$border_color)) {
       args$border_color <- NA
