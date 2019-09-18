@@ -87,7 +87,7 @@ dittoScatterPlot <- function(x.var, y.var, overlay.color.var = NULL, overlay.sha
   }
   #Grab data for hovering
   if (do.hover) {
-    hover.string <- .make_hover_strings(data.hover, object, data.type.hover)
+    hover.string <- .make_hover_strings_from_vars(data.hover, object, data.type.hover)
   } else {hover.string <- NA}
   #Split data to target vs other
   Target_data <- dat[cells.use,]

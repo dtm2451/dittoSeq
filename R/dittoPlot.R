@@ -95,18 +95,26 @@
 #' dittoPlot("CD14", object = "pbmc", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
-#' dittoPlot("CD14", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
+#' dittoPlot("CD14", group.by = "RNA_snn_res.1")
 #'
 #' # We can adjust the types of plots displayed with the plots input:
 #' dittoPlot("CD14", group.by = "RNA_snn_res.1",
-#'   plots = c("vlnplot", "boxplot", "jitter"),
-#'   boxplot.fill = FALSE)
+#'     plots = c("vlnplot", "boxplot", "jitter"),
+#'     boxplot.fill = FALSE)
 #'
 #' # Quickly make a Ridgeplot
 #' dittoRidgePlot("CD14", group.by = "RNA_snn_res.1")
 #'
 #' # Quickly make a Boxplot
 #' dittoBoxPlot("CD14", group.by = "RNA_snn_res.1")
+#'
+#' # Any of these can be combined with 'hovering' to retrieve specific info
+#' #   about certain data points.  Just add 'do.hover = TRUE' and pick what
+#' #   extra data to display by provide set of gene or metadata names to
+#' #   'data.hover'.
+#' #     Note: ggplotly plots ignores certain dittoSeq plot tweaks.
+#' dittoBoxPlot("CD14", group.by = "RNA_snn_res.1",
+#'     do.hover = TRUE, data.hover = c("MS4A1","RNA_snn_res.0.8","ident"))
 #' @export
 
 dittoPlot <- function(
@@ -281,7 +289,7 @@ multi_dittoPlot <- function(
     plots <- lapply(vars, function(X) {
         dittoPlot(X, object, group.by, color.by, xlab = xlab,
             ylab =
-                if (is(ylab.input, "character")) {
+                if (is.character(ylab.input)) {
                     ifelse(
                         ylab.input == "var",
                         X,
@@ -481,9 +489,9 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
         }
         names <- c(names, extra.vars)
     }
-    #A dd hover strings
+    # Add hover strings
     if (do.hover) {
-        full_data$hover.string <- .make_hover_strings(data.hover, object, data.type)
+        full_data$hover.string <- .make_hover_strings_from_vars(data.hover, object, data.type)
         names <- c(names, "hover.string")
     }
     # Add column names

@@ -97,7 +97,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
   # then for all cells, make a string "var1: var1-value\nvar2: var2-value..."
   hover.string <- NA
   if (do.hover) {
-    hover.string <- .make_hover_strings(data.hover, object, data.type)
+    hover.string <- .make_hover_strings_from_vars(data.hover, object, data.type)
   }
 
   ###Make dataframe for storing the plotting data:

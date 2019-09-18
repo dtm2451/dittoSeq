@@ -150,9 +150,9 @@
 # #' @examples
 # #' library(Seurat)
 # #' pbmc <- Seurat::pbmc_small
-# #' .make_hover_strings(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
+# #' .make_hover_strings_from_vars(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
 # #'
-.make_hover_strings <- function(data.hover, object, data.type){
+.make_hover_strings_from_vars <- function(data.hover, object, data.type) {
     # Overall: if do.hover=TRUE and data.hover has a list of genes / metas called
       # c(var1, var2, var3, ...), then for all cells, make a string:
       # "var1: var1-value\nvar2: var2-value\nvar3: var3-value\n..."
@@ -179,24 +179,18 @@
     names(features.info) <- data.hover[fillable]
 
     # Convert each row of dataframe to 'colname1: data1\ncolname2: data2\n...'
-    hover.strings <-
-        vapply(
-            seq_len(nrow(features.info)),
-            function(row) {
-                paste(as.character(
-                    vapply(
-                        seq_along(data.hover),
-                        function(col) {
-                            # Make entry each column.
-                            paste0(names(features.info)[col],
-                            ": ",
-                            features.info[row,col])
-                        },
-                        character(1))),
-                    # Collapse column entries for each row with newline char.
-                    collapse = "\n")
-            },
-            character(1))
+    hover.strings <- .make_hover_strings_from_df(features.info)
+}
 
-    hover.strings
+.make_hover_strings_from_df <- function(df){
+    vapply(
+        seq_len(nrow(df)),
+        function(row){
+            paste(as.character(vapply(
+                seq_len(ncol(df)),
+                function(col){
+                    paste0(names(df)[col],": ",df[row,col])
+                }, FUN.VALUE = character(1))
+                ),collapse = "\n")
+        }, FUN.VALUE = character(1))
 }

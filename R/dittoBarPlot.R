@@ -126,17 +126,7 @@ dittoBarPlot <- function(
         hover.data <- data[,names(data) %in% c("label", "count", "percent")]
         names(hover.data)[1] <- var
         # Make hover srtings, "data.type: data" \n "data.type: data"
-        hover.string <- vapply(
-            seq_len(nrow(hover.data)),
-            function(row){
-                paste(as.character(vapply(
-                    seq_len(ncol(hover.data)),
-                    function(col){
-                        paste0(names(hover.data)[col],": ",hover.data[row,col])
-                    }, FUN.VALUE = character(1))
-                    ),collapse = "\n")
-            }, FUN.VALUE = character(1))
-        data$hover.string <- hover.string
+        data$hover.string <- .make_hover_strings_from_df(hover.data)
     }
 
     #Build Plot
