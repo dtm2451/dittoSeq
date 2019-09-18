@@ -18,7 +18,9 @@ dittoHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
 
 \item{object}{String name of the object to draw from.  Alternatively, the \code{\link[Seurat]{Seurat}},  or \code{\linkS4class{RNAseq}}, or \code{\link[SingleCellExperiment]{SingleCellExperiment}} object itself. REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
-\item{cells.use}{String vector of cell/sample names to include, OR logical vector that is the same length as the number of cells in the object.}
+\item{cells.use}{String vector of cells'/samples' names which should be included.
+Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
+For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
 
 \item{main}{String that sets the title for the heatmap.}
 

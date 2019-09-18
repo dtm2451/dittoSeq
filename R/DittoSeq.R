@@ -295,8 +295,9 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #'
 #' @param meta quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.
 #' @param object the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param cells.use String vector of cell/sample names to include, OR logical vector that is the same length as the number of cells in the object.
-#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]})
+#' @param cells.use String vector of cells'/samples' names which should be included.
+#' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
+#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
 #' @return Returns the distinct values of a metadata slot given to all cells/samples or for a subset of cells/samples.
 #' (Alternatively, returns the distinct values of clustering if \code{meta = "ident"} and the object is a \code{Seurat} object).
 #' @examples

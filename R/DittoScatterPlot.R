@@ -6,7 +6,9 @@
 #' @param overlay.color.var Variable for setting the color of cells/samples in the plot.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
 #' @param overlay.shape.var Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
 #' @param object the Seurat, SingleCellExperiment, or RNAseq object to work on.
-#' @param cells.use cells to show: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. *THIS*: object@cell.names[*THIS*])
+#' @param cells.use String vector of cells'/samples' names which should be included.
+#' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
+#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
 #' @param show.others TRUE/FALSE. TRUE by default, whether other cells should be shown in the background
 #' @param color.panel a list of colors to be used for when plotting a discrete var.
 #' @param colors indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups

@@ -25,7 +25,9 @@
 #' @param xlab label for y axes.  Default labels are generated if you do not give this a specific value.  To remove, set to NULL.
 #' @param ylab label for y axes.  Default labels are generated if you do not give this a specific value.  To remove, set to NULL.
 #' @param numbers.show Logical which controls whether the axes values should be displayed.
-#' @param cells.use cells to show: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. *THIS*: object@cell.names[*THIS*])
+#' @param cells.use String vector of cells'/samples' names which should be included.
+#' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
+#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
 #' @param show.others Logical. TRUE by default, whether other cells should be shown in the background
 #' @param ellipse Logical. Whether the groups should be surrounded by an ellipse.
 #' @param do.label  Logical. Whether to add text labels at the center (median) of clusters for grouping vars

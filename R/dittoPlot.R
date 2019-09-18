@@ -3,14 +3,16 @@
 #' Plots continuous data for cutomizable cells'/samples' groupings on a y-axis
 #' @import ggplot2
 #'
-#' @param var Single String representing a metadata or gene OR a numeric vector with length equal to the total number of cells/samples in the dataset.
+#' @param var Single String representing, a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
 #' This is the data that will be displayed.
 #' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param group.by String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.
 #' @param color.by String representing the name of a "metadata" to use for setting color.
 #' Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so this input can be skipped if both are the same.
 #' @param shape Integer representing a ggplot shape, OR String representing the name of a "metadata" to use for setting the shape of the jitter points.  Default = 16, dots.
-#' @param cells.use String vector of cells'/samples' names which should be included OR or a logical vector that is the same length as the number of cells in the object which sets which cells to include (a.k.a. \code{USE} in \code{colnames(object)[USE]}).
+#' @param cells.use String vector of cells'/samples' names which should be included.
+#' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
+#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
 #' @param plots String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot". See details section for more info.
 #' @param data.type String, for when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @param do.hover Logical. Default = \code{FALSE}.
@@ -23,7 +25,7 @@
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
 #' @param main String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.
 #' @param sub String, sets the plot subtitle
-#' @param theme ggplot theme. Allows setting of a theme. Default = theme_classic when nothing is provided.
+#' @param theme ggplot theme. Allows setting of a base theme. Default = \code{theme_classic()} when nothing is provided. \code{theme_bw()} is another great option.
 #' @param xlab String, sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 #' Default is \code{group.by} so it defaults to the name of the grouping information.
 #' Set to \code{NULL} to remove.
@@ -76,8 +78,8 @@
 #'
 #' If \code{data.out=TRUE}, a list containing the plot (\code{p}), a data.table containing the underlying data for target cells (\code{data})
 #'
-#' If \code{add.line}, is provided a value, a vertical (or horizontal, depending on plot type) line will be added at the value provided.
-#' It's type and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
+#' If \code{add.line}, is provided a single or multiple value(s), horizontal (or vertical, for ridgeplots) lines will be added at the values provided.
+#' Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 #'
 #' The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
 #' Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.

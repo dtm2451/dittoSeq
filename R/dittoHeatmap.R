@@ -4,7 +4,9 @@
 #'
 #' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap. REQUIRED.
 #' @param object String name of the object to draw from.  Alternatively, the \code{\link[Seurat]{Seurat}},  or \code{\linkS4class{RNAseq}}, or \code{\link[SingleCellExperiment]{SingleCellExperiment}} object itself. REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param cells.use String vector of cell/sample names to include, OR logical vector that is the same length as the number of cells in the object.
+#' @param cells.use String vector of cells'/samples' names which should be included.
+#' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
+#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
 #' @param data.type String. Options are "normalized" (data slot, default), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects). Note: scaling is performed on the data matrix by default.
 #' @param heatmap.colors the colors to use within the heatmap.
 #' Default is a ramp from navy to white to red with 50 slices.

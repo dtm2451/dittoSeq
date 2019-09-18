@@ -62,7 +62,9 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
 
 \item{numbers.show}{Logical which controls whether the axes values should be displayed.}
 
-\item{cells.use}{cells to show: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. *THIS*: object@cell.names[*THIS*])}
+\item{cells.use}{String vector of cells'/samples' names which should be included.
+Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
+For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
 
 \item{show.others}{Logical. TRUE by default, whether other cells should be shown in the background}
 
