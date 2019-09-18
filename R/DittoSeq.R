@@ -293,10 +293,12 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #### meta.levels: for obtaining the different classifications of a meta.data
 #' Gives the distinct values of a meta.data slot (or ident)
 #'
-#' @param meta               quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param table.out          TRUE/FALSE. Default = FALSE. Whether the numbers of incidences of each level are wanted in addition to the level names themselves.
-#' @return Returns the distinct values of a meta.data slot, or ident (clustering) slot if "ident" was given and the object is a Seurat object.  Can also return the counts of each as well.
+#' @param meta quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.
+#' @param object the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param cells.use String vector of cell/sample names to include, OR logical vector that is the same length as the number of cells in the object.
+#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]})
+#' @return Returns the distinct values of a metadata slot given to all cells/samples or for a subset of cells/samples.
+#' (Alternatively, returns the distinct values of clustering if \code{meta = "ident"} and the object is a \code{Seurat} object).
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
@@ -306,12 +308,21 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #' meta.levels("RNA_snn_res.1")
 #' @export
 
-meta.levels <- function(meta, object = DEFAULT, table.out = FALSE){
-  if (table.out){
-    table(meta(meta, object))
-  } else {
-    levels(as.factor(meta(meta, object)))
-  }
+meta.levels <- function(meta, object = DEFAULT, cells.use = NULL){
+    if (typeof(object)=="S4"){
+        object <- deparse(substitute(object))
+    }
+    if (!is.null(cells.use)){
+        all.cells <- .all_cells(object)
+        cells.use <- .which_cells(cells.use, object)
+        return(levels(as.factor(as.character(
+            meta(meta, object)[all.cells %in% cells.use]
+            ))))
+    } else {
+        return(levels(as.factor(as.character(
+            meta(meta, object)
+            ))))
+    }
 }
 
 ###### grab_legend: Extract the legend from a ggplot ############

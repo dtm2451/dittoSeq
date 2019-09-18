@@ -63,7 +63,7 @@ DBPlot <- function(var, object = DEFAULT, group.by, color.by,
                    jitter.shape.legend.size = 3,
                    boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA, boxplot.fill =TRUE,
                    vlnplot.lineweight = 1, vlnplot.width = 1,
-                   reorder.x = seq_along(meta.levels(group.by, object)),
+                   reorder.x = seq_along(meta.levels(group.by, object, cells.use)),
                    legend.show = TRUE, title.legend = FALSE){
 
   #Turn the object into a "name" if a full object was given
@@ -367,7 +367,7 @@ DBPlot_multi_var_summary <- function(vars, object = DEFAULT, group.by="Sample", 
                                      main = NULL, sub = NULL,
                                      ylab = NULL, y.breaks = NULL, min = NULL, max = NULL,
                                      xlab = NULL, labels = NULL, rotate.labels = TRUE,
-                                     reorder.x = seq_along(meta.levels(group.by, object)),
+                                     reorder.x = seq_along(meta.levels(group.by, object, cells.use)),
                                      jitter.size=1, jitter.width=0.2, jitter.color = "black",
                                      jitter.shape = 16,
                                      boxplot.width = 0.2, boxplot.color = "black",

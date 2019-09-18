@@ -41,7 +41,7 @@ DBBarPlot <- function(var="ident", object = DEFAULT, group.by = "Sample",
                       y.breaks = c(0,0.5,1),
                       main = "make", sub = NULL, rename.groups = NA,
                       legend.show = TRUE, legend.title = NULL,
-                      reorder.x = seq_along(meta.levels(group.by, object))
+                      reorder.x = seq_along(meta.levels(group.by, object, cells.use))
 ){
 
   #Turn the object into a "name" if a full object was given

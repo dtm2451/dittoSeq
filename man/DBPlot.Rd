@@ -17,7 +17,7 @@ DBPlot(var, object = DEFAULT, group.by, color.by, shape.by = "",
   boxplot.width = 0.2, boxplot.color = "black",
   boxplot.show.outliers = NA, boxplot.fill = TRUE,
   vlnplot.lineweight = 1, vlnplot.width = 1,
-  reorder.x = seq_along(meta.levels(group.by, object)),
+  reorder.x = seq_along(meta.levels(group.by, object, cells.use)),
   legend.show = TRUE, title.legend = FALSE)
 }
 \arguments{

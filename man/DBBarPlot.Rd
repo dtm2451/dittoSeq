@@ -11,7 +11,7 @@ DBBarPlot(var = "ident", object = DEFAULT, group.by = "Sample",
   x.labels = NA, rotate.labels = TRUE, y.breaks = c(0, 0.5, 1),
   main = "make", sub = NULL, rename.groups = NA,
   legend.show = TRUE, legend.title = NULL,
-  reorder.x = seq_along(meta.levels(group.by, object)))
+  reorder.x = seq_along(meta.levels(group.by, object, cells.use)))
 }
 \arguments{
 \item{var}{Target Variable = values, OR a metadata in "quotes". REQUIRED. Length must be same  as the number of cells in the Seurat object or Samples in the RNAseq object}
