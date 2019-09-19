@@ -51,12 +51,13 @@
 #' When jitter shape is determined by a variable, more of this input is used.
 #' @param jitter.shape.legend.size Scalar which changes the size of the shape key in the legend.
 #' If set to \code{NA}, \code{jitter.size} is used.
-#' @param jitter.shape.legend.show Logical which sets whether the shapes lagend will be shown is \code{shape} when jitter shape is determined by a variable.
+#' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown is \code{shape} when jitter shape is determined by a variable.
 #' @param boxplot.width Scalar which sets the width/spread of the boxplot in the x direction
 #' @param boxplot.color String which sets the color of the lines of the boxplot
 #' @param boxplot.show.outliers Logical, whether outliers should by including in the boxplot.
 #' Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is no jitter.
 #' @param boxplot.fill Logical, whether the boxplot should be filled in or not.
+#' Note: when boxplot fill is turned off, outliers do not render.
 #' @param vlnplot.lineweight Scalar which sets the thickness of the line that outlines the violin plots.
 #' @param vlnplot.width Scalar which sets the width/spread of the jitter in the x direction
 #' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to eachother.
@@ -67,9 +68,10 @@
 #' A value of 1 means the tallest density curve just touches the baseline of the next higher one.
 #' Higher numbers lead to greater overlap.  Default = 1.25
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
-#' @param legend.title String or \code{NULL}, sets the title for the main legend. It is set to \code{NULL} (off) by default.
+#' @param legend.title String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
+#' This input is set to \code{NULL} by default.
 #' @param data.out Logical which sets whether just the plot should be output, or a list containing the plot (\code{p}) and data (\code{data}).  Note: plotly output is turned off in this setting, but hover.data is still calculated.
-#' @param ... arguments passed to dittoPlot by dittoRidgePlot.  Options are all the ones above.
+#' @param ... arguments passed to dittoPlot by dittoRidgePlot and dittoBoxPlot.  Options are all the ones above.
 #' @return a ggplot or plotly where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #' Alternatively, will return the data that would go into such a plot as well with \code{data.out=TRUE}
 #' @details
@@ -343,7 +345,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     # Now that we know the plot's direction, set y-axis limits
     if (!is.null(y.breaks)) {
         p <- p + scale_y_continuous(breaks = y.breaks) +
-          coord_cartesian(ylim=c(min(y.breaks),max(y.breaks)), clip = "off")
+          coord_cartesian(ylim=c(min(y.breaks),max(y.breaks)))
     } else {
         if (is.null(min)) {
             min <- min(Target_data$var.data)
@@ -351,7 +353,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
         if (is.null(max)) {
             max <- max(Target_data$var.data)
         }
-        p <- p + coord_cartesian(ylim=c(min,max), clip = "off")
+        p <- p + coord_cartesian(ylim=c(min,max))
     }
 
     # Add labels and, if requested, lines
@@ -385,14 +387,15 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
             if (is.character(shape)){
                 #Make jitter with shapes
                 jitter.args$mapping <- if (do.hover) {
-                    aes_string(shape = "shape", text = "hover.string")
+                    aes_string(shape = shape, text = "hover.string")
                 } else {
-                    aes_string(shape = "shape")
+                    aes_string(shape = shape)
                 }
                 p <- p + do.call(geom_jitter, jitter.args) +
                     scale_shape_manual(
-                        values = jitter.shapes[seq_along(levels(as.factor(Target_data[,shape==names(Target_data)])))],
-                        labels = levels(as.factor(as.character(Target_data[,shape==names(Target_data)]))))
+                        values = jitter.shapes[seq_along(
+                            levels(as.factor(as.character(Target_data[,shape==names(Target_data)])))
+                            )])
                 if (!is.na(jitter.shape.legend.size)){
                     p <- p + guides(shape = guide_legend(override.aes = list(size=jitter.shape.legend.size)))
                 }
@@ -423,10 +426,23 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     #This function takes in a partial dittoPlot ggplot object without any data overlay, and parses adding the main data visualizations.
     # It adds plots based on what is requested in plots, *ordered by their order*
 
+    # Now that we know the plot's direction, set x-axis limits
+    if (!is.null(y.breaks)) {
+        p <- p + scale_x_continuous(breaks = y.breaks) +
+          coord_cartesian(xlim=c(min(y.breaks),max(y.breaks)))
+    } else {
+        if (is.null(min)) {
+            min <- min(Target_data$var.data)
+        }
+        if (is.null(max)) {
+            max <- max(Target_data$var.data)
+        }
+        p <- p + coord_cartesian(xlim=c(min,max))
+    }
+
     # Add labels and, if requested, lines
     p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab) +
-        scale_y_discrete(expand = expand_scale(mult = c(0.02, 0.05))) +
-        coord_cartesian(clip = "off")
+        scale_y_discrete(expand = expand_scale(mult=c(0, 0.68)))
 
     if (is.na(x.labels.rotate)) {
         x.labels.rotate <- FALSE

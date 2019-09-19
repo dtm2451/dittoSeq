@@ -101,7 +101,7 @@ When jitter shape is determined by a variable, more of this input is used.}
 \item{jitter.shape.legend.size}{Scalar which changes the size of the shape key in the legend.
 If set to \code{NA}, \code{jitter.size} is used.}
 
-\item{jitter.shape.legend.show}{Logical which sets whether the shapes lagend will be shown is \code{shape} when jitter shape is determined by a variable.}
+\item{jitter.shape.legend.show}{Logical which sets whether the shapes legend will be shown is \code{shape} when jitter shape is determined by a variable.}
 
 \item{boxplot.width}{Scalar which sets the width/spread of the boxplot in the x direction}
 
@@ -110,7 +110,8 @@ If set to \code{NA}, \code{jitter.size} is used.}
 \item{boxplot.show.outliers}{Logical, whether outliers should by including in the boxplot.
 Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is no jitter.}
 
-\item{boxplot.fill}{Logical, whether the boxplot should be filled in or not.}
+\item{boxplot.fill}{Logical, whether the boxplot should be filled in or not.
+Note: when boxplot fill is turned off, outliers do not render.}
 
 \item{vlnplot.lineweight}{Scalar which sets the thickness of the line that outlines the violin plots.}
 
@@ -134,11 +135,12 @@ Higher numbers lead to greater overlap.  Default = 1.25}
 
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 
-\item{legend.title}{String or \code{NULL}, sets the title for the main legend. It is set to \code{NULL} (off) by default.}
+\item{legend.title}{String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
+This input is set to \code{NULL} by default.}
 
 \item{data.out}{Logical which sets whether just the plot should be output, or a list containing the plot (\code{p}) and data (\code{data}).  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
 
-\item{...}{arguments passed to dittoPlot by dittoRidgePlot.  Options are all the ones above.}
+\item{...}{arguments passed to dittoPlot by dittoRidgePlot and dittoBoxPlot.  Options are all the ones above.}
 }
 \value{
 a ggplot or plotly where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
