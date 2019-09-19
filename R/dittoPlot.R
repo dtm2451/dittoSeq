@@ -31,8 +31,10 @@
 #' Set to \code{NULL} to remove.
 #' @param ylab String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
 #' Defaults to "\code{var}" or "\code{var} expression" if var is a gene.
-#' @param y.breaks Numeric vector, a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.) NOTE: The low and highs of this variable will override `min` and `max`.
-#' @param min,max Scalars which set a custom minimum / maximum y-value to show.  Default = set based on the limits of the data in var.
+#' @param y.breaks Numeric vector, a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.).
+#' @param min,max Scalars which control the zoom of the plot.
+#' These inputs set the minimum / maximum values of the data to show.
+#' Default = set based on the limits of the data in var.
 #' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.  NOTE: you need to give at least as many labels as there are discrete values in the group.by data.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
 #'
@@ -344,17 +346,15 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 
     # Now that we know the plot's direction, set y-axis limits
     if (!is.null(y.breaks)) {
-        p <- p + scale_y_continuous(breaks = y.breaks) +
-          coord_cartesian(ylim=c(min(y.breaks),max(y.breaks)))
-    } else {
-        if (is.null(min)) {
-            min <- min(Target_data$var.data)
-        }
-        if (is.null(max)) {
-            max <- max(Target_data$var.data)
-        }
-        p <- p + coord_cartesian(ylim=c(min,max))
+        p <- p + scale_y_continuous(breaks = y.breaks)
     }
+    if (is.null(min)) {
+        min <- min(Target_data$var.data)
+    }
+    if (is.null(max)) {
+        max <- max(Target_data$var.data)
+    }
+    p <- p + coord_cartesian(ylim=c(min,max))
 
     # Add labels and, if requested, lines
     p <- p + aes_string(x = "grouping", y = "var.data") +
@@ -426,19 +426,17 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     #This function takes in a partial dittoPlot ggplot object without any data overlay, and parses adding the main data visualizations.
     # It adds plots based on what is requested in plots, *ordered by their order*
 
-    # Now that we know the plot's direction, set x-axis limits
+    # Now that we know the plot's direction, set y-axis limits
     if (!is.null(y.breaks)) {
-        p <- p + scale_x_continuous(breaks = y.breaks) +
-          coord_cartesian(xlim=c(min(y.breaks),max(y.breaks)))
-    } else {
-        if (is.null(min)) {
-            min <- min(Target_data$var.data)
-        }
-        if (is.null(max)) {
-            max <- max(Target_data$var.data)
-        }
-        p <- p + coord_cartesian(xlim=c(min,max))
+        p <- p + scale_x_continuous(breaks = y.breaks)
     }
+    if (is.null(min)) {
+        min <- min(Target_data$var.data)
+    }
+    if (is.null(max)) {
+        max <- max(Target_data$var.data)
+    }
+    p <- p + coord_cartesian(xlim=c(min,max))
 
     # Add labels and, if requested, lines
     p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab) +

@@ -70,9 +70,11 @@ Note: Currently, incompatible with RidgePlots as plotly does not support the geo
 \item{ylab}{String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
 Defaults to "\code{var}" or "\code{var} expression" if var is a gene.}
 
-\item{y.breaks}{Numeric vector, a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.) NOTE: The low and highs of this variable will override `min` and `max`.}
+\item{y.breaks}{Numeric vector, a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.).}
 
-\item{min, max}{Scalars which set a custom minimum / maximum y-value to show.  Default = set based on the limits of the data in var.}
+\item{min, max}{Scalars which control the zoom of the plot.
+These inputs set the minimum / maximum values of the data to show.
+Default = set based on the limits of the data in var.}
 
 \item{xlab}{String, sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 Default is \code{group.by} so it defaults to the name of the grouping information.
