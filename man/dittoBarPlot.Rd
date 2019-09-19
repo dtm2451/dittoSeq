@@ -8,9 +8,10 @@ dittoBarPlot(var, object = DEFAULT, group.by = "Sample",
   scale = c("percent", "count"), cells.use = NULL, data.out = FALSE,
   do.hover = FALSE, color.panel = dittoColors(),
   colors = seq_along(color.panel), y.breaks = NA,
-  var.labels.rename = NA, x.labels = NULL, x.labels.rotate = TRUE,
-  x.reorder = NULL, theme = theme_classic(), xlab = group.by,
-  ylab = "make", main = "make", sub = NULL, legend.show = TRUE,
+  var.labels.rename = NULL, var.labels.reorder = NULL,
+  x.labels = NULL, x.labels.rotate = TRUE, x.reorder = NULL,
+  theme = theme_classic(), xlab = group.by, ylab = "make",
+  main = "make", sub = NULL, legend.show = TRUE,
   legend.title = NULL)
 }
 \arguments{
@@ -40,9 +41,15 @@ Data displayed with be the label, the count, and the percentage. ('data.hover' a
 \item{y.breaks}{Numeric vector which indicates the plots major gridlines. c(break1,break2,break3,etc.)
 Note: The maximum value of this vector will set the maximum value portrayed, even if the data extends beyond this value.}
 
-\item{var.labels.rename}{Character vector which renames for the identities of \code{var} groupings.}
+\item{var.labels.rename}{String vector which renames for the identities of \code{var} groupings.}
 
-\item{x.labels}{String vector which will replacement the x-axis grouping labels.
+\item{var.labels.reorder}{Integer vector. A sequence of numbers, from 1 to the number of distinct var labels, for rearranging the order of labels' groupings within the plot.
+
+Method: Make a first plot without this input.
+Then, treating the top-most grouping as index 1, and the bottom-most as index n.
+Values of \code{var.labels.reorder} should be these indices, but in the order that you would like them rearranged to be.}
+
+\item{x.labels}{String vector which will replaceme the x-axis grouping labels.
 The first component of \code{x.labels} sets the name for the first x-axis grouping.}
 
 \item{x.labels.rotate}{Logical which sets whether the x-axis grouping labels should be rotated.  Default = FALSE = vertical labels.}
@@ -51,7 +58,7 @@ The first component of \code{x.labels} sets the name for the first x-axis groupi
 
 Method: Make a first plot without this input.
 Then, treating the leftmost grouping as index 1, and the rightmost as index n.
-Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.}
+Values of \code{x.reorder} should be these indices, but in the order that you would like them rearranged to be.}
 
 \item{theme}{ggplot theme. Default = theme_classic()}
 
@@ -65,7 +72,7 @@ Values of x.reorder should be these indices, but in the order that you would lik
 
 \item{legend.show}{Logical which sets whether the legend should be displayed. Default = TRUE.}
 
-\item{legend.title}{Character which adds a title to the legend.}
+\item{legend.title}{String which adds a title to the legend.}
 }
 \value{
 A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
