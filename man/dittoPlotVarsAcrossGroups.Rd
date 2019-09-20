@@ -23,7 +23,7 @@ dittoPlotVarsAcrossGroups(vars, object = DEFAULT, group.by,
 \arguments{
 \item{vars}{String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to extract from the object, summarize across groups, and add to the plot}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.}
 
 \item{group.by}{String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.}
 

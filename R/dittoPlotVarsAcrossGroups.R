@@ -2,7 +2,7 @@
 #' Generates a dittoPlot where datapoints are genes/metadata summarizes per groups instead of individual values per cells/samples.
 #'
 #' @param vars String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to extract from the object, summarize across groups, and add to the plot
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.
 #' @param group.by String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.
 #' @param color.by String representing the name of a "metadata" to use for setting color.
 #' Affects boxplot, vlnplot, and ridgeplot fills.
