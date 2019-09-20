@@ -37,6 +37,9 @@ NOTE: I use this package daily, and am constantly coming up with new ideas for t
   - Also added Ridgeplot capability & wrappers `dittoRidgePlot()` + `dittoBoxPlot()`
 - multi_dittoPlot
 - dittoBarPlot
+- dittoPlotVarsAcrossGroups (old = DBPlor_multi_var_summary)
+- multi_dittoDimPlotVaryCells
+- **All plotting functions have now been updated**
   
 **Entirely new functions in the development branch:**
 
