@@ -5,7 +5,8 @@
 #'
 #' @param var Single String representing, a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
 #' This is the data that will be displayed.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param group.by String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.
 #' @param color.by String representing the name of a "metadata" to use for setting color.
 #' Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so this input can be skipped if both are the same.
@@ -17,16 +18,16 @@
 #' @param data.type String, for when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} (and if there is a jitter - the data it will work with): object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them,
-#' and 'data.hover' argument will be used to determine what data to use.
+#' and 'hover.data' argument will be used to determine what data to use.
 #'
 #' Note: Currently, incompatible with RidgePlots as plotly does not support the geom.
-#' @param data.hover String vector, a list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show upon hover when do.hover is set to \code{TRUE}.
+#' @param hover.data String vector, a list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show upon hover when do.hover is set to \code{TRUE}.
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
 #' @param main String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.
 #' @param sub String, sets the plot subtitle
-#' @param theme ggplot theme. Allows setting of a base theme. Default = \code{theme_classic()} when nothing is provided. \code{theme_bw()} is another great option.
-#' @param xlab String, sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
+#' @param theme A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_classic()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.
+#' @param xlab String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 #' Default is \code{group.by} so it defaults to the name of the grouping information.
 #' Set to \code{NULL} to remove.
 #' @param ylab String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
@@ -77,23 +78,32 @@
 #' @return a ggplot or plotly where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #' Alternatively, will return the data that would go into such a plot as well with \code{data.out=TRUE}
 #' @details
-#' If \code{do.hover=TRUE}, cell/sample information, determined by the \code{hover.data} input, is retrieved and displayed
-#' upon hovering the cursor over a jitter point.
+#' The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that) plus metadata associated with the \code{group.by} and \code{color.by} variables.
+#' The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
+#' If a set of cells to use is indicated with the \code{cells.use} input, the dataframe is then subset to include only those cells.
+#' Then, a plot where data is grouped by the \code{group.by} metadata and colored by the \code{color.by} metadata is generated.
 #'
-#' If \code{data.out=TRUE}, a list containing the plot (\code{p}), a data.table containing the underlying data for target cells (\code{data})
+#' The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
+#' Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
+#' Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
+#' Each plot type has specific associated options which are controlled by variables that start with their associated string, ex: \code{jitter.size}.
+#'
+#' \code{dittoRidgePlot} and \code{dittoBoxPlot} are included as wrappers of the basic \code{dittoPlot} function that just changes the default for the \code{plots} input to be \code{"ridgeplot"} and \code{c("boxplot","jitter")}, respectively.
+#'
+#' A number of other tweaks and features can be added as well:
+#'
+#' If \code{data.out=TRUE}, a list containing the plot (\code{p}) and a the dataframe containing the underlying data (\code{data}) are returned.
+#'
+#' If \code{do.hover=TRUE}, cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
+#' upon hovering the cursor over a jitter point.
 #'
 #' If \code{add.line}, is provided a single or multiple value(s), horizontal (or vertical, for ridgeplots) lines will be added at the values provided.
 #' Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 #'
-#' The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
-#' Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
-#' Each plot type has specific associated options which are controlled by variables that start with their associated string, ex: \code{jitter.size}.
+#' @seealso
+#' \code{\link{multi_dittoPlot}} for easy creation of multiple dittoPlots that each focus on a different \code{var}
 #'
-#' Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
-#'
-#' Use of dittoRidgePlot essntially just changes the default for the \code{plots} input to be \code{c("ridgeplot", "jitter")}.
-#'
-#' Similarly, use of dittoBoxPlot essntially just changes the default for the \code{plots} input to be \code{c("jitter", "boxplot")}.
+#' \code{\link{dittoPlotVarsAcrossGroups}} to create dittoPlots that show summarized the expression (or value for metadatas), accross groups, of multiple \code{vars} in a single plot.
 #'
 #' @examples
 #' library(Seurat)
@@ -117,16 +127,16 @@
 #' # Any of these can be combined with 'hovering' to retrieve specific info
 #' #   about certain data points.  Just add 'do.hover = TRUE' and pick what
 #' #   extra data to display by provide set of gene or metadata names to
-#' #   'data.hover'.
+#' #   'hover.data'.
 #' #     Note: ggplotly plots ignores certain dittoSeq plot tweaks.
 #' dittoBoxPlot("CD14", group.by = "RNA_snn_res.1",
-#'     do.hover = TRUE, data.hover = c("MS4A1","RNA_snn_res.0.8","ident"))
+#'     do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
 #' @export
 
 dittoPlot <- function(
     var, object = DEFAULT, group.by, color.by = group.by, shape = 16,
     cells.use = NULL, plots = c("jitter","vlnplot"), data.type = "normalized",
-    do.hover = FALSE, data.hover = var,
+    do.hover = FALSE, hover.data = var,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     theme = theme_classic(), main = "make", sub = NULL,
     ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
@@ -179,23 +189,15 @@ dittoPlot <- function(
     }
     Target_data <- .dittoPlot_data_gather(
         var, object, group.by, color.by, extra.vars, cells.use, data.type,
-        do.hover, data.hover)$Target_data
-    #Rename and/or reorder x groupings
-    rename.args <- list(x = as.character(Target_data$grouping))
-    if (!(is.null(x.reorder))) {
-        rename.args$levels <- levels(factor(rename.args$x))[x.reorder]
-    }
-    if (!(is.null(x.labels))) {
-        rename.args$labels <- x.labels
-    }
-    Target_data$grouping <- do.call(factor, args = rename.args)
+        do.hover, hover.data)$Target_data
+    Target_data$grouping <-
+        .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
 
-    #####Start making the plot
+    # Make the plot
     p <- ggplot(Target_data, aes_string(fill="color")) +
         theme +
         scale_fill_manual(name = legend.title, values=color.panel[colors]) +
         ggtitle(main, sub)
-    #Add data
     if(!("ridgeplot" %in% plots)) {
         p <- .dittoPlot_add_data_y_direction(
             p, Target_data, plots, xlab, ylab, shape, jitter.size,
@@ -356,19 +358,6 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     }
     p <- p + coord_cartesian(ylim=c(min,max))
 
-    # Add labels and, if requested, lines
-    p <- p + aes_string(x = "grouping", y = "var.data") +
-        xlab(xlab) + ylab(ylab)
-    if (is.na(x.labels.rotate)) {
-        x.labels.rotate <- TRUE
-    }
-    if (x.labels.rotate) {
-        p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1, size=12))
-    }
-    if (!is.null(add.line)) {
-        p <- p + geom_hline(yintercept=add.line, linetype= line.linetype, color = line.color)
-    }
-
     # Add Plots
     for (i in seq_along(plots)) {
         if (plots[i] == "boxplot") {
@@ -413,6 +402,17 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
             p <- p + geom_violin(size = vlnplot.lineweight, width = vlnplot.width, scale = vlnplot.scaling)
         }
     }
+
+    # Add labels and, if requested, lines
+    p <- p + aes_string(x = "grouping", y = "var.data") +
+        xlab(xlab) + ylab(ylab)
+    if (is.na(x.labels.rotate) || x.labels.rotate) {
+        p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1, size=12))
+    }
+    if (!is.null(add.line)) {
+        p <- p + geom_hline(yintercept=add.line, linetype= line.linetype, color = line.color)
+    }
+
     p
 }
 
@@ -438,19 +438,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     }
     p <- p + coord_cartesian(xlim=c(min,max))
 
-    # Add labels and, if requested, lines
-    p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab) +
-        scale_y_discrete(expand = expand_scale(mult=c(0, 0.68)))
-
-    if (is.na(x.labels.rotate)) {
-        x.labels.rotate <- FALSE
-    }
-    if (x.labels.rotate) {
-        p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1, size=12))
-    }
-    if (!is.null(add.line)) {
-        p <- p + geom_vline(xintercept=add.line, linetype= line.linetype, color = line.color)
-    }
+    # Add ridgeplot (and jitter) data
     p <- p + ggridges::geom_density_ridges2(
         size = ridgeplot.lineweight, scale = ridgeplot.scale,
         jittered_points = "jitter" %in% plots, point_size = jitter.size, point_color = jitter.color) +
@@ -461,6 +449,17 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     if (jitter.shape.legend.show==FALSE){
         p <- p + guides(shape = "none")
     }
+
+    # Add labels and, if requested, lines
+    p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab) +
+        scale_y_discrete(expand = expand_scale(mult=c(0, 0.68)))
+    if (!is.na(x.labels.rotate) && x.labels.rotate) {
+        p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1, size=12))
+    }
+    if (!is.null(add.line)) {
+        p <- p + geom_vline(xintercept=add.line, linetype= line.linetype, color = line.color)
+    }
+
     p
 }
 
@@ -475,13 +474,13 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 # #' @param extra.vars               "metadata" to use for setting the shape of jitter.  Default = just dots. Ignored if not a "quoted" metadata or "ident"
 # #' @param cells.use              Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. USE in object@cell.names[USE])
 # #' @param data.type              For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
-# #' @param do.hover               TRUE/FALSE. Default = FALSE.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.
-# #' @param data.hover             list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
+# #' @param do.hover               TRUE/FALSE. Default = FALSE.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'hover.data' argument is used to determine what data to use.
+# #' @param hover.data             list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
 # #' @return Generates Target_data and Others_data data.frames for use by single-axis dittoSeq plotters.
 
 .dittoPlot_data_gather <- function(main.var, object = DEFAULT, group.by = "Sample", color.by = group.by,
                                       extra.vars = NULL, cells.use = NULL, data.type = "normalized",
-                                      do.hover = FALSE, data.hover = c(main.var, extra.vars)){
+                                      do.hover = FALSE, hover.data = c(main.var, extra.vars)){
     # Turn the object into a "name" if a full object was given
     if (typeof(object)=="S4"){
         object <- deparse(substitute(object))
@@ -506,7 +505,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     }
     # Add hover strings
     if (do.hover) {
-        full_data$hover.string <- .make_hover_strings_from_vars(data.hover, object, data.type)
+        full_data$hover.string <- .make_hover_strings_from_vars(hover.data, object, data.type)
         names <- c(names, "hover.string")
     }
     # Add column names

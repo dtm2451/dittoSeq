@@ -46,12 +46,6 @@
   class
 }
 
-
-
-
-
-
-
 .var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type){
   OUT <- var
   if(length(var)==1 & typeof(var)=="character"){
@@ -193,4 +187,32 @@
                 }, FUN.VALUE = character(1))
                 ),collapse = "\n")
         }, FUN.VALUE = character(1))
+}
+
+.rename_and_or_reorder <- function(orig.data, reorder = NULL, relabels = NULL) {
+    if (is.numeric(orig.data)) {
+        return(orig.data)
+    }
+    rename.args <- list(x = orig.data)
+    if (!(is.null(reorder))) {
+        rename.args$levels <- levels(factor(rename.args$x))[reorder]
+    }
+    if (!(is.null(relabels))) {
+        rename.args$labels <- relabels
+    }
+    do.call(factor, args = rename.args)
+}
+
+.leave_default_or_null <- function(
+    target, default, null.if = FALSE, default.when = "make") {
+    if (!is.null(target)) {
+        if (target==default.when) {
+            if (null.if) {
+                NULL
+            } else {
+                target <- default
+            }
+        }
+    }
+    target
 }

@@ -127,7 +127,7 @@ dittoPlotVarsAcrossGroups <- function(
     vars, object = DEFAULT, group.by, color.by=group.by, summary.fxn = mean,
     cells.use = NULL, plots = c("vlnplot","jitter"), data.type = "relative",
     do.hover = FALSE, main = NULL, sub = NULL,
-    ylab = NA, y.breaks = NULL, min = NULL, max = NULL, xlab = group.by,
+    ylab = "make", y.breaks = NULL, min = NULL, max = NULL, xlab = group.by,
     x.labels = NULL, x.labels.rotate = NA, x.reorder = NULL,
     color.panel = dittoColors(), colors = c(1:length(color.panel)),
     theme = theme_classic(),
@@ -153,27 +153,20 @@ dittoPlotVarsAcrossGroups <- function(
     data <- .dittoPlotVarsAcrossGroups_data_gather(
         vars, object, group.by, color.by, summary.fxn, cells.use, data.type,
         do.hover)
+    data$grouping <-
+        .rename_and_or_reorder(as.character(data$grouping),x.reorder,x.labels)
 
-    #Rename and/or reorder x groupings
-    rename.args <- list(x = as.character(data$grouping))
-    if (!(is.null(x.reorder))) {
-        rename.args$levels <- levels(factor(rename.args$x))[x.reorder]
+    if (data.type == "relative") {
+        data.type <- "z-score"
     }
-    if (!(is.null(x.labels))) {
-        rename.args$labels <- x.labels
-    }
-    data$grouping <- do.call(factor, args = rename.args)
-
-    if (is.na(ylab)) {
-        if (data.type == "relative") {
-            data.type <- "z-score"
-        }
-        ylab <- paste(
+    all.genes <- ifelse(sum(!is.gene(vars, object))==0, TRUE, FALSE)
+    ylab <- .leave_default_or_null(ylab,
+        default = paste(
             deparse(substitute(summary.fxn)),
             data.type,
-            "expression",
-            sep = " ")
-    }
+            if (all.genes) {
+                "expression"
+            }, sep = " "))
 
     #####Start making the plot
     p <- ggplot(

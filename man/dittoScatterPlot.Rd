@@ -4,32 +4,34 @@
 \alias{dittoScatterPlot}
 \title{Show RNAseq data overlayed on a scatter plot}
 \usage{
-dittoScatterPlot(x.var, y.var, overlay.color.var = NULL,
-  overlay.shape.var = NULL, object = DEFAULT, cells.use = NULL,
-  show.others = FALSE, color.panel = dittoColors(),
-  colors = seq_along(color.panel), data.type.x = "normalized",
+dittoScatterPlot(x.var, y.var, color.var = NULL, shape.var = NULL,
+  object = DEFAULT, cells.use = NULL, show.others = FALSE,
+  color.panel = dittoColors(), colors = seq_along(color.panel),
+  size = 1, opacity = 1, data.type.x = "normalized",
   data.type.y = "normalized", data.type.color = "normalized",
   do.hover = FALSE, data.hover = NULL,
-  data.type.hover = "normalized", shape = 16, shapes = c(16, 15, 17,
-  23, 25, 8), size = 1, opacity = 1, rename.color.groups = NA,
-  rename.shape.groups = NA, legend.show = TRUE,
-  legend.color.title = overlay.color.var, legend.color.size = 5,
-  legend.shape.title = overlay.shape.var, legend.shape.size = 5,
+  data.type.hover = "normalized", shape.panel = c(16, 15, 17, 23, 25,
+  8), rename.color.groups = NULL, rename.shape.groups = NULL,
   min.color = "#F0E442", max.color = "#0072B2", min = NULL,
-  max = NULL, breaks = waiver(), breaks.labels = waiver(),
-  xlab = x.var, ylab = y.var, main = NULL, sub = NULL,
-  theme = theme_bw(), data.out = FALSE)
+  max = NULL, xlab = x.var, ylab = y.var, main = NULL,
+  sub = NULL, theme = theme_bw(), legend.show = TRUE,
+  legend.color.title = color.var, legend.color.size = 5,
+  legend.color.breaks = waiver(),
+  legend.color.breaks.labels = waiver(),
+  legend.shape.title = shape.var, legend.shape.size = 5,
+  data.out = FALSE)
 }
 \arguments{
 \item{x.var}{Variable for setting x-axis position of cells/samples.  Can be the name of a gene, meta-data, or "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.}
 
 \item{y.var}{Variable for setting y-axis position of cells/samples.  Can be the name of a gene, meta-data, or "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.}
 
-\item{overlay.color.var}{Variable for setting the color of cells/samples in the plot.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.}
+\item{color.var}{Variable for setting the color of cells/samples in the plot.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.}
 
-\item{overlay.shape.var}{Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.}
+\item{shape.var}{Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.}
 
-\item{object}{the Seurat, SingleCellExperiment, or RNAseq object to work on.}
+\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -40,6 +42,10 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 \item{color.panel}{a list of colors to be used for when plotting a discrete var.}
 
 \item{colors}{indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups}
+
+\item{size}{Number. Size of data points.  Default = 1.}
+
+\item{opacity}{Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.}
 
 \item{data.type.x}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene}. DEFAULT = "normalized"}
 
@@ -53,27 +59,16 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 
 \item{data.type.hover}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene}. DEFAULT = "normalized" For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
 
-\item{shape}{Number for setting the shape}
-
-\item{shapes}{If multiple shapes are needed, this sets the sahpes to pull from.  Default is a list of 6, \code{c(16,15,17,23,25,8)}.  There are more, but not many of the default ggplot options are great.  Unfortunately, shape is also harder to see when points are on top of each other.  For these reasons, even as a color blind person myself, I recommend use of colors for variables with 7+ options.}
-
-\item{size}{Number. Size of data points.  Default = 1.}
-
-\item{opacity}{Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.}
+\item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
+When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
+When nothing is supplied to \code{shape.var}, only the first value is used.
+Default is a list of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.
+Unfortunately, shapes can be hard to see, especially when points are on top of each other, and they are more slowly processed by the brain.
+For these reasons, even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.}
 
 \item{rename.color.groups}{Character vector containing new names for the identities of the color overlay.}
 
 \item{rename.shape.groups}{Character vector containing new names for the identities of the shape overlay.}
-
-\item{legend.show}{TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.}
-
-\item{legend.color.title}{For adding a title to the colors legend.  Set to \code{NULL} to turn off.}
-
-\item{legend.color.size}{Override for legend size of the color variable.}
-
-\item{legend.shape.title}{For adding a title for the colors legend.  Set to \code{NULL} to turn off}
-
-\item{legend.shape.size}{Override for legend size of the shape variable.}
 
 \item{min.color}{color for lowest values shown of the color overlay.  Default is \code{dittoColors()[4]}, a yellow.}
 
@@ -83,19 +78,30 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 
 \item{max}{set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it may be because min > max.}
 
-\item{breaks}{Numeric vector. Sets the discrete values to show in the color-scale legend for continuous data.}
+\item{xlab}{String, label for y axes. Default = \code{x.var}. To remove, set to NULL.}
 
-\item{breaks.labels}{String vector with same length as \code{breaks}. Renames the values displayed next to the color-scale.}
+\item{ylab}{String, label for y axes. Default = \code{y.var}. To remove, set to NULL.}
 
-\item{xlab}{label for y axes.  Default = \code{x.var}. To remove, set to NULL.}
+\item{main}{String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.}
 
-\item{ylab}{label for y axes.  Default = \code{x.var}. To remove, set to NULL.}
+\item{sub}{String, sets the plot subtitle}
 
-\item{main}{plot title.  Default = \code{NULL}}
+\item{theme}{A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_bw()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.}
 
-\item{sub}{plot subtitle.  Default = \code{NULL}}
+\item{legend.show}{TRUE/FALSE. Whether the legend should be displayed. Default = TRUE.}
 
-\item{theme}{Allows setting of a theme. Default = theme_bw when nothing is provided.}
+\item{legend.color.title}{String which sets the title for the color legend. Default = \code{NULL} OR \code{var} when a shape legend will also be shown.}
+
+\item{legend.color.size}{Number representing the size to increase the plotting of color legend shapes to (for discrete variable plotting).
+Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.*}
+
+\item{legend.color.breaks}{Numeric vector. Sets the discrete values to show in the color-scale legend for continuous data.}
+
+\item{legend.color.breaks.labels}{String vector with same length as \code{breaks}. Renames the values displayed next to the color-scale.}
+
+\item{legend.shape.title}{For adding a title for the colors legend.  Set to \code{NULL} to turn off}
+
+\item{legend.shape.size}{Override for legend size of the shape variable.}
 
 \item{data.out}{Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
 }
@@ -108,10 +114,28 @@ Show RNAseq data overlayed on a scatter plot
 \examples{
 
 library(Seurat)
-pbmc <- pbmc_small
+pbmc <- Seurat::pbmc_small
+# Mock up some percent.mito metadata
+pbmc$percent.mito <- sample(c(runif(75,0,0.05),runif(5,0.05,0.2)))
+
 dittoScatterPlot(
-    x.var = "nCount_RNA", y.var = "nFeature_RNA",
-    object = "pbmc", overlay.color.var = "RNA_snn_res.1")
+    x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc")
+
+# Shapes or colors can be overlaid representing discrete metadata
+#   or (only colors) continuous metadata / expression data by providing
+#   metadata or gene names to 'color.var' and 'shape.var'
+dittoScatterPlot(
+    x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc",
+    color.var = "RNA_snn_res.1",
+    shape.var = "RNA_snn_res.0.8")
+dittoScatterPlot(
+    x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc",
+    color.var = "percent.mito",
+    shape.var = "RNA_snn_res.0.8")
+dittoScatterPlot(
+    x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc",
+    color.var = "CD14",
+    shape.var = "RNA_snn_res.0.8")
 
 # Note: scatterplots like this can be very useful for dataset QC, epecially
 #   with percentage of reads coming from genes as the color overlay.

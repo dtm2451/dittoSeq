@@ -7,7 +7,7 @@
 dittoPlotVarsAcrossGroups(vars, object = DEFAULT, group.by,
   color.by = group.by, summary.fxn = mean, cells.use = NULL,
   plots = c("vlnplot", "jitter"), data.type = "relative",
-  do.hover = FALSE, main = NULL, sub = NULL, ylab = NA,
+  do.hover = FALSE, main = NULL, sub = NULL, ylab = "make",
   y.breaks = NULL, min = NULL, max = NULL, xlab = group.by,
   x.labels = NULL, x.labels.rotate = NA, x.reorder = NULL,
   color.panel = dittoColors(), colors = c(1:length(color.panel)),

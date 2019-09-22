@@ -110,26 +110,36 @@ get.metas <- function(object=DEFAULT){
 #' @export
 
 get.genes <- function(object=DEFAULT){
-  if (.class_of(object)=="Seurat.v2"){
-    if(typeof(object)=="character"){
-      return(rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
-    } else {return(rownames(object@raw.data))}
-  }
-  if (.class_of(object)=="Seurat.v3"){
-    if(typeof(object)=="character"){
-      return(rownames(eval(expr = parse(text = paste0(object)))))
-    } else {return(rownames(object))}
-  }
-  if (.class_of(object)=="RNAseq"){
-    if(typeof(object)=="character"){
-      return(rownames(eval(expr = parse(text = paste0(object,"@counts")))))
-    } else {return(rownames(object@counts))}
-  }
-  if (.class_of(object)=="SingleCellExperiment"){
-    if(typeof(object)=="character"){
-      return(return(rownames(counts(eval(expr = parse(text = paste0(object)))))))
-    } else {return(rownames(counts(object)))}
-  }
+    if (.class_of(object)=="Seurat.v2") {
+        if (typeof(object)=="character") {
+            return(rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
+        } else {
+            return(rownames(object@raw.data))
+        }
+    }
+    if (.class_of(object)=="Seurat.v3") {
+        if (typeof(object)=="character") {
+            return(rownames(eval(expr = parse(text = paste0(object)))))
+        } else {
+            return(rownames(object))
+        }
+    }
+    if (.class_of(object)=="RNAseq") {
+        if (typeof(object)=="character") {
+            return(rownames(eval(expr = parse(text = paste0(object,"@counts")))))
+        } else {
+            return(rownames(object@counts))
+        }
+    }
+    if (.class_of(object)=="SingleCellExperiment") {
+        if (typeof(object)=="character") {
+            return(rownames(SummarizedExperiment::assay(
+                eval(expr = parse(text = paste0(object))))))
+        } else {
+            return(rownames(SummarizedExperiment::assay(
+                object)))
+        }
+    }
 }
 
 #### get.reductions: prints the names of all the dimensional reductions that have been run ####
@@ -313,17 +323,13 @@ meta.levels <- function(meta, object = DEFAULT, cells.use = NULL){
     if (typeof(object)=="S4"){
         object <- deparse(substitute(object))
     }
+    meta.values <- as.character(meta(meta, object))
     if (!is.null(cells.use)){
         all.cells <- .all_cells(object)
         cells.use <- .which_cells(cells.use, object)
-        return(levels(as.factor(as.character(
-            meta(meta, object)[all.cells %in% cells.use]
-            ))))
-    } else {
-        return(levels(as.factor(as.character(
-            meta(meta, object)
-            ))))
+        meta.values <- meta.values[all.cells %in% cells.use]
     }
+    levels(as.factor(meta.values))
 }
 
 ###### grab_legend: Extract the legend from a ggplot ############

@@ -32,7 +32,8 @@ dittoBoxPlot(..., plots = c("boxplot", "jitter"))
 \item{var}{Single String representing, a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
 This is the data that will be displayed.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
 \item{group.by}{String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.}
 
@@ -61,7 +62,7 @@ Note: Currently, incompatible with RidgePlots as plotly does not support the geo
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
-\item{theme}{ggplot theme. Allows setting of a base theme. Default = \code{theme_classic()} when nothing is provided. \code{theme_bw()} is another great option.}
+\item{theme}{A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_classic()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.}
 
 \item{main}{String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.}
 
@@ -76,7 +77,7 @@ Defaults to "\code{var}" or "\code{var} expression" if var is a gene.}
 These inputs set the minimum / maximum values of the data to show.
 Default = set based on the limits of the data in var.}
 
-\item{xlab}{String, sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
+\item{xlab}{String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 Default is \code{group.by} so it defaults to the name of the grouping information.
 Set to \code{NULL} to remove.}
 

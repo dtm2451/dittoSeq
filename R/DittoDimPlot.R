@@ -5,60 +5,111 @@
 #' @import ggplot2
 #' @importFrom ggrepel geom_text_repel geom_label_repel
 #'
-#' @param var String name of a "gene" or "meta.data" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
+#' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 #' This is the data that will be displayed for each cell/sample.
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 #' Discrete or continuous data both work. REQUIRED.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.
-#' @param reduction.use "pca", "tsne", "ica", etc.  Default = tsne for Seurat objects, and pca for RNAseq objects
+#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
+#' @param reduction.use String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
+#'
+#' Default = "tsne" for Seurat objects, and "pca" for RNAseq objects, and "TSNE" for SingleCellExperiment objects.
+#' @param size Number which sets the size of data points. Default = 1.
+#' @param opacity Number between 0 and 1.
+#' Great for when you have MANY overlapping points, this sets how solid the points should be;
+#' 1 = not see-through at all; 0 = invisible. Default = 1.
+#' (In terms of typical ggplot variables, = alpha)
 #' @param dim.1 The component number to use on the x-axis.  Default = 1
 #' @param dim.2 The component number to use on the y-axis.  Default = 2
-#' @param theme Allows setting of a theme. Default = theme_bw when nothing is provided.
-#' @param size Number. Size of data points.  Default = 1.
-#' @param shape Number for setting shape OR name of metadata to use for setting shape
-#' @param shapes the shapes to use.  Default is a list of 6.  There are more, but not many of the default ggplot options are great.  I recommend using colors for any variable with 7+ options.
-#' @param legend.show Logical. Whether the legend should be displayed. Default = TRUE.
-#' @param legend.size The size to increase the plotting of colors/letters legend shapes to (for discrete variable plotting)
-#' @param legend.title For adding a title for the colors/letters legend.  It is set to NULL (off) by default.
-#' @param shape.legend.size The size to increase the plotting of shapes legend shapes to.
-#' @param shape.legend.title For adding a title for the shapes legend is a meta.data was given to 'shape' and multiple shapes were therefore used.  It is set to NULL (off) by default.
+#' @param theme A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_bw()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.
+#' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.
+#' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
+#' @param shape.var Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
+#'
+#' Note: shapes can be harder to see, and to process mentally, than colors.
+#' Even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.
+#' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
+#' When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
+#' When nothing is supplied to \code{shape.var}, only the first value is used.
+#' Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.
+#' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
+#' @param legend.size Number representing the size to increase the plotting of color legend shapes to (for discrete variable plotting).
+#' Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.*
+#' @param legend.title String which sets the title for the main legend which includes the colors. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.
+#' @param shape.legend.size Number representing the size to increase the plotting of shapes legend shapes to.
+#' @param shape.legend.title String which sets the title of the shapes legend.  Default is the \code{shape.var}
 #' @param data.type For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".
-#' @param main plot title.  Default = "make", if left as "make", a title will be autogenerated based on the var input
-#' @param sub plot subtitle
+#' @param main String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.
+#' @param sub String, sets the plot subtitle
 #' @param xlab,ylab Strings which set the labels for the axes. Default labels are generated if you do not give this a specific value. To remove, set to \code{NULL}.
 #' @param numbers.show Logical which controls whether the axes values should be displayed.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
 #' @param show.others Logical. TRUE by default, whether other cells should be shown in the background
-#' @param ellipse Logical. Whether the groups should be surrounded by an ellipse.
+#' @param do.ellipse Logical. Whether the groups should be surrounded by an ellipse.
 #' @param do.label  Logical. Whether to add text labels at the center (median) of clusters for grouping vars
-#' @param label.size Size of the the labels text
-#' @param highlight.labels Logical. Whether the labels should have a box behind them
+#' @param labels.size Size of the the labels text
+#' @param labels.highlight Logical. Whether the labels should have a box behind them
 #' @param labels.repel Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
 #' TRUE by default.
-#' @param rename.var.groups new names for the identities of var.  Change to NULL to remove labeling altogether.
-#' @param rename.shape.groups new names for the identities of shape groups.  Change to NULL to remove labeling altogether.
-#' @param min.color color for lowest values of var/min
-#' @param max.color color for highest values of var/max
-#' @param min set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.
-#' @param max set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it's likely because min > max.
-#' @param breaks Numeric vector. Sets the discrete values to show in the color-scale legend for continuous data.
-#' @param breaks.labels String vector with same length as \code{breaks}. Renames the values displayed next to the color-scale.
-#' @param color.panel a list of colors to be used for when plotting a discrete var.
-#' @param colors indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups
-#' @param do.letter Logical/NA. Whether letters should be added on top of the colored dots. For colorblindness compatibility.  NA by default, and if left that way, will be set to either TRUE or FALSE depending on the number of groups if a discrete var is given. For when there are lots of descrete variables, it can be hard to see by just color / shape.  NOTE: Lettering is incompatible with changing dots to shapes, so this will override a setting of distinct shapes based on the 'shape' variable!
-#' @param do.hover Logical. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.
-#' @param data.hover list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
-#' @param opacity Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.
-#' @param add.trajectories List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.clusters} input.
-#' If Slingshot package was used for trajectory analysis, you can use \code{SlingshotDataSet(SCE_with_slingshot)$lineages}.
-#' @param trajectory.clusters String name of metadata containing the clusters that were used for generating trajectories.  Names of clusters must be the same as the contents of \code{add.trajectories} vectors.
-#' @param trajectory.arrow.size Number representing the size of trajectory arrows in inches.  Default = 0.15.
+#' @param rename.var.groups String vector which sets new names for the identities of \code{var} groups.
+#' @param rename.shape.groups String vector which sets new names for the identities of \code{shape.var} groups.
+#' @param min.color color for lowest values of var/min.  Default = yellow
+#' @param max.color color for highest values of var/max.  Default = blue
+#' @param min Number which sets the value associated with the minimum color.
+#' @param max Number which sets the value associated with the maximum color.
+#' @param legend.breaks Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.
+#' @param legend.breaks.labels String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.
+#' @param do.letter Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
+#' NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.var} is provided a metadata because
+#' lettering is incompatible with plotly and with changing the dots' to be different shapes.
+#' @param do.hover Logical which controls whether the object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.
+#' 'hover.data' argument is used to determine what data to use.
+#' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when do.hover is set to \code{TRUE}.
+#' @param hover.data.type Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.
+#' @param add.trajectories List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectories.cluster.meta} input.
+#' If Slingshot package was used for trajectory analysis, you can use \code{add.trajectories = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
+#' @param trajectories.cluster.meta String name of metadata containing the clusters that were used for generating trajectories. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectories} vectors.
+#' @param trajectories.arrow.size Number representing the size of trajectory arrows, in inches.  Default = 0.15.
 #' @param data.out Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
-#' @return Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA, CCA, ..., plot of choice.  var is the argument that sets how dots will be colored, and it can refer to either continuous (ex: "CD34" = gene expression) or discrete (ex: "ident" = clustering) data.
+#' @return A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
+#' Alternatively, a list contatining the ggplot plus the data.frame(s) that went into building it.
 #' @details
-#' If \code{data=TRUE}, a list containing the plot (p), a data.table containing the underlying data for target cells (Target_data), and a data.table containing the underlying data for non-target cells (Others_data).
+#' The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that),
+#' plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
+#' The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
+#' If a metadata is given to \code{shape.var}, that metadat is retrieved and added to the dataframe as well.
+#' If a set of cells to use is indicated with the \code{cells.use} input, the the dataframe is split into Target_data and Others_data based on subsetting by the target cells.
+#' A scatter plot is then created using these dataframes where non-target cells will be displayed in gray if \code{show.others=TRUE},
+#' and then target cell data is displayed on top colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.var}-associated data.
+#'
+#' Many characteristics of the plot can be adjusted using discrete inputs, including \code{sizes} and \code{opacity} to adjust the size and transparency of the data points.
+#' Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
+#'
+#' Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+#' Legends can also be adjusted in other ways, using variables that all start with \code{legend.} for easy autocompletion lookup.
+#'
+#' If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
+#'
+#' Many of other tweaks and features can be added as well.
+#' Each is accessible through autocompletion starting with \code{do.---} or \code{add.---}.
+#' And if additional inputs are involded in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
+#' \itemize{
+#' \item With \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly & cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
+#' upon hovering the cursor over the plot.
+#' \item If \code{do.label} is set to \code{TRUE}, labels will be added based on median centers of the discrete \code{var}-data groupings.
+#' The size of the text in the labels can be adjusted using the \code{labels.size} input.
+#' By default labels will repel eachother and the bounds of the plot, and labels will be highlighted with a white background.
+#' Either of these can be turned off by setting \code{labels.repel=FALSE} or \code{labels.highlight=FALSE},
+#' \item If \code{do.ellipse} is set to \code{TRUE}, ellipses will be added to highlight distinct \code{var}-data groups' positions based on median positions of the their cell/sample components.
+#' \item If \code{add.trajectories} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectories.cluster.meta},
+#' then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
+#' Arrow size is controlled with the \code{trajectories.arrow.size} input.
+#' }
+#'
+#' @seealso
+#' \code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
 #' @export
 #' @examples
 #' library(Seurat)
@@ -67,172 +118,227 @@
 #' #To show currently set clustering, you can use "ident".
 #' #To change the dimensional reduction type, use reduction.use.
 #' #MANY other tweaks are possible!
-#' dittoDimPlot("ident", object = "pbmc", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
+#' dittoDimPlot("ident", object = "pbmc", reduction.use = "pca", do.ellipse = TRUE, do.label = TRUE)
 #'
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' dittoDimPlot("RNA_snn_res.1")
-#' dittoDimPlot("ident", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
+#' dittoDimPlot("ident", reduction.use = "pca", do.ellipse = TRUE, do.label = TRUE)
 
-dittoDimPlot <- function(var="ident", object = DEFAULT, reduction.use = NA, dim.1 = 1, dim.2 = 2,
-                         theme = NA, size=1, shape=16, shapes=c(16,15,17,23,25,8),
-                         legend.show = TRUE, legend.size = 5, legend.title = NULL,
-                         shape.legend.size = 5, shape.legend.title = NULL,
-                         data.type = "normalized",
-                         main = "make", sub = NULL, xlab = "make", ylab = "make", numbers.show = TRUE,
-                         cells.use = NULL, show.others=TRUE, ellipse = FALSE,
-                         do.label = FALSE, label.size = 5, highlight.labels = TRUE, labels.repel = TRUE,
-                         rename.var.groups = NA, rename.shape.groups = NA,
-                         min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
-                         breaks = waiver(), breaks.labels = waiver(),
-                         color.panel = dittoColors(), colors = seq_along(color.panel),
-                         do.letter = NA, do.hover = FALSE, data.hover = var,
-                         opacity = 1, data.out = FALSE,
-                         add.trajectories = NULL, trajectory.clusters, trajectory.arrow.size = 0.15){
-  #Turn the object into a "name" if a full object was given
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
-  }
-  #Generate the x/y dimensional reduction data and axes labels.
-  #If reduction.use = NA (was not provided), populate it to be tsne or pca.
-  if (grepl("Seurat",.class_of(object)) & is.na(reduction.use)) {reduction.use <- "tsne"}
-  if (.class_of(object)=="SingleCellExperiment" & is.na(reduction.use)) {reduction.use <- "TSNE"}
-  if (.class_of(object)=="RNAseq" & is.na(reduction.use)) {reduction.use <- "pca"}
-  xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
-  ydat <- .extract_Reduced_Dim(reduction.use, dim.2, object)
-  #Standardize cells.use to a list of names.
-  cells.use <- .which_cells(cells.use, object)
-  #Establish the full list of cell/sample names
-  all.cells <- .all_cells(object)
-  #Set Titles
-  if (!(is.null(xlab))) { if (xlab=="make") { xlab <- xdat$name } }
-  if (!(is.null(ylab))) { if (ylab=="make") { ylab <- ydat$name } }
-  if (!is.null(main)){ if (main == "make") {
-    if (length(var)==1) { main <- var } else { main <- NULL }
-  } }
-  #Unless theme was set in some way, remove gridlines for umap's and tsne's.
-  if (is.na(theme)){
-    theme <- theme_bw()
-    if (grepl("tsne|umap", tolower(reduction.use))){theme <- theme + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())}
-  }
-  #Set whether lettering or hover and/or shaping will happen.  do.hover >> do.letter >> shape by discrete variables
-  #Decide if letters should be added or not
-  #If#1) if do.hover was set to TRUE, lettering will not work, so set to FALSE.
-  if(do.hover){
-    do.letter <- FALSE
-  } else {
-    #IF#2) if do.letter was already set, we'll just go with what the user wanted!
-    if(is.na(do.letter)){
-      #If#2) if the data is discrete, continue. (Otherwise, it is continuous so letters would not make sense!)
-      if(!(is.numeric(.var_OR_get_meta_or_gene(var, object=object, data.type=data.type)))){
-        #If#3) if the number of groups is 8 or more, letters are recommended.
-        if(length(levels(as.factor(.var_OR_get_meta_or_gene(var, object=object, data.type=data.type))))>=8){
-          do.letter <- TRUE
-        } else { do.letter <- FALSE }
-      } else { do.letter <- FALSE }
+dittoDimPlot <- function(
+    var="ident", object = DEFAULT, reduction.use = NA, size=1, opacity = 1,
+    dim.1 = 1, dim.2 = 2, cells.use = NULL, show.others=TRUE,
+    color.panel = dittoColors(), colors = seq_along(color.panel),
+    shape.var = NULL, shape.panel=c(16,15,17,23,25,8),
+    data.type = "normalized",
+    main = "make", sub = NULL, xlab = "make", ylab = "make",
+    theme = NA, numbers.show = TRUE, legend.show = TRUE, legend.size = 5,
+    legend.title = if(is.null(shape.var)){NULL}else{var},
+    shape.legend.size = 5, shape.legend.title = shape.var,
+    do.ellipse = FALSE, do.label = FALSE,
+    labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
+    rename.var.groups = NULL, rename.shape.groups = NULL,
+    min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
+    legend.breaks = waiver(), legend.breaks.labels = waiver(),
+    do.letter = FALSE, do.hover = FALSE, hover.data = var,
+    hover.data.type = data.type, data.out = FALSE,
+    add.trajectories = NULL, trajectories.cluster.meta, trajectories.arrow.size = 0.15){
+
+    #Turn the object into a "name" if a full object was given
+    if (typeof(object)=="S4") {
+        object <- deparse(substitute(object))
     }
-  }
-  p.df <- dittoScatterPlot(x.var = xdat$embeddings, y.var = ydat$embeddings, overlay.color.var = var,
-                           if(!do.letter & is.character(shape)){overlay.shape.var = shape},
-                           if(!do.letter & is.numeric(shape)){shape = shape},
-                           object = object, cells.use = cells.use, show.others = show.others,
-                           color.panel = color.panel, colors = colors,
-                           data.type.color = data.type,
-                           rename.color.groups = rename.var.groups, rename.shape.groups = rename.shape.groups,
-                           do.hover = do.hover, data.hover = data.hover, data.type.hover = data.type,
-                           shapes = shapes, size = size, opacity = opacity,
-                           legend.show = legend.show, legend.color.title = legend.title,
-                           legend.color.size = legend.size, legend.shape.size = legend.size,
-                           min.color = min.color, max.color = max.color, min = min, max = max,
-                           breaks = breaks, breaks.labels = breaks.labels,
-                           xlab = xlab, ylab = ylab, main = main, sub = sub, theme = theme,
-                           data.out = TRUE)
-  p <- p.df$plot
-  Target_data <- p.df$Target_data
-  Others_data <- p.df$Others_data
+    #Standardize cells.use to a list of names.
+    cells.use <- .which_cells(cells.use, object)
+    all.cells <- .all_cells(object)
 
-  #Add letters if warranted
-  if(do.letter){
-    letter.labels <- c(LETTERS, letters, 0:9, "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-",
-                       "+", "_", "=", ";", "/", "|", "{", "}", "~")[seq_along(levels(as.factor(Target_data$color)))]
-    names(letter.labels) <- levels(as.factor(Target_data$color))
-    letter.colors <- c(rep("white",7), rep("black",10),rep("white",9))[seq_along(levels(as.factor(Target_data$color)))]
-    names(letter.colors) <- levels(as.factor(Target_data$color))
+    if (do.hover || !is.null(shape.var)) {
+        do.letter <- FALSE
+    }
+
+    # Generate the x/y dimensional reduction data and plot titles.
+    if (is.na(reduction.use)) {
+        reduction.use <- .default_reduction(object)
+    }
+    xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
+    ydat <- .extract_Reduced_Dim(reduction.use, dim.2, object)
+    xlab <- .leave_default_or_null(xlab, xdat$name)
+    ylab <- .leave_default_or_null(ylab, ydat$name)
+    main <- .leave_default_or_null(main, var, length(var)!=1)
+
+    # Edit theme.
+    if (is.na(theme[1])){
+        theme <- theme_bw()
+        if (grepl("tsne|umap", tolower(reduction.use))) {
+            # Remove grid lines
+            theme <- theme +
+                theme(panel.grid.major = element_blank(),
+                      panel.grid.minor = element_blank())
+        }
+    }
+    if (!numbers.show) {
+        theme <- theme +
+            theme(axis.text.x=element_blank(),axis.text.y=element_blank())
+    }
+    p.df <- dittoScatterPlot(
+        xdat$embeddings, ydat$embeddings, var, shape.var, object, cells.use,
+        show.others, color.panel, colors, size, opacity,
+        data.type.x = "normalized", data.type.y = "normalized",
+        data.type, do.hover, hover.data, hover.data.type, shape.panel,
+        rename.var.groups, rename.shape.groups, min.color, max.color, min, max,
+        xlab, ylab, main, sub, theme, legend.show, legend.title, legend.size,
+        legend.breaks, legend.breaks.labels, shape.legend.title,
+        shape.legend.size, data.out = TRUE)
+    p <- p.df$plot
+    Target_data <- p.df$Target_data
+    Others_data <- p.df$Others_data
+
+    # Add extra features
+    if (do.letter) {
+        p <- .add_letters(
+            p, Target_data, "color", size, opacity, legend.title, legend.size)
+    }
+    if (do.ellipse) {
+        p <- p + stat_ellipse(
+            data=Target_data,
+            aes(x = X, y = Y, colour = color),
+            type = "t", linetype = 2, size = 0.5, show.legend = FALSE)
+    }
+    if (do.label) {
+        p <- .add_labels(
+            p, Target_data, "color", labels.highlight, labels.size,
+            labels.repel)
+    }
+    if (is.list(add.trajectories)) {
+        p <- .add_trajectories(
+            p, add.trajectories, trajectories.cluster.meta,
+            trajectories.arrow.size, object, reduction.use, dim.1, dim.2)}
+
+    if (!legend.show) {
+        p <- remove_legend(p)
+    }
+    ### RETURN the PLOT ###
+    if (data.out) {
+        return(list(
+            plot = p,
+            Target_data = Target_data,
+            Others_data = Others_data))
+    } else {
+        if (do.hover) {
+            return(plotly::ggplotly(p, tooltip = "text"))
+        } else {
+            return(p)
+        }
+    }
+}
+
+.default_reduction <- function(object) {
+    if (grepl("Seurat",.class_of(object))) {
+        reduction.use <- "tsne"
+    }
+    if (.class_of(object)=="SingleCellExperiment") {
+        reduction.use <- "TSNE"
+    }
+    if (.class_of(object)=="RNAseq") {
+        reduction.use <- "pca"
+    }
+    reduction.use
+}
+
+.add_labels <- function(p, Target_data, col.use = "color", labels.highlight, labels.size, labels.repel) {
+    #Make a text plot at the median x and y values for each cluster
+
+    #Determine medians
+    cent.x = vapply(
+        levels(as.factor(Target_data[,col.use])),
+        function(level) {
+            median(Target_data$X[Target_data[,col.use]==level])
+        }, FUN.VALUE = numeric(1))
+    cent.y = vapply(
+        levels(as.factor(Target_data[,col.use])),
+        function(level) {
+            median(Target_data$Y[Target_data[,col.use]==level])
+        }, FUN.VALUE = numeric(1))
+
+    #Add labels
+    args <- list(
+        data = data.frame(cent.x=cent.x, cent.y=cent.y),
+        mapping = aes(x = cent.x, y = cent.y),
+        size = labels.size,
+        label = levels(as.factor(Target_data[,col.use])))
+    geom.use <-
+        if (labels.highlight) {
+            if (labels.repel) {
+                ggrepel::geom_label_repel
+            } else {
+                geom_label
+            }
+        } else {
+            if (labels.repel) {
+                ggrepel::geom_text_repel
+            } else {
+                geom_text
+            }
+        }
+    p + do.call(geom.use, args)
+}
+
+.add_trajectories <- function(
+    p, trajectories, clusters, arrow.size = 0.15, object, reduction.use,
+    dim.1, dim.2) {
+    # p = the $p output of a dittoDimPlot(any.var,..., data.out = TRUE)
+    # clusters = the name of the metadata metadata slot that holds the clusters used for cluster-based trajectory analysis
+    # trajectories = List os lists of cluster paths. Also, the output of SlingshotDataSet(SCE_with_slingshot)$lineages
+    # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
+
+    #Determine medians
+    cluster.dat <- meta(clusters, object)
+    cluster.levels <- meta.levels(clusters, object)
+    data <- data.frame(
+        cent.x = vapply(
+            cluster.levels,
+            function(level) {
+                median(
+                    .extract_Reduced_Dim(reduction.use, dim.1, object)$embedding[
+                        cluster.dat==level])
+            }, FUN.VALUE = numeric(1)),
+        cent.y = vapply(
+            cluster.levels,
+            function(level) {
+                median(
+                    .extract_Reduced_Dim(reduction.use, dim.2, object)$embedding[
+                        cluster.dat==level])
+            }, FUN.VALUE = numeric(1)))
+
+    #Add trajectories
+    for (i in seq_along(trajectories)){
+        p <- p + geom_path(
+            data = data[as.character(trajectories[[i]]),],
+            aes_string(x = "cent.x", y = "cent.y"),
+            arrow = arrow(
+                angle = 20, type = "closed", length = unit(arrow.size, "inches")))
+    }
+    p
+}
+
+.add_letters <- function(
+    p, Target_data, col.use = "color", size, opacity, legend.title,
+    legend.size) {
+
+    letters.needed <- length(levels(as.factor(Target_data[,col.use])))
+    letter.labels <- c(
+        LETTERS, letters, 0:9, "!", "@", "#", "$", "%", "^", "&", "*", "(",
+        ")", "-", "+", "_", "=", ";", "/", "|", "{", "}", "~"
+        )[seq_len(letters.needed)]
+    names(letter.labels) <- levels(as.factor(Target_data[,col.use]))
     p <- p +
-      geom_point(data=Target_data, aes(x = X, y = Y, shape = color), color = "black", size=size, alpha = opacity*3/4) +
-      scale_shape_manual(name = legend.title,
-                         values = letter.labels)
-    guides(shape = guide_legend(override.aes = list(size=shape.legend.size)))
-  }
-  #Add ellipse
-  if (ellipse) { p <- p + stat_ellipse(data=Target_data, aes(x = X, y = Y, colour = color),
-                                       type = "t", linetype = 2, size = 0.5, show.legend = FALSE)}
-  #Add labels
-  if(do.label) { p <- dittoDimPlot.addLabels(p, Target_data, highlight.labels, rename.var.groups, label.size, labels.repel)}
-  #Add trajectories
-  if(!is.null(add.trajectories)) {
-    p <- dittoDimPlot.addTrajectory(
-      p, trajectories = add.trajectories, clusters = trajectory.clusters, arrow.size = trajectory.arrow.size,
-      object = object, reduction.use = reduction.use, dim.1 = dim.1, dim.2 = dim.2)}
-  #Remove legend, if warrented
-  if (!legend.show) { p <- remove_legend(p) }
-  #Remove axes numbers, if warranted
-  if (!numbers.show) {
-    p <- p + theme(axis.text.x=element_blank(),axis.text.y=element_blank())
-  }
-  ### RETURN the PLOT ###
-  if(data.out){return(list(plot = p,
-                           Target_data = Target_data,
-                           Others_data = Others_data))}
-  else{
-    if(do.hover){ return(plotly::ggplotly(p, tooltip = "text")) }
-    else { return(p) }
-  }
-}
-
-dittoDimPlot.addLabels <- function(p, Target_data, highlight.labels, rename.groups, label.size, labels.repel) {
-  #Make a text plot at the median x and y values for each cluster
-  #Determine medians
-  cent.x = sapply(levels(as.factor(Target_data[,3])), function(X) median(Target_data$X[Target_data[,3]==X]))
-  cent.y = sapply(levels(as.factor(Target_data[,3])), function(X) median(Target_data$Y[Target_data[,3]==X]))
-  #Add labels
-  args <- list(
-      data = data.frame(x=cent.x, y=cent.y),
-      aes(x = x, y = y, label = if(!(is.na(rename.groups[1]))){rename.groups} else {levels(as.factor(Target_data[,3]))}),
-      size = label.size)
-  if (highlight.labels){
-      #Add labels with a white background
-      if (labels.repel) { p <- p + do.call(geom_label_repel, args) }
-      else { p <- p + do.call(geom_label, args) }
-  } else {
-      #Add labels without a white background
-      if (labels.repel) { p <- p + do.call(geom_text_repel, args) }
-      else { p <- p + do.call(geom_text, args) }
-  }
-  p
-}
-
-dittoDimPlot.addTrajectory <- function(p, trajectories, clusters, arrow.size = 0.15, object, reduction.use, dim.1, dim.2) {
-  # p = the $p output of a dittoDimPlot(any.var,..., data.out = TRUE) in the same dimensional reduction space and dims as Target_data is built on, though can be any data, not just the original clustering
-  # Target_data = the $Target output of a dittoDimPlot("clustering.meta.data.name", data.out = TRUE) where "clustering.meta.data.name" is the name of the metadata slot that holds the clusters used for slingshot::getLineages
-  # trajectories = List os lists of cluster paths. Also, the output of SlingshotDataSet(SCE_with_slingshot)$lineages
-  # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
-  #
-  #Determine medians
-  data <- data.frame(
-      cent.x = sapply(
-          meta.levels(clusters, object),
-          function(X) median(.extract_Reduced_Dim(reduction.use, dim.1, object)$embedding[meta(clusters, object)==X])),
-      cent.y = sapply(
-          meta.levels(clusters, object),
-          function(X) median(.extract_Reduced_Dim(reduction.use, dim.2, object)$embedding[meta(clusters, object)==X])))
-  #Add trajectories
-  for (i in seq_along(trajectories)){
-    p <- p + geom_path(data = data[trajectories[[i]],],
-                       aes(x = cent.x, y = cent.y),
-                       arrow = arrow(angle = 20, type = "closed", length = unit(arrow.size, "inches")))
-  }
-  p
+        geom_point(
+            data=Target_data,
+            aes_string(x = "X", y = "Y", shape = col.use),
+            color = "black", size=size*3/4, alpha = opacity) +
+        scale_shape_manual(name = legend.title,
+                           values = letter.labels)
+    p
 }
 
 #### multi_dittoDimPlot : a function for quickly making multiple DBDimPlots arranged in a grid.

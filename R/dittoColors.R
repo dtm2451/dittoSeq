@@ -1,12 +1,21 @@
 #' Extracts the dittoSeq default colors
 #' @author Daniel Bunis
 #' @param get.names Logical, whether only the names of the default dittoSeq color panel should be returned instead
-#' @description Creates a colors vector of 24 colors in hexadecimal form,
+#' @description Creates a string vector of 24 colors in hexadecimal form,
 #' a modification of the protanope and deuteranope friendly colors from Wong, B. Nature Methods, 2011.
 #'
 #' The colors are:
 #'
 #' 1-7 = Suggested color panel from Wong, B. Nature Methods, 2011, minus black
+#' \itemize{
+#' \item 1- orange = "#E69F00"
+#' \item 2- skyBlue = "#56B4E9"
+#' \item 3- bluishGreen = "#009E73"
+#' \item 4- yellow = "#F0E442"
+#' \item 5- blue = "#0072B2"
+#' \item 6- vermillion = "#D55E00"
+#' \item 7- reddishPurple = "#CC79A7"
+#' }
 #'
 #' 8 = gray40
 #'

@@ -5,63 +5,48 @@
 \title{Shows data overlayed on a tsne, pca, or similar type of plot}
 \usage{
 dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
-  dim.1 = 1, dim.2 = 2, theme = NA, size = 1, shape = 16,
-  shapes = c(16, 15, 17, 23, 25, 8), legend.show = TRUE,
-  legend.size = 5, legend.title = NULL, shape.legend.size = 5,
-  shape.legend.title = NULL, data.type = "normalized", main = "make",
-  sub = NULL, xlab = "make", ylab = "make", numbers.show = TRUE,
-  cells.use = NULL, show.others = TRUE, ellipse = FALSE,
-  do.label = FALSE, label.size = 5, highlight.labels = TRUE,
-  labels.repel = TRUE, rename.var.groups = NA,
-  rename.shape.groups = NA, min.color = "#F0E442",
-  max.color = "#0072B2", min = NULL, max = NULL, breaks = waiver(),
-  breaks.labels = waiver(), color.panel = dittoColors(),
-  colors = seq_along(color.panel), do.letter = NA, do.hover = FALSE,
-  data.hover = var, opacity = 1, data.out = FALSE,
+  size = 1, opacity = 1, dim.1 = 1, dim.2 = 2, cells.use = NULL,
+  show.others = TRUE, color.panel = dittoColors(),
+  colors = seq_along(color.panel), shape.var = NULL,
+  shape.panel = c(16, 15, 17, 23, 25, 8), data.type = "normalized",
+  main = "make", sub = NULL, xlab = "make", ylab = "make",
+  theme = NA, numbers.show = TRUE, legend.show = TRUE,
+  legend.size = 5, legend.title = if (is.null(shape.var)) {     NULL }
+  else {     var }, shape.legend.size = 5,
+  shape.legend.title = shape.var, do.ellipse = FALSE,
+  do.label = FALSE, labels.size = 5, labels.highlight = TRUE,
+  labels.repel = TRUE, rename.var.groups = NULL,
+  rename.shape.groups = NULL, min.color = "#F0E442",
+  max.color = "#0072B2", min = NULL, max = NULL,
+  legend.breaks = waiver(), legend.breaks.labels = waiver(),
+  do.letter = FALSE, do.hover = FALSE, data.hover = var,
+  data.type.hover = data.type, data.out = FALSE,
   add.trajectories = NULL, trajectory.clusters,
   trajectory.arrow.size = 0.15)
 }
 \arguments{
-\item{var}{String name of a "gene" or "meta.data" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
+\item{var}{String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 This is the data that will be displayed for each cell/sample.
 Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 Discrete or continuous data both work. REQUIRED.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.}
+\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
-\item{reduction.use}{"pca", "tsne", "ica", etc.  Default = tsne for Seurat objects, and pca for RNAseq objects}
+\item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
+
+Default = "tsne" for Seurat objects, and "pca" for RNAseq objects, and "TSNE" for SingleCellExperiment objects.}
+
+\item{size}{Number which sets the size of data points. Default = 1.}
+
+\item{opacity}{Number between 0 and 1.
+Great for when you have MANY overlapping points, this sets how solid the points should be;
+1 = not see-through at all; 0 = invisible. Default = 1.
+(In terms of typical ggplot variables, = alpha)}
 
 \item{dim.1}{The component number to use on the x-axis.  Default = 1}
 
 \item{dim.2}{The component number to use on the y-axis.  Default = 2}
-
-\item{theme}{Allows setting of a theme. Default = theme_bw when nothing is provided.}
-
-\item{size}{Number. Size of data points.  Default = 1.}
-
-\item{shape}{Number for setting shape OR name of metadata to use for setting shape}
-
-\item{shapes}{the shapes to use.  Default is a list of 6.  There are more, but not many of the default ggplot options are great.  I recommend using colors for any variable with 7+ options.}
-
-\item{legend.show}{Logical. Whether the legend should be displayed. Default = TRUE.}
-
-\item{legend.size}{The size to increase the plotting of colors/letters legend shapes to (for discrete variable plotting)}
-
-\item{legend.title}{For adding a title for the colors/letters legend.  It is set to NULL (off) by default.}
-
-\item{shape.legend.size}{The size to increase the plotting of shapes legend shapes to.}
-
-\item{shape.legend.title}{For adding a title for the shapes legend is a meta.data was given to 'shape' and multiple shapes were therefore used.  It is set to NULL (off) by default.}
-
-\item{data.type}{For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".}
-
-\item{main}{plot title.  Default = "make", if left as "make", a title will be autogenerated based on the var input}
-
-\item{sub}{plot subtitle}
-
-\item{xlab, ylab}{Strings which set the labels for the axes. Default labels are generated if you do not give this a specific value. To remove, set to \code{NULL}.}
-
-\item{numbers.show}{Logical which controls whether the axes values should be displayed.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -69,44 +54,80 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 
 \item{show.others}{Logical. TRUE by default, whether other cells should be shown in the background}
 
-\item{ellipse}{Logical. Whether the groups should be surrounded by an ellipse.}
+\item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.}
+
+\item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
+
+\item{shape.var}{Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
+
+Note: shapes can be harder to see, and to process mentally, than colors.
+Even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.}
+
+\item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
+When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
+When nothing is supplied to \code{shape.var}, only the first value is used.
+Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.}
+
+\item{data.type}{For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".}
+
+\item{main}{String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.}
+
+\item{sub}{String, sets the plot subtitle}
+
+\item{xlab, ylab}{Strings which set the labels for the axes. Default labels are generated if you do not give this a specific value. To remove, set to \code{NULL}.}
+
+\item{theme}{A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_bw()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.}
+
+\item{numbers.show}{Logical which controls whether the axes values should be displayed.}
+
+\item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
+
+\item{legend.size}{Number representing the size to increase the plotting of color legend shapes to (for discrete variable plotting).
+Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.*}
+
+\item{legend.title}{String which sets the title for the main legend which includes the colors. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.}
+
+\item{shape.legend.size}{Number representing the size to increase the plotting of shapes legend shapes to.}
+
+\item{shape.legend.title}{String which sets the title of the shapes legend.  Default is the \code{shape.var}}
+
+\item{do.ellipse}{Logical. Whether the groups should be surrounded by an ellipse.}
 
 \item{do.label}{Logical. Whether to add text labels at the center (median) of clusters for grouping vars}
 
-\item{label.size}{Size of the the labels text}
+\item{labels.size}{Size of the the labels text}
 
-\item{highlight.labels}{Logical. Whether the labels should have a box behind them}
+\item{labels.highlight}{Logical. Whether the labels should have a box behind them}
 
 \item{labels.repel}{Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
 TRUE by default.}
 
-\item{rename.var.groups}{new names for the identities of var.  Change to NULL to remove labeling altogether.}
+\item{rename.var.groups}{String vector which sets new names for the identities of \code{var} groups.}
 
-\item{rename.shape.groups}{new names for the identities of shape groups.  Change to NULL to remove labeling altogether.}
+\item{rename.shape.groups}{String vector which sets new names for the identities of \code{shape.var} groups.}
 
-\item{min.color}{color for lowest values of var/min}
+\item{min.color}{color for lowest values of var/min.  Default = yellow}
 
-\item{max.color}{color for highest values of var/max}
+\item{max.color}{color for highest values of var/max.  Default = blue}
 
-\item{min}{set the value associated with the minimum color.  All points with a lower value than this will get the same min.color.}
+\item{min}{Number which sets the value associated with the minimum color.}
 
-\item{max}{set the value associated with the maximum color.  All points with a higher value than this will get the same max.color.  Note: if your legend is not plotting, it's likely because min > max.}
+\item{max}{Number which sets the value associated with the maximum color.}
 
-\item{breaks}{Numeric vector. Sets the discrete values to show in the color-scale legend for continuous data.}
+\item{legend.breaks}{Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.}
 
-\item{breaks.labels}{String vector with same length as \code{breaks}. Renames the values displayed next to the color-scale.}
+\item{legend.breaks.labels}{String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.}
 
-\item{color.panel}{a list of colors to be used for when plotting a discrete var.}
+\item{do.letter}{Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
+NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.var} is provided a metadata because
+lettering is incompatible with plotly and with changing the dots' to be different shapes.}
 
-\item{colors}{indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups}
+\item{do.hover}{Logical which controls whether the object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.
+'data.hover' argument is used to determine what data to use.}
 
-\item{do.letter}{Logical/NA. Whether letters should be added on top of the colored dots. For colorblindness compatibility.  NA by default, and if left that way, will be set to either TRUE or FALSE depending on the number of groups if a discrete var is given. For when there are lots of descrete variables, it can be hard to see by just color / shape.  NOTE: Lettering is incompatible with changing dots to shapes, so this will override a setting of distinct shapes based on the 'shape' variable!}
+\item{data.hover}{list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show on hover when do.hover is set to \code{TRUE}.}
 
-\item{do.hover}{Logical. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.}
-
-\item{data.hover}{list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.}
-
-\item{opacity}{Number between 0 and 1. Great for when you have MANY overlapping points, this sets how see-through the points should be; 1 = not at all; 0 = invisible. Default = 1.}
+\item{data.type.hover}{Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.}
 
 \item{data.out}{Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
 
@@ -133,10 +154,13 @@ dittoDimPlot("RNA_snn_res.1", object = "pbmc")
 #To show currently set clustering, you can use "ident".
 #To change the dimensional reduction type, use reduction.use.
 #MANY other tweaks are possible!
-dittoDimPlot("ident", object = "pbmc", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
+dittoDimPlot("ident", object = "pbmc", reduction.use = "pca", do.ellipse = TRUE, do.label = TRUE)
 
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
 dittoDimPlot("RNA_snn_res.1")
-dittoDimPlot("ident", reduction.use = "pca", ellipse = TRUE, do.label = TRUE)
+dittoDimPlot("ident", reduction.use = "pca", do.ellipse = TRUE, do.label = TRUE)
+}
+\seealso{
+\code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{var}, \code{shape.var}, and \code{data.hover} options are.
 }
