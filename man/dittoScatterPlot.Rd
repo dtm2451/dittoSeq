@@ -9,8 +9,8 @@ dittoScatterPlot(x.var, y.var, color.var = NULL, shape.var = NULL,
   color.panel = dittoColors(), colors = seq_along(color.panel),
   size = 1, opacity = 1, data.type.x = "normalized",
   data.type.y = "normalized", data.type.color = "normalized",
-  do.hover = FALSE, data.hover = NULL,
-  data.type.hover = "normalized", shape.panel = c(16, 15, 17, 23, 25,
+  do.hover = FALSE, hover.data = NULL,
+  hover.data.type = "normalized", shape.panel = c(16, 15, 17, 23, 25,
   8), rename.color.groups = NULL, rename.shape.groups = NULL,
   min.color = "#F0E442", max.color = "#0072B2", min = NULL,
   max = NULL, xlab = x.var, ylab = y.var, main = NULL,
@@ -53,11 +53,11 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 
 \item{data.type.color}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene}. DEFAULT = "normalized"}
 
-\item{do.hover}{TRUE/FALSE. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'data.hover' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.}
+\item{do.hover}{TRUE/FALSE. Default = FALSE.  If set to true: object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'hover.data' argument is used to determine what data to use.  NOTE: incompatible with lettering (due to a ggplotly incompatibility). Setting do.hover to TRUE will override a do.letter=TRUE or NA.}
 
-\item{data.hover}{list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.}
+\item{hover.data}{list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.}
 
-\item{data.type.hover}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene}. DEFAULT = "normalized" For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
+\item{hover.data.type}{For when plotting expression data, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene}. DEFAULT = "normalized" For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
 
 \item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.

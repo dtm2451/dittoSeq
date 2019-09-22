@@ -19,10 +19,10 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   rename.shape.groups = NULL, min.color = "#F0E442",
   max.color = "#0072B2", min = NULL, max = NULL,
   legend.breaks = waiver(), legend.breaks.labels = waiver(),
-  do.letter = FALSE, do.hover = FALSE, data.hover = var,
-  data.type.hover = data.type, data.out = FALSE,
-  add.trajectories = NULL, trajectory.clusters,
-  trajectory.arrow.size = 0.15)
+  do.letter = FALSE, do.hover = FALSE, hover.data = var,
+  hover.data.type = data.type, data.out = FALSE,
+  add.trajectories = NULL, trajectories.cluster.meta,
+  trajectories.arrow.size = 0.15)
 }
 \arguments{
 \item{var}{String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
@@ -123,44 +123,90 @@ NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.var} 
 lettering is incompatible with plotly and with changing the dots' to be different shapes.}
 
 \item{do.hover}{Logical which controls whether the object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.
-'data.hover' argument is used to determine what data to use.}
+'hover.data' argument is used to determine what data to use.}
 
-\item{data.hover}{list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show on hover when do.hover is set to \code{TRUE}.}
+\item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when do.hover is set to \code{TRUE}.}
 
-\item{data.type.hover}{Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.}
+\item{hover.data.type}{Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.}
 
 \item{data.out}{Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
 
-\item{add.trajectories}{List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.clusters} input.
-If Slingshot package was used for trajectory analysis, you can use \code{SlingshotDataSet(SCE_with_slingshot)$lineages}.}
+\item{add.trajectories}{List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectories.cluster.meta} input.
+If Slingshot package was used for trajectory analysis, you can use \code{add.trajectories = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.}
 
-\item{trajectory.clusters}{String name of metadata containing the clusters that were used for generating trajectories.  Names of clusters must be the same as the contents of \code{add.trajectories} vectors.}
+\item{trajectories.cluster.meta}{String name of metadata containing the clusters that were used for generating trajectories. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectories} vectors.}
 
-\item{trajectory.arrow.size}{Number representing the size of trajectory arrows in inches.  Default = 0.15.}
+\item{trajectories.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
 }
 \value{
-Makes a plot where colored dots (or other shapes) are overlayed onto a tSNE, PCA, CCA, ..., plot of choice.  var is the argument that sets how dots will be colored, and it can refer to either continuous (ex: "CD34" = gene expression) or discrete (ex: "ident" = clustering) data.
+A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
+Alternatively, a list contatining the ggplot plus the data.frame(s) that went into building it.
 }
 \description{
 Shows data overlayed on a tsne, pca, or similar type of plot
 }
 \details{
-If \code{data=TRUE}, a list containing the plot (p), a data.table containing the underlying data for target cells (Target_data), and a data.table containing the underlying data for non-target cells (Others_data).
+The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that),
+plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
+The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
+If a metadata is given to \code{shape.var}, that is retrieved and added to the dataframe as well.
+If a set of cells to use is indicated with the \code{cells.use} input, the the dataframe is split into Target_data and Others_data based on subsetting by the target cells.
+Finally, a scatter plot is then created using these dataframes where non-target cells will be displayed in gray if \code{show.others=TRUE},
+and target cell data is displayed on top, colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.var}-associated data.
+
+Many characteristics of the plot can be adjusted using discrete inputs, including \code{sizes} and \code{opacity} to adjust the size and transparency of the data points.
+Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
+
+Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab-completion lookup.
+
+If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
+
+Additional Features: Many of other tweaks and features can be added as well.
+Each is accessible through autocompletion starting with "\code{do.}"\code{---} or "\code{add.}"\code{---},
+and if additional inputs are involded in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
+\itemize{
+\item If \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly & cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
+upon hovering the cursor over the plot.
+\item If \code{do.label} is set to \code{TRUE}, labels will be added based on median centers of the discrete \code{var}-data groupings.
+The size of the text in the labels can be adjusted using the \code{labels.size} input.
+By default labels will repel eachother and the bounds of the plot, and labels will be highlighted with a white background.
+Either of these can be turned off by setting \code{labels.repel=FALSE} or \code{labels.highlight=FALSE},
+\item If \code{do.ellipse} is set to \code{TRUE}, ellipses will be added to highlight distinct \code{var}-data groups' positions based on median positions of the their cell/sample components.
+\item If \code{add.trajectories} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectories.cluster.meta},
+then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
+Arrow size is controlled with the \code{trajectories.arrow.size} input.
+}
 }
 \examples{
-library(Seurat)
 pbmc <- Seurat::pbmc_small
+# Display discrete data:
 dittoDimPlot("RNA_snn_res.1", object = "pbmc")
-#To show currently set clustering, you can use "ident".
-#To change the dimensional reduction type, use reduction.use.
-#MANY other tweaks are possible!
-dittoDimPlot("ident", object = "pbmc", reduction.use = "pca", do.ellipse = TRUE, do.label = TRUE)
+# Display continuous data:
+dittoDimPlot("CD14", object = "pbmc")
+
+# To show currently set clustering for seurat objects, you can use "ident".
+# To change the dimensional reduction type, use reduction.use.
 
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
-dittoDimPlot("RNA_snn_res.1")
-dittoDimPlot("ident", reduction.use = "pca", do.ellipse = TRUE, do.label = TRUE)
+dittoDimPlot("nFeature_RNA")
+
+# MANY addtional tweaks are possible.
+# Also, many extra features are easy to add as well:
+dittoDimPlot("ident", do.label = TRUE)
+dittoDimPlot("ident", do.label = TRUE, do.ellipse = TRUE)
+dittoDimPlot("CD3E", do.hover = TRUE,
+    hover.data = c("CD14", "RNA_snn_res.0.8", "groups"))
+dittoDimPlot("CD3E", add.trajectories = list(c(0:2), c(0,2)),
+    trajectories.cluster.meta = "ident")
 }
 \seealso{
-\code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{var}, \code{shape.var}, and \code{data.hover} options are.
+\code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
+
+\code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are the scatterplot axes.
+
+\code{\link{dittoPlot}} for an alternative continuous data display method where data is shown on a y- (or x-) axis.
+
+\code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
 }

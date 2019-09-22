@@ -79,24 +79,24 @@
 #' The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that),
 #' plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
 #' The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
-#' If a metadata is given to \code{shape.var}, that metadat is retrieved and added to the dataframe as well.
+#' If a metadata is given to \code{shape.var}, that is retrieved and added to the dataframe as well.
 #' If a set of cells to use is indicated with the \code{cells.use} input, the the dataframe is split into Target_data and Others_data based on subsetting by the target cells.
-#' A scatter plot is then created using these dataframes where non-target cells will be displayed in gray if \code{show.others=TRUE},
-#' and then target cell data is displayed on top colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.var}-associated data.
+#' Finally, a scatter plot is then created using these dataframes where non-target cells will be displayed in gray if \code{show.others=TRUE},
+#' and target cell data is displayed on top, colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.var}-associated data.
 #'
 #' Many characteristics of the plot can be adjusted using discrete inputs, including \code{sizes} and \code{opacity} to adjust the size and transparency of the data points.
 #' Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
 #'
 #' Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
-#' Legends can also be adjusted in other ways, using variables that all start with \code{legend.} for easy autocompletion lookup.
+#' Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab-completion lookup.
 #'
 #' If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
 #'
-#' Many of other tweaks and features can be added as well.
-#' Each is accessible through autocompletion starting with \code{do.---} or \code{add.---}.
-#' And if additional inputs are involded in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
+#' Additional Features: Many of other tweaks and features can be added as well.
+#' Each is accessible through autocompletion starting with "\code{do.}"\code{---} or "\code{add.}"\code{---},
+#' and if additional inputs are involded in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
 #' \itemize{
-#' \item With \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly & cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
+#' \item If \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly & cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
 #' upon hovering the cursor over the plot.
 #' \item If \code{do.label} is set to \code{TRUE}, labels will be added based on median centers of the discrete \code{var}-data groupings.
 #' The size of the text in the labels can be adjusted using the \code{labels.size} input.
@@ -110,20 +110,36 @@
 #'
 #' @seealso
 #' \code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
+#'
+#' \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are the scatterplot axes.
+#'
+#' \code{\link{dittoPlot}} for an alternative continuous data display method where data is shown on a y- (or x-) axis.
+#'
+#' \code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
+#'
 #' @export
 #' @examples
-#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
+#' # Display discrete data:
 #' dittoDimPlot("RNA_snn_res.1", object = "pbmc")
-#' #To show currently set clustering, you can use "ident".
-#' #To change the dimensional reduction type, use reduction.use.
-#' #MANY other tweaks are possible!
-#' dittoDimPlot("ident", object = "pbmc", reduction.use = "pca", do.ellipse = TRUE, do.label = TRUE)
+#' # Display continuous data:
+#' dittoDimPlot("CD14", object = "pbmc")
+#'
+#' # To show currently set clustering for seurat objects, you can use "ident".
+#' # To change the dimensional reduction type, use reduction.use.
 #'
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
-#' dittoDimPlot("RNA_snn_res.1")
-#' dittoDimPlot("ident", reduction.use = "pca", do.ellipse = TRUE, do.label = TRUE)
+#' dittoDimPlot("nFeature_RNA")
+#'
+#' # MANY addtional tweaks are possible.
+#' # Also, many extra features are easy to add as well:
+#' dittoDimPlot("ident", do.label = TRUE)
+#' dittoDimPlot("ident", do.label = TRUE, do.ellipse = TRUE)
+#' dittoDimPlot("CD3E", do.hover = TRUE,
+#'     hover.data = c("CD14", "RNA_snn_res.0.8", "groups"))
+#' dittoDimPlot("CD3E", add.trajectories = list(c(0:2), c(0,2)),
+#'     trajectories.cluster.meta = "ident")
 
 dittoDimPlot <- function(
     var="ident", object = DEFAULT, reduction.use = NA, size=1, opacity = 1,

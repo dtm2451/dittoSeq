@@ -8,7 +8,7 @@
 \usage{
 dittoPlot(var, object = DEFAULT, group.by, color.by = group.by,
   shape = 16, cells.use = NULL, plots = c("jitter", "vlnplot"),
-  data.type = "normalized", do.hover = FALSE, data.hover = var,
+  data.type = "normalized", do.hover = FALSE, hover.data = var,
   color.panel = dittoColors(), colors = seq_along(color.panel),
   theme = theme_classic(), main = "make", sub = NULL,
   ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
@@ -52,11 +52,11 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE} (and if there is a jitter - the data it will work with): object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them,
-and 'data.hover' argument will be used to determine what data to use.
+and 'hover.data' argument will be used to determine what data to use.
 
 Note: Currently, incompatible with RidgePlots as plotly does not support the geom.}
 
-\item{data.hover}{String vector, a list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show upon hover when do.hover is set to \code{TRUE}.}
+\item{hover.data}{String vector, a list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show upon hover when do.hover is set to \code{TRUE}.}
 
 \item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default.}
 
@@ -153,23 +153,27 @@ Alternatively, will return the data that would go into such a plot as well with 
 Plots continuous data for cutomizable cells'/samples' groupings on a y-axis
 }
 \details{
-If \code{do.hover=TRUE}, cell/sample information, determined by the \code{hover.data} input, is retrieved and displayed
-upon hovering the cursor over a jitter point.
-
-If \code{data.out=TRUE}, a list containing the plot (\code{p}), a data.table containing the underlying data for target cells (\code{data})
-
-If \code{add.line}, is provided a single or multiple value(s), horizontal (or vertical, for ridgeplots) lines will be added at the values provided.
-Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
+The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that) plus metadata associated with the \code{group.by} and \code{color.by} variables.
+The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
+If a set of cells to use is indicated with the \code{cells.use} input, the dataframe is then subset to include only those cells.
+Then, a plot where data is grouped by the \code{group.by} metadata and colored by the \code{color.by} metadata is generated.
 
 The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
 Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
+Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
 Each plot type has specific associated options which are controlled by variables that start with their associated string, ex: \code{jitter.size}.
 
-Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
+\code{dittoRidgePlot} and \code{dittoBoxPlot} are included as wrappers of the basic \code{dittoPlot} function that just changes the default for the \code{plots} input to be \code{"ridgeplot"} and \code{c("boxplot","jitter")}, respectively.
 
-Use of dittoRidgePlot essntially just changes the default for the \code{plots} input to be \code{c("ridgeplot", "jitter")}.
+A number of other tweaks and features can be added as well:
 
-Similarly, use of dittoBoxPlot essntially just changes the default for the \code{plots} input to be \code{c("jitter", "boxplot")}.
+If \code{data.out=TRUE}, a list containing the plot (\code{p}) and a the dataframe containing the underlying data (\code{data}) are returned.
+
+If \code{do.hover=TRUE}, cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
+upon hovering the cursor over a jitter point.
+
+If \code{add.line}, is provided a single or multiple value(s), horizontal (or vertical, for ridgeplots) lines will be added at the values provided.
+Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 }
 \section{Functions}{
 \itemize{
@@ -200,8 +204,13 @@ dittoBoxPlot("CD14", group.by = "RNA_snn_res.1")
 # Any of these can be combined with 'hovering' to retrieve specific info
 #   about certain data points.  Just add 'do.hover = TRUE' and pick what
 #   extra data to display by provide set of gene or metadata names to
-#   'data.hover'.
+#   'hover.data'.
 #     Note: ggplotly plots ignores certain dittoSeq plot tweaks.
 dittoBoxPlot("CD14", group.by = "RNA_snn_res.1",
-    do.hover = TRUE, data.hover = c("MS4A1","RNA_snn_res.0.8","ident"))
+    do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
+}
+\seealso{
+\code{\link{multi_dittoPlot}} for easy creation of multiple dittoPlots that each focus on a different \code{var}
+
+\code{\link{dittoPlotVarsAcrossGroups}} to create dittoPlots that show summarized the expression (or value for metadatas), accross groups, of multiple \code{vars} in a single plot.
 }
