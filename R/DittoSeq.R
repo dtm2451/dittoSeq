@@ -165,6 +165,9 @@ get.metas <- function(object=DEFAULT, names.only = TRUE){
 #' @export
 
 get.genes <- function(object=DEFAULT){
+    if (typeof(object)=="S4") {
+        object <- deparse(substitute(object))
+    }
     rownames(.which_data("normalized", object))
 }
 
