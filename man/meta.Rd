@@ -28,6 +28,8 @@ meta("RNA_snn_res.1")
 
 }
 \seealso{
+\code{\link{meta.levels}} for returning just the unique discrete identities that exist within a metadata slot
+
 \code{\link{get.metas}} for returning all metadata slots of an \code{object}
 
 \code{\link{is.meta}} for testing whether something is the name of a metadata slot
