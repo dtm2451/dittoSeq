@@ -45,7 +45,7 @@ is.meta <- function(test, object=DEFAULT, return.values=FALSE){
     if (typeof(object)=="S4") {
         object <- deparse(substitute(object))
     }
-    if (return.values){
+    if (return.values) {
         return(test[is.meta(test, object, return.values=FALSE)])
     } else {
         metas <- get.metas(object)
@@ -237,14 +237,14 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
     }
 
     # Recursive functions for non
-    if(data.type == "relative"){
+    if (data.type == "relative") {
         return(as.numeric(scale(gene(gene, object, "normalized"))))
     }
-    if(data.type == "normalized.to.max"){
+    if (data.type == "normalized.to.max") {
         exp <- gene(gene, object, "normalized")
         return(exp/max(exp))
     }
-    if(data.type == "raw.normalized.to.max"){
+    if (data.type == "raw.normalized.to.max") {
         exp <- gene(gene, object, "raw")
         return(exp/max(exp))
     }
@@ -281,11 +281,11 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #' @export
 
 meta.levels <- function(meta, object = DEFAULT, cells.use = NULL){
-    if (typeof(object)=="S4"){
+    if (typeof(object)=="S4") {
         object <- deparse(substitute(object))
     }
     meta.values <- as.character(meta(meta, object))
-    if (!is.null(cells.use)){
+    if (!is.null(cells.use)) {
         all.cells <- .all_cells(object)
         cells.use <- .which_cells(cells.use, object)
         meta.values <- meta.values[all.cells %in% cells.use]
