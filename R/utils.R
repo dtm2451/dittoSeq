@@ -1,138 +1,151 @@
-.all_cells <- function(object = DEFAULT){
-  #Turn the object into a "name" if a full object was given
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
-  }
-  target <- data.frame(use = c("@samples", "@cell.names"),
-                       row.names = c("RNAseq", "Seurat.v2"))
-  if (.class_of(object)=="Seurat.v3" | .class_of(object)=="SingleCellExperiment"){
-    return(colnames(x = eval(expr = parse(text = paste0(object)))))
-  } else {
-    eval(expr = parse(text = paste0(object, target[.class_of(object),])))
-  }
+.remove_legend <- function(ggplot) {
+    ggplot + theme(legend.position = "none")
 }
 
-.which_cells <- function(cells.use, object = DEFAULT){
-  all.cells <- .all_cells(object)
-  if (is.null(cells.use)){
-    return(all.cells)
-  }
-  if (is.logical(cells.use)){
-    OUT <- all.cells[cells.use]
-  } else {
-    OUT <- cells.use
-  }
-  OUT
+.grab_legend <- function(ggplot) {
+    cowplot::ggdraw(cowplot::get_legend(ggplot))
 }
 
-.class_of <- function (object = DEFAULT){
-
-  #if object in "string" form, convert to the actual object
-  if (typeof(object)=="character"){
-    object <- eval(expr = parse(text = paste0(object)))
-  }
-
-  class <- class(object)
-
-  #If a Seurat, need to add what version
-  if (grepl("Seurat|seurat",class)){
-    if(object@version >= '3.0.0') {
-      #Then needs to be
-      class <- "Seurat.v3"
+.all_cells <- function(object = DEFAULT) {
+    target <- data.frame(
+        use = c("@samples", "@cell.names"),
+        row.names = c("RNAseq", "Seurat.v2"))
+    if (.class_of(object) %in% c("Seurat.v3", "SingleCellExperiment")) {
+        return(colnames(x = eval(expr = parse(text = paste0(object)))))
     } else {
-      class <- "Seurat.v2"
+        eval(expr = parse(text = paste0(object, target[.class_of(object),])))
     }
-  }
-  class
 }
 
-.var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type){
-  OUT <- var
-  if(length(var)==1 & typeof(var)=="character"){
-    #If "ident" pull the @ident object from the seurat object
-    if(var == "ident"){OUT <- meta(var, object)}
-    #If "is.meta" pull the @meta.data$"var" from the RNAseq or seurat object
-    if(is.meta(var, object)){OUT <- meta(var, object)}
-    #If "is.gene" pull the gene expression data from the RNAseq or seurat object
-    if(is.gene(var, object)){OUT <- gene(var, object, data.type)}
-    #Otherwise, var is likely a full set of data already, so just make Y = var
-  }
-  names(OUT) <- .all_cells(object)
-  OUT
+.which_cells <- function(cells.use, object = DEFAULT) {
+    all.cells <- .all_cells(object)
+    if (is.null(cells.use)) {
+        return(all.cells)
+    }
+    if (is.logical(cells.use)) {
+        return(all.cells[cells.use])
+    }
+    cells.use
 }
 
-.which_data <- function(data.type, object=DEFAULT){
-  #Set up data frame for establishing how to deal with different input object types
-  target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects"),
-                       Seurat.v2 = c("@data","@raw.data","@scale.data"),
-                       Seurat.v3 = c("nope", "counts", "scale.data"),
-                       SingleCellExperiment = c("logcounts", "counts", "error_do_not_use_scaled_for_SCE_objects"),
-                       stringsAsFactors = FALSE,
-                       row.names = c("normalized","raw","scaled"))
-  if(.class_of(object)=="SingleCellExperiment"){
-    OUT <- as.matrix(eval(expr = parse(text = paste0(target[data.type,.class_of(object)],
-                                                     "(", object, ")" ))))
-  } else {
-    if(.class_of(object)!="Seurat.v3"){
-      #For RNAseq or Seurat-v2
-      OUT <- eval(expr = parse(text = paste0(object,
-                                             target[data.type,.class_of(object)]
-      )))
-    } else {
-      #For Seurat-v3
-      #Go from "object" to the actual object if given in character form
-      object <- eval(expr = parse(text = paste0(object)))
-      #Obtain expression
-      if(data.type == "normalized"){
-        OUT <- Seurat::GetAssayData(object)
+.class_of <- function (object = DEFAULT) {
+    if (typeof(object)=="character") {
+        object <- eval(expr = parse(text = paste0(object)))
+    }
+    class <- class(object)
+
+    #If a Seurat, need to add what version
+    if (grepl("Seurat|seurat",class)) {
+      if(object@version >= '3.0.0') {
+        #Then needs to be
+        class <- "Seurat.v3"
       } else {
-        OUT <- Seurat::GetAssayData(object, slot = target[data.type,.class_of(object)])
+        class <- "Seurat.v2"
       }
     }
-  }
-  OUT
+
+    class
 }
 
-.extract_Reduced_Dim <- function(reduction.use, dim=1, object=DEFAULT){
-
-  #Turn the object into a "name" if a full object was given
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
-  }
-
-  # If object is a Seurat object
-  if (grepl("Seurat",.class_of(object))){
-    if ("dr" %in% slotNames(eval(expr = parse(text = paste0(object))))){
-      OUT <- list(eval(expr = parse(text = paste0(object,"@dr$",reduction.use,"@cell.embeddings[,",dim,"]"))))
-      OUT[2] <- paste0(eval(expr = parse(text = paste0(object,"@dr$",reduction.use,"@key"))),dim)
-    } else {
-      OUT <- list(eval(expr = parse(text = paste0(object,"@reductions$",reduction.use,"@cell.embeddings[,",dim,"]"))))
-      OUT[2] <- paste0(eval(expr = parse(text = paste0(object,"@reductions$",reduction.use,"@key"))),dim)
+.var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type) {
+    OUT <- var
+    if (length(var)==1 && typeof(var)=="character") {
+        if (is.meta(var, object)) {
+            OUT <- meta(var, object)
+        }
+        if (is.gene(var, object)) {
+            OUT <- gene(var, object, data.type)
+        }
     }
-  }
+    names(OUT) <- .all_cells(object)
+    OUT
+}
 
-  if (.class_of(object)=="RNAseq"){
-    OUT <- list(eval(expr = parse(text = paste0(object,"@reductions$",reduction.use,"$x[,",dim,"]"))))
-    OUT[2] <- paste0(.gen_key(reduction.use),dim)
-  }
+.which_data <- function(data.type, object=DEFAULT) {
+    #Set up data frame for establishing how to deal with different input object types
+    target <- data.frame(
+        RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects"),
+        Seurat.v2 = c("@data","@raw.data","@scale.data"),
+        Seurat.v3 = c("nope", "counts", "scale.data"),
+        SingleCellExperiment = c("logcounts", "counts", "error_do_not_use_scaled_for_SCE_objects"),
+        stringsAsFactors = FALSE,
+        row.names = c("normalized","raw","scaled"))
+    if (.class_of(object) == "SingleCellExperiment") {
+        OUT <- as.matrix(
+          eval(expr = parse(text = paste0(
+              target[data.type,.class_of(object)],
+              "(",
+              object,
+              ")"))))
+    } else {
+        if (.class_of(object)=="Seurat.v3") {
+            #Go from "object" to the actual object
+            object <- eval(expr = parse(text = paste0(object)))
+            #Obtain expression
+            if(data.type == "normalized"){
+                OUT <- Seurat::GetAssayData(object)
+            } else {
+                OUT <- Seurat::GetAssayData(
+                    object,
+                    slot = target[data.type,.class_of(object)])
+            }
+        } else {
+            OUT <- eval(expr = parse(text = paste0(
+                object,
+                target[data.type,.class_of(object)]
+            )))
+        }
+    }
+    OUT
+}
 
-  if (.class_of(object)=="SingleCellExperiment"){
-    OUT <- list(eval(expr = parse(text = paste0("reducedDim(",object,", type = '",reduction.use,"')[,",dim,"]"))))
-    OUT[2] <- paste0(.gen_key(reduction.use),dim)
-  }
+.extract_Reduced_Dim <- function(reduction.use, dim=1, object=DEFAULT) {
+    # If object is a Seurat object
+    if (.class_of(object)=="Seurat.v2") {
+        OUT <- list(eval(expr = parse(text = paste0(
+            object,"@dr$",reduction.use,"@cell.embeddings[,",dim,"]"))))
+        OUT[2] <- paste0(eval(expr = parse(text = paste0(
+            object,"@dr$",reduction.use,"@key"))),dim)
+    }
+    if (.class_of(object)=="Seurat.v3") {
+        OUT <- list(eval(expr = parse(text = paste0(
+            object,"@reductions$",reduction.use,"@cell.embeddings[,",dim,"]"))))
+        OUT[2] <- paste0(eval(expr = parse(text = paste0(
+            object,"@reductions$",reduction.use,"@key"))),dim)
+    }
+    if (.class_of(object)=="RNAseq"){
+        OUT <- list(eval(expr = parse(text = paste0(
+            object,"@reductions$",reduction.use,"$x[,",dim,"]"))))
+        OUT[2] <- paste0(.gen_key(reduction.use),dim)
+    }
+    if (.class_of(object)=="SingleCellExperiment"){
+        OUT <- list(eval(expr = parse(text = paste0(
+            "reducedDim(",object,", type = '",reduction.use,"')[,",dim,"]"))))
+        OUT[2] <- paste0(.gen_key(reduction.use),dim)
+    }
 
-  names(OUT) <- c("embeddings","name")
-  OUT
+    names(OUT) <- c("embeddings","name")
+    OUT
 }
 
 .gen_key <- function (reduction.use){
-  key <- reduction.use
-  if (grepl("pca|PCA", reduction.use)){key <- "PC"}
-  if (grepl("cca|CCA", reduction.use)){key <- "CC"}
-  if (grepl("cca.aligned", reduction.use)){key <- "aligned.CC"}
-  if (grepl("ica|ICA", reduction.use)){key <- "IC"}
-  if (grepl("tsne|tSNE|TSNE", reduction.use)){key <- "tSNE_"}
-  key
+    key <- reduction.use
+    if (grepl("pca|PCA", reduction.use)) {
+        key <- "PC"
+    }
+    if (grepl("cca|CCA", reduction.use)) {
+        key <- "CC"
+    }
+    if (grepl("cca.aligned", reduction.use)) {
+        key <- "aligned.CC"
+    }
+    if (grepl("ica|ICA", reduction.use)) {
+        key <- "IC"
+    }
+    if (grepl("tsne|tSNE|TSNE", reduction.use)) {
+        key <- "tSNE_"
+    }
+    key
 }
 
 # #' Outputs a string of gene expression / meta.data information for ploty hover display

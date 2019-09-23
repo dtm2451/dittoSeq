@@ -217,7 +217,7 @@ dittoDimPlot <- function(
     if (do.ellipse) {
         p <- p + stat_ellipse(
             data=Target_data,
-            aes(x = X, y = Y, colour = color),
+            aes_string(x = "X", y = "Y", colour = "color"),
             type = "t", linetype = 2, size = 0.5, show.legend = FALSE)
     }
     if (do.label) {
@@ -231,7 +231,7 @@ dittoDimPlot <- function(
             trajectories.arrow.size, object, reduction.use, dim.1, dim.2)}
 
     if (!legend.show) {
-        p <- remove_legend(p)
+        p <- .remove_legend(p)
     }
     ### RETURN the PLOT ###
     if (data.out) {
@@ -379,16 +379,19 @@ dittoDimPlot <- function(
 #' multi_dittoDimPlot(c(genes, "ident"))
 #' @export
 
-multi_dittoDimPlot <- function(vars, object = DEFAULT,
-                              show.legend = FALSE,
-                              ncol = min(3,length(vars)), nrow = NULL,
-                              axes.labels=FALSE,
+multi_dittoDimPlot <- function(
+    vars, object = DEFAULT, show.legend = FALSE,
+    ncol = min(3,length(vars)), nrow = NULL,
+                              axes.labels = FALSE,
                               OUT.List = FALSE,
                               ...){
 
   #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
-  # If set to TRUE, set it to "make".
-  lab <- if(!axes.labels) {NULL} else {"make"}
+  lab <- if(!axes.labels) {
+      NULL
+  } else {
+      "make"
+  }
 
   plots <- lapply(vars, function(X) {
     dittoDimPlot(X, object,

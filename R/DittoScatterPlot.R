@@ -174,7 +174,7 @@ dittoScatterPlot <- function(
     }
     p <- p + do.call(geom_point, geom.args)
     if (!legend.show) {
-        p <- remove_legend(p)
+        p <- .remove_legend(p)
     }
     ### RETURN the PLOT ###
     if (data.out) {

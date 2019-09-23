@@ -25,7 +25,7 @@ Essentially a wrapper function for colorspace's deutan(), protan(), and tritan()
 \examples{
 library(Seurat)
 pbmc <- Seurat::pbmc_small
-Simulate("deutan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
-Simulate("protan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
-Simulate("tritan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
+Simulate("deutan", dittoDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
+Simulate("protan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
+Simulate("tritan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
 }

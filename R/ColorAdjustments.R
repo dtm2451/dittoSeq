@@ -44,9 +44,9 @@ Lighten <- function(colors, percent.change = 0.25, relative = TRUE){
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
-#' Simulate("deutan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
-#' Simulate("protan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
-#' Simulate("tritan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
+#' Simulate("deutan", dittoDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
+#' Simulate("protan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
+#' Simulate("tritan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
 #' @export
 Simulate <- function(type = "deutan", plot.function, ..., color.panel = dittoColors()){
   #Check that type was given properly

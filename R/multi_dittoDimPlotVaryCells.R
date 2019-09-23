@@ -121,9 +121,9 @@ multi_dittoDimPlotVaryCells <- function(
     plot.args$legend.show <- TRUE
     plot.args$main <- allcells.main
     allcells.plot <- do.call(dittoDimPlot, plot.args)
-    legend <- grab_legend(allcells.plot)
+    legend <- .grab_legend(allcells.plot)
     if (!show.legend.allcells.plot) {
-        allcells.plot <- remove_legend(allcells.plot)
+        allcells.plot <- .remove_legend(allcells.plot)
     }
     # Add allcells.plot and legend if wanted
     if (show.allcells.plot) {

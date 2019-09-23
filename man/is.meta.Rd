@@ -2,29 +2,53 @@
 % Please edit documentation in R/DittoSeq.R
 \name{is.meta}
 \alias{is.meta}
-\title{Tests if an input is the name of a meta.data slot.}
+\title{Tests if an input is the name of a meta.data slot in a target object.}
 \usage{
-is.meta(test, object = DEFAULT)
+is.meta(test, object = DEFAULT, return.values = FALSE)
 }
 \arguments{
-\item{test}{"potential.meta.data.name" in quotes. REQUIRED.}
+\item{test}{String or vector of strings, the "potential.metadata.name"(s) to check for.}
 
-\item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".}
+
+\item{return.values}{Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
+REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 }
 \value{
-Returns TRUE if there is a meta.data slot named 'test' (or for Seurat objects, if test = "ident", will also give TRUE because my meta() function knows how to handle meta("ident"))
+Returns a logical or logical vector indicating whether each instance in \code{test} is a meta.data slot within the \code{object}.
+Alternatively, returns the values of \code{test} that were indeed metadata slots if \code{return.values = TRUE}.
 }
 \description{
-Tests if an input is the name of a meta.data slot.
+Tests if an input is the name of a meta.data slot in a target object.
+}
+\details{
+For Seurat objects, also returns TRUE for the input \code{"ident"} because, for all dittoSeq visualiztions, \code{"ident"} will retrieve a Seurat objects' clustering slot.
 }
 \examples{
-library(Seurat)
+
 pbmc <- Seurat::pbmc_small
-is.meta("age", object = pbmc) #Returns FALSE because there is not a meta slot named "age"
-is.meta("nCount_RNA", object = pbmc) #Returns TRUE because there is a meta slot named "nCount_RNA"
-get.metas(object = pbmc) #get.metas() will give a list of all the meta.data slot names.
+
+# To see all metadata slots of an object
+get.metas(pbmc)
+
+# To check if something is a metadata slot
+is.meta("age", object = pbmc) # False
+is.meta("nCount_RNA", object = pbmc) # True
+
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
-is.meta("age")
-get.metas()
+is.meta("groups")
+
+# works for multiple test metas
+is.meta(c("age","nCount_RNA"))
+
+# and with return.values = TRUE, returns all elements that are indeed slots
+is.meta(c("age","nCount_RNA", "RNA_snn_res.0.8"),
+    return.values = TRUE)
+
+}
+\seealso{
+\code{\link{get.metas}} for returning all metadata slots of an \code{object}
+
+\code{\link{meta}} for obtaining the contants of metadata slots
 }

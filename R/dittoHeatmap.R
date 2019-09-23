@@ -153,7 +153,7 @@ dittoHeatmap <- function(
         highlight.genes <- highlight.genes[highlight.genes %in% genes]
         args$labels_row <- rownames(data)
         #Overwrite all non-highlight genes rownames to ""
-        args$labels_row[-(match(highlight.genes,Row_names))] <- ""
+        args$labels_row[-(match(highlight.genes,rownames(data)))] <- ""
         args$show_colnames <- TRUE
     }
 

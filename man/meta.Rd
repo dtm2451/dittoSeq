@@ -7,21 +7,28 @@
 meta(meta, object = DEFAULT)
 }
 \arguments{
-\item{meta}{quoted "meta.data" slot name = REQUIRED. the meta.data slot that should be retrieved.}
+\item{meta}{String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.}
 
-\item{object}{the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".}
 }
 \value{
-Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
+Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
 }
 \description{
 Returns the values of a meta.data  for all cells/samples
 }
 \examples{
-library(Seurat)
+
 pbmc <- Seurat::pbmc_small
 meta("RNA_snn_res.1", object = "pbmc")
+
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
 meta("RNA_snn_res.1")
+
+}
+\seealso{
+\code{\link{get.metas}} for returning all metadata slots of an \code{object}
+
+\code{\link{is.meta}} for testing whether something is the name of a metadata slot
 }

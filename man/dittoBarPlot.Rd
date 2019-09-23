@@ -75,8 +75,6 @@ Set to \code{NULL} to remove.}
 \item{legend.show}{Logical which sets whether the legend should be displayed. Default = TRUE.}
 
 \item{legend.title}{String which adds a title to the legend.}
-
-\item{theme}{ggplot theme. Default = theme_classic()}
 }
 \value{
 A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.

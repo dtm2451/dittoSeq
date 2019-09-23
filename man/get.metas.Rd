@@ -2,24 +2,29 @@
 % Please edit documentation in R/DittoSeq.R
 \name{get.metas}
 \alias{get.metas}
-\title{Returns the names of all meta.data slots in the object.}
+\title{Returns the names of all meta.data slots of a target object.}
 \usage{
 get.metas(object = DEFAULT)
 }
 \arguments{
-\item{object}{the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".}
 }
 \value{
-Returns the names of all meta.data slots in the object.
+A string vector, returns the names of all metadata slots of the \code{object}
 }
 \description{
-Returns the names of all meta.data slots in the object.
+Returns the names of all meta.data slots of a target object.
 }
 \examples{
-library(Seurat)
+
 pbmc <- Seurat::pbmc_small
-get.metas(object = "pbmc")
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-DEFAULT <- "pbmc"
-get.metas()
+
+# To see all metadata slots of an object
+get.metas(pbmc)
+
+}
+\seealso{
+\code{\link{is.meta}} for checking if certain metadata slots exist in an \code{object}
+
+\code{\link{meta}} for obtaining the contants of metadata slots
 }

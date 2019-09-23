@@ -16,7 +16,6 @@
 #' @param scale "count" or "percent". Sets whether data should be shown as raw counts or scaled to 1 and shown as a percentage.
 #' @param do.hover Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_classic()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.
-#' @param theme ggplot theme. Default = theme_classic()
 #' @param xlab String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 #' Default is \code{group.by} so it defaults to the name of the grouping information.
 #' Set to \code{NULL} to remove.
@@ -158,7 +157,7 @@ dittoBarPlot <- function(
     }
 
     if (!legend.show) {
-        p <- remove_legend(p)
+        p <- .remove_legend(p)
     }
 
     #DONE. Return the plot

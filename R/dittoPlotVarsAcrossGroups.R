@@ -193,7 +193,7 @@ dittoPlotVarsAcrossGroups <- function(
     }
     #Remove legend, if warrented
     if (!legend.show) {
-        p <- remove_legend(p)
+        p <- .remove_legend(p)
     }
     #DONE. Return the plot or data
     if (data.out) {

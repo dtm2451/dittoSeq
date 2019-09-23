@@ -1,123 +1,162 @@
 #### is.meta: Is this the name of a meta.data slot in my dataset? ####
-#' Tests if an input is the name of a meta.data slot.
+#' Tests if an input is the name of a meta.data slot in a target object.
 #'
-#' @param test               "potential.meta.data.name" in quotes. REQUIRED.
-#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @return Returns TRUE if there is a meta.data slot named 'test' (or for Seurat objects, if test = "ident", will also give TRUE because my meta() function knows how to handle meta("ident"))
+#' @param test String or vector of strings, the "potential.metadata.name"(s) to check for.
+#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param return.values Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
+#' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
+#' @return Returns a logical or logical vector indicating whether each instance in \code{test} is a meta.data slot within the \code{object}.
+#' Alternatively, returns the values of \code{test} that were indeed metadata slots if \code{return.values = TRUE}.
+#' @details
+#' For Seurat objects, also returns TRUE for the input \code{"ident"} because, for all dittoSeq visualiztions, \code{"ident"} will retrieve a Seurat objects' clustering slot.
+#'
+#' @seealso
+#' \code{\link{get.metas}} for returning all metadata slots of an \code{object}
+#'
+#' \code{\link{meta}} for obtaining the contants of metadata slots
+#'
 #' @examples
-#' library(Seurat)
+#'
 #' pbmc <- Seurat::pbmc_small
-#' is.meta("age", object = pbmc) #Returns FALSE because there is not a meta slot named "age"
-#' is.meta("nCount_RNA", object = pbmc) #Returns TRUE because there is a meta slot named "nCount_RNA"
-#' get.metas(object = pbmc) #get.metas() will give a list of all the meta.data slot names.
+#'
+#' # To see all metadata slots of an object
+#' get.metas(pbmc)
+#'
+#' # To check if something is a metadata slot
+#' is.meta("age", object = pbmc) # False
+#' is.meta("nCount_RNA", object = pbmc) # True
+#'
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
-#' is.meta("age")
-#' get.metas()
+#' is.meta("groups")
+#'
+#' # works for multiple test metas
+#' is.meta(c("age","nCount_RNA"))
+#'
+#' # and with return.values = TRUE, returns all elements that are indeed slots
+#' is.meta(c("age","nCount_RNA", "RNA_snn_res.0.8"),
+#'     return.values = TRUE)
+#'
 #' @export
 #' @import ggplot2
 #' @importFrom utils packageVersion
 
-is.meta <- function(test, object=DEFAULT){
-
-  #Bypass for ident for Seurat objects
-  if(test=="ident" & grepl("Seurat",.class_of(object))) {return(TRUE)}
-
-  #For all other cases...
-  test %in% get.metas(object)
+is.meta <- function(test, object=DEFAULT, return.values=FALSE){
+    if (typeof(object)=="S4") {
+        object <- deparse(substitute(object))
+    }
+    if (return.values){
+        return(test[is.meta(test, object, return.values=FALSE)])
+    } else {
+        metas <- get.metas(object)
+        if (grepl("Seurat", .class_of(object))) {
+            metas <- c(metas,"ident")
+        }
+        return(test %in% metas)
+    }
 }
 
 #### is.gene: Is this the name of a gene in my dataset? ####
-#' Tests if an input is the name of a gene recovered in the dataset.
+#' Tests if input is the name of a gene in a target object.
 #'
-#' @param test "potential.gene.name" in quotes. REQUIRED.
-#' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param value TRUE/FALSE. Default = FALSE.whether to return the gene names instead of TRUE/FALSE.
-#' @return Returns TRUE if there is a row in the objects' data slot named 'test'.
+#' @param test String or vector of strings, the "potential.gene.name"(s) to check for.
+#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param return.values Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
+#' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
+#' @return Returns a logical or logical vector indicating whether each instance in \code{test} is a gene within the \code{object}.
+#' Alternatively, returns the values of \code{test} that were indeed genes if \code{return.values = TRUE}.
+#' @seealso
+#' \code{\link{get.genes}} for returning all genes in an \code{object}
+#'
+#' \code{\link{gene}} for obtaining the expression data of genes
+#'
 #' @examples
-#' library(Seurat)
+#'
 #' pbmc <- Seurat::pbmc_small
 #'
-#' #For testing an individual query:
-#' is.gene("CD14", object = "pbmc")
-#'   # TRUE
-#' is.gene("CD12345", pbmc)
-#'   # FALSE, CD12345 is not a human gene.
+#' # To see all genes of an object
+#' get.genes(pbmc)
+#'
+#' # To test if something is a gene in an object:
+#' is.gene("CD14", object = "pbmc") # TRUE
+#' is.gene("CD12345", pbmc) # FALSE
 #'
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped.
 #' DEFAULT <- "pbmc"
 #' is.gene("CD14")
 #'   # TRUE
 #'
-#' #The function works for sets of gene-queries as well
+#' # To test if many things are genes of an object
 #' is.gene(c("CD14", "IL32", "CD3E", "CD12345"))
-#'   #TRUE TRUE TRUE FALSE
-#' # value input is especially useful in these cases.
-#' is.gene(c("CD14", "IL32", "CD3E", "CD12345"), value = TRUE)
-#'  #"CD14" "IL32" "CD3E"
+#'
+#' # return.values input is especially useful in these cases.
+#' is.gene(c("CD14", "IL32", "CD3E", "CD12345"), return.values = TRUE)
+#'
 #' @export
 
-is.gene <- function(test, object=DEFAULT, value = FALSE){
-  if (value){
-    #Return names of included genes
-    return(test[is.gene(test, object, value=FALSE)])
-  } else {
-    #Return TRUE/FALSE
-    return(test %in% get.genes(object))
-  }
+is.gene <- function(test, object=DEFAULT, return.values = FALSE){
+    if (typeof(object)=="S4") {
+        object <- deparse(substitute(object))
+    }
+    if (return.values) {
+        return(test[is.gene(test, object, return.values=FALSE)])
+    } else {
+        return(test %in% get.genes(object))
+    }
 }
 
 #### get.metas: prints the names of all the metadata lists for the object ####
-#' Returns the names of all meta.data slots in the object.
+#' Returns the names of all meta.data slots of a target object.
 #'
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @return Returns the names of all meta.data slots in the object.
+#' @param object A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".
+#' @return A string vector, returns the names of all metadata slots of the \code{object}
+#' @seealso
+#' \code{\link{is.meta}} for checking if certain metadata slots exist in an \code{object}
+#'
+#' \code{\link{meta}} for obtaining the contants of metadata slots
+#'
 #' @examples
-#' library(Seurat)
+#'
 #' pbmc <- Seurat::pbmc_small
-#' get.metas(object = "pbmc")
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' get.metas()
+#'
+#' # To see all metadata slots of an object
+#' get.metas(pbmc)
+#'
 #' @export
 
 get.metas <- function(object=DEFAULT){
-  if(.class_of(object)=="SingleCellExperiment"){
-    #SingleCellExperiment
-    if(typeof(object)=="character"){
-      names(eval(expr = parse(text = paste0(object,"@colData"))))
-    } else {names(object@colData)}
-  } else {
-    #Non- SingleCellExperiment
-    if(typeof(object)=="character"){
-      names(eval(expr = parse(text = paste0(object,"@meta.data"))))
-    } else {names(object@meta.data)}
-  }
+    if(.class_of(object)=="SingleCellExperiment"){
+        if(typeof(object)=="character"){
+            names(eval(expr = parse(text = paste0(object,"@colData"))))
+        } else {names(object@colData)}
+    } else {
+        if(typeof(object)=="character"){
+            names(eval(expr = parse(text = paste0(object,"@meta.data"))))
+        } else {names(object@meta.data)}
+    }
 }
 
 #### get.genes: prints the names of all the genes for a Seurat or RNAseq ####
-#' Returns the names of all genes within the data slot of the object.
+#' Returns the names of all genes of a target object.
 #'
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @return Returns the names of all genes within the data slot of the object.
+#' @param object A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".
+#' @return A string vector, returns the names of all genes of the \code{object}.
+#' @seealso
+#' \code{\link{is.gene}} for returning all genes in an \code{object}
+#'
+#' \code{\link{gene}} for obtaining the expression data of genes
+#'
 #' @examples
-#' library(Seurat)
+#'
 #' pbmc <- Seurat::pbmc_small
-#' get.genes(object = "pbmc")
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' get.genes()
+#'
+#' # To see all genes of an object
+#' get.genes(pbmc)
+#'
 #' @export
 
 get.genes <- function(object=DEFAULT){
-    if (.class_of(object)=="Seurat.v2") {
-        if (typeof(object)=="character") {
-            return(rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
-        } else {
-            return(rownames(object@raw.data))
-        }
-    }
-    if (.class_of(object)=="Seurat.v3") {
+    if (.class_of(object) %in% c("Seurat.v3","SingleCellExperiment")) {
         if (typeof(object)=="character") {
             return(rownames(eval(expr = parse(text = paste0(object)))))
         } else {
@@ -131,92 +170,63 @@ get.genes <- function(object=DEFAULT){
             return(rownames(object@counts))
         }
     }
-    if (.class_of(object)=="SingleCellExperiment") {
+    if (.class_of(object)=="Seurat.v2") {
         if (typeof(object)=="character") {
-            return(rownames(SummarizedExperiment::assay(
-                eval(expr = parse(text = paste0(object))))))
+            return(rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
         } else {
-            return(rownames(SummarizedExperiment::assay(
-                object)))
+            return(rownames(object@raw.data))
         }
     }
-}
-
-#### get.reductions: prints the names of all the dimensional reductions that have been run ####
-#' Returns the names of dimensional reduction slots within the object.
-#'
-#' @param object             the SingleCellExperiment, Seurat, or RNAseq object = REQUIRED unless `DEFAULT <- "object"` has been run.
-#' @return Returns the names of all dimensional reduction slots within the object.
-#' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' get.reductions(object = "pbmc")
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' get.reductions()
-#' @export
-
-get.reductions <- function(object=DEFAULT){
-  if (.class_of(object)=="Seurat.v2"){
-    if(typeof(object)=="character"){
-      return(names(eval(expr = parse(text = paste0(object,"@dr")))))
-    } else {return(names(object@dr))}
-  }
-  if (.class_of(object)=="Seurat.v3"){
-    if(typeof(object)=="character"){
-      return(names(eval(expr = parse(text = paste0(object,"@reductions")))))
-    } else {return(names(object@reductions))}
-  }
-  if (.class_of(object)=="RNAseq"){
-    if(typeof(object)=="character"){
-      return(names(eval(expr = parse(text = paste0(object,"@reductions")))))
-    } else {return(names(object@reductions))}
-  }
-  if (.class_of(object)=="SingleCellExperiment"){
-    if(typeof(object)=="character"){
-      return(names(eval(expr = parse(text = paste0(object,"@reducedDims")))))
-    } else {return(names(object@reducedDims))}
-  }
 }
 
 #### meta: for extracting the values of a particular metadata for all cells/samples ####
 #' Returns the values of a meta.data  for all cells/samples
 #'
-#' @param meta               quoted "meta.data" slot name = REQUIRED. the meta.data slot that should be retrieved.
-#' @param object             the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @return Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
+#' @param meta String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.
+#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @return Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
+#' @seealso
+#' \code{\link{meta.levels}} for returning just the unique discrete identities that exist within a metadata slot
+#'
+#' \code{\link{get.metas}} for returning all metadata slots of an \code{object}
+#'
+#' \code{\link{is.meta}} for testing whether something is the name of a metadata slot
 #' @examples
-#' library(Seurat)
+#'
 #' pbmc <- Seurat::pbmc_small
 #' meta("RNA_snn_res.1", object = "pbmc")
+#'
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' meta("RNA_snn_res.1")
+#'
 #' @export
 
 meta <- function(meta, object=DEFAULT){
-  #Turn the object into a "name" if a full object was given
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
-  }
-  #Name of object given in "quotes"
-  if(meta=="ident" & grepl("Seurat", .class_of(object))){
-    if(eval(expr = parse(text = paste0(object, "@version"))) >= '3.0.0'){
-      #Seurat.v3, ident
-      return(as.character(Seurat::Idents(object = eval(expr = parse(text = paste0(object))))))
-    } else {
-      #Seurat.v2, ident
-      return(as.character(eval(expr = parse(text = paste0(object,"@ident")))))
+    if (typeof(object)=="S4") {
+        object <- deparse(substitute(object))
     }
-  } else {
+
+    if( meta=="ident" & grepl("Seurat", .class_of(object))) {
+    # Retrieve clustering from Seurats
+        if (grepl("v3",.class_of(object))) {
+            return(as.character(Seurat::Idents(object =
+                eval(expr = parse(text = paste0(
+                    object))))))
+        } else {
+            return(as.character(
+                eval(expr = parse(text = paste0(
+                    object,"@ident")))))
+        }
+    }
     if (.class_of(object)=="SingleCellExperiment"){
-      #SingleCellExperiment
-      return(eval(expr = parse(text = paste0(object,"$'",meta,"'"))))
+        return(eval(expr = parse(text = paste0(
+            object,"$'",meta,"'"))))
     } else {
-      #RNAseq or Seurat non-ident
-      return(eval(expr = parse(text = paste0(object,"@meta.data$'",meta, "'"))))
+        #RNAseq or Seurat non-ident
+        return(eval(expr = parse(text = paste0(
+            object,"@meta.data$'",meta, "'"))))
     }
-  }
 }
 
 
@@ -310,6 +320,12 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
 #' @return Returns the distinct values of a metadata slot given to all cells/samples or for a subset of cells/samples.
 #' (Alternatively, returns the distinct values of clustering if \code{meta = "ident"} and the object is a \code{Seurat} object).
+#' @seealso
+#' \code{\link{meta}} for returning an entire metadata slots of an \code{object}, not just the potential levels
+#'
+#' \code{\link{get.metas}} for returning all metadata slots of an \code{object}
+#'
+#' \code{\link{is.meta}} for testing whether something is the name of a metadata slot
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
@@ -330,58 +346,4 @@ meta.levels <- function(meta, object = DEFAULT, cells.use = NULL){
         meta.values <- meta.values[all.cells %in% cells.use]
     }
     levels(as.factor(meta.values))
-}
-
-###### grab_legend: Extract the legend from a ggplot ############
-#' Extract the legend from a ggplot
-#'
-#' @description This function will extract the legend of any ggplot.
-#' @param ggplot The ggplot object that you would like to grab the legend from.  Can be any of the single plots from dittoSeq except DBHeatmap and demux.calls.summary
-#' @return The legend of a ggplot plot
-#' @examples
-#' library(Seurat)
-#'
-#' #Grab data
-#' pbmc <- Seurat::pbmc_small
-#' DEFAULT <- "pbmc"
-#'
-#' #Make a plot
-#' DBDimPlot("ident")
-#'
-#' #Extract the legend:
-#' grab_legend(DBDimPlot("ident"))
-#'
-#' #Extract the legend of a stored plot:
-#' ggplot <- DBDimPlot("ident")
-#' grab_legend(ggplot)
-#' @export
-grab_legend <- function(ggplot){
-  cowplot::ggdraw(cowplot::get_legend(ggplot))
-}
-
-###### remove_legend: Remove the legend from a ggplot ############
-#' Remove the legend from a ggplot
-#'
-#' @description This function will remove the legend of any ggplot.
-#' @param ggplot The ggplot object that you would like to eliminate the legend from.  Can be any of the single plots from dittoSeq except DBHeatmap and demux.calls.summary
-#' @return A ggplot plot with its legend removed.
-#' @examples
-#' library(Seurat)
-#'
-#' #Grab data
-#' pbmc <- Seurat::pbmc_small
-#' DEFAULT <- "pbmc"
-#'
-#' #Make a plot
-#' DBDimPlot("ident")
-#'
-#' #Remove the legend:
-#' remove_legend(DBDimPlot("ident"))
-#'
-#' #Remove the legend of a stored plot:
-#' ggplot <- DBDimPlot("ident")
-#' remove_legend(ggplot)
-#' @export
-remove_legend <- function(ggplot){
-  ggplot + theme(legend.position = "none")
 }
