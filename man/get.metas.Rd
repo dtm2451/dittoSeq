@@ -4,13 +4,15 @@
 \alias{get.metas}
 \title{Returns the names of all meta.data slots of a target object.}
 \usage{
-get.metas(object = DEFAULT)
+get.metas(object = DEFAULT, names.only = TRUE)
 }
 \arguments{
 \item{object}{A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".}
+
+\item{names.only}{Logical, \code{TRUE} by default, which sets whether just the names should be output versus the entire metadata dataframe.}
 }
 \value{
-A string vector, returns the names of all metadata slots of the \code{object}
+A string vector of the names of all metadata slots of the \code{object}, or alternatively the entire dataframe of metadatas if \code{names.only} is set to \code{FALSE}
 }
 \description{
 Returns the names of all meta.data slots of a target object.
@@ -21,6 +23,9 @@ pbmc <- Seurat::pbmc_small
 
 # To see all metadata slots of an object
 get.metas(pbmc)
+
+# To retrieve the entire metadata matrix
+get.metas(pbmc, names.only = FALSE)
 
 }
 \seealso{

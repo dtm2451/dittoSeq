@@ -109,7 +109,8 @@ is.gene <- function(test, object=DEFAULT, return.values = FALSE){
 #' Returns the names of all meta.data slots of a target object.
 #'
 #' @param object A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".
-#' @return A string vector, returns the names of all metadata slots of the \code{object}
+#' @param names.only Logical, \code{TRUE} by default, which sets whether just the names should be output versus the entire metadata dataframe.
+#' @return A string vector of the names of all metadata slots of the \code{object}, or alternatively the entire dataframe of metadatas if \code{names.only} is set to \code{FALSE}
 #' @seealso
 #' \code{\link{is.meta}} for checking if certain metadata slots exist in an \code{object}
 #'
@@ -122,17 +123,25 @@ is.gene <- function(test, object=DEFAULT, return.values = FALSE){
 #' # To see all metadata slots of an object
 #' get.metas(pbmc)
 #'
+#' # To retrieve the entire metadata matrix
+#' get.metas(pbmc, names.only = FALSE)
+#'
 #' @export
 
-get.metas <- function(object=DEFAULT){
-    if(.class_of(object)=="SingleCellExperiment"){
-        if(typeof(object)=="character"){
-            names(eval(expr = parse(text = paste0(object,"@colData"))))
-        } else {names(object@colData)}
+get.metas <- function(object=DEFAULT, names.only = TRUE){
+    if (typeof(object)=="S4") {
+        object <- deparse(substitute(object))
+    }
+    metadata <-
+        if (.class_of(object)=="SingleCellExperiment") {
+            eval(expr = parse(text = paste0(object,"@colData")))
+        } else {
+            eval(expr = parse(text = paste0(object,"@meta.data")))
+        }
+    if (names.only) {
+        return(names(metadata))
     } else {
-        if(typeof(object)=="character"){
-            names(eval(expr = parse(text = paste0(object,"@meta.data"))))
-        } else {names(object@meta.data)}
+        return(metadata)
     }
 }
 
@@ -156,27 +165,7 @@ get.metas <- function(object=DEFAULT){
 #' @export
 
 get.genes <- function(object=DEFAULT){
-    if (.class_of(object) %in% c("Seurat.v3","SingleCellExperiment")) {
-        if (typeof(object)=="character") {
-            return(rownames(eval(expr = parse(text = paste0(object)))))
-        } else {
-            return(rownames(object))
-        }
-    }
-    if (.class_of(object)=="RNAseq") {
-        if (typeof(object)=="character") {
-            return(rownames(eval(expr = parse(text = paste0(object,"@counts")))))
-        } else {
-            return(rownames(object@counts))
-        }
-    }
-    if (.class_of(object)=="Seurat.v2") {
-        if (typeof(object)=="character") {
-            return(rownames(eval(expr = parse(text = paste0(object,"@raw.data")))))
-        } else {
-            return(rownames(object@raw.data))
-        }
-    }
+    rownames(.which_data("normalized", object))
 }
 
 #### meta: for extracting the values of a particular metadata for all cells/samples ####
@@ -219,14 +208,7 @@ meta <- function(meta, object=DEFAULT){
                     object,"@ident")))))
         }
     }
-    if (.class_of(object)=="SingleCellExperiment"){
-        return(eval(expr = parse(text = paste0(
-            object,"$'",meta,"'"))))
-    } else {
-        #RNAseq or Seurat non-ident
-        return(eval(expr = parse(text = paste0(
-            object,"@meta.data$'",meta, "'"))))
-    }
+    get.metas(object, names.only = FALSE)[,meta]
 }
 
 
@@ -247,69 +229,27 @@ meta <- function(meta, object=DEFAULT){
 #' @export
 
 gene <- function(gene, object=DEFAULT, data.type = "normalized"){
-  #Turn the object into a "name" if a full object was given
-  if (typeof(object)=="S4"){
-    object <- deparse(substitute(object))
-  }
-  #Set up data frame for establishing how to deal with RNAseq or Seurat-v2 objects
-  target <- data.frame(RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects", "@samples"),
-                       Seurat.v2 = c("@data","@raw.data","@scale.data", "@cell.names"),
-                       Seurat.v3 = c("nope", "counts", "scale.data", "nope"),
-                       SingleCellExperiment = c("logcounts", "counts", "error_do_not_use_scaled_for_SCE_objects", "nope"),
-                       stringsAsFactors = FALSE,
-                       row.names = c("normalized","raw","scaled","sample.names"))
+    if (typeof(object)=="S4") {
+        object <- deparse(substitute(object))
+    }
 
-  #Distinct functions if data.type = "relative", "normalized.to.max", or "raw.normalized.to.max" compared to all other options:
-  if(data.type == "relative" | data.type == "normalized.to.max" | data.type == "raw.normalized.to.max"){
+    # Recursive functions for non
     if(data.type == "relative"){
-      #For "relative", recursive call to grab the 'normalized' data, then has scale run on top of it.
-      OUT <- as.numeric(scale(gene(gene, object, "normalized")))
+        return(as.numeric(scale(gene(gene, object, "normalized"))))
     }
     if(data.type == "normalized.to.max"){
-      #For "normalized.to.max", recursive call to grab the 'normalized' data, then divide by its max.
-      OUT <- gene(gene, object, "normalized")/max(gene(gene, object, "normalized"))
+        exp <- gene(gene, object, "normalized")
+        return(exp/max(exp))
     }
     if(data.type == "raw.normalized.to.max"){
-      #For "raw.normalized.to.max", recursive call to grab the 'raw' data, then divide by its max.
-      OUT <- gene(gene, object, "raw")/max(gene(gene, object, "raw"))
+        exp <- gene(gene, object, "raw")
+        return(exp/max(exp))
     }
-    #For all other data.type options...
-  } else {
-    if (.class_of(object)!="Seurat.v3" & .class_of(object)!="SingleCellExperiment"){
-      OUT <- eval(expr = parse(text = paste0(object,
-                                             target[data.type,.class_of(object)],
-                                             "[gene,",
-                                             object,
-                                             target["sample.names",.class_of(object)],
-                                             "]")))
-      #Change from sparse form if sparse
-      OUT <- as.numeric(OUT)
-      #Add names
-      names(OUT) <- eval(expr = parse(text = paste0(object, target["sample.names",.class_of(object)])))
-    } else {
-      if (.class_of(object)=="Seurat.v3"){
-        #Go from "object" to the actual object if given in character form
-        object <- eval(expr = parse(text = paste0(object)))
-        #Obtain expression
-        if(data.type == "normalized"){
-          OUT <- Seurat::GetAssayData(object)[gene,]
-        } else {
-          OUT <- Seurat::GetAssayData(object, slot = target[data.type,.class_of(object)])[gene,]
-        }
-      } else {
-        #SingleCellExperiment
-        OUT <- eval(expr = parse(text = paste0(
-            "SingleCellExperiment::",
-            target[data.type,.class_of(object)],
-            "(", object, ")[gene,]")))
-      }
-      #Change from sparse form if sparse
-      OUT <- as.numeric(OUT)
-      #Add cellnames
-      names(OUT) <- colnames(object)
-    }
-  }
-  OUT
+
+    exp <- .which_data(data.type, object)[gene,]
+    names(exp) <- .all_cells(object)
+
+    exp
 }
 
 #### meta.levels: for obtaining the different classifications of a meta.data
