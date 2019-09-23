@@ -67,16 +67,14 @@
         RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects"),
         Seurat.v2 = c("@data","@raw.data","@scale.data"),
         Seurat.v3 = c("nope", "counts", "scale.data"),
-        SingleCellExperiment = c(
-            "SingleCellExperiment::logcounts(",
-            "SingleCellExperiment::counts(",
-            "error_do_not_use_scaled_for_SCE_objects("),
+        SingleCellExperiment = c("logcounts", "counts", "error_do_not_use_scaled_for_SCE_objects"),
         stringsAsFactors = FALSE,
         row.names = c("normalized","raw","scaled"))
     if (.class_of(object) == "SingleCellExperiment") {
         OUT <- as.matrix(
           eval(expr = parse(text = paste0(
               target[data.type,.class_of(object)],
+              "(",
               object,
               ")"))))
     } else {
@@ -122,8 +120,7 @@
     }
     if (.class_of(object)=="SingleCellExperiment"){
         OUT <- list(eval(expr = parse(text = paste0(
-            "SingleCellExperiment::reducedDim(",
-            object,", type = '",reduction.use,"')[,",dim,"]"))))
+            "reducedDim(",object,", type = '",reduction.use,"')[,",dim,"]"))))
         OUT[2] <- paste0(.gen_key(reduction.use),dim)
     }
 

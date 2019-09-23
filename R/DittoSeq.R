@@ -298,10 +298,8 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
         }
       } else {
         #SingleCellExperiment
-        OUT <- eval(expr = parse(text = paste0(
-            "SingleCellExperiment::",
-            target[data.type,.class_of(object)],
-            "(", object, ")[gene,]")))
+        OUT <- eval(expr = parse(text = paste0(target[data.type,.class_of(object)],
+                                               "(", object, ")[gene,]")))
       }
       #Change from sparse form if sparse
       OUT <- as.numeric(OUT)
