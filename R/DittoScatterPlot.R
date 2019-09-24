@@ -93,9 +93,8 @@ dittoScatterPlot <- function(
     legend.color.breaks = waiver(), legend.color.breaks.labels = waiver(),
     legend.shape.title = shape.var, legend.shape.size = 5,
     data.out = FALSE) {
-    # Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4"){
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     # Standardize cells/samples vectors.
     cells.use <- .which_cells(cells.use, object)

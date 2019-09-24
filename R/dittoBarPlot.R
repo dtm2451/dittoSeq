@@ -76,8 +76,9 @@ dittoBarPlot <- function(
     xlab = group.by, ylab = "make", main = "make", sub = NULL,
     legend.show = TRUE, legend.title = NULL) {
 
-    #Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4") { object <- deparse(substitute(object)) }
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
+    }
 
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)

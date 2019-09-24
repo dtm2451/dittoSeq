@@ -19,9 +19,9 @@ importDemux2Seurat <- function(Seurat.name,
                                Demuxlet.best,
                                bypass.check = FALSE,
                                verbose = TRUE){
-    #Turn the object into a "name" if a full object was given
-    if (typeof(Seurat.name)=="S4"){ Seurat.name <- deparse(substitute(Seurat.name)) }
-
+    if (typeof(Seurat.name)=="S4") {
+        Seurat.name <- deparse(substitute(Seurat.name))
+    }
     Seurat <- eval(expr = parse(text = Seurat.name))
 
     #Check if there are meta.data that would be over.written
@@ -154,8 +154,9 @@ demux.SNP.summary <- function(
     plots = c("jitter","boxplot"), boxplot.color = "grey30",
     add.line = 50, min = 0, ...) {
 
-    #Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4") { object <- deparse(substitute(object)) }
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
+    }
 
     dittoPlot(
         "demux.N.SNP", object, group.by, color.by,
@@ -201,8 +202,9 @@ demux.calls.summary <- function(
     xlab = "Sample", color = dittoColors()[2], theme = NULL,
     rotate.labels = TRUE, data.out = FALSE) {
 
-    #Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4") { object <- deparse(substitute(object)) }
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
+    }
 
     #Populate cells.use with a list of names, based on the singlets.only variable.
     if (singlets.only) {

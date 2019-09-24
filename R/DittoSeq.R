@@ -42,8 +42,8 @@
 #' @importFrom utils packageVersion
 
 is.meta <- function(test, object=DEFAULT, return.values=FALSE){
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     if (return.values) {
         return(test[is.meta(test, object, return.values=FALSE)])
@@ -95,8 +95,8 @@ is.meta <- function(test, object=DEFAULT, return.values=FALSE){
 #' @export
 
 is.gene <- function(test, object=DEFAULT, return.values = FALSE){
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     if (return.values) {
         return(test[is.gene(test, object, return.values=FALSE)])
@@ -129,14 +129,14 @@ is.gene <- function(test, object=DEFAULT, return.values = FALSE){
 #' @export
 
 get.metas <- function(object=DEFAULT, names.only = TRUE){
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     metadata <-
         if (.class_of(object)=="SingleCellExperiment") {
-            eval(expr = parse(text = paste0(object,"@colData")))
+            SummarizedExperiment::colData(object)
         } else {
-            eval(expr = parse(text = paste0(object,"@meta.data")))
+            object@meta.data
         }
     if (names.only) {
         return(names(metadata))
@@ -165,8 +165,8 @@ get.metas <- function(object=DEFAULT, names.only = TRUE){
 #' @export
 
 get.genes <- function(object=DEFAULT){
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     rownames(.which_data("normalized", object))
 }
@@ -195,20 +195,18 @@ get.genes <- function(object=DEFAULT){
 #' @export
 
 meta <- function(meta, object=DEFAULT){
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
 
     if( meta=="ident" & grepl("Seurat", .class_of(object))) {
     # Retrieve clustering from Seurats
         if (grepl("v3",.class_of(object))) {
-            return(as.character(Seurat::Idents(object =
-                eval(expr = parse(text = paste0(
-                    object))))))
+            return(as.character(Seurat::Idents(object)))
         } else {
             return(as.character(
                 eval(expr = parse(text = paste0(
-                    object,"@ident")))))
+                    "object@ident")))))
         }
     }
     get.metas(object, names.only = FALSE)[,meta]
@@ -232,8 +230,8 @@ meta <- function(meta, object=DEFAULT){
 #' @export
 
 gene <- function(gene, object=DEFAULT, data.type = "normalized"){
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
 
     # Recursive functions for non
@@ -281,8 +279,8 @@ gene <- function(gene, object=DEFAULT, data.type = "normalized"){
 #' @export
 
 meta.levels <- function(meta, object = DEFAULT, cells.use = NULL){
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     meta.values <- as.character(meta(meta, object))
     if (!is.null(cells.use)) {

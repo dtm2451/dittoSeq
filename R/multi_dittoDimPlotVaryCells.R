@@ -89,9 +89,8 @@ multi_dittoDimPlotVaryCells <- function(
     show.legend.allcells.plot = FALSE, nrow = NULL, ncol = NULL,
     OUT.List = FALSE, ...)
 {
-    #Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     color.panel <- color.panel[colors]
     cells.meta <- meta(vary.cells.meta,object)

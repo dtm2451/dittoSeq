@@ -111,8 +111,8 @@ dittoHeatmap <- function(
     if (is.null(genes)) {
         stop('This function is not set up to select which genes to use.\nPlease provide a set of genes.')
     }
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     #If cells.use given as logical, populate as names.
     cells.use <- .which_cells(cells.use, object)

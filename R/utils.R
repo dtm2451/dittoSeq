@@ -11,9 +11,9 @@
         use = c("@samples", "@cell.names"),
         row.names = c("RNAseq", "Seurat.v2"))
     if (.class_of(object) %in% c("Seurat.v3", "SingleCellExperiment")) {
-        return(colnames(x = eval(expr = parse(text = paste0(object)))))
+        return(colnames(object))
     } else {
-        eval(expr = parse(text = paste0(object, target[.class_of(object),])))
+        eval(expr = parse(text = paste0("object", target[.class_of(object),])))
     }
 }
 
@@ -29,8 +29,8 @@
 }
 
 .class_of <- function (object = DEFAULT) {
-    if (typeof(object)=="character") {
-        object <- eval(expr = parse(text = paste0(object)))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     class <- class(object)
 
@@ -77,13 +77,9 @@
         OUT <- as.matrix(
           eval(expr = parse(text = paste0(
               target[data.type,.class_of(object)],
-              object,
-              ")"))))
+              "object)"))))
     } else {
         if (.class_of(object)=="Seurat.v3") {
-            #Go from "object" to the actual object
-            object <- eval(expr = parse(text = paste0(object)))
-            #Obtain expression
             if(data.type == "normalized"){
                 OUT <- Seurat::GetAssayData(object)
             } else {
@@ -93,7 +89,7 @@
             }
         } else {
             OUT <- eval(expr = parse(text = paste0(
-                object,
+                "object",
                 target[data.type,.class_of(object)]
             )))
         }
@@ -105,26 +101,26 @@
     # If object is a Seurat object
     if (.class_of(object)=="Seurat.v2") {
         OUT <- list(eval(expr = parse(text = paste0(
-            object,"@dr$",reduction.use,"@cell.embeddings[,",dim,"]"))))
+            "object@dr$",reduction.use,"@cell.embeddings[,",dim,"]"))))
         OUT[2] <- paste0(eval(expr = parse(text = paste0(
-            object,"@dr$",reduction.use,"@key"))),dim)
+            "object@dr$",reduction.use,"@key"))),dim)
     }
     if (.class_of(object)=="Seurat.v3") {
         OUT <- list(eval(expr = parse(text = paste0(
-            object,"@reductions$",reduction.use,"@cell.embeddings[,",dim,"]"))))
+            "object@reductions$",reduction.use,"@cell.embeddings[,",dim,"]"))))
         OUT[2] <- paste0(eval(expr = parse(text = paste0(
-            object,"@reductions$",reduction.use,"@key"))),dim)
+            "object@reductions$",reduction.use,"@key"))),dim)
     }
     if (.class_of(object)=="RNAseq"){
         OUT <- list(eval(expr = parse(text = paste0(
-            object,"@reductions$",reduction.use,"$embeddings[,",dim,"]"))))
+            "object@reductions$",reduction.use,"$embeddings[,",dim,"]"))))
         OUT[2] <- paste0(eval(expr = parse(text = paste0(
-            object,"@reductions$",reduction.use,"$key"))),dim)
+            "object@reductions$",reduction.use,"$key"))),dim)
     }
     if (.class_of(object)=="SingleCellExperiment"){
         OUT <- list(eval(expr = parse(text = paste0(
             "SingleCellExperiment::reducedDim(",
-            object,", type = '",reduction.use,"')[,",dim,"]"))))
+            "object, type = '",reduction.use,"')[,",dim,"]"))))
         OUT[2] <- paste0(.gen_key(reduction.use),dim)
     }
 

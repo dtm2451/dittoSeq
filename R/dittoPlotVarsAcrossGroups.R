@@ -139,9 +139,8 @@ dittoPlotVarsAcrossGroups <- function(
     add.line=NULL, line.linetype = "dashed", line.color = "black",
     legend.show = TRUE, legend.title = NULL, data.out = FALSE){
 
-    #Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     #Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
@@ -212,9 +211,8 @@ dittoPlotVarsAcrossGroups <- function(
     summary.fxn = mean, cells.use = NULL, data.type = "relative",
     do.hover = FALSE) {
 
-    # Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4"){
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     # Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)

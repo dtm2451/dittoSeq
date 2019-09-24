@@ -1,9 +1,6 @@
 # Tests for dittoPlot function
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-Plot.R")
 
-pbmc <- Seurat::pbmc_small
-pbmc.se <- Seurat::as.SingleCellExperiment(pbmc)
-
 pbmc@meta.data$number <- as.numeric(seq_along(colnames(pbmc)))
 grp <- "RNA_snn_res.1"
 clr <- "orig.ident"

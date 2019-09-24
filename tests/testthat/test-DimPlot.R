@@ -1,9 +1,6 @@
 # Tests for dittoDimPlot function
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-DimPlot.R")
 
-pbmc <- Seurat::pbmc_small
-pbmc.se <- Seurat::as.SingleCellExperiment(pbmc)
-
 pbmc@meta.data$number <- as.numeric(seq_along(colnames(pbmc)))
 gene <- "CD3E"
 cont <- "number"

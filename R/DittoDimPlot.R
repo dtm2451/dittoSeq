@@ -160,9 +160,8 @@ dittoDimPlot <- function(
     hover.data.type = data.type, data.out = FALSE,
     add.trajectories = NULL, trajectories.cluster.meta, trajectories.arrow.size = 0.15){
 
-    #Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     #Standardize cells.use to a list of names.
     cells.use <- .which_cells(cells.use, object)

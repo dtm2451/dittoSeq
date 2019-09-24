@@ -151,9 +151,8 @@ dittoPlot <- function(
     add.line = NULL, line.linetype = "dashed", line.color = "black",
     legend.show = TRUE, legend.title = NULL, data.out = FALSE){
 
-    #Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4") {
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     #Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
@@ -288,8 +287,9 @@ multi_dittoPlot <- function(
     ncol = 3, nrow = NULL, add.title=TRUE, ylab = FALSE, xlab = NULL, OUT.List = FALSE,
     ...) {
 
-    #Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4"){ object <- deparse(substitute(object)) }
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
+    }
 
     ylab.input <- ylab
 
@@ -481,9 +481,8 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 .dittoPlot_data_gather <- function(main.var, object = DEFAULT, group.by = "Sample", color.by = group.by,
                                       extra.vars = NULL, cells.use = NULL, data.type = "normalized",
                                       do.hover = FALSE, hover.data = c(main.var, extra.vars)){
-    # Turn the object into a "name" if a full object was given
-    if (typeof(object)=="S4"){
-        object <- deparse(substitute(object))
+    if (is.character(object)) {
+        object <- eval(expr = parse(text = object))
     }
     # Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)

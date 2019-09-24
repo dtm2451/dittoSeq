@@ -1,9 +1,6 @@
 # Tests for multi_dittoDimPlotVaryCells function
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-VaryCells.R")
 
-pbmc <- Seurat::pbmc_small
-pbmc.se <- Seurat::as.SingleCellExperiment(pbmc)
-
 pbmc@meta.data$number <- as.numeric(seq_along(colnames(pbmc)))
 grp <- "RNA_snn_res.0.8"
 cont <- "CD14"

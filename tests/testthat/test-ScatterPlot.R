@@ -3,9 +3,6 @@
 
 # Most ScatterPlot features are used/tested in the test-DimPlot, so this will look light.
 
-pbmc <- Seurat::pbmc_small
-pbmc.se <- Seurat::as.SingleCellExperiment(pbmc)
-
 pbmc@meta.data$number <- as.numeric(seq_along(colnames(pbmc)))
 gene <- "CD3E"
 cont <- "number"

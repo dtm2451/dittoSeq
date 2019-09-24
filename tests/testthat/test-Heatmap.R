@@ -1,8 +1,6 @@
 # Tests for visualization functions
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-Heatmap.R")
 
-pbmc <- Seurat::pbmc_small
-pbmc.se <- Seurat::as.SingleCellExperiment(pbmc)
 pbmc@meta.data$number <- as.numeric(seq_along(colnames(pbmc)))
 pbmc@meta.data$number2 <- as.numeric(rev(seq_along(colnames(pbmc))))
 
@@ -13,7 +11,7 @@ test_that("Coloring works for discrete column and row annotations", {
         dittoHeatmap(
             c("MS4A1","GNLY","CD3E","CD14","FCER1A",
               "FCGR3A","LYZ","PPBP","CD8A"),
-            object = "pbmc",
+            object = pbmc,
             col.annotation.metas = "ident",
             scaled.to.max = TRUE,
             annotation_row = data.frame(
@@ -66,7 +64,7 @@ test_that("Heatmap highlight genes works", {
         dittoHeatmap(
             c("MS4A1","GNLY","CD3E","CD14","FCER1A",
               "FCGR3A","LYZ","PPBP","CD8A"),
-            object = "pbmc",
+            object = pbmc,
             highlight.genes = "CD3E"),
         "pheatmap")
 })

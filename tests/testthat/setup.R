@@ -1,4 +1,4 @@
 # Tests setup
-
-pbmc <- Seurat::pbmc_small
-pbmc.se <- Seurat::as.SingleCellExperiment(pbmc)
+library(Seurat)
+pbmc <- pbmc_small
+pbmc.se <- as.SingleCellExperiment(pbmc)
