@@ -117,8 +117,9 @@
     }
     if (.class_of(object)=="RNAseq"){
         OUT <- list(eval(expr = parse(text = paste0(
-            object,"@reductions$",reduction.use,"$x[,",dim,"]"))))
-        OUT[2] <- paste0(.gen_key(reduction.use),dim)
+            object,"@reductions$",reduction.use,"$embeddings[,",dim,"]"))))
+        OUT[2] <- paste0(eval(expr = parse(text = paste0(
+            object,"@reductions$",reduction.use,"$key"))),dim)
     }
     if (.class_of(object)=="SingleCellExperiment"){
         OUT <- list(eval(expr = parse(text = paste0(
