@@ -11,8 +11,10 @@
 #' #Output: "#0000BF"
 #' Darken(dittoColors()[1:8]) #Works for multiple color inputs as well.
 #' @export
-Darken <- function(colors, percent.change = 0.25, relative = TRUE){
-  colorspace::darken(colors, amount = percent.change, space = "HLS", fixup = TRUE, method = ifelse(relative,"relative","absolute"))
+Darken <- function(colors, percent.change = 0.25, relative = TRUE) {
+    colorspace::darken(
+        colors, amount = percent.change, space = "HLS", fixup = TRUE,
+        method = ifelse(relative, "relative", "absolute"))
 }
 
 #### Lighten: For lightening colors ####
@@ -28,8 +30,10 @@ Darken <- function(colors, percent.change = 0.25, relative = TRUE){
 #' #Output: "#4040FF"
 #' Lighten(dittoColors()[1:8]) #Works for multiple color inputs as well.
 #' @export
-Lighten <- function(colors, percent.change = 0.25, relative = TRUE){
-  colorspace::lighten(colors, amount = percent.change, space = "HLS", fixup = TRUE, method = ifelse(relative,"relative","absolute"))
+Lighten <- function(colors, percent.change = 0.25, relative = TRUE) {
+    colorspace::lighten(
+        colors, amount = percent.change, space = "HLS", fixup = TRUE,
+        method = ifelse(relative, "relative", "absolute"))
 }
 
 #### Simulate: For simulating what a plot would look like as seen by a colorblind person ####
@@ -48,13 +52,15 @@ Lighten <- function(colors, percent.change = 0.25, relative = TRUE){
 #' Simulate("protan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
 #' Simulate("tritan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
 #' @export
-Simulate <- function(type = "deutan", plot.function, ..., color.panel = dittoColors()){
-  #Check that type was given properly
-  if(!(type=="deutan"|type=="protan"|type=="tritan")){
-    return("Error: type must be 'deutan', 'protan', or 'tritan'")
-  }
-  #Simulate the color panel for the given color blindness type.
-  color.p <- eval(expr = parse(text = paste0("colorspace::",type,"(color.panel)")))
-  #Make the plot!
-  plot.function(color.panel = color.p, ... )
+Simulate <- function(
+    type = c("deutan","protan","tritan"),
+    plot.function, ..., color.panel = dittoColors()) {
+
+    type <- match.arg(type)
+
+    color.p <- eval(expr = parse(text = paste0(
+        "colorspace::",type,"(color.panel)")))
+
+    #Make the plot!
+    plot.function(color.panel = color.p, ... )
 }
