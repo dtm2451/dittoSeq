@@ -144,9 +144,9 @@ dittoBarPlot <- function(
         }
         #Add the bars.
         if(do.hover){
-          p <- p + geom_col(aes_string(text = "hover.string"))
+            p <- p + geom_col(aes_string(text = "hover.string"))
         } else {
-          p <- p + geom_col()
+            p <- p + geom_col()
         }
     # Set y-axis scaling
     if (is.na(y.breaks[1]) && scale == "percent") {
@@ -154,7 +154,7 @@ dittoBarPlot <- function(
     }
     if (!is.na(y.breaks[1])) {
         p <- p + scale_y_continuous(
-              breaks= y.breaks, limits = c(0,max(y.breaks)))
+            breaks= y.breaks, limits = c(0,max(y.breaks)))
     }
 
     if (!legend.show) {
@@ -168,7 +168,7 @@ dittoBarPlot <- function(
         if (do.hover) {
             return(plotly::ggplotly(p, tooltip = "text"))
         } else {
-          return(p)
+            return(p)
         }
     }
 }

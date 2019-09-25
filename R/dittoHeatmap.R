@@ -140,7 +140,7 @@ dittoHeatmap <- function(
     }
 
     if (is.null(args$border_color)) {
-      args$border_color <- NA
+        args$border_color <- NA
     }
 
     #Add cell/sample/row names unless provided separately by user
@@ -261,6 +261,6 @@ dittoHeatmap <- function(
     }
     names(df_colors) <- names(annotation_df)
     list(df_colors = df_colors,
-         next.color.index.discrete = next.color.index.discrete,
-         next.color.index.numeric = next.color.index.numeric)
+        next.color.index.discrete = next.color.index.discrete,
+        next.color.index.numeric = next.color.index.numeric)
 }

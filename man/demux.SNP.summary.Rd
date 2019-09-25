@@ -39,8 +39,8 @@ Plots the number of SNPs sequenced per droplet
 pbmc <- Seurat::pbmc_small
 
 # Generate some mock lane, sample, and doublet.call metadata
-pbmc@meta.data$demux.N.SNP <- rnorm(ncol(pbmc),75, 5)
-pbmc@meta.data$Lane <- sample(
+pbmc$demux.N.SNP <- rnorm(ncol(pbmc),75, 5)
+pbmc$Lane <- sample(
     c("Lane1", "Lane2", "Lane3", "Lane4"),
     ncol(pbmc),
     replace = TRUE)

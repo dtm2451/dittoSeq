@@ -9,9 +9,14 @@ dittoColors(get.names = FALSE)
 \arguments{
 \item{get.names}{Logical, whether only the names of the default dittoSeq color panel should be returned instead}
 }
+\value{
+A string vector with length = 24.
+}
 \description{
-Creates a string vector of 24 colors in hexadecimal form,
-a modification of the protanope and deuteranope friendly colors from Wong, B. Nature Methods, 2011.
+Creates a string vector of 24 colors in hexadecimal form.
+Or, if \code{get.names} is set to \code{TRUE}, outputs the names of the colors which can be helpful to see when adjusting how colors get used.
+
+Colors are a modification of the protanope and deuteranope friendly colors from Wong, B. Nature Methods, 2011.
 
 The colors are:
 

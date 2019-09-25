@@ -36,12 +36,12 @@
 
     #If a Seurat, need to add what version
     if (grepl("Seurat|seurat",class)) {
-      if(object@version >= '3.0.0') {
-        #Then needs to be
-        class <- "Seurat.v3"
-      } else {
-        class <- "Seurat.v2"
-      }
+        if(object@version >= '3.0.0') {
+            #Then needs to be
+            class <- "Seurat.v3"
+        } else {
+            class <- "Seurat.v2"
+        }
     }
 
     class
@@ -64,8 +64,11 @@
 .which_data <- function(data.type, object=DEFAULT) {
     #Set up data frame for establishing how to deal with different input object types
     target <- data.frame(
-        RNAseq = c("@data","@counts","error_Do_not_use_scaled_for_RNAseq_objects"),
-        Seurat.v2 = c("@data","@raw.data","@scale.data"),
+        RNAseq = c(
+            "@data",
+            "@counts",
+            "error_Do_not_use_scaled_for_RNAseq_objects"),
+        Seurat.v2 = c("@data", "@raw.data", "@scale.data"),
         Seurat.v3 = c("nope", "counts", "scale.data"),
         SingleCellExperiment = c(
             "SingleCellExperiment::logcounts(",
@@ -75,9 +78,9 @@
         row.names = c("normalized","raw","scaled"))
     if (.class_of(object) == "SingleCellExperiment") {
         OUT <- as.matrix(
-          eval(expr = parse(text = paste0(
-              target[data.type,.class_of(object)],
-              "object)"))))
+            eval(expr = parse(text = paste0(
+                target[data.type,.class_of(object)],
+                "object)"))))
     } else {
         if (.class_of(object)=="Seurat.v3") {
             if(data.type == "normalized"){
@@ -161,9 +164,9 @@
 # #'
 .make_hover_strings_from_vars <- function(data.hover, object, data.type) {
     # Overall: if do.hover=TRUE and data.hover has a list of genes / metas called
-      # c(var1, var2, var3, ...), then for all cells, make a string:
-      # "var1: var1-value\nvar2: var2-value\nvar3: var3-value\n..."
-      # vars that are not genes of metadata are ignored.
+    #   c(var1, var2, var3, ...), then for all cells, make a string:
+    #   "var1: var1-value\nvar2: var2-value\nvar3: var3-value\n..."
+    #   vars that are not genes of metadata are ignored.
     fillable <- vapply(
         seq_along(data.hover),
         function(i)

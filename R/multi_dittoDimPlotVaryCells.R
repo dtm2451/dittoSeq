@@ -101,15 +101,16 @@ multi_dittoDimPlotVaryCells <- function(
         FALSE
     )
     if (numeric) {
-      the.range <- range(.var_OR_get_meta_or_gene(var, object, data.type))
-      min <- ifelse(is.null(min), the.range[1], min)
-      max <- ifelse(is.null(max), the.range[2], max)
+        the.range <- range(.var_OR_get_meta_or_gene(var, object, data.type))
+        min <- ifelse(is.null(min), the.range[1], min)
+        max <- ifelse(is.null(max), the.range[2], max)
     }
 
     ### Make Plots ###
-    plot.args <- list(var = var, object = object, main = NULL, min = min,
-         max = max, legend.show = show.legend.plots, data.type = data.type,
-         color.panel = color.panel, ...)
+    plot.args <- list(
+        var = var, object = object, main = NULL, min = min,
+        max = max, legend.show = show.legend.plots, data.type = data.type,
+        color.panel = color.panel, ...)
     if (!is.null(plot.args$cells.use)) {
         stop("Subsetting with cells.use is incopatible with this function.")
     }

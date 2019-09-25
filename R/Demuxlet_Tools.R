@@ -14,65 +14,73 @@
 #' # https://github.com/dtm2451/DittoSeq/tree/master/Demuxlet-Vignette
 #' @export
 
-importDemux2Seurat <- function(Seurat.name,
-                               Lane.info.meta = NULL, Lane.names=NA,
-                               Demuxlet.best,
-                               bypass.check = FALSE,
-                               verbose = TRUE){
+importDemux2Seurat <- function(
+    Seurat.name, Lane.info.meta = NULL, Lane.names=NA, Demuxlet.best,
+    bypass.check = FALSE, verbose = TRUE) {
+
     if (typeof(Seurat.name)=="S4") {
         Seurat.name <- deparse(substitute(Seurat.name))
     }
     Seurat <- eval(expr = parse(text = Seurat.name))
 
     #Check if there are meta.data that would be over.written
-    Check <- c("Lane", "Sample", "demux.doublet.call", "demux.RD.TOTL", "demux.RD.PASS",
-               "demux.RD.UNIQ", "demux.N.SNP", "demux.PRB.DBL", "demux.barcode.dup")
-    if (sum(Check %in% get.metas(Seurat.name))>0){
-        if(bypass.check){
-            print(paste0("Caution: '",
-                         paste0(Check[Check %in% get.metas(Seurat.name)], collapse = "' and '"),
-                         "' are going to bw overwritten."),
-                  quote = FALSE)
+    Check <- c(
+        "Lane", "Sample", "demux.doublet.call", "demux.RD.TOTL",
+        "demux.RD.PASS", "demux.RD.UNIQ", "demux.N.SNP", "demux.PRB.DBL",
+        "demux.barcode.dup")
+    if (sum(Check %in% get.metas(Seurat.name))>0) {
+        if(bypass.check) {
+            print(paste0(
+                "Note: '",
+                paste0(
+                    Check[Check %in% get.metas(Seurat.name)],
+                    collapse = "' and '"),
+                "' were overwritten."),
+                    quote = FALSE)
         } else {
-            print("To proceed anyway, set `bypass.check = TRUE`.")
-            print(paste0("WARNING: ",
-                         paste0(Check[Check %in% get.metas(Seurat.name)], collapse = " and "),
-                         " would be overwritten."),
-                  quote = FALSE)
-            return(Seurat)
+            stop(
+                "WARNING: metadata slots in ", Seurat.name,
+                " would be overwritten:\n",
+                paste0(
+                    Check[Check %in% get.metas(Seurat.name)],
+                    collapse = " and "),
+                ".\n If this is okay, set `bypass.check = TRUE`.")
         }
     }
     #Create Lane.names if not given
     if(is.na(Lane.names[1])){
-      Lane.names <- meta.levels(Lane.info.meta, Seurat.name)
+        Lane.names <- meta.levels(Lane.info.meta, Seurat.name)
     }
     # Obtain the cell.names
     cell.names <- .all_cells(Seurat.name)
     #Add lane metadata information
     if(verbose){print("Adding 'Lane' information as meta.data",quote=FALSE)}
     if(!(is.null(Lane.info.meta))){
-      Seurat@meta.data$Lane <- meta(Lane.info.meta, Seurat.name)
-      lane.idents <- as.factor(as.character(meta(Lane.info.meta, Seurat.name)))
+        Seurat@meta.data$Lane <- meta(Lane.info.meta, Seurat.name)
+        lane.idents <- as.factor(as.character(meta(Lane.info.meta, Seurat.name)))
     } else {
-      # Make object with just the `#` of `-#` parts of cellnames
-      lane.idents <- as.factor(c(sapply(cell.names, function(X){
-        strsplit(X, split = "-")[[1]][length(strsplit(X, split = "-")[[1]])]
-      })))
-      # Create the Lane metadata
-      Seurat@meta.data$Lane <- lane.idents
-      # Change from # to Lane.names
-      levels(Seurat@meta.data$Lane) <- Lane.names
+        # Make object with just the `#` of `-#` parts of cellnames
+        lane.idents <- as.factor(c(sapply(cell.names, function(X){
+            strsplit(X, split = "-")[[1]][length(strsplit(X, split = "-")[[1]])]
+        })))
+        # Create the Lane metadata
+        Seurat@meta.data$Lane <- lane.idents
+        # Change from # to Lane.names
+        levels(Seurat@meta.data$Lane) <- Lane.names
     }
     Seurat@meta.data$Lane <- as.factor(as.character(Seurat@meta.data$Lane))
 
     #Extract Demuxlet data
     if(verbose){print("Extracting the Demuxlet information",quote=FALSE)}
     DEMUX.raw <- read.csv(Demuxlet.best, header=TRUE, sep="\t")
-    DEMUX.call <- data.frame(doublet=sapply(as.character(DEMUX.raw$BEST),
-                                            function(X) strsplit(X,'-')[[1]][[1]]),
-                             sample=sapply(as.character(DEMUX.raw$BEST),
-                                           function(x){strsplit(x,"-")[[1]][[2]]}),
-                             barcode=as.character(DEMUX.raw$BARCODE))
+    DEMUX.call <- data.frame(
+        doublet=sapply(
+            as.character(DEMUX.raw$BEST),
+            function(X) strsplit(X,'-')[[1]][[1]]),
+        sample=sapply(
+            as.character(DEMUX.raw$BEST),
+            function(x){strsplit(x,"-")[[1]][[2]]}),
+        barcode=as.character(DEMUX.raw$BARCODE))
     if(verbose){print("  Matching barcodes",quote=FALSE)}
     # Strip barcodes in cell.names from any of the extra info that may have been added by Seurat (normally "text_" at start of names)
     cells <- sapply(cell.names, function(X) strsplit(X, split = "_")[[1]][length(strsplit(X, split = "_")[[1]])])
@@ -91,32 +99,42 @@ importDemux2Seurat <- function(Seurat.name,
     Seurat@meta.data$demux.N.SNP <- trim.out$N.SNP[inds]
     Seurat@meta.data$demux.PRB.DBL <- trim.out$PRB.DBL[inds]
     if(verbose){
-      print("  Checking for barcode duplicates",quote=FALSE)
-      print("",quote=FALSE)
-      print("",quote=FALSE)}
+        print("  Checking for barcode duplicates",quote=FALSE)
+        print("",quote=FALSE)
+        print("",quote=FALSE)}
     # Check if there are barcode duplicates accross 10X lanes.
     demux.barcode.dup <- array(FALSE, dim = length(cell.names))
     demux.barcode.dup[duplicated(inds, fromLast=FALSE)|duplicated(inds, fromLast=TRUE)] <- TRUE
     if (sum(demux.barcode.dup)>0){
-      print("Warning: Cell barcodes were duplicated accross lanes of this dataset and may have been therefore artificially called as doublets by demuxlet. Recommended: Modify how your demuxlet was run to account for this.",quote=FALSE)
-      Seurat@meta.data$demux.barcode.dup <- demux.barcode.dup
-      print("",quote=FALSE)
-      print("",quote=FALSE)
+        print("Warning: Cell barcodes were duplicated accross lanes of this dataset and may have been therefore artificially called as doublets by demuxlet. Recommended: Modify how your demuxlet was run to account for this.",quote=FALSE)
+        Seurat@meta.data$demux.barcode.dup <- demux.barcode.dup
+        print("",quote=FALSE)
+        print("",quote=FALSE)
     }
     print("SUMMARY:",quote=FALSE)
-    print(paste0(length(levels(lane.idents)),
-                 " lanes were identified and named:"),
-          quote=FALSE)
-    print(paste0(Lane.names[seq_along(levels(lane.idents))], collapse = ", "),
-          quote=FALSE)
-    print(paste0("The average number of SNPs per cell for all lanes was: ",round(mean(Seurat@meta.data$demux.N.SNP),1)),quote=FALSE)
-    print(paste0("Out of ",length(cell.names)," cells total, Demuxlet assigned:"),quote=FALSE)
-    print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE), " cells or ", round(100*sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE)/length(cell.names),1), "% as singlets"),quote=FALSE)
-    print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE), " cells or ", round(100*sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE)/length(cell.names),1), "% as doublets"),quote=FALSE)
-    print(paste0("     ",sum(Seurat@meta.data$demux.doublet.call=="AMB", na.rm = TRUE), " cells as too ambiguous to call."),quote=FALSE)
-    print(paste0("     ",sum(!(cells %in% DEMUX.call$barcode)), " cells were not annotated in the demuxlet.best file."),quote=FALSE)
+    print(paste0(
+        length(levels(lane.idents)), " lanes were identified and named:"),
+        quote=FALSE)
+    print(paste0(
+        Lane.names[seq_along(levels(lane.idents))], collapse = ", "),
+        quote=FALSE)
+    print(paste0(
+        "The average number of SNPs per cell for all lanes was: ",
+        round(mean(Seurat@meta.data$demux.N.SNP),1)),
+        "\nOut of ", length(cell.names), " cells total, Demuxlet assigned:",
+        "\n    ", sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE),
+        " cells or ", round(100*sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE)/length(cell.names),1),
+        "% as singlets",
+        "\n    ", sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE),
+        " cells or ", round(100*sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE)/length(cell.names),1),
+        "% as doublets",
+        "    ", sum(Seurat@meta.data$demux.doublet.call=="AMB", na.rm = TRUE),
+        " cells as too ambiguous to call.",
+        "\n    ", sum(!(cells %in% DEMUX.call$barcode)),
+        " cells were not annotated in the demuxlet.best file.",
+        quote=FALSE)
     Seurat
-  }
+}
 
 #' Plots the number of SNPs sequenced per droplet
 #'
@@ -219,18 +237,19 @@ demux.calls.summary <- function(
 
     #Set theme
     if(is.null(theme)){
-      theme <- theme_bw() +
-          theme(
-              panel.grid.major = element_blank(),
-              panel.grid.minor = element_blank(),
-              axis.line = element_blank(),
-              panel.border = element_blank())
+        theme <- theme_bw() +
+            theme(
+                panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                axis.line = element_blank(),
+                panel.border = element_blank())
     }
 
     # Grab the data
     dat <- as.data.frame.matrix(
-        table(as.character(meta("Sample", object)[cells.use %in% all.cells]),
-              meta("Lane", object)[cells.use %in% all.cells]))
+        table(
+            as.character(meta("Sample", object)[cells.use %in% all.cells]),
+            meta("Lane", object)[cells.use %in% all.cells]))
     dat$Sample <- row.names(dat)
     dat.m <- reshape2::melt(dat, "Sample")
     colnames(dat.m) <- c("Sample", "Lane", "Counts")
@@ -240,8 +259,9 @@ demux.calls.summary <- function(
     } else {
         # Make the plot
         p <- ggplot(data = dat.m) +
-            geom_col(aes_string(x = "Sample", y = "Counts"),
-                     fill = color) +
+            geom_col(
+                aes_string(x = "Sample", y = "Counts"),
+                fill = color) +
             geom_hline(yintercept=0) +
             facet_wrap(
                 facets = ~Lane, ncol = 1, scales = "fixed",

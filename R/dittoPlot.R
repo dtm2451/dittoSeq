@@ -478,9 +478,11 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 # #' @param hover.data             list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
 # #' @return Generates Target_data and Others_data data.frames for use by single-axis dittoSeq plotters.
 
-.dittoPlot_data_gather <- function(main.var, object = DEFAULT, group.by = "Sample", color.by = group.by,
-                                      extra.vars = NULL, cells.use = NULL, data.type = "normalized",
-                                      do.hover = FALSE, hover.data = c(main.var, extra.vars)){
+.dittoPlot_data_gather <- function(
+    main.var, object = DEFAULT, group.by = "Sample", color.by = group.by,
+    extra.vars = NULL, cells.use = NULL, data.type = "normalized",
+    do.hover = FALSE, hover.data = c(main.var, extra.vars)) {
+
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }

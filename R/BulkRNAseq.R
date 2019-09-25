@@ -394,7 +394,7 @@ addMetaRNAseq <- function(
 #' @export
 `addMeta<-` <- function(object, value)
 {
-  UseMethod('addMeta<-', object)
+    UseMethod('addMeta<-', object)
 }
 
 #' @rdname addMetaRNAseq
