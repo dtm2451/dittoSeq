@@ -187,8 +187,9 @@ dittoDimPlot <- function(
         if (grepl("tsne|umap", tolower(reduction.use))) {
             # Remove grid lines
             theme <- theme +
-                theme(panel.grid.major = element_blank(),
-                      panel.grid.minor = element_blank())
+                theme(
+                    panel.grid.major = element_blank(),
+                    panel.grid.minor = element_blank())
         }
     }
     if (!numbers.show) {
@@ -351,8 +352,9 @@ dittoDimPlot <- function(
             data=Target_data,
             aes_string(x = "X", y = "Y", shape = col.use),
             color = "black", size=size*3/4, alpha = opacity) +
-        scale_shape_manual(name = legend.title,
-                           values = letter.labels)
+        scale_shape_manual(
+            name = legend.title,
+            values = letter.labels)
     p
 }
 
@@ -379,29 +381,24 @@ dittoDimPlot <- function(
 #' @export
 
 multi_dittoDimPlot <- function(
-    vars, object = DEFAULT, show.legend = FALSE,
-    ncol = min(3,length(vars)), nrow = NULL,
-                              axes.labels = FALSE,
-                              OUT.List = FALSE,
-                              ...){
+    vars, object = DEFAULT, legend.show = FALSE, ncol = NULL, nrow = NULL,
+    axes.labels = FALSE, OUT.List = FALSE, ...) {
 
-  #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
-  lab <- if(!axes.labels) {
-      NULL
-  } else {
-      "make"
-  }
+    #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
+    lab <- if(!axes.labels) {
+        NULL
+    } else {
+        "make"
+    }
 
-  plots <- lapply(vars, function(X) {
-    dittoDimPlot(X, object,
-              xlab = lab,
-              ylab = lab,
-              ...) + theme(legend.position = ifelse(show.legend, "right", "none"))
-  })
-  if (OUT.List){
-    names(plots) <- vars
-    return(plots)
-  } else {
-    return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
-  }
+    plots <- lapply(vars, function(X) {
+        dittoDimPlot(
+            X, object, xlab = lab, ylab = lab, ..., legend.show = legend.show)
+    })
+    if (OUT.List){
+        names(plots) <- vars
+        return(plots)
+    } else {
+        return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
+    }
 }

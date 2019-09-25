@@ -4,16 +4,14 @@
 \alias{multi_dittoDimPlot}
 \title{Generates multiple dittoDimPlots arranged in a grid.}
 \usage{
-multi_dittoDimPlot(vars, object = DEFAULT, show.legend = FALSE,
-  ncol = min(3, length(vars)), nrow = NULL, axes.labels = FALSE,
-  OUT.List = FALSE, ...)
+multi_dittoDimPlot(vars, object = DEFAULT, legend.show = FALSE,
+  ncol = NULL, nrow = NULL, axes.labels = FALSE, OUT.List = FALSE,
+  ...)
 }
 \arguments{
 \item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
 
 \item{object}{the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.}
-
-\item{show.legend}{Logical. Whether or not you would like a legend to be plotted.  Default = FALSE}
 
 \item{ncol}{#. How many plots should be arranged per row.  Default = 3 unless \code{length(vars)} is shorter.}
 
@@ -24,6 +22,8 @@ multi_dittoDimPlot(vars, object = DEFAULT, show.legend = FALSE,
 \item{OUT.List}{Logical. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.}
 
 \item{...}{other paramters that can be given to DBDimPlot function used in exactly the same way.}
+
+\item{show.legend}{Logical. Whether or not you would like a legend to be plotted.  Default = FALSE}
 }
 \value{
 Given multiple 'var' parameters, this function will output a DBDimPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each is 'var'.
