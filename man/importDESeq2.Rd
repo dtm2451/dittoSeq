@@ -47,24 +47,40 @@ dds <- DESeq(dds)
 # Import
 myRNA <- importDESeq2(dds, blind = FALSE)
 
-# Add PCA calculated with prcomp using addPrcomp
+# Add a dimensionality reduction to myRNA
 #   NOTE: This is typically not done with all genes in a dataset.
 #   The inclusion of this example code is not an endorsement of a particular
 #   method of PCA. Consult yourself, a bioinformatician, or literature for
 #   tips on proper techniques.
-myRNA <- addPrcomp(
-    prcomp = prcomp(t(myRNA@data), center = TRUE, scale = TRUE),
+PCA <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
+myRNA <- addDimReduction(
+    embeddings = PCA$x,
+    object = myRNA,
+    name = "pca",
+    key = "PC",
+    raw.object = PCA)
+
+### Add a batch metadata
+# Option 1, all in the funciton:
+myRNA <- addMetaRNAseq(
+    value = rep(1:2, each = 5),
+    name = "batch",
     object = myRNA)
+# Option 2, create variable beforehand, and just provide that to value.
+#     The name of the variable will be used to name the metadata slot.
+batch <- rep(1:2, each = 5)
+myRNA <- addMetaRNAseq(batch, object = myRNA)
 
-# Visualize the PCA
-dittoDimPlot("Sample", myRNA, reduction.use = "pca", size = 3)
-
-# Note, for RNAseq objects, reduction.use defaults to "pca"
-# so just dittoDimPlot("Sample", myRNA, size = 3) would work the same!
+# Visualize batch on a PCA plot
+#   Note: For RNAseq objects, reduction.use defaults to "pca"
+#   so just dittoDimPlot("Sample", myRNA, size = 3) would work the same!
+dittoDimPlot("batch", myRNA, reduction.use = "pca", size = 3)
 
 }
 \seealso{
 \code{\link[DESeq2]{DESeq}} and \code{\link[DESeq2]{rlog}} for information about DESeq and regularized log calculation.
+
+\code{\link{addMetaRNAseq}} for how to add additional metadata to an \code{RNAseq} object
 
 \code{\link{addPrcomp}} and \code{\link{addDimReduction}} for how to add dimensionality reductions to an \code{\linkS4class{RNAseq}} object for use in
 \code{\link{dittoDimPlot}} visualizations.

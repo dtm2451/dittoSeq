@@ -8,7 +8,7 @@ addDimReduction(embeddings, object = DEFAULT, name,
   key = .gen_key(name), raw.object = NULL)
 }
 \arguments{
-\item{embeddings}{a numeric matrix containing the coordinated of all samples within the dimensionality reduction space.}
+\item{embeddings}{a numeric matrix containing the coordinates of all samples within the dimensionality reduction space.}
 
 \item{object}{the \code{\linkS4class{RNAseq}} object. REQUIRED, unless \code{DEFAULT <- "object"} has been run.}
 
@@ -21,7 +21,7 @@ If nothing is provided, a key will be automatically generated.}
 \item{raw.object}{Optional, but recommended as this keeps the data all together: the output of the original calculation.}
 }
 \value{
-Outputs an RNAseq object with a new \code{@reductions$'name'} slot.
+Outputs an \code{\linkS4class{RNAseq}} object with a new \code{@reductions$'name'} slot.
 }
 \description{
 Add any dimensionality reduction space to an RNAseq object
@@ -44,7 +44,7 @@ dds <- DESeq(dds)
 # Import
 myRNA <- importDESeq2(dds, blind = FALSE)
 
-# Add PCA with prcomp, but use generic functionto add to myRNA
+# Add a dimensionality reduction to myRNA
 #   NOTE: This is typically not done with all genes in a dataset.
 #   The inclusion of this example code is not an endorsement of a particular
 #   method of PCA. Consult yourself, a bioinformatician, or literature for
@@ -57,19 +57,33 @@ myRNA <- addDimReduction(
     key = "PC",
     raw.object = PCA)
 
-# Visualize the PCA
-dittoDimPlot("Sample", myRNA, reduction.use = "pca", size = 3)
+### Add a batch metadata
+# Option 1, all in the funciton:
+myRNA <- addMetaRNAseq(
+    value = rep(1:2, each = 5),
+    name = "batch",
+    object = myRNA)
+# Option 2, create variable beforehand, and just provide that to value.
+#     The name of the variable will be used to name the metadata slot.
+batch <- rep(1:2, each = 5)
+# Option 3, create variable beforehand, and provide just that using the
+#     even further simplified setter function:
+addMeta(myRNA) <- batch
 
-# Note, for RNAseq objects, reduction.use defaults to "pca"
-# so just dittoDimPlot("Sample", myRNA, size = 3) would work the same!
+# Visualize batch on a PCA plot
+#   Note: For RNAseq objects, reduction.use defaults to "pca"
+#   so just dittoDimPlot("Sample", myRNA, size = 3) would work the same!
+dittoDimPlot("batch", myRNA, reduction.use = "pca", size = 3)
 
 }
 \seealso{
-\code{\link{importDESeq2}} for initial import of RNAseq data analyzed with DESeq2
+\code{\link{addPrcomp}} for a prcomp specific PCA import wrapper function
 
-\code{\link{addDimReduction}} for adding other types of dimensionality reductions
+\code{\link{addMetaRNAseq}} for how to add metadata to an \code{RNAseq} object
+
+\code{\link{importDESeq2}} for initial import of \code{RNAseq} data analyzed with DESeq2
 
 \code{\link{dittoDimPlot}} for visualizing how samples group within this dimensionality reduction space after adding it to the object
 
-\code{\linkS4class{RNAseq}} for learning more about the RNAseq object type
+\code{\linkS4class{RNAseq}} for learning more about the \code{RNAseq} object type
 }
