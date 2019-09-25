@@ -141,8 +141,8 @@ importDemux2Seurat <- function(Seurat.name,
 #' pbmc <- Seurat::pbmc_small
 #'
 #' # Generate some mock lane, sample, and doublet.call metadata
-#' pbmc@meta.data$demux.N.SNP <- rnorm(ncol(pbmc),75, 5)
-#' pbmc@meta.data$Lane <- sample(
+#' pbmc$demux.N.SNP <- rnorm(ncol(pbmc),75, 5)
+#' pbmc$Lane <- sample(
 #'     c("Lane1", "Lane2", "Lane3", "Lane4"),
 #'     ncol(pbmc),
 #'     replace = TRUE)
@@ -182,15 +182,15 @@ demux.SNP.summary <- function(
 #' pbmc <- Seurat::pbmc_small
 #'
 #' # Generate some mock lane, sample, and doublet.call metadata
-#' pbmc@meta.data$Lane <- sample(
+#' pbmc$Lane <- sample(
 #'     c("Lane1", "Lane2", "Lane3", "Lane4"),
 #'     ncol(pbmc),
 #'     replace = TRUE)
-#' pbmc@meta.data$Sample <- sample(
+#' pbmc$Sample <- sample(
 #'     c("Sample-1", "Sample-2", "Sample-3", "Sample-4", "Sample-5"),
 #'     ncol(pbmc),
 #'     replace = TRUE)
-#' pbmc@meta.data$demux.doublet.call <- "SNG"
+#' pbmc$demux.doublet.call <- "SNG"
 #'
 #' demux.calls.summary(pbmc)
 #'
