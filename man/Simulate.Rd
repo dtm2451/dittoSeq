@@ -4,7 +4,7 @@
 \alias{Simulate}
 \title{Simulates what a colorblind person would see for any dittoSeq plot!}
 \usage{
-Simulate(type = "deutan", plot.function, ...,
+Simulate(type = c("deutan", "protan", "tritan"), plot.function, ...,
   color.panel = dittoColors())
 }
 \arguments{
