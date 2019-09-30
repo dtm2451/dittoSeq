@@ -9,8 +9,8 @@ dittoHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
-  col.annotation.metas = NULL, annotation.colors = rep(dittoColors(),
-  10), data.out = FALSE, highlight.genes = NULL,
+  annotation.metas = NULL, annotation.colors = c(rep(dittoColors(), 9),
+  dittoColors()[1:7]), data.out = FALSE, highlight.genes = NULL,
   show.colnames = TRUE, show.rownames = TRUE, ...)
 }
 \arguments{
@@ -38,7 +38,7 @@ This is recommended for single-cell datasets as they are generally enriched in 0
 \item{heatmap.colors.max.scaled}{the colors to use within the heatmap when \code{scaled.to.max} is set to \code{TRUE}.
 Default is a ramp from white to red with 25 slices.}
 
-\item{col.annotation.metas}{String name of a metadata slot containing how the cells/samples should be annotated.}
+\item{annotation.metas}{String name of a metadata slot containing how the cells/samples should be annotated.}
 
 \item{annotation.colors}{String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.}
 
@@ -72,13 +72,13 @@ pbmc <- Seurat::pbmc_small
 dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
     object = pbmc,
-    col.annotation.metas = "ident")
+    annotation.metas = "ident")
 
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
 dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
-    col.annotation.metas = "ident")
+    annotation.metas = "ident")
 
 # For real single cell data, you will have more cells than
 #   in this truncated dataset,
@@ -87,7 +87,7 @@ dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
     object = pbmc,
-    col.annotation.metas = "ident",
+    annotation.metas = "ident",
     cluster_cols=FALSE)
 
 # When there are many cells, showing names becomes less useful.
@@ -95,7 +95,7 @@ dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
     object = pbmc,
-    col.annotation.metas = "ident",
+    annotation.metas = "ident",
     cluster_cols=FALSE,
     show.colnames = FALSE)
 
@@ -106,13 +106,13 @@ dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
     object = pbmc,
-    col.annotation.metas = "ident",
+    annotation.metas = "ident",
     show.colnames = FALSE,
     scaled.to.max = TRUE)
 dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
     object = pbmc,
-    col.annotation.metas = "ident",
+    annotation.metas = "ident",
     show.colnames = FALSE,
     scaled.to.max = FALSE,
     scale = "none",

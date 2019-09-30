@@ -17,7 +17,7 @@
 #' Default is a ramp from white to red with 25 slices.
 #' @param main String that sets the title for the heatmap.
 #' @param cell.names.meta quoted "name" of a meta.data slot to use for naming the columns instead of using the raw cell/sample names.
-#' @param col.annotation.metas String name of a metadata slot containing how the cells/samples should be annotated.
+#' @param annotation.metas String name of a metadata slot containing how the cells/samples should be annotated.
 #' @param annotation.colors String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.
 #' @param show.rownames,show.colnames Logical which sets whether rownames or colnames will be shown.
 #' Note: if gene names are provided to \code{highlight.genes}, the \code{show.colnames} parameter is ignored.
@@ -49,13 +49,13 @@
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
-#'     col.annotation.metas = "ident")
+#'     annotation.metas = "ident")
 #'
 #' #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
-#'     col.annotation.metas = "ident")
+#'     annotation.metas = "ident")
 #'
 #' # For real single cell data, you will have more cells than
 #' #   in this truncated dataset,
@@ -64,7 +64,7 @@
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
-#'     col.annotation.metas = "ident",
+#'     annotation.metas = "ident",
 #'     cluster_cols=FALSE)
 #'
 #' # When there are many cells, showing names becomes less useful.
@@ -72,7 +72,7 @@
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
-#'     col.annotation.metas = "ident",
+#'     annotation.metas = "ident",
 #'     cluster_cols=FALSE,
 #'     show.colnames = FALSE)
 #'
@@ -83,13 +83,13 @@
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
-#'     col.annotation.metas = "ident",
+#'     annotation.metas = "ident",
 #'     show.colnames = FALSE,
 #'     scaled.to.max = TRUE)
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
-#'     col.annotation.metas = "ident",
+#'     annotation.metas = "ident",
 #'     show.colnames = FALSE,
 #'     scaled.to.max = FALSE,
 #'     scale = "none",
@@ -103,8 +103,8 @@ dittoHeatmap <- function(
     heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
     scaled.to.max = FALSE,
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
-    col.annotation.metas = NULL,
-    annotation.colors = rep(dittoColors(),10),
+    annotation.metas = NULL,
+    annotation.colors = c(rep(dittoColors(),9),dittoColors()[1:7]),
     data.out=FALSE, highlight.genes = NULL, show.colnames = TRUE,
     show.rownames = TRUE, ...) {
 
@@ -124,6 +124,13 @@ dittoHeatmap <- function(
 
     #Make the data matrix
     data <- as.matrix(.which_data(data.type,object)[genes,cells.use])
+    if (sum(rowSums(data)==0)) {
+        data <- data[rowSums(data)!=0,]
+        if (nrow(data)==0) {
+            stop("No target genes are expressed in the cells.use subset.")
+        }
+        warning("Gene(s) removed due to absence of expression within the cells.use subset")
+    }
     if (scaled.to.max) {
         maxs <- apply(data,1,max)
         data <- data/maxs
@@ -134,11 +141,9 @@ dittoHeatmap <- function(
         mat = data, main = main, show_colnames = show.colnames,
         show_rownames = show.rownames, color = heatmap.colors,
         ...)
-
     if (is.null(args$scale)) {
         args$scale <- ifelse(scaled.to.max, "none", "row")
     }
-
     if (is.null(args$border_color)) {
         args$border_color <- NA
     }
@@ -149,8 +154,8 @@ dittoHeatmap <- function(
     }
 
     #Make a labels_row input for displaying only certain genes if genes were given to highlight.genes input
-    if (!(is.null(highlight.genes)) && sum(highlight.genes %in% genes)>0) {
-        highlight.genes <- highlight.genes[highlight.genes %in% genes]
+    if (!(is.null(highlight.genes)) && sum(highlight.genes %in% rownames(data))>0) {
+        highlight.genes <- highlight.genes[highlight.genes %in% rownames(data)]
         args$labels_row <- rownames(data)
         #Overwrite all non-highlight genes rownames to ""
         args$labels_row[-(match(highlight.genes,rownames(data)))] <- ""
@@ -158,12 +163,12 @@ dittoHeatmap <- function(
     }
 
     #Make the columns annotations data for colored annotation bars
-    if (!is.null(col.annotation.metas)) {
+    if (!is.null(annotation.metas)) {
         args$annotation_col <- data.frame(row.names = cells.use)
-        for (i in seq_along(col.annotation.metas)) {
-            args$annotation_col[,i] <- meta(col.annotation.metas[i], object)
+        for (i in seq_along(annotation.metas)) {
+            args$annotation_col[,i] <- meta(annotation.metas[i], object)
         }
-        names(args$annotation_col) <- col.annotation.metas
+        names(args$annotation_col) <- annotation.metas
     }
 
     #Make the annotation colors
@@ -187,7 +192,7 @@ dittoHeatmap <- function(
 
     # Extract a default color-set
     annotation.colors.d <- annotation.colors
-    annotation.colors.n <- rev(annotation.colors)[-seq_len(9)]
+    annotation.colors.n <- rev(annotation.colors)
 
     # Initiate variables
     next.color.index.discrete <- 1
