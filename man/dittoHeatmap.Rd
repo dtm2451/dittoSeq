@@ -63,6 +63,32 @@ and \code{call} = String showing how \code{pheatmap} would have been called.
 Given a set of genes, cells/samples, and metadata names for column annotations, it will retrieve the expression data for those genes and cells, and the annotation data for those cells.
 It will then utilize these data to make a heatmap using the \code{\link[pheatmap]{pheatmap}} function of the \code{pheatmap} package.
 }
+\details{
+This function serves as a wrapper for creating pheatmap heatmaps from bulk or single-cell RNAseq data,
+by essentially automating the data extraction and annotation building steps.
+
+Provided with a set of \code{genes}, and an optional set of cells / samples to use (with the optional \code{cells.use} input),
+the function will extract the expression matrix for each of those genes and cells / samples.
+This matrix is either left as is for scaling in the ultimate pheatmap call (default) or scaled by dividing each row by its maximum value (\code{scaled.to.max = TRUE}).
+
+When provided with a set of metadata slot names to use for building annotations (with the optional \code{annotation.metas} input),
+the relevant metadata is retrieved from the \code{object} and \code{\link[pheatmap]{pheatmap}}-ready annotations inputs
+are constructed.  The \code{\link[pheatmap]{pheatmap}}-inputs \code{annotation_col} and \code{annotation_colors} are generated.
+
+The input \code{annotation.colors} is used to establish the set of colors that should be used for building the \code{annotatio_colors} input.
+Note: Users can also provide an \code{annotation_row} dataframe (see \code{\link[pheatmap]{pheatmap}} for details) to add gene annotations.
+Colors for row annotations will still come from the \code{annotation.colors} input unless a user also provides their own \code{annotation_colors} list.
+
+When the name of a metadata slot is provided to \code{cell.names.meta}, cells/samples are renamed by the contents of that metadata.
+This matadata's values for each cell/sample are provided to pheatmap as the \code{labels_col} input so that they will be renamed.
+
+When the name of a subset of genes within the \code{genes} input are provided to \code{highlight.genes},
+The \code{labels_row} pheatmap input is utilized to make only those gene names display.
+
+When \code{data.out} is set to \code{TRUE}, a list is output instead of running pheatmap and providing the heatmap plot as output.
+This list will contain a slot named \code{args} which includes the data matrix and all other arguments that would have been provided to the pheatmap call,
+as well as a slot named \code{call} which shows how pheatmap would have been called.
+}
 \note{
 For scRNAseq data, running with \code{cluster_cols=FALSE} first is recommended because clustering of thousands of cells can tak a long time!
 }

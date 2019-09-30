@@ -88,11 +88,22 @@ test_that("Heatmap gives proper warnings when it should", {
         NULL)
 })
 
+test_that("Heatmap sample renaming by metadata works", {
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc,
+            cell.names.meta = "number"),
+        "pheatmap")
+})
+
 test_that("Heatmap highlight genes works", {
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = pbmc,
+            show.colnames = FALSE,
+            show.rownames = FALSE,
             highlight.genes = "CD3E"),
         "pheatmap")
 })
