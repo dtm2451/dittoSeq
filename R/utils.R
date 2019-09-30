@@ -151,17 +151,6 @@
     key
 }
 
-# #' Outputs a string of gene expression / meta.data information for ploty hover display
-# #'
-# #' @param data.hover The data needed in the text output. = A list of metadata names, genes, or "ident", in quotes.
-# #' @param object the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
-# #' @param data.type For when grabbing gene expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
-# #' @return Given a list of data to grab in data.hover, outputs the 'data name': data, 'data name': data, ... for every cell of the object
-# #' @examples
-# #' library(Seurat)
-# #' pbmc <- Seurat::pbmc_small
-# #' .make_hover_strings_from_vars(c("CD34","ident","non-genes/metas-will-be-ignored"), "pbmc", "normalized")
-# #'
 .make_hover_strings_from_vars <- function(data.hover, object, data.type) {
     # Overall: if do.hover=TRUE and data.hover has a list of genes / metas called
     #   c(var1, var2, var3, ...), then for all cells, make a string:
