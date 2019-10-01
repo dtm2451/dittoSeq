@@ -29,7 +29,6 @@
 #' Then, treating the leftmost grouping as index 1, and the rightmost as index n.
 #' Values of \code{x.reorder} should be these indices, but in the order that you would like them rearranged to be.
 #' @param y.breaks Numeric vector which indicates the plots major gridlines. c(break1,break2,break3,etc.)
-#' Note: The maximum value of this vector will set the maximum value portrayed, even if the data extends beyond this value.
 #' @param min,max Scalars which control the zoom of the plot.
 #' These inputs set the minimum / maximum values of the y-axis.
 #' Default = set based on the limits of the data, 0 to 1 for \code{scale = "percent"}, or 0 to maximum count for 0 to 1 for \code{scale = "count"}.
@@ -43,10 +42,30 @@
 #' Values of \code{var.labels.reorder} should be these indices, but in the order that you would like them rearranged to be.
 #' @param legend.show Logical which sets whether the legend should be displayed. Default = TRUE.
 #' @param legend.title String which adds a title to the legend.
-#' @param data.out Logical which to output a dataframe containing the underlying data instead of outputing the plot itself.
+#' @param data.out Logical which sets whether to output a dataframe containing the underlying data instead of outputing the plot itself.
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
 #' Alternatively, if \code{data.out = TRUE} is added, outputs the underlying data for such a plot.
 #' Alternatively, if \code{do.hover = TRUE} is added, outputs a plotly conversion of such a ggplot in which underlying data can be retrieved upon hovering the cursor over the plot.
+#' @details
+#' The function creates a dataframe containing counts and percent makeup of \code{var} identities for each x-axis grouping (determined by the \code{group.by} input).
+#' If a set of cells to use is indicated with the \code{cells.use} input, only those cells are used for counts and percent makeup calculations.
+#' Then, a vertical bar plot is generated (\code{ggplot2::geom_col()}) showing either percent makeup if
+#' \code{scale = "percent"}, which is the default, or raw counts if \code{scale = "count"}.
+#'
+#' If \code{data.out} is set to \code{TRUE}, just the dataframe will be returned, and not the plot.
+#'
+#' If \code{do.hover} is set to \code{TRUE}, the ggplot will be converted to a plotly object and underlying data will be displayed upon hover.
+#'
+#' Many characteristics of the plot can be adjusted using discrete inputs:
+#' \itemize{
+#' \item{Colors can be adjusted with \code{color.panel} and/or \code{colors}.}
+#' \item{y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.}
+#' \item{Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.}
+#' \item{The legend can be removed by setting \code{legend.show = FALSE}.}
+#' \item{x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.}
+#' \item{y-axis \code{var}-group labels and their order can be changed / reordered using \code{var.labels} and \code{var.labels.reorder}.}
+#' }
+#'
 #' @examples
 #' library(Seurat)
 #' pbmc <- pbmc_small

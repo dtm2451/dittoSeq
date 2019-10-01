@@ -30,7 +30,7 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 
 NOTE: When \code{cells.use} is combined with \code{scale = "percent"} left out cells are not considered in calculating percentages. Percents will always total to 1.}
 
-\item{data.out}{Logical which to output a dataframe containing the underlying data instead of outputing the plot itself.}
+\item{data.out}{Logical which sets whether to output a dataframe containing the underlying data instead of outputing the plot itself.}
 
 \item{do.hover}{Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.}
 
@@ -38,8 +38,7 @@ NOTE: When \code{cells.use} is combined with \code{scale = "percent"} left out c
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
-\item{y.breaks}{Numeric vector which indicates the plots major gridlines. c(break1,break2,break3,etc.)
-Note: The maximum value of this vector will set the maximum value portrayed, even if the data extends beyond this value.}
+\item{y.breaks}{Numeric vector which indicates the plots major gridlines. c(break1,break2,break3,etc.)}
 
 \item{min, max}{Scalars which control the zoom of the plot.
 These inputs set the minimum / maximum values of the y-axis.
@@ -87,6 +86,26 @@ Alternatively, if \code{do.hover = TRUE} is added, outputs a plotly conversion o
 }
 \description{
 Outputs a stacked bar plot to show the percent composition of samples or other cell groupings
+}
+\details{
+The function creates a dataframe containing counts and percent makeup of \code{var} identities for each x-axis grouping (determined by the \code{group.by} input).
+If a set of cells to use is indicated with the \code{cells.use} input, only those cells are used for counts and percent makeup calculations.
+Then, a vertical bar plot is generated (\code{ggplot2::geom_col()}) showing either percent makeup if
+\code{scale = "percent"}, which is the default, or raw counts if \code{scale = "count"}.
+
+If \code{data.out} is set to \code{TRUE}, just the dataframe will be returned, and not the plot.
+
+If \code{do.hover} is set to \code{TRUE}, the ggplot will be converted to a plotly object and underlying data will be displayed upon hover.
+
+Many characteristics of the plot can be adjusted using discrete inputs:
+\itemize{
+\item{Colors can be adjusted with \code{color.panel} and/or \code{colors}.}
+\item{y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.}
+\item{Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.}
+\item{The legend can be removed by setting \code{legend.show = FALSE}.}
+\item{x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.}
+\item{y-axis \code{var}-group labels and their order can be changed / reordered using \code{var.labels} and \code{var.labels.reorder}.}
+}
 }
 \examples{
 library(Seurat)
