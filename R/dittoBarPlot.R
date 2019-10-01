@@ -30,6 +30,9 @@
 #' Values of \code{x.reorder} should be these indices, but in the order that you would like them rearranged to be.
 #' @param y.breaks Numeric vector which indicates the plots major gridlines. c(break1,break2,break3,etc.)
 #' Note: The maximum value of this vector will set the maximum value portrayed, even if the data extends beyond this value.
+#' @param min,max Scalars which control the zoom of the plot.
+#' These inputs set the minimum / maximum values of the y-axis.
+#' Default = set based on the limits of the data, 0 to 1 for \code{scale = "percent"}, or 0 to maximum count for 0 to 1 for \code{scale = "count"}.
 #' @param main String, sets the plot title
 #' @param sub String, sets the plot subtitle
 #' @param var.labels.rename String vector which renames for the identities of \code{var} groupings.
@@ -70,7 +73,8 @@ dittoBarPlot <- function(
     var, object = DEFAULT, group.by = "Sample", scale = c("percent", "count"),
     cells.use = NULL, data.out = FALSE, do.hover = FALSE,
     color.panel = dittoColors(), colors = seq_along(color.panel),
-    y.breaks = NA, var.labels.rename = NULL, var.labels.reorder = NULL,
+    y.breaks = NA, min = NULL, max = NULL,
+    var.labels.rename = NULL, var.labels.reorder = NULL,
     x.labels = NULL, x.labels.rotate = TRUE, x.reorder = NULL,
     theme = theme_classic(),
     xlab = group.by, ylab = "make", main = "make", sub = NULL,
@@ -153,14 +157,19 @@ dittoBarPlot <- function(
         y.breaks <- c(0,0.5,1)
     }
     if (!is.na(y.breaks[1])) {
-        p <- p + scale_y_continuous(
-            breaks= y.breaks, limits = c(0,max(y.breaks)))
+        p <- p + scale_y_continuous(breaks = y.breaks)
     }
+    if (is.null(min)) {
+        min <- min(eval(expr = parse(text = paste0("data$",y.show))))
+    }
+    if (is.null(max)) {
+        max <- max(eval(expr = parse(text = paste0("data$",y.show))))
+    }
+    p <- p + coord_cartesian(ylim=c(min,max))
 
     if (!legend.show) {
         p <- .remove_legend(p)
     }
-
     #DONE. Return the plot
     if (data.out) {
         return(data)

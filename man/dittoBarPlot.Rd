@@ -7,8 +7,8 @@
 dittoBarPlot(var, object = DEFAULT, group.by = "Sample",
   scale = c("percent", "count"), cells.use = NULL, data.out = FALSE,
   do.hover = FALSE, color.panel = dittoColors(),
-  colors = seq_along(color.panel), y.breaks = NA,
-  var.labels.rename = NULL, var.labels.reorder = NULL,
+  colors = seq_along(color.panel), y.breaks = NA, min = NULL,
+  max = NULL, var.labels.rename = NULL, var.labels.reorder = NULL,
   x.labels = NULL, x.labels.rotate = TRUE, x.reorder = NULL,
   theme = theme_classic(), xlab = group.by, ylab = "make",
   main = "make", sub = NULL, legend.show = TRUE,
@@ -40,6 +40,10 @@ NOTE: When \code{cells.use} is combined with \code{scale = "percent"} left out c
 
 \item{y.breaks}{Numeric vector which indicates the plots major gridlines. c(break1,break2,break3,etc.)
 Note: The maximum value of this vector will set the maximum value portrayed, even if the data extends beyond this value.}
+
+\item{min, max}{Scalars which control the zoom of the plot.
+These inputs set the minimum / maximum values of the y-axis.
+Default = set based on the limits of the data, 0 to 1 for \code{scale = "percent"}, or 0 to maximum count for 0 to 1 for \code{scale = "count"}.}
 
 \item{var.labels.rename}{String vector which renames for the identities of \code{var} groupings.}
 
