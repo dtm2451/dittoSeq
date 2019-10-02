@@ -304,3 +304,11 @@ test_that("dittoDimPlot lettering works", {
             opacity = 0.5),
         "ggplot")
 })
+
+test_that("dittoDimPlot can remove axes numbers", {
+    ### Manual Check: Numbers should be removed from the axes
+    expect_s3_class(
+        dittoDimPlot(
+            disc, pbmc, show.axes.numbers = FALSE),
+        "ggplot")
+})

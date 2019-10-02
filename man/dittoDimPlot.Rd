@@ -6,11 +6,11 @@
 \usage{
 dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   size = 1, opacity = 1, dim.1 = 1, dim.2 = 2, cells.use = NULL,
-  show.others = TRUE, color.panel = dittoColors(),
-  colors = seq_along(color.panel), shape.var = NULL,
-  shape.panel = c(16, 15, 17, 23, 25, 8), data.type = "normalized",
-  main = "make", sub = NULL, xlab = "make", ylab = "make",
-  theme = NA, numbers.show = TRUE, legend.show = TRUE,
+  show.others = TRUE, show.axes.numbers = TRUE,
+  color.panel = dittoColors(), colors = seq_along(color.panel),
+  shape.var = NULL, shape.panel = c(16, 15, 17, 23, 25, 8),
+  data.type = "normalized", main = "make", sub = NULL,
+  xlab = "make", ylab = "make", theme = NA, legend.show = TRUE,
   legend.size = 5, legend.title = if (is.null(shape.var)) {     NULL }
   else {     var }, shape.legend.size = 5,
   shape.legend.title = shape.var, do.ellipse = FALSE,
@@ -20,9 +20,9 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   max.color = "#0072B2", min = NULL, max = NULL,
   legend.breaks = waiver(), legend.breaks.labels = waiver(),
   do.letter = FALSE, do.hover = FALSE, hover.data = var,
-  hover.data.type = data.type, data.out = FALSE,
-  add.trajectories = NULL, trajectories.cluster.meta,
-  trajectories.arrow.size = 0.15)
+  hover.data.type = data.type, add.trajectories = NULL,
+  trajectories.cluster.meta, trajectories.arrow.size = 0.15,
+  data.out = FALSE)
 }
 \arguments{
 \item{var}{String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
@@ -40,8 +40,8 @@ Default = "tsne" for Seurat objects, and "pca" for RNAseq objects, and "TSNE" fo
 \item{size}{Number which sets the size of data points. Default = 1.}
 
 \item{opacity}{Number between 0 and 1.
-Great for when you have MANY overlapping points, this sets how solid the points should be;
-1 = not see-through at all; 0 = invisible. Default = 1.
+Great for when you have MANY overlapping points, this sets how solid the points should be:
+1 = not see-through at all. 0 = invisible. Default = 1.
 (In terms of typical ggplot variables, = alpha)}
 
 \item{dim.1}{The component number to use on the x-axis.  Default = 1}
@@ -52,7 +52,9 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
 
-\item{show.others}{Logical. TRUE by default, whether other cells should be shown in the background}
+\item{show.others}{Logical. TRUE by default, whether other cells should be shown in the background in light gray.}
+
+\item{show.axes.numbers}{Logical which controls whether the axes values should be displayed.}
 
 \item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.}
 
@@ -66,24 +68,28 @@ Even as a color blind person myself writing this code, I recommend use of colors
 \item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
 When nothing is supplied to \code{shape.var}, only the first value is used.
-Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.}
+Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.
+
+Note: Unfortunately, shapes can be hard to see when points are on top of each other & they are more slowly processed by the brain.
+For these reasons, even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.}
 
 \item{data.type}{For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".}
 
-\item{main}{String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.}
+\item{main}{String, sets the plot title.
+Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.}
 
 \item{sub}{String, sets the plot subtitle}
 
-\item{xlab, ylab}{Strings which set the labels for the axes. Default labels are generated if you do not give this a specific value. To remove, set to \code{NULL}.}
+\item{xlab, ylab}{Strings which set the labels for the axes.
+Default labels are generated if you do not give this a specific value.
+To remove, set to \code{NULL}.}
 
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_bw()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.}
-
-\item{numbers.show}{Logical which controls whether the axes values should be displayed.}
 
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 
 \item{legend.size}{Number representing the size to increase the plotting of color legend shapes to (for discrete variable plotting).
-Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.*}
+Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.}
 
 \item{legend.title}{String which sets the title for the main legend which includes the colors. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.}
 
@@ -122,14 +128,12 @@ TRUE by default.}
 NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.var} is provided a metadata because
 lettering is incompatible with plotly and with changing the dots' to be different shapes.}
 
-\item{do.hover}{Logical which controls whether the object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.
-'hover.data' argument is used to determine what data to use.}
+\item{do.hover}{Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
+\code{hover.data} argument is used to determine what data to use.}
 
-\item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when do.hover is set to \code{TRUE}.}
+\item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.}
 
 \item{hover.data.type}{Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.}
-
-\item{data.out}{Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
 
 \item{add.trajectories}{List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectories.cluster.meta} input.
 If Slingshot package was used for trajectory analysis, you can use \code{add.trajectories = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.}
@@ -137,6 +141,8 @@ If Slingshot package was used for trajectory analysis, you can use \code{add.tra
 \item{trajectories.cluster.meta}{String name of metadata containing the clusters that were used for generating trajectories. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectories} vectors.}
 
 \item{trajectories.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
+
+\item{data.out}{Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
 }
 \value{
 A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
@@ -150,19 +156,19 @@ The function creates a dataframe containing the metadata or expression data asso
 plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
 The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
 If a metadata is given to \code{shape.var}, that is retrieved and added to the dataframe as well.
-If a set of cells to use is indicated with the \code{cells.use} input, the the dataframe is split into Target_data and Others_data based on subsetting by the target cells.
+If a set of cells to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells.
 Finally, a scatter plot is then created using these dataframes where non-target cells will be displayed in gray if \code{show.others=TRUE},
 and target cell data is displayed on top, colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.var}-associated data.
 
-Many characteristics of the plot can be adjusted using discrete inputs, including \code{sizes} and \code{opacity} to adjust the size and transparency of the data points.
+If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
+
+Many characteristics of the plot can be adjusted using discrete inputs, including \code{size} and \code{opacity} to adjust the size and transparency of the data points.
 Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
 
 Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
 Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab-completion lookup.
 
-If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
-
-Additional Features: Many of other tweaks and features can be added as well.
+Additional Features: Many other tweaks and features can be added as well.
 Each is accessible through autocompletion starting with "\code{do.}"\code{---} or "\code{add.}"\code{---},
 and if additional inputs are involded in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
 \itemize{
@@ -203,6 +209,9 @@ dittoDimPlot("CD3E", add.trajectories = list(c(0:2), c(0,2)),
 }
 \seealso{
 \code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
+
+\code{\link{importDESeq2}} for how to create a bulk \code{\linkS4class{RNAseq}} data structure that dittoSeq functions can use &
+\code{\link{addDimReduction}} for how to add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 
 \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are the scatterplot axes.
 

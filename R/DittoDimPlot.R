@@ -16,8 +16,8 @@
 #' Default = "tsne" for Seurat objects, and "pca" for RNAseq objects, and "TSNE" for SingleCellExperiment objects.
 #' @param size Number which sets the size of data points. Default = 1.
 #' @param opacity Number between 0 and 1.
-#' Great for when you have MANY overlapping points, this sets how solid the points should be;
-#' 1 = not see-through at all; 0 = invisible. Default = 1.
+#' Great for when you have MANY overlapping points, this sets how solid the points should be:
+#' 1 = not see-through at all. 0 = invisible. Default = 1.
 #' (In terms of typical ggplot variables, = alpha)
 #' @param dim.1 The component number to use on the x-axis.  Default = 1
 #' @param dim.2 The component number to use on the y-axis.  Default = 2
@@ -32,21 +32,27 @@
 #' When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
 #' When nothing is supplied to \code{shape.var}, only the first value is used.
 #' Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.
+#'
+#' Note: Unfortunately, shapes can be hard to see when points are on top of each other & they are more slowly processed by the brain.
+#' For these reasons, even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
 #' @param legend.size Number representing the size to increase the plotting of color legend shapes to (for discrete variable plotting).
-#' Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.*
+#' Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.
 #' @param legend.title String which sets the title for the main legend which includes the colors. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.
 #' @param shape.legend.size Number representing the size to increase the plotting of shapes legend shapes to.
 #' @param shape.legend.title String which sets the title of the shapes legend.  Default is the \code{shape.var}
 #' @param data.type For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".
-#' @param main String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.
+#' @param main String, sets the plot title.
+#' Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.
 #' @param sub String, sets the plot subtitle
-#' @param xlab,ylab Strings which set the labels for the axes. Default labels are generated if you do not give this a specific value. To remove, set to \code{NULL}.
-#' @param numbers.show Logical which controls whether the axes values should be displayed.
+#' @param xlab,ylab Strings which set the labels for the axes.
+#' Default labels are generated if you do not give this a specific value.
+#' To remove, set to \code{NULL}.
+#' @param show.axes.numbers Logical which controls whether the axes values should be displayed.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
-#' @param show.others Logical. TRUE by default, whether other cells should be shown in the background
+#' @param show.others Logical. TRUE by default, whether other cells should be shown in the background in light gray.
 #' @param do.ellipse Logical. Whether the groups should be surrounded by an ellipse.
 #' @param do.label  Logical. Whether to add text labels at the center (median) of clusters for grouping vars
 #' @param labels.size Size of the the labels text
@@ -64,9 +70,9 @@
 #' @param do.letter Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
 #' NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.var} is provided a metadata because
 #' lettering is incompatible with plotly and with changing the dots' to be different shapes.
-#' @param do.hover Logical which controls whether the object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.
-#' 'hover.data' argument is used to determine what data to use.
-#' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when do.hover is set to \code{TRUE}.
+#' @param do.hover Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
+#' \code{hover.data} argument is used to determine what data to use.
+#' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
 #' @param hover.data.type Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.
 #' @param add.trajectories List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectories.cluster.meta} input.
 #' If Slingshot package was used for trajectory analysis, you can use \code{add.trajectories = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
@@ -80,19 +86,19 @@
 #' plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
 #' The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
 #' If a metadata is given to \code{shape.var}, that is retrieved and added to the dataframe as well.
-#' If a set of cells to use is indicated with the \code{cells.use} input, the the dataframe is split into Target_data and Others_data based on subsetting by the target cells.
+#' If a set of cells to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells.
 #' Finally, a scatter plot is then created using these dataframes where non-target cells will be displayed in gray if \code{show.others=TRUE},
 #' and target cell data is displayed on top, colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.var}-associated data.
 #'
-#' Many characteristics of the plot can be adjusted using discrete inputs, including \code{sizes} and \code{opacity} to adjust the size and transparency of the data points.
+#' If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
+#'
+#' Many characteristics of the plot can be adjusted using discrete inputs, including \code{size} and \code{opacity} to adjust the size and transparency of the data points.
 #' Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
 #'
 #' Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
 #' Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab-completion lookup.
 #'
-#' If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
-#'
-#' Additional Features: Many of other tweaks and features can be added as well.
+#' Additional Features: Many other tweaks and features can be added as well.
 #' Each is accessible through autocompletion starting with "\code{do.}"\code{---} or "\code{add.}"\code{---},
 #' and if additional inputs are involded in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
 #' \itemize{
@@ -110,6 +116,9 @@
 #'
 #' @seealso
 #' \code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
+#'
+#' \code{\link{importDESeq2}} for how to create a bulk \code{\linkS4class{RNAseq}} data structure that dittoSeq functions can use &
+#' \code{\link{addDimReduction}} for how to add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 #'
 #' \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are the scatterplot axes.
 #'
@@ -144,11 +153,12 @@
 dittoDimPlot <- function(
     var="ident", object = DEFAULT, reduction.use = NA, size=1, opacity = 1,
     dim.1 = 1, dim.2 = 2, cells.use = NULL, show.others=TRUE,
+    show.axes.numbers = TRUE,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     shape.var = NULL, shape.panel=c(16,15,17,23,25,8),
     data.type = "normalized",
     main = "make", sub = NULL, xlab = "make", ylab = "make",
-    theme = NA, numbers.show = TRUE, legend.show = TRUE, legend.size = 5,
+    theme = NA, legend.show = TRUE, legend.size = 5,
     legend.title = if(is.null(shape.var)){NULL}else{var},
     shape.legend.size = 5, shape.legend.title = shape.var,
     do.ellipse = FALSE, do.label = FALSE,
@@ -157,8 +167,9 @@ dittoDimPlot <- function(
     min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
     legend.breaks = waiver(), legend.breaks.labels = waiver(),
     do.letter = FALSE, do.hover = FALSE, hover.data = var,
-    hover.data.type = data.type, data.out = FALSE,
-    add.trajectories = NULL, trajectories.cluster.meta, trajectories.arrow.size = 0.15){
+    hover.data.type = data.type,
+    add.trajectories = NULL, trajectories.cluster.meta,
+    trajectories.arrow.size = 0.15, data.out = FALSE){
 
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
@@ -192,13 +203,15 @@ dittoDimPlot <- function(
                     panel.grid.minor = element_blank())
         }
     }
-    if (!numbers.show) {
+    if (!show.axes.numbers) {
         theme <- theme +
             theme(axis.text.x=element_blank(),axis.text.y=element_blank())
     }
+
+    # Make dataframes and plot
     p.df <- dittoScatterPlot(
         xdat$embeddings, ydat$embeddings, var, shape.var, object, cells.use,
-        show.others, color.panel, colors, size, opacity,
+        show.others, size, opacity, color.panel, colors,
         data.type.x = "normalized", data.type.y = "normalized",
         data.type, do.hover, hover.data, hover.data.type, shape.panel,
         rename.var.groups, rename.shape.groups, min.color, max.color, min, max,
@@ -363,10 +376,10 @@ dittoDimPlot <- function(
 #'
 #' @param vars               c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
 #' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param show.legend        Logical. Whether or not you would like a legend to be plotted.  Default = FALSE
+#' @param legend.show        Logical. Whether or not you would like a legend to be plotted.  Default = FALSE
 #' @param ncol               #. How many plots should be arranged per row.  Default = 3 unless \code{length(vars)} is shorter.
 #' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
-#' @param axes.labels        Logical. Whether a axis labels should be added
+#' @param axes.labels.show   Logical. Whether a axis labels should be added
 #' @param OUT.List           Logical. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.
 #' @param ...                other paramters that can be given to DBDimPlot function used in exactly the same way.
 #' @return Given multiple 'var' parameters, this function will output a DBDimPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each is 'var'.
@@ -382,10 +395,10 @@ dittoDimPlot <- function(
 
 multi_dittoDimPlot <- function(
     vars, object = DEFAULT, legend.show = FALSE, ncol = NULL, nrow = NULL,
-    axes.labels = FALSE, OUT.List = FALSE, ...) {
+    axes.labels.show = FALSE, OUT.List = FALSE, ...) {
 
-    #Interpret axes.labels: If left as FALSE, set lab to NULL so they will be removed.
-    lab <- if(!axes.labels) {
+    #Interpret axes.labels.show: If left as FALSE, set lab to NULL so they will be removed.
+    lab <- if(!axes.labels.show) {
         NULL
     } else {
         "make"
