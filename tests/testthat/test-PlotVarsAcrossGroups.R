@@ -23,7 +23,20 @@ test_that("dittoPlotVarsAcrossGroups can plot continuous metadata with all plot 
         "ggplot")
 })
 
-test_that("dittoPlotVarsAcrossGroups can work for continuous metadata", {
+test_that("dittoPlotVarsAcrossGroups can work for SE and RNAseq", {
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, pbmc.se, group.by = grp,
+            plots = c("vlnplot", "boxplot", "jitter")),
+        "ggplot")
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, pbmc.rnaseq, group.by = grp,
+            plots = c("ridgeplot", "jitter")),
+        "ggplot")
+})
+
+test_that("dittoPlotVarsAcrossGroups can work for metadata", {
     expect_s3_class(
         dittoPlotVarsAcrossGroups(
             c("number","number2"), pbmc, group.by = grp,

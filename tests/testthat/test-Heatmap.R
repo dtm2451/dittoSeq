@@ -5,11 +5,21 @@ pbmc@meta.data$number <- as.numeric(seq_along(colnames(pbmc)))
 pbmc@meta.data$number2 <- as.numeric(rev(seq_along(colnames(pbmc))))
 genes <- c("MS4A1","GNLY","CD3E","CD14","FCER1A","FCGR3A","LYZ","PPBP","CD8A")
 
-test_that("Heatmap can be plotted", {
+test_that("Heatmap can be plotted for Seurat, SCE, RNAseq", {
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = pbmc),
+        "pheatmap")
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc.se),
+        "pheatmap")
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc.rnaseq),
         "pheatmap")
 })
 
@@ -197,7 +207,3 @@ test_that("Coloring works for continuous column and row annotations", {
             cluster_cols = FALSE),
         "pheatmap")
 })
-
-
-
-

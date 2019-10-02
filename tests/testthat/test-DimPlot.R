@@ -31,10 +31,15 @@ test_that("dittoDimPlot can plot continuous or discrete data & raw or normalized
 })
 
 test_that("dittoDimPlot (and reduction.use defaults) work for sce too", {
-    # : these should look distinct
+    # SCE
     expect_s3_class(
         dittoDimPlot(
             disc, pbmc.se),
+        "ggplot")
+    # RNAseq
+    expect_s3_class(
+        dittoDimPlot(
+            disc, pbmc.rnaseq),
         "ggplot")
 })
 
@@ -101,10 +106,15 @@ test_that("dittoDimPlots can be subset to show only certain cells/samples with e
         "ggplot")
 })
 
-test_that("dittoDimPlot shapes can be a metadata and distinct from var", {
+test_that("dittoDimPlot shapes can be a metadata and the same as or distinct from var", {
     expect_s3_class(
         dittoDimPlot(
             cont, pbmc,
+            shape.var = disc),
+        "ggplot")
+    expect_s3_class(
+        dittoDimPlot(
+            disc, pbmc,
             shape.var = disc),
         "ggplot")
     expect_s3_class(
@@ -127,7 +137,7 @@ test_that("dittoDimPlot shapes can be adjusted in many ways", {
             cont, pbmc,
             shape.var = disc2, shape.legend.size = 10),
         "ggplot")
-    ### Manual check: Shapes legend should be removed
+    ### Manual check: Shapes legend title should be removed
     expect_s3_class(
         dittoDimPlot(
             cont, pbmc,

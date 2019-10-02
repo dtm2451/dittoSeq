@@ -15,6 +15,15 @@ test_that("VaryCells fxn can show continuous or discrete data", {
         "gtable")
 })
 
+test_that("VaryCells works for SCE and RNAseq", {
+    expect_s3_class(
+        multi_dittoDimPlotVaryCells(cont, pbmc.se, grp),
+        "gtable")
+    expect_s3_class(
+        multi_dittoDimPlotVaryCells(disc, pbmc.rnaseq, grp),
+        "gtable")
+})
+
 test_that("VaryCells fxn can output plots as a list", {
     expect_type(
         multi_dittoDimPlotVaryCells(cont, pbmc, grp,

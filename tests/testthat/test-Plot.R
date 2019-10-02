@@ -21,6 +21,19 @@ test_that("dittoPlot can plot continuous metadata with all plot types", {
         "ggplot")
 })
 
+test_that("dittoPlot can work for SCE and RNAseq", {
+    expect_s3_class(
+        dittoPlot(
+            "CD3E", pbmc.se, group.by = grp,
+            plots = c("vlnplot", "boxplot", "jitter")),
+        "ggplot")
+    expect_s3_class(
+        dittoPlot(
+            "CD3E", pbmc.rnaseq, group.by = grp,
+            plots = c("ridgeplot", "jitter")),
+        "ggplot")
+})
+
 test_that("dittoPlot can plot gene expression data with all plot types", {
     expect_s3_class(
         dittoPlot(

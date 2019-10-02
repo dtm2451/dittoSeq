@@ -22,8 +22,6 @@ test_that("Showing hover.data works for DimPlot", {
 })
 
 test_that("Showing hover.data works for BarPlot", {
-    # "Coloring works for discrete column and row annotations"
-        # If: annotations are all discrete.
     expect_s3_class(
         dittoBarPlot(
             "RNA_snn_res.0.8", object = pbmc,
@@ -33,8 +31,6 @@ test_that("Showing hover.data works for BarPlot", {
 })
 
 test_that("Showing hover.data works for Plot", {
-    # "Coloring works for discrete column and row annotations"
-        # If: annotations are all discrete.
     expect_s3_class(
         dittoPlot(
             "MS4A1", object = pbmc,
@@ -59,8 +55,6 @@ test_that("Showing hover.data works for Plot", {
 })
 
 test_that("Showing hover.data works for VarsAcrossGroups", {
-    # "Coloring works for discrete column and row annotations"
-        # If: annotations are all discrete.
     expect_s3_class(
         dittoPlotVarsAcrossGroups(c("MS4A1", "GNLY", "CD3E"),
             object = pbmc, group.by = "RNA_snn_res.1",

@@ -19,6 +19,19 @@ test_that("dittoBarPlot can quantify clustering of groupings in percent or raw c
         "ggplot")
 })
 
+test_that("dittoBarPlot works for SCE and RNAseq too", {
+    # SCE
+    expect_s3_class(
+        dittoBarPlot(
+            grp2, pbmc.se, group.by = grp3),
+        "ggplot")
+    # RNAseq
+    expect_s3_class(
+        dittoBarPlot(
+            grp2, pbmc.rnaseq, group.by = grp3),
+        "ggplot")
+})
+
 test_that("dittoBarPlots can be subset to show only certain cells/samples with either cells.use method", {
     expect_s3_class(
         c1 <- dittoBarPlot(

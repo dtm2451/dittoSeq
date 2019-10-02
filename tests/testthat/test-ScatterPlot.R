@@ -12,17 +12,18 @@ cells.names <- colnames(pbmc)[1:40]
 cells.logical <- c(rep(TRUE, 40), rep(FALSE,40))
 cols <- c("red", "blue", "yellow", "green", "black", "gray", "white")
 
-test_that("dittoScatterPlot can plot genes or metadata", {
+test_that("dittoScatterPlot can plot genes or metadata & work for SCE and RNAseq", {
     expect_s3_class(
         dittoScatterPlot(
             gene, cont, object = pbmc),
         "ggplot")
-})
-
-test_that("dittoScatterPlot can work with an sce", {
     expect_s3_class(
         dittoScatterPlot(
             gene, gene, object = pbmc.se),
+        "ggplot")
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, gene, object = pbmc.rnaseq),
         "ggplot")
 })
 
@@ -61,14 +62,4 @@ test_that("dittoScatterPlot gene display can utilize different data.types", {
             data.type.color = "raw.normalized.to.max",
             hover.data.type = "scaled"),
         "plotly")
-})
-
-test_that("dittoScatterPlot gene display can utilize different data.types, with SingleCellExperiment objects", {
-    expect_s3_class(
-        dittoScatterPlot(
-            gene, gene, gene, NULL, object = pbmc.se,
-            data.type.x = "raw",
-            data.type.y = "relative",
-            data.type.color = "normalized.to.max"),
-        "ggplot")
 })
