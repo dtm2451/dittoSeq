@@ -89,7 +89,7 @@ Outputs a stacked bar plot to show the percent composition of samples or other c
 }
 \details{
 The function creates a dataframe containing counts and percent makeup of \code{var} identities for each x-axis grouping (determined by the \code{group.by} input).
-If a set of cells to use is indicated with the \code{cells.use} input, only those cells are used for counts and percent makeup calculations.
+If a set of cells/samples to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
 Then, a vertical bar plot is generated (\code{ggplot2::geom_col()}) showing either percent makeup if
 \code{scale = "percent"}, which is the default, or raw counts if \code{scale = "count"}.
 
@@ -99,12 +99,12 @@ If \code{do.hover} is set to \code{TRUE}, the ggplot will be converted to a plot
 
 Many characteristics of the plot can be adjusted using discrete inputs:
 \itemize{
-\item{Colors can be adjusted with \code{color.panel} and/or \code{colors}.}
-\item{y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.}
-\item{Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.}
-\item{The legend can be removed by setting \code{legend.show = FALSE}.}
-\item{x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.}
-\item{y-axis \code{var}-group labels and their order can be changed / reordered using \code{var.labels} and \code{var.labels.reorder}.}
+\item Colors can be adjusted with \code{color.panel} and/or \code{colors}.
+\item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
+\item Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+\item The legend can be removed by setting \code{legend.show = FALSE}.
+\item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
+\item y-axis \code{var}-group labels and their order can be changed / reordered using \code{var.labels} and \code{var.labels.reorder}.
 }
 }
 \examples{

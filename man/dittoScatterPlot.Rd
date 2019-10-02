@@ -120,12 +120,13 @@ Makes a plot where colored dots and/or shapes representing individual cells/samp
 Show RNAseq data overlayed on a scatter plot
 }
 \details{
-This function creates a dataframe with the X and Y coordinates determined by \code{x.var} and \code{y.var},
+This function creates a dataframe with the X and Y coordinates determined by \code{x.var} and \code{y.var}.
 It then adds data for how coloring should be set if a \code{color.var} is given & for how shapes should be set if a \code{shape.var} is given.
-The \code{data.type} inputs (\code{.x}, \code{.y}, \code{.color}) can be used to change what slot of expression data is used when the target data is gene expression data.
-If a set of cells to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells.
+The \code{data.type} inputs (\code{.x}, \code{.y}, and \code{.color}) can be used to change what slot of expression data is used when the target data is gene expression data.
 
-Next, a scatter plot is then created using these dataframes.
+Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
+
+Finally, a scatter plot is then created using these dataframes.
 Non-target cells will be displayed in gray if \code{show.others=TRUE},
 and target cell data is displayed on top, colored and shaped based on the \code{color.var}- and \code{shape.var}-associated data.
 
@@ -134,12 +135,15 @@ If \code{data.out=TRUE}, a list containing three slots is output: the plot (name
 If \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly & cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
 upon hovering the cursor over the plot.
 
-Many characteristics of the plot can be adjusted using discrete inputs, including \code{size} and \code{opacity} to adjust the size and transparency of the data points.
-Colors can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
-Shapes can be adjusted with \code{shape.panel}.
-
-Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, \code{legend.color.title}, and \code{legend.shape.title} arguments.
-Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab-completion lookup.
+Many characteristics of the plot can be adjusted using discrete inputs:
+\itemize{
+\item \code{size} and \code{opacity} can be used to adjust the size and transparency of the data points.
+\item Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
+\item Shapes can be adjusted with \code{shape.panel}.
+\item Color and shape labels can be changed using \code{rename.color.groups} and \code{rename.shape.groups}.
+\item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+\item Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab-completion lookup.
+}
 }
 \examples{
 

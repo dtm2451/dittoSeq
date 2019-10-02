@@ -156,29 +156,36 @@ The function creates a dataframe containing the metadata or expression data asso
 plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
 The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
 If a metadata is given to \code{shape.var}, that is retrieved and added to the dataframe as well.
-If a set of cells to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells.
+
+Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
+
 Finally, a scatter plot is then created using these dataframes where non-target cells will be displayed in gray if \code{show.others=TRUE},
 and target cell data is displayed on top, colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.var}-associated data.
 
 If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
 
-Many characteristics of the plot can be adjusted using discrete inputs, including \code{size} and \code{opacity} to adjust the size and transparency of the data points.
-Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
+If \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly &
+cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed upon hovering the cursor over the plot.
 
-Titles can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
-Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab-completion lookup.
+Many characteristics of the plot can be adjusted using discrete inputs:
+\itemize{
+\item \code{size} and \code{opacity} can be used to adjust the size and transparency of the data points.
+\item Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
+\item Shapes can be adjusted with \code{shape.panel}.
+\item Color and shape labels can be changed using \code{rename.var.groups} and \code{rename.shape.groups}.
+\item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+\item Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab-completion lookup.
+}
 
 Additional Features: Many other tweaks and features can be added as well.
 Each is accessible through autocompletion starting with "\code{do.}"\code{---} or "\code{add.}"\code{---},
-and if additional inputs are involded in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
+and if additional inputs are involved in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
 \itemize{
-\item If \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly & cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
-upon hovering the cursor over the plot.
 \item If \code{do.label} is set to \code{TRUE}, labels will be added based on median centers of the discrete \code{var}-data groupings.
 The size of the text in the labels can be adjusted using the \code{labels.size} input.
 By default labels will repel eachother and the bounds of the plot, and labels will be highlighted with a white background.
 Either of these can be turned off by setting \code{labels.repel=FALSE} or \code{labels.highlight=FALSE},
-\item If \code{do.ellipse} is set to \code{TRUE}, ellipses will be added to highlight distinct \code{var}-data groups' positions based on median positions of the their cell/sample components.
+\item If \code{do.ellipse} is set to \code{TRUE}, ellipses will be added to highlight distinct \code{var}-data groups' positions based on median positions of their cell/sample components.
 \item If \code{add.trajectories} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectories.cluster.meta},
 then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
 Arrow size is controlled with the \code{trajectories.arrow.size} input.
