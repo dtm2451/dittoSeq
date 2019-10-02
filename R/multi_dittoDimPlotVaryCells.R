@@ -112,7 +112,7 @@ multi_dittoDimPlotVaryCells <- function(
         max = max, legend.show = show.legend.plots, data.type = data.type,
         color.panel = color.panel, ...)
     if (!is.null(plot.args$cells.use)) {
-        stop("Subsetting with cells.use is incopatible with this function.")
+        stop("Subsetting with cells.use is incompatible with this function.")
     }
     plots <- .make_vary_cell_plots(
         var, object, vary.cells.meta, cells.meta, vary.cells.levels,
