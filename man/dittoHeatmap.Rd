@@ -44,7 +44,7 @@ Default is a ramp from white to red with 25 slices.}
 
 \item{data.out}{Logical that changes the output of the function.
 If set to \code{TRUE}, the output will be a list containing the data that would have been used for generating the heatmap,
-and a String showing how \code{\link[pheatmap]{pheatmap}} would have been called.}
+and a String showing how \code{pheatmap} would have been called.}
 
 \item{highlight.genes}{String vector of genes whose names you would like to show. Only these genes will be named in the resulting heatmap.}
 
@@ -56,8 +56,8 @@ Note: if gene names are provided to \code{highlight.genes}, the \code{show.colna
 \value{
 A \code{pheatmap} object.
 Alternatively, if \code{data.out} was set to \code{TRUE}, a list containing
-\code{args} = a list of arguments passed to \code{pheatmap}, and
-and \code{call} = String showing how \code{pheatmap} would have been called.
+\code{args}, a list of arguments passed to \code{pheatmap}, and
+and \code{call}, a string showing how \code{pheatmap} would have been called.
 }
 \description{
 Given a set of genes, cells/samples, and metadata names for column annotations, it will retrieve the expression data for those genes and cells, and the annotation data for those cells.
@@ -66,28 +66,40 @@ It will then utilize these data to make a heatmap using the \code{\link[pheatmap
 \details{
 This function serves as a wrapper for creating pheatmap heatmaps from bulk or single-cell RNAseq data,
 by essentially automating the data extraction and annotation building steps.
+In order to use this function, you will need to have it installed.
 
-Provided with a set of \code{genes}, and an optional set of cells / samples to use (with the optional \code{cells.use} input),
-the function will extract the expression matrix for each of those genes and cells / samples.
-This matrix is either left as is for scaling in the ultimate pheatmap call (default) or scaled by dividing each row by its maximum value (\code{scaled.to.max = TRUE}).
+Provided with a set of \code{genes}, and an optional set of cells / samples to use (with the \code{cells.use} input),
+the function will extract the expression matrix for each of those genes for each of those cells / samples.
+This matrix is either left as is, default (for scaling within the ultimate call to pheatmap), or scaled by dividing each row by its maximum value (\code{scaled.to.max = TRUE}).
 
-When provided with a set of metadata slot names to use for building annotations (with the optional \code{annotation.metas} input),
-the relevant metadata is retrieved from the \code{object} and \code{\link[pheatmap]{pheatmap}}-ready annotations inputs
-are constructed.  The \code{\link[pheatmap]{pheatmap}}-inputs \code{annotation_col} and \code{annotation_colors} are generated.
-
-The input \code{annotation.colors} is used to establish the set of colors that should be used for building the \code{annotatio_colors} input.
-Note: Users can also provide an \code{annotation_row} dataframe (see \code{\link[pheatmap]{pheatmap}} for details) to add gene annotations.
-Colors for row annotations will still come from the \code{annotation.colors} input unless a user also provides their own \code{annotation_colors} list.
-
-When the name of a metadata slot is provided to \code{cell.names.meta}, cells/samples are renamed by the contents of that metadata.
-This matadata's values for each cell/sample are provided to pheatmap as the \code{labels_col} input so that they will be renamed.
-
-When the name of a subset of genes within the \code{genes} input are provided to \code{highlight.genes},
-The \code{labels_row} pheatmap input is utilized to make only those gene names display.
+When provided with a set of metadata slot names to use for building annotations (with the \code{annotation.metas} input),
+the relevant metadata is retrieved from the \code{object} and \code{pheatmap}-ready \code{annotation_col} input is generated.
+The input \code{annotation.colors} is used to establish the set of colors that should be used for building a \code{pheatmap}-ready \code{annotation_colors} input as well,
+unless such an input has been provided by the user.
+Note: Users can also provide an \code{annotation_row} dataframe for adding gene-annotations (See \code{\link[pheatmap]{pheatmap}} for details).
+Colors for row annotations will still come from the \code{annotation.colors} input unless a \code{pheatmap}-ready \code{annotation_colors} input is provided by the user.
 
 When \code{data.out} is set to \code{TRUE}, a list is output instead of running pheatmap and providing the heatmap plot as output.
 This list will contain a slot named \code{args} which includes the data matrix and all other arguments that would have been provided to the pheatmap call,
 as well as a slot named \code{call} which shows how pheatmap would have been called.
+
+Many additional characteristics of the plot can be adjusted using discrete inputs:
+\itemize{
+\item A plot title can be added with \code{main}.
+\item Gene or cell/sample annotations can be turned off with \code{show.rownames} and \code{show.colnames}, respectively, or...
+\itemize{
+\item Particular genes can also be selected for labeling using the \code{highlight.genes} input.
+\item Names of all cells/samples replaced with the contents of a metadata slot using the \code{cell.names.meta} input.
+}
+\item Additional tweaks are possible through use of \code{\link[pheatmap]{pheatmap}} inputs which will be directly passed through.
+Some examples of useful \code{pheatmap} parameters are:
+\itemize{
+\item \code{cluster_cols} and \code{cluster_rows} for controlling clustering.
+Note: It can take a long time to cluster thousands of samples or cells, so adding \code{cluster_cols=FALSE} can be quite useful when planning added tweaks.
+\item \code{treeheight_row} and \code{treeheight_col} for setting how large the trees on the side/top should be drawn.
+\item \code{cutree_col} and \code{cutree_row} for spliting the heatmap based on kmeans clustering
+}
+}
 }
 \note{
 For scRNAseq data, running with \code{cluster_cols=FALSE} first is recommended because clustering of thousands of cells can tak a long time!
@@ -147,10 +159,7 @@ dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 }
 \seealso{
 \code{\link[pheatmap]{pheatmap}}, for how to add additional heatmap tweaks.
-Some examples of useful \code{pheatmap} parameters are:
-\itemize{
-\item \code{cluster_cols} and \code{cluster_rows} for controlling clustering
-\item \code{treeheight_row} and \code{treeheight_col} for setting how large the trees on the side/top should be drawn.
-\item \code{cutree_col} and \code{cutree_row} for spliting the heatmap based on kmeans clustering
 }
+\author{
+Daniel Bunis
 }
