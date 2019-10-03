@@ -213,7 +213,7 @@
     if (!is.null(target)) {
         if (target==default.when) {
             if (null.if) {
-                NULL
+                target <- NULL
             } else {
                 target <- default
             }

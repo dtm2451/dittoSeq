@@ -98,37 +98,44 @@ test_that("dittoPlot shapes can be a metadata and distinct from group.by", {
         dittoPlot(
             "number", pbmc, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape = grp),
+            shape.var = grp),
         "ggplot")
     expect_s3_class(
         dittoPlot(
             "number", pbmc, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape = clr2),
+            shape.var = clr2),
         "ggplot")
 })
 
 test_that("dittoPlot shapes can be adjusted in many ways", {
+    # Shapes should be triangles instead of dots
+    expect_s3_class(
+        dittoPlot(
+            "number", pbmc, group.by = grp,
+            plots = c("vlnplot", "boxplot", "jitter"),
+            shape.panel = 17),
+        "ggplot")
     # Shapes should be dot and triangle instead of dot and square
     expect_s3_class(
         dittoPlot(
             "number", pbmc, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape = clr2, jitter.shapes = 16:19),
+            shape.var = clr2, shape.panel = 16:19),
         "ggplot")
     # Shapes should be enlarged in the legend
     expect_s3_class(
         dittoPlot(
             "number", pbmc, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape = clr2, jitter.shape.legend.size = 5),
+            shape.var = clr2, jitter.shape.legend.size = 5),
         "ggplot")
     # Shapes legend should be removed
     expect_s3_class(
         dittoPlot(
             "number", pbmc, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape = clr2, jitter.shape.legend.show = FALSE),
+            shape.var = clr2, jitter.shape.legend.show = FALSE),
         "ggplot")
 })
 

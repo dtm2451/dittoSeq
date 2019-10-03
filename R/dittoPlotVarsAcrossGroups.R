@@ -45,9 +45,9 @@
 #' @param add.line numeric value(s) where a dashed horizontal line should go
 #' @param line.linetype String which sets the type of line.  Any ggplot linetype should work.  Defaults to "dashed"
 #' @param line.color String that sets the color(s) of the horizontal line(s)
-#' @param jitter.size Scalare which sets the size of the jitter shapes.
+#' @param jitter.size Scalar which sets the size of the jitter shapes.
 #' @param jitter.width Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.
-#' @param jitter.color String which sets the color of the jitter shapes
+#' @param jitter.color String which sets the color of the jitter shapes.
 #' @param boxplot.width Scalar which sets the width/spread of the boxplot in the x direction
 #' @param boxplot.color String which sets the color of the lines of the boxplot
 #' @param boxplot.show.outliers Logical, whether outliers should by including in the boxplot.
@@ -121,6 +121,8 @@
 #'     genes, object = "pbmc",
 #'     group.by = "RNA_snn_res.1",
 #'     do.hover = TRUE)
+#'
+#' @author Daniel Bunis
 #' @export
 
 dittoPlotVarsAcrossGroups <- function(
@@ -178,11 +180,11 @@ dittoPlotVarsAcrossGroups <- function(
     #Add data and x/y adjustments & labels
     if(!("ridgeplot" %in% plots)) {
         p <- .dittoPlot_add_data_y_direction(
-            p, data, plots, xlab, ylab, 16, jitter.size, jitter.width,
+            p, data, plots, xlab, ylab, NULL, jitter.size, jitter.width,
             jitter.color, 16, NA, TRUE, boxplot.width, boxplot.color,
             boxplot.show.outliers, boxplot.fill, vlnplot.lineweight,
             vlnplot.width, vlnplot.scaling, add.line, line.linetype,
-            line.color, x.labels.rotate, do.hover, y.breaks, min, max)
+            line.color, x.labels.rotate, do.hover, y.breaks, min, max, object)
     } else {
         p <- .dittoPlot_add_data_x_direction(
             p, data, plots, xlab, ylab, jitter.size, jitter.color,

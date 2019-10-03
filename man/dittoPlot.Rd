@@ -7,21 +7,21 @@
 \title{Plots continuous data for cutomizable cells'/samples' groupings on a y-axis}
 \usage{
 dittoPlot(var, object = DEFAULT, group.by, color.by = group.by,
-  shape = 16, cells.use = NULL, plots = c("jitter", "vlnplot"),
+  shape.var = NULL, cells.use = NULL, plots = c("jitter", "vlnplot"),
   data.type = "normalized", do.hover = FALSE, hover.data = var,
   color.panel = dittoColors(), colors = seq_along(color.panel),
-  theme = theme_classic(), main = "make", sub = NULL,
-  ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
-  xlab = group.by, x.labels = NULL, x.labels.rotate = NA,
-  x.reorder = NULL, jitter.size = 1, jitter.width = 0.2,
-  jitter.color = "black", jitter.shapes = c(16, 15, 17, 23, 25, 8),
+  shape.panel = c(16, 15, 17, 23, 25, 8), theme = theme_classic(),
+  main = "make", sub = NULL, ylab = "make", y.breaks = NULL,
+  min = NULL, max = NULL, xlab = group.by, x.labels = NULL,
+  x.labels.rotate = NA, x.reorder = NULL, jitter.size = 1,
+  jitter.width = 0.2, jitter.color = "black",
   jitter.shape.legend.size = NA, jitter.shape.legend.show = TRUE,
   boxplot.width = 0.2, boxplot.color = "black",
   boxplot.show.outliers = NA, boxplot.fill = TRUE,
   vlnplot.lineweight = 1, vlnplot.width = 1,
   vlnplot.scaling = "area", ridgeplot.lineweight = 1,
   ridgeplot.scale = 1.25, add.line = NULL, line.linetype = "dashed",
-  line.color = "black", legend.show = TRUE, legend.title = NULL,
+  line.color = "black", legend.show = TRUE, legend.title = "make",
   data.out = FALSE)
 
 dittoRidgePlot(..., plots = c("ridgeplot"))
@@ -29,18 +29,18 @@ dittoRidgePlot(..., plots = c("ridgeplot"))
 dittoBoxPlot(..., plots = c("boxplot", "jitter"))
 }
 \arguments{
-\item{var}{Single String representing, a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
+\item{var}{Single string representing the name of a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
 This is the data that will be displayed.}
 
 \item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
 REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
-\item{group.by}{String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.}
+\item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups. REQUIRED.}
 
-\item{color.by}{String representing the name of a "metadata" to use for setting color.
+\item{color.by}{String representing the name of a metadata to use for setting color.
 Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so this input can be skipped if both are the same.}
 
-\item{shape}{Integer representing a ggplot shape, OR String representing the name of a "metadata" to use for setting the shape of the jitter points.  Default = 16, dots.}
+\item{shape.var}{Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -61,6 +61,11 @@ Note: Currently, incompatible with RidgePlots as plotly does not support the geo
 \item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default.}
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
+
+\item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
+When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes which will be used.
+When nothing is supplied to \code{shape.var}, only the first value is used.
+Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.}
 
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_classic()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.}
 
@@ -92,19 +97,16 @@ Method: Make a first plot without this input.
 Then, treating the leftmost grouping as index 1, and the rightmost as index n.
 Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.}
 
-\item{jitter.size}{Scalare which sets the size of the jitter shapes.}
+\item{jitter.size}{Scalar which sets the size of the jitter shapes.}
 
 \item{jitter.width}{Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.}
 
 \item{jitter.color}{String which sets the color of the jitter shapes}
 
-\item{jitter.shapes}{Integer vector representing which shapes to use. Default is the first in the list, 16, which corresponds to dots.
-When jitter shape is determined by a variable, more of this input is used.}
-
 \item{jitter.shape.legend.size}{Scalar which changes the size of the shape key in the legend.
 If set to \code{NA}, \code{jitter.size} is used.}
 
-\item{jitter.shape.legend.show}{Logical which sets whether the shapes legend will be shown is \code{shape} when jitter shape is determined by a variable.}
+\item{jitter.shape.legend.show}{Logical which sets whether the shapes legend will be shown is \code{shape.var} when jitter shape is determined by a variable.}
 
 \item{boxplot.width}{Scalar which sets the width/spread of the boxplot in the x direction}
 
@@ -161,19 +163,28 @@ Then, a plot where data is grouped by the \code{group.by} metadata and colored b
 The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
 Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
 Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
-Each plot type has specific associated options which are controlled by variables that start with their associated string, ex: \code{jitter.size}.
 
-\code{dittoRidgePlot} and \code{dittoBoxPlot} are included as wrappers of the basic \code{dittoPlot} function that just changes the default for the \code{plots} input to be \code{"ridgeplot"} and \code{c("boxplot","jitter")}, respectively.
-
-A number of other tweaks and features can be added as well:
+\code{dittoRidgePlot} and \code{dittoBoxPlot} are included as wrappers of the basic \code{dittoPlot} function.
+They change the default for the \code{plots} input to be \code{"ridgeplot"} and \code{c("boxplot","jitter")}, respectively.
 
 If \code{data.out=TRUE}, a list containing the plot (\code{p}) and a the dataframe containing the underlying data (\code{data}) are returned.
 
 If \code{do.hover=TRUE}, cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
 upon hovering the cursor over a jitter point.
 
-If \code{add.line}, is provided a single or multiple value(s), horizontal (or vertical, for ridgeplots) lines will be added at the values provided.
+Many characteristics of the plot can be adjusted using discrete inputs:
+\itemize{
+\item Each data representation has options which are controlled by variables that start with their associated string.
+For example, all jitter adjustments, like \code{jitter.size}, start with "\code{jitter.}".
+\item Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
+\item Shapes used in conjunction with \code{shape.var} can be adjusted with \code{shape.panel}.
+\item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+\item The legend can be hidden by setting \code{legend.show = TRUE}.
+\item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
+\item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
+\item Single or multiple value(s) can be provided to \code{add.line} to add horizontal (or vertical, for ridgeplots) lines at the values provided.
 Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
+}
 }
 \section{Functions}{
 \itemize{
@@ -208,9 +219,13 @@ dittoBoxPlot("CD14", group.by = "RNA_snn_res.1")
 #     Note: ggplotly plots ignores certain dittoSeq plot tweaks.
 dittoBoxPlot("CD14", group.by = "RNA_snn_res.1",
     do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
+
 }
 \seealso{
 \code{\link{multi_dittoPlot}} for easy creation of multiple dittoPlots that each focus on a different \code{var}
 
 \code{\link{dittoPlotVarsAcrossGroups}} to create dittoPlots that show summarized the expression (or value for metadatas), accross groups, of multiple \code{vars} in a single plot.
+}
+\author{
+Daniel Bunis
 }

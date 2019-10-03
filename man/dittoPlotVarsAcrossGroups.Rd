@@ -83,11 +83,11 @@ Values of x.reorder should be these indices, but in the order that you would lik
 
 \item{theme}{ggplot theme. Allows setting of a base theme. Default = \code{theme_classic()} when nothing is provided. \code{theme_bw()} is another great option.}
 
-\item{jitter.size}{Scalare which sets the size of the jitter shapes.}
+\item{jitter.size}{Scalar which sets the size of the jitter shapes.}
 
 \item{jitter.width}{Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.}
 
-\item{jitter.color}{String which sets the color of the jitter shapes}
+\item{jitter.color}{String which sets the color of the jitter shapes.}
 
 \item{boxplot.width}{Scalar which sets the width/spread of the boxplot in the x direction}
 
@@ -182,7 +182,11 @@ dittoPlotVarsAcrossGroups(
     genes, object = "pbmc",
     group.by = "RNA_snn_res.1",
     do.hover = TRUE)
+
 }
 \seealso{
 \code{\link{dittoPlot}} and \code{\link{multi_dittoPlot}} for plotting of expression and metadata on per cell/sample basis.
+}
+\author{
+Daniel Bunis
 }

@@ -3,14 +3,14 @@
 #' Plots continuous data for cutomizable cells'/samples' groupings on a y-axis
 #' @import ggplot2
 #'
-#' @param var Single String representing, a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
+#' @param var Single string representing the name of a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
 #' This is the data that will be displayed.
 #' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
-#' @param group.by String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.
-#' @param color.by String representing the name of a "metadata" to use for setting color.
+#' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups. REQUIRED.
+#' @param color.by String representing the name of a metadata to use for setting color.
 #' Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so this input can be skipped if both are the same.
-#' @param shape Integer representing a ggplot shape, OR String representing the name of a "metadata" to use for setting the shape of the jitter points.  Default = 16, dots.
+#' @param shape.var Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
@@ -24,6 +24,10 @@
 #' @param hover.data String vector, a list of variable names, c("meta1","gene1","meta2","gene2") which determines what data to show upon hover when do.hover is set to \code{TRUE}.
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
+#' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
+#' When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes which will be used.
+#' When nothing is supplied to \code{shape.var}, only the first value is used.
+#' Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.
 #' @param main String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.
 #' @param sub String, sets the plot subtitle
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_classic()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.
@@ -47,14 +51,12 @@
 #' @param add.line numeric value(s) where a dashed horizontal line should go
 #' @param line.linetype String which sets the type of line.  Any ggplot linetype should work.  Defaults to "dashed"
 #' @param line.color String that sets the color(s) of the horizontal line(s)
-#' @param jitter.size Scalare which sets the size of the jitter shapes.
+#' @param jitter.size Scalar which sets the size of the jitter shapes.
 #' @param jitter.width Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.
 #' @param jitter.color String which sets the color of the jitter shapes
-#' @param jitter.shapes Integer vector representing which shapes to use. Default is the first in the list, 16, which corresponds to dots.
-#' When jitter shape is determined by a variable, more of this input is used.
 #' @param jitter.shape.legend.size Scalar which changes the size of the shape key in the legend.
 #' If set to \code{NA}, \code{jitter.size} is used.
-#' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown is \code{shape} when jitter shape is determined by a variable.
+#' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown is \code{shape.var} when jitter shape is determined by a variable.
 #' @param boxplot.width Scalar which sets the width/spread of the boxplot in the x direction
 #' @param boxplot.color String which sets the color of the lines of the boxplot
 #' @param boxplot.show.outliers Logical, whether outliers should by including in the boxplot.
@@ -86,20 +88,28 @@
 #' The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
 #' Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
 #' Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
-#' Each plot type has specific associated options which are controlled by variables that start with their associated string, ex: \code{jitter.size}.
 #'
-#' \code{dittoRidgePlot} and \code{dittoBoxPlot} are included as wrappers of the basic \code{dittoPlot} function that just changes the default for the \code{plots} input to be \code{"ridgeplot"} and \code{c("boxplot","jitter")}, respectively.
-#'
-#' A number of other tweaks and features can be added as well:
+#' \code{dittoRidgePlot} and \code{dittoBoxPlot} are included as wrappers of the basic \code{dittoPlot} function.
+#' They change the default for the \code{plots} input to be \code{"ridgeplot"} and \code{c("boxplot","jitter")}, respectively.
 #'
 #' If \code{data.out=TRUE}, a list containing the plot (\code{p}) and a the dataframe containing the underlying data (\code{data}) are returned.
 #'
 #' If \code{do.hover=TRUE}, cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
 #' upon hovering the cursor over a jitter point.
 #'
-#' If \code{add.line}, is provided a single or multiple value(s), horizontal (or vertical, for ridgeplots) lines will be added at the values provided.
+#' Many characteristics of the plot can be adjusted using discrete inputs:
+#' \itemize{
+#' \item Each data representation has options which are controlled by variables that start with their associated string.
+#' For example, all jitter adjustments, like \code{jitter.size}, start with "\code{jitter.}".
+#' \item Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
+#' \item Shapes used in conjunction with \code{shape.var} can be adjusted with \code{shape.panel}.
+#' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+#' \item The legend can be hidden by setting \code{legend.show = TRUE}.
+#' \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
+#' \item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
+#' \item Single or multiple value(s) can be provided to \code{add.line} to add horizontal (or vertical, for ridgeplots) lines at the values provided.
 #' Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
-#'
+#' }
 #' @seealso
 #' \code{\link{multi_dittoPlot}} for easy creation of multiple dittoPlots that each focus on a different \code{var}
 #'
@@ -131,25 +141,29 @@
 #' #     Note: ggplotly plots ignores certain dittoSeq plot tweaks.
 #' dittoBoxPlot("CD14", group.by = "RNA_snn_res.1",
 #'     do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
+#'
+#' @author Daniel Bunis
 #' @export
 
 dittoPlot <- function(
-    var, object = DEFAULT, group.by, color.by = group.by, shape = 16,
+    var, object = DEFAULT, group.by, color.by = group.by,
+    shape.var = NULL,
     cells.use = NULL, plots = c("jitter","vlnplot"), data.type = "normalized",
     do.hover = FALSE, hover.data = var,
     color.panel = dittoColors(), colors = seq_along(color.panel),
+    shape.panel = c(16,15,17,23,25,8),
     theme = theme_classic(), main = "make", sub = NULL,
     ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
     xlab = group.by, x.labels = NULL, x.labels.rotate = NA, x.reorder = NULL,
     jitter.size=1, jitter.width=0.2, jitter.color = "black",
-    jitter.shapes=c(16,15,17,23,25,8), jitter.shape.legend.size = NA,
+    jitter.shape.legend.size = NA,
     jitter.shape.legend.show = TRUE,
     boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA,
     boxplot.fill =TRUE,
     vlnplot.lineweight = 1, vlnplot.width = 1, vlnplot.scaling = "area",
     ridgeplot.lineweight = 1, ridgeplot.scale = 1.25,
     add.line = NULL, line.linetype = "dashed", line.color = "black",
-    legend.show = TRUE, legend.title = NULL, data.out = FALSE){
+    legend.show = TRUE, legend.title = "make", data.out = FALSE){
 
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
@@ -160,29 +174,21 @@ dittoPlot <- function(
     all.cells <- .all_cells(object)
 
     #Parse Title Defaults
-    #ylab
-    if ((!is.null(ylab)) && length(var)==1 && is.character(var)) {
-        if (is.gene(var, object) && ylab == "make") {
-            ylab <- paste0(var," expression")
-        }
-        if (ylab == "make" | ylab=="var") {
-            ylab <- var
-        }
-    } else if ((!is.null(ylab)) && ylab == "make") {
-        ylab <- NULL
+    exp <- NULL
+    if (is.gene(var[1], object)) {
+        exp <- " expression"
     }
-    #main
-    if (!is.null(main) && main == "make") {
-        if (length(var)==1) {
-            main <- var
-        } else {
-            main <- NULL
-        }
-    }
+    ylab <- .leave_default_or_null(ylab,
+        default = paste0(var,exp),
+        null.if = !(length(var)==1 && is.character(var)))
+    main <- .leave_default_or_null(ylab, var,
+        null.if = !(length(var)==1 && is.character(var)))
+    legend.title <- .leave_default_or_null(legend.title, var,
+        null.if = is.null(shape.var))
 
     #Grab the data
-    if (is.meta(shape, object)) {
-        extra.vars = shape
+    if (!is.null(shape.var) && is.meta(shape.var, object)) {
+        extra.vars = shape.var
     } else {
         extra.vars = NULL
     }
@@ -199,12 +205,12 @@ dittoPlot <- function(
         ggtitle(main, sub)
     if(!("ridgeplot" %in% plots)) {
         p <- .dittoPlot_add_data_y_direction(
-            p, Target_data, plots, xlab, ylab, shape, jitter.size,
-            jitter.width, jitter.color,jitter.shapes, jitter.shape.legend.size,
+            p, Target_data, plots, xlab, ylab, shape.var, jitter.size,
+            jitter.width, jitter.color, shape.panel, jitter.shape.legend.size,
             jitter.shape.legend.show, boxplot.width, boxplot.color,
             boxplot.show.outliers, boxplot.fill, vlnplot.lineweight,
             vlnplot.width, vlnplot.scaling, add.line, line.linetype,
-            line.color, x.labels.rotate, do.hover, y.breaks, min, max)
+            line.color, x.labels.rotate, do.hover, y.breaks, min, max, object)
     } else {
         p <- .dittoPlot_add_data_x_direction(
             p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
@@ -280,6 +286,8 @@ dittoPlot <- function(
 #'             nrow = 2, ncol = 2,              #Make it 2x2
 #'             add.title = FALSE, ylab = "var", #Add y axis labels without "expression"
 #'             show.legend = TRUE)              #Show legends
+#'
+#' @author Daniel Bunis
 #' @export
 
 multi_dittoPlot <- function(
@@ -336,12 +344,13 @@ dittoRidgePlot <- function(..., plots = c("ridgeplot")){ dittoPlot(..., plots = 
 dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plots = plots) }
 
 .dittoPlot_add_data_y_direction <- function(
-    p, Target_data, plots, xlab, ylab, shape,
-    jitter.size, jitter.width, jitter.color,jitter.shapes,
+    p, Target_data, plots, xlab, ylab, shape.var,
+    jitter.size, jitter.width, jitter.color,shape.panel,
     jitter.shape.legend.size, jitter.shape.legend.show,
     boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
     vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
-    line.linetype, line.color, x.labels.rotate, do.hover, y.breaks, min, max) {
+    line.linetype, line.color, x.labels.rotate, do.hover, y.breaks, min, max,
+    object) {
     # This function takes in a partial dittoPlot ggplot object without any data
     # overlay, and parses adding the main data visualizations.
     # Adds plots based on what is requested in plots, ordered by their order.
@@ -360,8 +369,17 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 
     # Add Plots
     for (i in seq_along(plots)) {
+        if (plots[i] == "vlnplot") {
+            p <- p + geom_violin(
+                size = vlnplot.lineweight,
+                width = vlnplot.width,
+                scale = vlnplot.scaling)
+        }
         if (plots[i] == "boxplot") {
-            boxplot.args <- list(width=boxplot.width, color = boxplot.color, alpha = ifelse(boxplot.fill, 1, 0))
+            boxplot.args <- list(
+                width=boxplot.width,
+                color = boxplot.color,
+                alpha = ifelse(boxplot.fill, 1, 0))
             if (is.na(boxplot.show.outliers)) {
                 boxplot.show.outliers <- ifelse("jitter" %in% plots, FALSE, TRUE)
             }
@@ -371,35 +389,37 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
             p <- p + do.call(geom_boxplot, boxplot.args)
         }
         if (plots[i] == "jitter") {
-            jitter.args <- list(size=jitter.size, width=jitter.width, height = 0, color = jitter.color)
-            #If shape.by metadata given, use it. Else, shapes[1] which = dots (16) by default
-            if (is.character(shape)){
+            jitter.args <- list(
+                size=jitter.size,
+                width=jitter.width,
+                height = 0,
+                color = jitter.color)
+            #If shape.var metadata given, use it. Else, shapes[1] which = dots (16) by default
+            if (!is.null(shape.var) && is.meta(shape.var, object)) {
                 #Make jitter with shapes
                 jitter.args$mapping <- if (do.hover) {
-                    aes_string(shape = shape, text = "hover.string")
+                    aes_string(shape = shape.var, text = "hover.string")
                 } else {
-                    aes_string(shape = shape)
+                    aes_string(shape = shape.var)
                 }
                 p <- p + do.call(geom_jitter, jitter.args) +
                     scale_shape_manual(
-                        values = jitter.shapes[seq_along(
-                            levels(as.factor(as.character(Target_data[,shape==names(Target_data)])))
-                            )])
+                        values = shape.panel[seq_along(meta.levels(
+                            shape.var, object, rownames(Target_data)))])
                 if (!is.na(jitter.shape.legend.size)){
-                    p <- p + guides(shape = guide_legend(override.aes = list(size=jitter.shape.legend.size)))
+                    p <- p + guides(shape = guide_legend(
+                        override.aes = list(size=jitter.shape.legend.size)))
                 }
                 if (jitter.shape.legend.show==FALSE){
                     p <- p + guides(shape = "none")
                 }
             } else {
-                jitter.args$mapping <- if (do.hover) {
-                    aes_string(text = "hover.string")
+                if (do.hover) {
+                    jitter.args$mapping <- aes_string(text = "hover.string")
                 }
+                jitter.args$shape <- shape.panel[1]
                 p <- p + do.call(geom_jitter, jitter.args)
             }
-        }
-        if (plots[i] == "vlnplot") {
-            p <- p + geom_violin(size = vlnplot.lineweight, width = vlnplot.width, scale = vlnplot.scaling)
         }
     }
 
@@ -462,21 +482,6 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 
     p
 }
-
-
-# #' Gathers data for single-axis plotting functions
-# #' @import ggplot2
-# #'
-# #' @param main.var Character representing the name of a metadata, gene, or "ident" to be plotted. OR character, numeric, or factor vector of length equal to the total # cells in the dataset.
-# #' @param object                 the Seurat or RNAseq Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
-# #' @param group.by               "metadata" to use for separating values. REQUIRED.
-# #' @param color.by               "metadata" to use for coloring. Affects boxplot and vlnplot fills. REQUIRED when using either.
-# #' @param extra.vars               "metadata" to use for setting the shape of jitter.  Default = just dots. Ignored if not a "quoted" metadata or "ident"
-# #' @param cells.use              Cells to include: either in the form of a character list of names, or a logical that is the same length as the number of cells in the object (a.k.a. USE in object@cell.names[USE])
-# #' @param data.type              For when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
-# #' @param do.hover               TRUE/FALSE. Default = FALSE.  If set to true (and if there is a jitter plotted - the data it will work with) : object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.  'hover.data' argument is used to determine what data to use.
-# #' @param hover.data             list of variable names, c("meta1","gene1","meta2","gene2"). determines what data to show on hover when do.hover is set to TRUE.
-# #' @return Generates Target_data and Others_data data.frames for use by single-axis dittoSeq plotters.
 
 .dittoPlot_data_gather <- function(
     main.var, object = DEFAULT, group.by = "Sample", color.by = group.by,
