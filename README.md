@@ -39,7 +39,7 @@ NOTE: I use this package daily, and am constantly coming up with new ideas for t
 - dittoBarPlot
 - dittoPlotVarsAcrossGroups (old = DBPlor_multi_var_summary)
 - multi_dittoDimPlotVaryCells
-- **All plotting functions have not been updated**
+- **All plotting functions have now been updated**
   
 **Entirely new functions in the development branch:**
 
