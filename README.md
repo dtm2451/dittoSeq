@@ -18,13 +18,15 @@ Additionally, contains import functions for [Demuxlet](https://github.com/statge
 ## News: version 0.3.0 is on the way:
 
 Includes lots of new features!
+
   - Bulk RNAseq compatibility for Limma-voom processed data [planning stages].
   - `dittoScatterPlot()` which allows plotting of gene x gene / metadata x metadata / gene x metadata.  Great for examining raw droplet data QC, or potential marker gene RNA or CITE-seq expression.
   - `dittoDimPlot` supports overlay of cluster-based trajectories paths in any dimensionality reduction space.
   - Retrieval of underlying data as a dataframe or matrix that is as simple as adding `data.out = TRUE`
   - Many more!
 
-Other updates since version 0.2: 
+Other updates since version 0.2:
+
 - Documentation overhaul for most functions with plenty of example code added.
 - The package is now camelCase, **d**ittoSeq, to go along with typical conventions.
 - Visualization names all start with `ditto...` and `multi_ditto...` instead of `DB...` and `multiDB...` Example: `dittoDimPlot` and `multi_dittoDimPlot`.
