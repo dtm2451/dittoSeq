@@ -26,4 +26,8 @@ gene("CD14", object = "pbmc")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
 gene("CD14")
+
+}
+\author{
+Daniel Bunis
 }

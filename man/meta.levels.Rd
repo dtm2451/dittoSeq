@@ -29,6 +29,7 @@ meta.levels("RNA_snn_res.1", object = "pbmc")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
 meta.levels("RNA_snn_res.1")
+
 }
 \seealso{
 \code{\link{meta}} for returning an entire metadata slots of an \code{object}, not just the potential levels
@@ -36,4 +37,7 @@ meta.levels("RNA_snn_res.1")
 \code{\link{get.metas}} for returning all metadata slots of an \code{object}
 
 \code{\link{is.meta}} for testing whether something is the name of a metadata slot
+}
+\author{
+Daniel Bunis
 }

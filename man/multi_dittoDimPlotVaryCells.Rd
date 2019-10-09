@@ -114,3 +114,6 @@ multi_dittoDimPlotVaryCells("RNA_snn_res.0.8", vary.cells.meta = "ident")
 
 \code{\link{multi_dittoDimPlot}} for plotting distinct \code{var}s accross plots instead of disctinct cells
 }
+\author{
+Daniel Bunis
+}

@@ -28,4 +28,8 @@ pbmc <- Seurat::pbmc_small
 Simulate("deutan", dittoDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
 Simulate("protan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
 Simulate("tritan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
+
+}
+\author{
+Daniel Bunis
 }

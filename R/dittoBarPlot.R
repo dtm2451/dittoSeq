@@ -86,6 +86,8 @@
 #' # through hovering the cursor over the relevant parts of the plot
 #' dittoBarPlot("RNA_snn_res.0.8", object = "pbmc", group.by = "ident",
 #'     do.hover = TRUE)
+#'
+#' @author Daniel Bunis
 #' @export
 
 dittoBarPlot <- function(

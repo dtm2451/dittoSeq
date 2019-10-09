@@ -83,3 +83,6 @@ dittoDimPlot("batch", myRNA, reduction.use = "pca", size = 3)
 
 \code{\linkS4class{RNAseq}} for learning more about the \code{RNAseq} object type
 }
+\author{
+Daniel Bunis
+}

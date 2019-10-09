@@ -114,7 +114,7 @@ Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for
 \item{data.out}{Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
 }
 \value{
-Makes a plot where colored dots and/or shapes representing individual cells/samples are overlayed onto a scatterplot where x and y can be gene expression (or any numeric metadata) of those cells/samples.
+Makes a scatterplot from (sc)RNAseq data where colored dots and/or shapes represent individual cells/samples.  X and Y can be gene expression (or any numeric metadata) of those cells/samples.
 }
 \description{
 Show RNAseq data overlayed on a scatter plot
@@ -178,4 +178,7 @@ dittoScatterPlot(
 \code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.var}, and \code{hover.data} options are.
 
 \code{\link{dittoDimPlot}} for making very similar data representations, but where dimensionality reduction (PCA, t-SNE, UMAP, etc.) dimensions are the scatterplot axes.
+}
+\author{
+Daniel Bunis
 }

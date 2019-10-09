@@ -48,3 +48,6 @@ This slot can hold data of any type, including a list of multiple data objects.}
 \code{\link{addPrcomp}} and \code{\link{addDimReduction}} for how to add dimensionality reductions to an \code{RNAseq} object for use in
 \code{\link{dittoDimPlot}} visualizations.
 }
+\author{
+Daniel Bunis
+}

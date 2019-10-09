@@ -49,3 +49,6 @@ is.gene(c("CD14", "IL32", "CD3E", "CD12345"), return.values = TRUE)
 
 \code{\link{gene}} for obtaining the expression data of genes
 }
+\author{
+Daniel Bunis
+}

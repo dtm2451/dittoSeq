@@ -34,6 +34,7 @@
 #' # return.values input is especially useful in these cases.
 #' is.gene(c("CD14", "IL32", "CD3E", "CD12345"), return.values = TRUE)
 #'
+#' @author Daniel Bunis
 #' @export
 
 is.gene <- function(test, object=DEFAULT, return.values = FALSE){
@@ -64,6 +65,7 @@ is.gene <- function(test, object=DEFAULT, return.values = FALSE){
 #' # To see all genes of an object
 #' get.genes(pbmc)
 #'
+#' @author Daniel Bunis
 #' @export
 
 get.genes <- function(object=DEFAULT){
@@ -87,6 +89,8 @@ get.genes <- function(object=DEFAULT){
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' gene("CD14")
+#'
+#' @author Daniel Bunis
 #' @export
 
 gene <- function(gene, object=DEFAULT, data.type = "normalized"){

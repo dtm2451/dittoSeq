@@ -37,6 +37,7 @@
 #' is.meta(c("age","nCount_RNA", "RNA_snn_res.0.8"),
 #'     return.values = TRUE)
 #'
+#' @author Daniel Bunis
 #' @export
 #' @import ggplot2
 #' @importFrom utils packageVersion
@@ -77,6 +78,7 @@ is.meta <- function(test, object=DEFAULT, return.values=FALSE){
 #' # To retrieve the entire metadata matrix
 #' get.metas(pbmc, names.only = FALSE)
 #'
+#' @author Daniel Bunis
 #' @export
 
 get.metas <- function(object=DEFAULT, names.only = TRUE){
@@ -117,6 +119,7 @@ get.metas <- function(object=DEFAULT, names.only = TRUE){
 #' DEFAULT <- "pbmc"
 #' meta("RNA_snn_res.1")
 #'
+#' @author Daniel Bunis
 #' @export
 
 meta <- function(meta, object=DEFAULT){
@@ -160,6 +163,8 @@ meta <- function(meta, object=DEFAULT){
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' meta.levels("RNA_snn_res.1")
+#'
+#' @author Daniel Bunis
 #' @export
 
 meta.levels <- function(meta, object = DEFAULT, cells.use = NULL){

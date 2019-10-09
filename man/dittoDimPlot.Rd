@@ -11,8 +11,7 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   shape.var = NULL, shape.panel = c(16, 15, 17, 23, 25, 8),
   data.type = "normalized", main = "make", sub = NULL,
   xlab = "make", ylab = "make", theme = NA, legend.show = TRUE,
-  legend.size = 5, legend.title = if (is.null(shape.var)) {     NULL }
-  else {     var }, shape.legend.size = 5,
+  legend.size = 5, legend.title = "make", shape.legend.size = 5,
   shape.legend.title = shape.var, do.ellipse = FALSE,
   do.label = FALSE, labels.size = 5, labels.highlight = TRUE,
   labels.repel = TRUE, rename.var.groups = NULL,
@@ -225,4 +224,7 @@ dittoDimPlot("CD3E", add.trajectories = list(c(0:2), c(0,2)),
 \code{\link{dittoPlot}} for an alternative continuous data display method where data is shown on a y- (or x-) axis.
 
 \code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
+}
+\author{
+Daniel Bunis
 }

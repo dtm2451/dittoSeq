@@ -133,6 +133,7 @@
 #'
 #' \code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
 #'
+#' @author Daniel Bunis
 #' @export
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -166,7 +167,7 @@ dittoDimPlot <- function(
     data.type = "normalized",
     main = "make", sub = NULL, xlab = "make", ylab = "make",
     theme = NA, legend.show = TRUE, legend.size = 5,
-    legend.title = if(is.null(shape.var)){NULL}else{var},
+    legend.title = "make",
     shape.legend.size = 5, shape.legend.title = shape.var,
     do.ellipse = FALSE, do.label = FALSE,
     labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
@@ -198,6 +199,7 @@ dittoDimPlot <- function(
     xlab <- .leave_default_or_null(xlab, xdat$name)
     ylab <- .leave_default_or_null(ylab, ydat$name)
     main <- .leave_default_or_null(main, var, length(var)!=1)
+    legend.title <- .leave_default_or_null(legend.title, var, is.null(shape.var))
 
     # Edit theme.
     if (is.na(theme[1])){
@@ -398,6 +400,8 @@ dittoDimPlot <- function(
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
 #' multi_dittoDimPlot(c(genes, "ident"))
+#'
+#' @author Daniel Bunis
 #' @export
 
 multi_dittoDimPlot <- function(

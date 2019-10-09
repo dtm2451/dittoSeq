@@ -23,4 +23,8 @@ A wrapper for the darken function of the colorspace package.
 Darken("blue") #"blue" = "#0000FF"
 #Output: "#0000BF"
 Darken(dittoColors()[1:8]) #Works for multiple color inputs as well.
+
+}
+\author{
+Daniel Bunis
 }

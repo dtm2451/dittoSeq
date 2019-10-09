@@ -19,3 +19,6 @@ Default color panel is colorblind friendly [Wong B, "Points of view: Color blind
 
 For more information, to give feedback, or to suggest new features, see the github, [here](https://github.com/dtm2451/DittoSeq).
 }
+\author{
+Daniel Bunis
+}

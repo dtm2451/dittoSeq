@@ -30,6 +30,8 @@
 #'
 #' \code{\link{addPrcomp}} and \code{\link{addDimReduction}} for how to add dimensionality reductions to an \code{RNAseq} object for use in
 #' \code{\link{dittoDimPlot}} visualizations.
+#'
+#' @author Daniel Bunis
 #' @export
 
 Class <- setClass(
@@ -113,6 +115,7 @@ Class <- setClass(
 #' #   so just dittoDimPlot("Sample", myRNA, size = 3) would work the same!
 #' dittoDimPlot("batch", myRNA, reduction.use = "pca", size = 3)
 #'
+#' @author Daniel Bunis
 #' @export
 
 importDESeq2 <- function(
@@ -208,6 +211,7 @@ importDESeq2 <- function(
 #' #   so just dittoDimPlot("Sample", myRNA, size = 3) would work the same!
 #' dittoDimPlot("batch", myRNA, reduction.use = "pca", size = 3)
 #'
+#' @author Daniel Bunis
 #' @export
 
 addPrcomp <- function(prcomp, object = DEFAULT, name = "pca", key = "PC") {
@@ -287,6 +291,7 @@ addPrcomp <- function(prcomp, object = DEFAULT, name = "pca", key = "PC") {
 #' #   so just dittoDimPlot("Sample", myRNA, size = 3) would work the same!
 #' dittoDimPlot("batch", myRNA, reduction.use = "pca", size = 3)
 #'
+#' @author Daniel Bunis
 #' @export
 
 addDimReduction <- function(
@@ -374,6 +379,7 @@ addDimReduction <- function(
 #' #   so just dittoDimPlot("Sample", myRNA, size = 3) would work the same!
 #' dittoDimPlot("batch", myRNA, reduction.use = "pca", size = 3)
 #'
+#' @author Daniel Bunis
 #' @export
 addMetaRNAseq <- function(
     value, name = deparse(substitute(value)), object = NULL) {

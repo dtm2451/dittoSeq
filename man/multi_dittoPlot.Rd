@@ -72,7 +72,11 @@ multi_dittoPlot(genes,
             nrow = 2, ncol = 2,              #Make it 2x2
             add.title = FALSE, ylab = "var", #Add y axis labels without "expression"
             show.legend = TRUE)              #Show legends
+
 }
 \seealso{
 \code{\link{dittoPlot}} for the single plot version of this function
+}
+\author{
+Daniel Bunis
 }

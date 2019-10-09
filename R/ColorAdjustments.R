@@ -10,6 +10,8 @@
 #' Darken("blue") #"blue" = "#0000FF"
 #' #Output: "#0000BF"
 #' Darken(dittoColors()[1:8]) #Works for multiple color inputs as well.
+#'
+#' @author Daniel Bunis
 #' @export
 Darken <- function(colors, percent.change = 0.25, relative = TRUE) {
     colorspace::darken(
@@ -29,6 +31,8 @@ Darken <- function(colors, percent.change = 0.25, relative = TRUE) {
 #' Lighten("blue") #"blue" = "#0000FF"
 #' #Output: "#4040FF"
 #' Lighten(dittoColors()[1:8]) #Works for multiple color inputs as well.
+#'
+#' @author Daniel Bunis
 #' @export
 Lighten <- function(colors, percent.change = 0.25, relative = TRUE) {
     colorspace::lighten(
@@ -51,6 +55,8 @@ Lighten <- function(colors, percent.change = 0.25, relative = TRUE) {
 #' Simulate("deutan", dittoDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
 #' Simulate("protan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
 #' Simulate("tritan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
+#'
+#' @author Daniel Bunis
 #' @export
 Simulate <- function(
     type = c("deutan","protan","tritan"),

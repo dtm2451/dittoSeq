@@ -52,3 +52,6 @@ is.meta(c("age","nCount_RNA", "RNA_snn_res.0.8"),
 
 \code{\link{meta}} for obtaining the contants of metadata slots
 }
+\author{
+Daniel Bunis
+}

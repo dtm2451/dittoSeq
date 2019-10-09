@@ -33,3 +33,6 @@ get.metas(pbmc, names.only = FALSE)
 
 \code{\link{meta}} for obtaining the contants of metadata slots
 }
+\author{
+Daniel Bunis
+}

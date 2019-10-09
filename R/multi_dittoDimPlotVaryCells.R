@@ -77,6 +77,7 @@
 #' # For an alternative method of viewing, and easily quantifying, how ceratin
 #' #   conditions of cells disperse accross clusters, see '?dittoBarPlot'
 #'
+#' @author Daniel Bunis
 #' @export
 
 multi_dittoDimPlotVaryCells <- function(

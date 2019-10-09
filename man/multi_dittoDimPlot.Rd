@@ -39,4 +39,8 @@ multi_dittoDimPlot(c(genes, "ident"), object = "pbmc")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 DEFAULT <- "pbmc"
 multi_dittoDimPlot(c(genes, "ident"))
+
+}
+\author{
+Daniel Bunis
 }

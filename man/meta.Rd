@@ -34,3 +34,6 @@ meta("RNA_snn_res.1")
 
 \code{\link{is.meta}} for testing whether something is the name of a metadata slot
 }
+\author{
+Daniel Bunis
+}

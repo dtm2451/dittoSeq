@@ -60,7 +60,7 @@
 #' @param xlab,ylab Strings which set the labels for the axes. To remove, set to \code{NULL}.
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_bw()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.
 #' @param data.out Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
-#' @return Makes a plot where colored dots and/or shapes representing individual cells/samples are overlayed onto a scatterplot where x and y can be gene expression (or any numeric metadata) of those cells/samples.
+#' @return Makes a scatterplot from (sc)RNAseq data where colored dots and/or shapes represent individual cells/samples.  X and Y can be gene expression (or any numeric metadata) of those cells/samples.
 #' @details
 #' This function creates a dataframe with the X and Y coordinates determined by \code{x.var} and \code{y.var}.
 #' It then adds data for how coloring should be set if a \code{color.var} is given & for how shapes should be set if a \code{shape.var} is given.
@@ -92,6 +92,7 @@
 #'
 #' \code{\link{dittoDimPlot}} for making very similar data representations, but where dimensionality reduction (PCA, t-SNE, UMAP, etc.) dimensions are the scatterplot axes.
 #'
+#' @author Daniel Bunis
 #' @export
 #' @examples
 #'

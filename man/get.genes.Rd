@@ -28,3 +28,6 @@ get.genes(pbmc)
 
 \code{\link{gene}} for obtaining the expression data of genes
 }
+\author{
+Daniel Bunis
+}

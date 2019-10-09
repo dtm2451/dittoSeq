@@ -85,3 +85,6 @@ dittoDimPlot("batch", myRNA, reduction.use = "pca", size = 3)
 \code{\link{addPrcomp}} and \code{\link{addDimReduction}} for how to add dimensionality reductions to an \code{\linkS4class{RNAseq}} object for use in
 \code{\link{dittoDimPlot}} visualizations.
 }
+\author{
+Daniel Bunis
+}
