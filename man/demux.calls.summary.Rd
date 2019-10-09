@@ -4,7 +4,7 @@
 \alias{demux.calls.summary}
 \title{Plots the number of annotations per sample, per lane}
 \usage{
-demux.calls.summary(object = DEFAULT, singlets.only = TRUE,
+demux.calls.summary(object = DEFAULT, singlets.only = FALSE,
   main = "Sample Annotations by Lane", sub = NULL,
   ylab = "Annotations", xlab = "Sample", color = dittoColors()[2],
   theme = NULL, rotate.labels = TRUE, data.out = FALSE)
@@ -53,4 +53,16 @@ pbmc$demux.doublet.call <- "SNG"
 demux.calls.summary(pbmc)
 
 demux.calls.summary(pbmc, data.out = TRUE)
+
+}
+\seealso{
+\code{\link{demux.SNP.summary}} for plotting the number of SNPs measured per cell.
+This is the other Demuxlet-associated QC visualization included with dittoSeq.
+
+\code{\link{importDemux2Seurat}}, for how to import relevant demuxlet information as metadata.
+
+Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
+}
+\author{
+Daniel Bunis
 }
