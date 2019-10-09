@@ -2,6 +2,7 @@
 #'
 #' @docType package
 #' @name dittoSeq
+#' @author Daniel Bunis
 #' @description This package was built to make the analysis and visualization of single-cell and bulk RNA-sequencing data accessible for both experience and novice coders, and for colorblind individuals.
 #' @details Includes many plotting functions (\code{\link{dittoPlot}}, \code{\link{dittoDimPlot}}, \code{\link{dittoBarPlot}}, \code{\link{dittoHeatmap}}, ...),
 #' color adjustment functions (\code{\link{Simulate}}, \code{\link{Darken}}, \code{\link{Lighten}}),
@@ -13,3 +14,18 @@
 #'
 #' For more information, to give feedback, or to suggest new features, see the github, [here](https://github.com/dtm2451/DittoSeq).
 NULL
+
+#' dittoSeq
+#'
+#' @name demuxlet.example
+#' @author Daniel Bunis
+#' @description A dataframe containing mock demuxlet information for the 80-cell Seurat::pbmc_small dataset
+#' @return A dataframe
+#' @details This data was created based on the structure of real demuxlet.best output files.
+#' Barcodes from the \code{\link[Seurat]{pbmc_small}} dataset were used as the BARCODES column.
+#' Cells were then assigned randomly as either SNG (singlets), DBL (doublets), or AMB (ambiguous).
+#' Cells were also randomly assign to sample1-10, multiple for DBL-assigned cells.
+#' This information was then combined using the \code{paste} function into the typical structure of a demuxlet CALL column.
+#' plus a mixture of random sample assignment, and random downsampling of remaining data from a separate, actual, demuxlet daatset.
+#' @note This is a slightly simplified example. Real demuxlet.best data has additional columns.
+"demuxlet.example"
