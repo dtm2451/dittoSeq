@@ -1,5 +1,5 @@
 #' Extracts Demuxlet information into a pre-made Seurat object
-#' @importFrom utils read.csv
+#' @importFrom utils read.table
 #'
 #' @param Seurat A pre-made Seurat object to add demuxlet information to.
 #' @param lane.meta A meta.data
