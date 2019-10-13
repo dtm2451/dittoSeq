@@ -24,8 +24,7 @@ NULL
 #' @details This data was created based on the structure of real demuxlet.best output files.
 #' Barcodes from the \code{\link[Seurat]{pbmc_small}} dataset were used as the BARCODES column.
 #' Cells were then assigned randomly as either SNG (singlets), DBL (doublets), or AMB (ambiguous).
-#' Cells were also randomly assign to sample1-10, multiple for DBL-assigned cells.
-#' This information was then combined using the \code{paste} function into the typical structure of a demuxlet CALL column.
-#' plus a mixture of random sample assignment, and random downsampling of remaining data from a separate, actual, demuxlet daatset.
+#' Cells were then randomly assign to sample1-10 (or multiple samples for doublets), and this information was combined using the \code{paste} function into the typical structure of a demuxlet CALL column.
+#' Random sampling of remaining data from a separate, actual, demuxlet daatset was used for remaining columns.
 #' @note This is a slightly simplified example. Real demuxlet.best data has additional columns.
 "demuxlet.example"

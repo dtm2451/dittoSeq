@@ -145,28 +145,13 @@ importDemux2Seurat <- function(
     }
     cell.names <- .all_cells(Seurat)
 
-    check <- c("Lane", "Sample", "demux.doublet.call", "demux.RD.TOTL",
-        "demux.RD.PASS", "demux.RD.UNIQ", "demux.N.SNP", "demux.PRB.DBL",
-        "demux.barcode.dup")
-    .check_meta_overwrite(Seurat, check, bypass.check)
+    .check_meta_overwrite(Seurat, bypass.check)
 
-    #Add lane metadata information
     message("Adding 'Lane' information as meta.data")
     Seurat <- .parse_and_add_lanes(Seurat, lane.meta, lane.names, cell.names)
 
     message("Extracting the Demuxlet calls")
-    if (is.character(Demuxlet.best)) {
-        Demuxlet.best <- .location_.best_to_data.frame(Demuxlet.best)
-    }
-    rownames(Demuxlet.best) <- Demuxlet.best$BARCODE
-    Demuxlet.calls <- data.frame(t(
-        vapply(
-            as.character(Demuxlet.best$BEST),
-            function(X) strsplit(X,'-')[[1]][1:2],
-            FUN.VALUE = character(2))),
-        row.names = as.character(Demuxlet.best$BARCODE),
-        stringsAsFactors = FALSE)
-    names(Demuxlet.calls) <- c("doublet", "sample")
+    Demuxlet.info <- .extract_and_parse_demux_calls(Demuxlet.best)
 
     message("Matching barcodes")
     # Strip barcodes in cell.names from any of the extra info that may have been added by Seurat (normally "text_" at start of names)
@@ -175,58 +160,31 @@ importDemux2Seurat <- function(
         function(X) strsplit(X, split = "_")[[1]][length(strsplit(X, split = "_")[[1]])],
         FUN.VALUE = character(1))
     # Remove any uneccesary cells from the Demux output (= cells not in this Seurat object)
-    barcodes_in <- barcodes[barcodes %in% rownames(Demuxlet.calls)]
-    trim.calls <- Demuxlet.calls[barcodes_in,]
-    trim.raw <- Demuxlet.best[barcodes_in,]
+    barcodes_in <- barcodes[barcodes %in% rownames(Demuxlet.info)]
+    trim.info <- Demuxlet.info[barcodes_in,]
     # Determine the indices to match Seurat cells to Demux matrix.
     inds <- match(barcodes,barcodes_in)
     # Add an all NA column for any cells not found in the Demuxlet output
-    trim.calls <- rbind(trim.calls, array(NA, dim = ncol(trim.calls)))
-    trim.raw <- rbind(trim.raw, array(NA, dim = ncol(trim.raw)))
-    inds[is.na(inds)] <- nrow(trim.calls)
+    trim.info <- rbind(trim.info, array(NA, dim = ncol(trim.info)))
+    inds[is.na(inds)] <- nrow(trim.info)
 
     message("Adding Demuxlet info as metadata")
-    Seurat@meta.data$Sample <- trim.calls$sample[inds]
-    Seurat@meta.data$demux.doublet.call <- trim.calls$doublet[inds]
-    Seurat@meta.data$demux.RD.TOTL <- trim.raw$RD.TOTL[inds]
-    Seurat@meta.data$demux.RD.PASS <- trim.raw$RD.PASS[inds]
-    Seurat@meta.data$demux.RD.UNIQ <- trim.raw$RD.UNIQ[inds]
-    Seurat@meta.data$demux.N.SNP <- trim.raw$N.SNP[inds]
-    Seurat@meta.data$demux.PRB.DBL <- trim.raw$PRB.DBL[inds]
+    Seurat <- .add_demux_metas_to_Seurat(Seurat, trim.info, inds)
 
     message("Checking for barcode duplicates across lanes...")
-    demux.barcode.dup <-
-        duplicated(inds, fromLast=FALSE) | duplicated(inds, fromLast=TRUE)
-    demux.barcode.dup[inds==nrow(trim.raw)] <- NA
-    if (sum(demux.barcode.dup, na.rm = TRUE)>0) {
-        message("Warning: Cell barcodes were duplicated accross lanes of this dataset and may have been therefore artificially called as doublets by demuxlet.")
-        message("Recommended: Modify how demuxlet was run to account for this.\n")
-        Seurat@meta.data$demux.barcode.dup <- demux.barcode.dup
-    } else {
-        message("  No barcode duplicates were found.\n")
-    }
+    Seurat <- .check_barcode_dups(Seurat, inds, NA.ind = nrow(trim.info))
 
-    num_singlets <- sum(Seurat@meta.data$demux.doublet.call=="SNG", na.rm = TRUE)
-    num_doublets <- sum(Seurat@meta.data$demux.doublet.call=="DBL", na.rm = TRUE)
-    num_ambiguous <- sum(Seurat@meta.data$demux.doublet.call=="AMB", na.rm = TRUE)
-    message("SUMMARY:\n",
-            length(meta.levels("Lane", Seurat)), " lanes were identified and named:\n  ",
-            paste0(meta.levels("Lane", Seurat), collapse = ", "),
-            "\nThe average number of SNPs per cell for all lanes was: ",
-            round(mean(Seurat@meta.data$demux.N.SNP, na.rm = TRUE),1), "\n",
-            "Out of ", length(cell.names), " cells in the Seurat object, Demuxlet assigned:\n",
-            "    ", num_singlets, " cells or ",
-            round(100*num_singlets/length(cell.names),1), "% as singlets\n",
-            "    ", num_doublets, " cells or ",
-            round(100*num_doublets/length(cell.names),1), "% as doublets\n",
-            "    and ", num_ambiguous, " cells as too ambiguous to call.\n",
-            sum(!(barcodes %in% barcodes_in)),
-            " cells were not annotated in the demuxlet.best file.")
+    if (verbose) {
+        .print_demux_import_summary(Seurat, cell.names, barcodes, barcodes_in)
+    }
 
     Seurat
 }
 
-.check_meta_overwrite <- function(Seurat, check.these, bypass.check) {
+.check_meta_overwrite <- function(Seurat, bypass.check) {
+    check.these <- c("Lane", "Sample", "demux.doublet.call", "demux.RD.TOTL",
+        "demux.RD.PASS", "demux.RD.UNIQ", "demux.N.SNP", "demux.PRB.DBL",
+        "demux.barcode.dup")
     if (sum(check.these %in% get.metas(Seurat))>0) {
         if(bypass.check) {
             message(
@@ -298,6 +256,78 @@ importDemux2Seurat <- function(
     }
 
     DF
+}
+
+.extract_and_parse_demux_calls <- function(Demuxlet.best) {
+    if (is.character(Demuxlet.best)) {
+        Demuxlet.best <- .location_.best_to_data.frame(Demuxlet.best)
+    }
+    rownames(Demuxlet.best) <- Demuxlet.best$BARCODE
+    Demuxlet.calls <- data.frame(t(
+        vapply(
+            as.character(Demuxlet.best$BEST),
+            function(X) strsplit(X,'-')[[1]][1:2],
+            FUN.VALUE = character(2))),
+        row.names = as.character(Demuxlet.best$BARCODE),
+        stringsAsFactors = FALSE)
+    names(Demuxlet.calls) <- c("doublet", "sample")
+    cbind(Demuxlet.best, Demuxlet.calls)
+}
+
+.add_demux_metas_to_Seurat <- function(Seurat, trim.info, inds) {
+    Seurat@meta.data$Sample <- trim.info$sample[inds]
+    Seurat@meta.data$demux.doublet.call <- trim.info$doublet[inds]
+    Seurat@meta.data$demux.RD.TOTL <- trim.info$RD.TOTL[inds]
+    Seurat@meta.data$demux.RD.PASS <- trim.info$RD.PASS[inds]
+    Seurat@meta.data$demux.RD.UNIQ <- trim.info$RD.UNIQ[inds]
+    Seurat@meta.data$demux.N.SNP <- trim.info$N.SNP[inds]
+    Seurat@meta.data$demux.PRB.DBL <- trim.info$PRB.DBL[inds]
+    Seurat
+}
+
+.check_barcode_dups <- function(Seurat, inds, NA.ind) {
+    demux.barcode.dup <-
+        duplicated(inds, fromLast=FALSE) | duplicated(inds, fromLast=TRUE)
+    demux.barcode.dup[inds==NA.ind] <- NA
+    if (sum(demux.barcode.dup, na.rm = TRUE)>0) {
+        message("Warning: Cell barcodes were duplicated accross lanes of this",
+            " dataset and may have been therefore artificially called as ",
+            "doublets by demuxlet.")
+        message("Recommended: Modify how demuxlet was run to account for this.\n")
+        Seurat@meta.data$demux.barcode.dup <- demux.barcode.dup
+    } else {
+        message("  No barcode duplicates were found.\n")
+    }
+    Seurat
+}
+
+.print_demux_import_summary <- function(
+    Seurat, cell.names, barcodes, barcodes_in) {
+
+    num_singlets <- sum(meta("demux.doublet.call",Seurat)=="SNG", na.rm = TRUE)
+    num_doublets <- sum(meta("demux.doublet.call",Seurat)=="DBL", na.rm = TRUE)
+    num_ambig <- sum(meta("demux.doublet.call",Seurat)=="AMB", na.rm = TRUE)
+    message("SUMMARY:\n",
+        length(meta.levels("Lane", Seurat)),
+        " lanes were identified and named:\n  ",
+
+        paste0(meta.levels("Lane", Seurat), collapse = ", "),
+        "\nThe average number of SNPs per cell for all lanes was: ",
+        round(mean(meta("demux.N.SNP", Seurat), na.rm = TRUE),1), "\n",
+
+        "Out of ", length(cell.names),
+        " cells in the Seurat object, Demuxlet assigned:\n",
+
+        "    ", num_singlets, " cells or ",
+        round(100*num_singlets/length(cell.names),1), "% as singlets\n",
+
+        "    ", num_doublets, " cells or ",
+        round(100*num_doublets/length(cell.names),1), "% as doublets\n",
+
+        "    and ", num_ambig, " cells as too ambiguous to call.\n",
+
+        sum(!(barcodes %in% barcodes_in)),
+        " cells were not annotated in the demuxlet.best file.")
 }
 
 #' Plots the number of SNPs sequenced per droplet
