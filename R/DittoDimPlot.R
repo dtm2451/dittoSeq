@@ -76,7 +76,7 @@
 #' @param hover.data.type Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.
 #' @param add.trajectory.lineages List of vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectories.cluster.meta} input.
 #' If Slingshot package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
-#' @param add.trajectory.curves List of lists, each containing a matrix named "s" representing a trajectory path from start to end where matrix contents are x and y coordinates in columns 1 and 2, respectively.
+#' @param add.trajectory.curves List of lists, each containing a matrix named "s" representing a trajectory path from start to end where matrix contents are x and y coordinates in columns named after the dimensionality reduction used (e.g. "UMAP_1", "UMAP_2").
 #' If Slingshot package was used for trajectory analysis, you can use \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}.
 #' @param trajectories.cluster.meta String name of metadata containing the clusters that were used for generating trajectories. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.
 #' @param trajectories.arrow.size Number representing the size of trajectory arrows, in inches.  Default = 0.15.
@@ -257,7 +257,7 @@ dittoDimPlot <- function(
 
     if (is.list(add.trajectory.curves)) {
         p <- .add_trajectory_curves(
-            p, add.trajectory.curves, trajectories.arrow.size)}
+            p, add.trajectory.curves, trajectories.arrow.size, reduction.use, dim.1, dim.2)}
 
     if (!legend.show) {
         p <- .remove_legend(p)
@@ -367,18 +367,22 @@ dittoDimPlot <- function(
 }
 
 .add_trajectory_curves <- function(
-    p, trajectories, arrow.size = 0.15) {
+    p, trajectories, arrow.size = 0.15, reduction.use,
+    dim.1, dim.2) {
     # p = the $p output of a dittoDimPlot(any.var,..., data.out = TRUE)
     # trajectories = List of lists of trajectory curves. Also, the output of SlingshotDataSet(SCE_with_slingshot)$curves
     # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
 
+    # Pasting these directory into aes_string doesn't work, not sure why.
+    x <- paste0(reduction.use, "_", dim.1)
+    y <- paste0(reduction.use, "_", dim.2)
+
     #Add trajectories
     for (i in seq_along(trajectories)){
         data <- as.data.frame(trajectories[[i]]$s)
-        colnames(data) <- c("cent.x", "cent.y")
         p <- p + geom_path(
             data = data,
-            aes_string(x = "cent.x", y = "cent.y"),
+            aes_string(x = x, y = y),
             arrow = arrow(
                 angle = 20, type = "closed", length = unit(arrow.size, "inches")))
     }
