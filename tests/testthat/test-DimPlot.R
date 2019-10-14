@@ -272,7 +272,7 @@ test_that("dittoDimPlot trajectory adding works", {
     expect_s3_class(
         dittoDimPlot(
             disc, pbmc,
-            add.trajectories = list(
+            add.trajectory.lineages = list(
                 c(1,0,2),
                 c(2,1)),
             trajectories.cluster.meta = disc,
@@ -282,7 +282,7 @@ test_that("dittoDimPlot trajectory adding works", {
     expect_s3_class(
         dittoDimPlot(
             cont, pbmc,
-            add.trajectories = list(
+            add.trajectory.lineages = list(
                 c(1,0)),
             trajectories.cluster.meta = disc,
             trajectories.arrow.size = 1),
