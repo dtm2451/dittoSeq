@@ -75,9 +75,9 @@
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
 #' @param hover.data.type Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.
 #' @param add.trajectory.lineages List of vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectories.cluster.meta} input.
-#' If Slingshot package was used for trajectory analysis, you can use \code{add.trajectories = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
-#' @param add.trajectory.curves List of vectors representing trajectory paths from start to end where vector contents are x, y coordinates.
-#' If Slingshot package was used for trajectory analysis, you can use \code{add.trajectories = SlingshotDataSet(SCE_with_slingshot)$curves}.
+#' If Slingshot package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
+#' @param add.trajectory.curves List of lists, each containing a matrix named "s" representing a trajectory path from start to end where matrix contents are x and y coordinates in columns 1 and 2, respectively.
+#' If Slingshot package was used for trajectory analysis, you can use \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}.
 #' @param trajectories.cluster.meta String name of metadata containing the clusters that were used for generating trajectories. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectories} vectors.
 #' @param trajectories.arrow.size Number representing the size of trajectory arrows, in inches.  Default = 0.15.
 #' @param data.out Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
