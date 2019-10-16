@@ -28,21 +28,8 @@ Add any dimensionality reduction space to an RNAseq object
 }
 \examples{
 
-# Generate mock RNAseq counts and a DESeq object from the mock data
-# count tables from RNA-Seq data
-counts.table <- matrix(rnbinom(n=1000, mu=100, size=1/0.5), ncol=10)
-colnames(counts.table) <- paste0("Sample",1:10)
-rownames(counts.table) <- paste0("Gene",1:100)
-conditions <- factor(rep(1:2, each=5))
-
-# object construction
-library(DESeq2)
-dds <- DESeqDataSetFromMatrix(
-    counts.table, DataFrame(conditions), ~ conditions)
-dds <- DESeq(dds)
-
-# Import
-myRNA <- importDESeq2(dds, blind = FALSE)
+# Import mock data
+myRNA <- RNAseq_mock
 
 # Add a dimensionality reduction to myRNA
 #   NOTE: This is typically not done with all genes in a dataset.
@@ -57,23 +44,10 @@ myRNA <- addDimReduction(
     key = "PC",
     raw.object = PCA)
 
-### Add a batch metadata
-# Option 1, all in the funciton:
-myRNA <- addMetaRNAseq(
-    value = rep(1:2, each = 5),
-    name = "batch",
-    object = myRNA)
-# Option 2, create variable beforehand, and just provide that to value.
-#     The name of the variable will be used to name the metadata slot.
-batch <- rep(1:2, each = 5)
-# Option 3, create variable beforehand, and provide just that using the
-#     even further simplified setter function:
-addMeta(myRNA) <- batch
-
-# Visualize batch on a PCA plot
+# Visualize Nreads metadata on a PCA plot
 #   Note: For RNAseq objects, reduction.use defaults to "pca"
-#   so just dittoDimPlot("Sample", myRNA, size = 3) would work the same!
-dittoDimPlot("batch", myRNA, reduction.use = "pca", size = 3)
+#   so just dittoDimPlot("Nreads", myRNA, size = 3) would work the same!
+dittoDimPlot("Nreads", myRNA, reduction.use = "pca", size = 3)
 
 }
 \seealso{

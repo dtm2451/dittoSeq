@@ -15,7 +15,7 @@
 #' For more information, to give feedback, or to suggest new features, see the github, [here](https://github.com/dtm2451/DittoSeq).
 NULL
 
-#' dittoSeq
+#' demuxlet.example
 #'
 #' @name demuxlet.example
 #' @author Daniel Bunis
@@ -28,3 +28,38 @@ NULL
 #' Random sampling of remaining data from a separate, actual, demuxlet daatset was used for remaining columns.
 #' @note This is a slightly simplified example. Real demuxlet.best data has additional columns.
 "demuxlet.example"
+
+#' RNAseq_mock
+#'
+#' @name RNAseq_mock
+#' @author Daniel Bunis
+#' @description An \code{\linkS4class{RNAseq}} object built from randomly generated data
+#' @return An \code{\linkS4class{RNAseq}} object
+#' @details The example code below was used to generate this object.
+#' @examples
+#' # This is the code that was used to generate this object.
+#' # RNAseq example
+#' # # Generate mock RNAseq counts and a DESeq object from the mock data
+#' # # count tables from RNA-Seq data
+#' # set.seed(1)
+#' # counts.table <- matrix(rnbinom(n=1000, mu=100, size=1/0.5), ncol=10)
+#' # colnames(counts.table) <- paste0("Sample",1:10)
+#' # rownames(counts.table) <- paste0("Gene",1:100)
+#' # conditions <- factor(rep(1:2, each=5))
+#' # # object construction
+#' # library(DESeq2)
+#' # dds <- DESeqDataSetFromMatrix(
+#' #     counts.table, DataFrame(conditions), ~ conditions)
+#' # dds <- DESeq(dds)
+#' # # Import
+#' # RNAseq_mock <- importDESeq2(dds, blind = FALSE)
+#' # PCA <- prcomp(t(RNAseq_mock@data), center = TRUE, scale = TRUE)
+#' # RNAseq_mock <- addDimReduction(
+#' #     embeddings = PCA$x,
+#' #     object = RNAseq_mock,
+#' #     name = "pca",
+#' #     key = "PC",
+#' #     raw.object = PCA)
+#'
+#' @seealso \code{\linkS4class{RNAseq}}
+"RNAseq_mock"

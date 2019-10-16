@@ -28,6 +28,8 @@ and generates an \code{\linkS4class{RNAseq}} object with
 
 For the \code{data} slot, the user must first determine whether regularized log calculation should be blinded, and this decision must be supplied to the \code{blind} input.
 For more information on that, see \code{\link[DESeq2]{rlog}}.
+
+Metadata are pulled from the supplied \code{dds}. Then "Sample" names and "Nreads" metadata are generated automatically if not already included.
 }
 \examples{
 
@@ -46,36 +48,6 @@ dds <- DESeq(dds)
 
 # Import
 myRNA <- importDESeq2(dds, blind = FALSE)
-
-# Add a dimensionality reduction to myRNA
-#   NOTE: This is typically not done with all genes in a dataset.
-#   The inclusion of this example code is not an endorsement of a particular
-#   method of PCA. Consult yourself, a bioinformatician, or literature for
-#   tips on proper techniques.
-PCA <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
-myRNA <- addDimReduction(
-    embeddings = PCA$x,
-    object = myRNA,
-    name = "pca",
-    key = "PC",
-    raw.object = PCA)
-
-### Add a batch metadata
-# Option 1, all in the funciton:
-myRNA <- addMetaRNAseq(
-    value = rep(1:2, each = 5),
-    name = "batch",
-    object = myRNA)
-# Option 2, create variable beforehand, and just provide that to value.
-#     The name of the variable will be used to name the metadata slot.
-batch <- rep(1:2, each = 5)
-myRNA <- addMetaRNAseq(batch, object = myRNA)
-
-# Visualize batch on a PCA plot
-#   Note: For RNAseq objects, reduction.use defaults to "pca"
-#   so just dittoDimPlot("Sample", myRNA, size = 3) would work the same!
-dittoDimPlot("batch", myRNA, reduction.use = "pca", size = 3)
-
 }
 \seealso{
 \code{\link[DESeq2]{DESeq}} and \code{\link[DESeq2]{rlog}} for information about DESeq and regularized log calculation.

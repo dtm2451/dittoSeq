@@ -3,7 +3,7 @@
 \docType{data}
 \name{demuxlet.example}
 \alias{demuxlet.example}
-\title{dittoSeq}
+\title{demuxlet.example}
 \format{An object of class \code{data.frame} with 80 rows and 7 columns.}
 \usage{
 demuxlet.example

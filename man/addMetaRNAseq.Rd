@@ -30,34 +30,8 @@ Add metadata slot to an RNAseq object
 }
 \examples{
 
-# Generate mock RNAseq counts and a DESeq object from the mock data
-# count tables from RNA-Seq data
-counts.table <- matrix(rnbinom(n=1000, mu=100, size=1/0.5), ncol=10)
-colnames(counts.table) <- paste0("Sample",1:10)
-rownames(counts.table) <- paste0("Gene",1:100)
-conditions <- factor(rep(1:2, each=5))
-
-# object construction
-library(DESeq2)
-dds <- DESeqDataSetFromMatrix(
-    counts.table, DataFrame(conditions), ~ conditions)
-dds <- DESeq(dds)
-
-# Import
-myRNA <- importDESeq2(dds, blind = FALSE)
-
-# Add PCA with prcomp, but use generic functionto add to myRNA
-#   NOTE: This is typically not done with all genes in a dataset.
-#   The inclusion of this example code is not an endorsement of a particular
-#   method of PCA. Consult yourself, a bioinformatician, or literature for
-#   tips on proper techniques.
-PCA <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
-myRNA <- addDimReduction(
-    embeddings = PCA$x,
-    object = myRNA,
-    name = "pca",
-    key = "PC",
-    raw.object = PCA)
+# Import mock data
+myRNA <- RNAseq_mock
 
 ### Add a batch metadata
 # Option 1, all in the funciton:
@@ -65,10 +39,12 @@ myRNA <- addMetaRNAseq(
     value = rep(1:2, each = 5),
     name = "batch",
     object = myRNA)
-# Option 2, create variable beforehand, and just provide that to value.
-#     The name of the variable will be used to name the metadata slot.
+# Options 2 & 3, create variable beforehand, and provide that.
+#     FOr both, the name of the variable will be name of the metadata slot.
 batch <- rep(1:2, each = 5)
 myRNA <- addMetaRNAseq(batch, object = myRNA)
+# OR
+addMeta(myRNA) <- batch
 
 # Visualize batch on a PCA plot
 #   Note: For RNAseq objects, reduction.use defaults to "pca"
