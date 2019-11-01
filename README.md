@@ -1,17 +1,21 @@
 # dittoSeq
 
-**A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by color blind coders**
+![Logo](Vignette/dittoLogo_mini.png)
 
-![Overview](Vignette/dittoSeq.gif)
+**A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by novice, experienced, and color blind coders**
 
-All plotting functions spit out easy-to-read, color blind friendly, plots (ggplot2, plotly, or pheatmap) upon minimal coding input for your daily analysis needs, yet also allow sufficient manipulations to provide for out-of-the-box submission-quality figures.  Underlying data collection for submitting to journals is even made easy with `data.out = TRUE` inputs.
-
-The package includes various universal helper and plotting functions for working with (sc)RNAseq data processed in these packages:
+dittoSeq includes universal plotting and helper functions for working with (sc)RNAseq data processed in these packages:
 
 - Seurat, (versions 2 & 3, single-cell RNAseq)
 - SingleCellExperiment (single-cell RNAseq)
 - DESeq2 (bulk RNAseq)
 - (Compatibility is planned for Monocle, Limma-voom, and EdgeR)
+
+All plotting functions spit out easy-to-read, color blind friendly, plots (ggplot2, plotly, or pheatmap) upon minimal coding input for your daily analysis needs, yet also allow sufficient manipulations to provide for out-of-the-box submission-quality figures!
+
+dittoSeq also makes collection of underlying data easy, for submitting to journals, with `data.out = TRUE` inputs!
+
+![Overview](Vignette/dittoSeq.gif)
 
 Additionally, contains import functions for [Demuxlet](https://github.com/statgen/demuxlet) cell annotations as Mux-seq datasets often consist of side-by-side bulk and single-cell RNAseq.  (If you would like a pipeline for extraction of genotypes from bulk RNAseq to enable Demuxlet-calling of single-cell RNAseq, shoot me an email.)
 
