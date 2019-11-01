@@ -19,9 +19,9 @@ dittoDimPlot(var = "ident", object = DEFAULT, reduction.use = NA,
   max.color = "#0072B2", min = NULL, max = NULL,
   legend.breaks = waiver(), legend.breaks.labels = waiver(),
   do.letter = FALSE, do.hover = FALSE, hover.data = var,
-  hover.data.type = data.type, add.trajectories = NULL,
-  trajectories.cluster.meta, trajectories.arrow.size = 0.15,
-  data.out = FALSE)
+  hover.data.type = data.type, add.trajectory.lineages = NULL,
+  add.trajectory.curves = NULL, trajectory.cluster.meta,
+  trajectory.arrow.size = 0.15, data.out = FALSE)
 }
 \arguments{
 \item{var}{String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
@@ -134,12 +134,17 @@ lettering is incompatible with plotly and with changing the dots' to be differen
 
 \item{hover.data.type}{Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.}
 
-\item{add.trajectories}{List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectories.cluster.meta} input.
-If Slingshot package was used for trajectory analysis, you can use \code{add.trajectories = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.}
+\item{add.trajectory.lineages}{List of vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 
-\item{trajectories.cluster.meta}{String name of metadata containing the clusters that were used for generating trajectories. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectories} vectors.}
+If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.}
 
-\item{trajectories.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
+\item{add.trajectory.curves}{List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns are x (\code{dim.1}) and y (\code{dim.2}).
+
+Alternatively, a list of lists(/princurve objects) can be provided where the target matrices are named as "s" within the list. Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}}
+
+\item{trajectory.cluster.meta}{String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.}
+
+\item{trajectory.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
 
 \item{data.out}{Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.}
 }
@@ -185,9 +190,10 @@ The size of the text in the labels can be adjusted using the \code{labels.size} 
 By default labels will repel eachother and the bounds of the plot, and labels will be highlighted with a white background.
 Either of these can be turned off by setting \code{labels.repel=FALSE} or \code{labels.highlight=FALSE},
 \item If \code{do.ellipse} is set to \code{TRUE}, ellipses will be added to highlight distinct \code{var}-data groups' positions based on median positions of their cell/sample components.
-\item If \code{add.trajectories} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectories.cluster.meta},
+\item If \code{add.trajectory.lineages} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectory.cluster.meta},
 then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
-Arrow size is controlled with the \code{trajectories.arrow.size} input.
+\item If \code{add.trajectory.curves} is provided a list of matrices (each matrix containing x, y coordinates from start to end), paths and arrows will be overlayed to show trajectory inference curves in the current dimmenionality reduction space.
+Arrow size is controlled with the \code{trajectory.arrow.size} input.
 }
 }
 \examples{
@@ -210,8 +216,8 @@ dittoDimPlot("ident", do.label = TRUE)
 dittoDimPlot("ident", do.label = TRUE, do.ellipse = TRUE)
 dittoDimPlot("CD3E", do.hover = TRUE,
     hover.data = c("CD14", "RNA_snn_res.0.8", "groups"))
-dittoDimPlot("CD3E", add.trajectories = list(c(0:2), c(0,2)),
-    trajectories.cluster.meta = "ident")
+dittoDimPlot("CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
+    trajectory.cluster.meta = "ident")
 }
 \seealso{
 \code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.

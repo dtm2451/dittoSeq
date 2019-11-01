@@ -74,10 +74,14 @@
 #' \code{hover.data} argument is used to determine what data to use.
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
 #' @param hover.data.type Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.
-#' @param add.trajectories List vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectories.cluster.meta} input.
-#' If Slingshot package was used for trajectory analysis, you can use \code{add.trajectories = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
-#' @param trajectories.cluster.meta String name of metadata containing the clusters that were used for generating trajectories. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectories} vectors.
-#' @param trajectories.arrow.size Number representing the size of trajectory arrows, in inches.  Default = 0.15.
+#' @param add.trajectory.lineages List of vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
+#'
+#' If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
+#' @param add.trajectory.curves List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns are x (\code{dim.1}) and y (\code{dim.2}).
+#'
+#' Alternatively, a list of lists(/princurve objects) can be provided where the target matrices are named as "s" within the list. Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}
+#' @param trajectory.cluster.meta String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.
+#' @param trajectory.arrow.size Number representing the size of trajectory arrows, in inches.  Default = 0.15.
 #' @param data.out Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
 #' @return A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
 #' Alternatively, a list contatining the ggplot plus the data.frame(s) that went into building it.
@@ -116,9 +120,10 @@
 #' By default labels will repel eachother and the bounds of the plot, and labels will be highlighted with a white background.
 #' Either of these can be turned off by setting \code{labels.repel=FALSE} or \code{labels.highlight=FALSE},
 #' \item If \code{do.ellipse} is set to \code{TRUE}, ellipses will be added to highlight distinct \code{var}-data groups' positions based on median positions of their cell/sample components.
-#' \item If \code{add.trajectories} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectories.cluster.meta},
+#' \item If \code{add.trajectory.lineages} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectory.cluster.meta},
 #' then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
-#' Arrow size is controlled with the \code{trajectories.arrow.size} input.
+#' \item If \code{add.trajectory.curves} is provided a list of matrices (each matrix containing x, y coordinates from start to end), paths and arrows will be overlayed to show trajectory inference curves in the current dimmenionality reduction space.
+#' Arrow size is controlled with the \code{trajectory.arrow.size} input.
 #' }
 #'
 #' @seealso
@@ -155,8 +160,8 @@
 #' dittoDimPlot("ident", do.label = TRUE, do.ellipse = TRUE)
 #' dittoDimPlot("CD3E", do.hover = TRUE,
 #'     hover.data = c("CD14", "RNA_snn_res.0.8", "groups"))
-#' dittoDimPlot("CD3E", add.trajectories = list(c(0:2), c(0,2)),
-#'     trajectories.cluster.meta = "ident")
+#' dittoDimPlot("CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
+#'     trajectory.cluster.meta = "ident")
 
 dittoDimPlot <- function(
     var="ident", object = DEFAULT, reduction.use = NA, size=1, opacity = 1,
@@ -176,8 +181,8 @@ dittoDimPlot <- function(
     legend.breaks = waiver(), legend.breaks.labels = waiver(),
     do.letter = FALSE, do.hover = FALSE, hover.data = var,
     hover.data.type = data.type,
-    add.trajectories = NULL, trajectories.cluster.meta,
-    trajectories.arrow.size = 0.15, data.out = FALSE){
+    add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
+    trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE) {
 
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
@@ -247,10 +252,16 @@ dittoDimPlot <- function(
             p, Target_data, "color", labels.highlight, labels.size,
             labels.repel)
     }
-    if (is.list(add.trajectories)) {
-        p <- .add_trajectories(
-            p, add.trajectories, trajectories.cluster.meta,
-            trajectories.arrow.size, object, reduction.use, dim.1, dim.2)}
+    if (is.list(add.trajectory.lineages)) {
+        p <- .add_trajectory_lineages(
+            p, add.trajectory.lineages, trajectory.cluster.meta,
+            trajectory.arrow.size, object, reduction.use, dim.1, dim.2)
+    }
+
+    if (is.list(add.trajectory.curves)) {
+        p <- .add_trajectory_curves(
+            p, add.trajectory.curves, trajectory.arrow.size, dim.1, dim.2)
+    }
 
     if (!legend.show) {
         p <- .remove_legend(p)
@@ -321,12 +332,12 @@ dittoDimPlot <- function(
     p + do.call(geom.use, args)
 }
 
-.add_trajectories <- function(
+.add_trajectory_lineages <- function(
     p, trajectories, clusters, arrow.size = 0.15, object, reduction.use,
     dim.1, dim.2) {
     # p = the $p output of a dittoDimPlot(any.var,..., data.out = TRUE)
     # clusters = the name of the metadata metadata slot that holds the clusters used for cluster-based trajectory analysis
-    # trajectories = List os lists of cluster paths. Also, the output of SlingshotDataSet(SCE_with_slingshot)$lineages
+    # trajectories = List of lists of cluster paths. Also, the output of SlingshotDataSet(SCE_with_slingshot)$lineages
     # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
 
     #Determine medians
@@ -355,6 +366,43 @@ dittoDimPlot <- function(
             aes_string(x = "cent.x", y = "cent.y"),
             arrow = arrow(
                 angle = 20, type = "closed", length = unit(arrow.size, "inches")))
+    }
+    p
+}
+
+.add_trajectory_curves <- function(
+    p, trajectories, arrow.size = 0.15, dim.1, dim.2) {
+    # p = the $p output of a dittoDimPlot(any.var,..., data.out = TRUE)
+    # trajectories = List of matrices containing trajectory curves. The output of SlingshotDataSet(SCE_with_slingshot)$curves can be used if the coordinate matrix (`$s`) for each list is extracted and they are all stored in a list.
+    # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
+
+    if ("s" %in% names(trajectories[[1]])) {
+    #Add trajectories for princurves/slingshot list of lists provision method
+        for (i in seq_along(trajectories)){
+            #extract fit coords per cell
+            data <- as.data.frame(trajectories[[i]]$s)
+            #order cells' fit coords by pseudotime order
+            data <- data[trajectories[[i]]$ord,]
+            #name the dimensions used
+            names(data)[c(dim.1,dim.2)] <- c("x", "y")
+            p <- p + geom_path(
+                data = data,
+                aes_string(x = "x", y = "y"),
+                arrow = arrow(
+                    angle = 20, type = "closed", length = unit(arrow.size, "inches")))
+        }
+    } else {
+    #Add trajectories for general list of matrices provision method.
+    #  Note: Accepts dataframes too.
+        for (i in seq_along(trajectories)){
+            data <- as.data.frame(trajectories[[i]])
+            names(data) <- c("x", "y")
+            p <- p + geom_path(
+                data = data,
+                aes_string(x = "x", y = "y"),
+                arrow = arrow(
+                    angle = 20, type = "closed", length = unit(arrow.size, "inches")))
+        }
     }
     p
 }

@@ -272,20 +272,35 @@ test_that("dittoDimPlot trajectory adding works", {
     expect_s3_class(
         dittoDimPlot(
             disc, pbmc,
-            add.trajectories = list(
+            add.trajectory.lineages = list(
                 c(1,0,2),
                 c(2,1)),
-            trajectories.cluster.meta = disc,
+            trajectory.cluster.meta = disc,
             do.label = TRUE),
         "ggplot")
-    # Manuel Check: Arrows should move & GROW.
+    # Manual Check: Arrows should move & GROW.
     expect_s3_class(
         dittoDimPlot(
             cont, pbmc,
-            add.trajectories = list(
+            add.trajectory.lineages = list(
                 c(1,0)),
-            trajectories.cluster.meta = disc,
-            trajectories.arrow.size = 1),
+            trajectory.cluster.meta = disc,
+            trajectory.arrow.size = 1),
+        "ggplot")
+    # Manual Check: Arrows should be detached from points
+    expect_s3_class(
+        dittoDimPlot(
+            disc, pbmc,
+            add.trajectory.curves = list(
+                data.frame(
+                    c(-10,0,-20),
+                    c(-20,-10,0)),
+                data.frame(
+                    c(5:20),
+                    c(5:10,9:5,6:10)
+                )),
+            trajectory.cluster.meta = disc,
+            do.label = TRUE),
         "ggplot")
 })
 
