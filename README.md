@@ -1,6 +1,8 @@
 # dittoSeq [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2577576.svg)](https://doi.org/10.5281/zenodo.2577576)
 
-**A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by color blind coders**
+![Logo](Vignette/dittoLogo_mini.png)
+
+**A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by novice, experienced, and color blind coders**
 
 ![Overview](Vignette/dittoSeq.gif)
 
