@@ -94,7 +94,7 @@ dittoBarPlot <- function(
     var, object = DEFAULT, group.by = "Sample", scale = c("percent", "count"),
     cells.use = NULL, data.out = FALSE, do.hover = FALSE,
     color.panel = dittoColors(), colors = seq_along(color.panel),
-    y.breaks = NA, min = NULL, max = NULL,
+    y.breaks = NA, min = 0, max = NULL,
     var.labels.rename = NULL, var.labels.reorder = NULL,
     x.labels = NULL, x.labels.rotate = TRUE, x.reorder = NULL,
     theme = theme_classic(),
@@ -109,7 +109,7 @@ dittoBarPlot <- function(
     all.cells <- .all_cells(object)
     scale = match.arg(scale)
 
-    # Create data.frame
+    # Extract x.grouping and y.labels data
     y.var <- as.character(
         .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use])
     x.var <- as.character(
@@ -173,18 +173,15 @@ dittoBarPlot <- function(
         } else {
             p <- p + geom_col()
         }
-    # Set y-axis scaling
+    # Set y-axis ticks & scaling
     if (is.na(y.breaks[1]) && scale == "percent") {
         y.breaks <- c(0,0.5,1)
     }
     if (!is.na(y.breaks[1])) {
         p <- p + scale_y_continuous(breaks = y.breaks)
     }
-    if (is.null(min)) {
-        min <- min(eval(expr = parse(text = paste0("data$",y.show))))
-    }
     if (is.null(max)) {
-        max <- max(eval(expr = parse(text = paste0("data$",y.show))))
+        max <- ifelse(scale == "percent", 1, max(data$label.count.total))
     }
     p <- p + coord_cartesian(ylim=c(min,max))
 

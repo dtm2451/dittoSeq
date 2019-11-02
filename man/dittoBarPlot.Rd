@@ -7,7 +7,7 @@
 dittoBarPlot(var, object = DEFAULT, group.by = "Sample",
   scale = c("percent", "count"), cells.use = NULL, data.out = FALSE,
   do.hover = FALSE, color.panel = dittoColors(),
-  colors = seq_along(color.panel), y.breaks = NA, min = NULL,
+  colors = seq_along(color.panel), y.breaks = NA, min = 0,
   max = NULL, var.labels.rename = NULL, var.labels.reorder = NULL,
   x.labels = NULL, x.labels.rotate = TRUE, x.reorder = NULL,
   theme = theme_classic(), xlab = group.by, ylab = "make",
