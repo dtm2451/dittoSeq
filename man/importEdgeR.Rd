@@ -8,7 +8,7 @@ importEdgeR(DGEList, normalized.data = NULL,
   normalization.fxn = "edgeR::cpm", counts = NULL, reductions = NULL)
 }
 \arguments{
-\item{DGEList}{a \linkS4class{DGEList} object, the main edgeR / Limma-Voom object for storing your data. REQUIRED.}
+\item{DGEList}{a \link[edgeR]{DGEList-class} object, the main edgeR / Limma-Voom object for storing your data. REQUIRED.}
 
 \item{normalized.data}{(optional) a matrix containing normalized data for all genes (rows) and samples (columns) in the DGEList.
 When provided, this matrix is used directly and the \code{normalization.fxn} is not used to calculate the \code{data} slot from the \code{DGEList$counts} data.}

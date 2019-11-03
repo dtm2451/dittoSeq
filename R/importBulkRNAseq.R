@@ -99,7 +99,7 @@ importDESeq2 <- function(
 #' Creates an RNAseq object from edgeR or limma-voom processed bulk RNAseq data objects.
 #'
 #' @description The first step of visualization of edgeR- or Limma-Voom-analyzed bulk RNAseq data with dittoSeq is running this function to transform the data into the \linkS4class{RNAseq} structure that dittoSeq functions expect.
-#' @param DGEList a \linkS4class{DGEList} object, the main edgeR / Limma-Voom object for storing your data. REQUIRED.
+#' @param DGEList a \link[edgeR]{DGEList-class} object, the main edgeR / Limma-Voom object for storing your data. REQUIRED.
 #' @param normalization.fxn String which sets the counts data normalization function to use when calculating the \code{data} slot.
 #' This is ignored when a matrix is provided to the \code{normalized.data} input.
 #' @param normalized.data (optional) a matrix containing normalized data for all genes (rows) and samples (columns) in the DGEList.
