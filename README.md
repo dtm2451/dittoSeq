@@ -1,130 +1,189 @@
-# dittoSeq [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2577576.svg)](https://doi.org/10.5281/zenodo.2577576)
-
-![Logo](Vignette/dittoLogo_mini.png)
+# dittoSeq ![Logo](Vignette/dittoLogo_mini.png)
 
 **A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by novice, experienced, and color blind coders**
 
+dittoSeq includes universal plotting and helper functions for working with (sc)RNAseq data processed in these packages:
+
+- Seurat (versions 2 & 3, single-cell RNAseq)
+- SingleCellExperiment (single-cell RNAseq)
+- DESeq2 (bulk RNAseq)
+- edgeR (bulk RNAseq)
+- Limma-Voom (bulk RNAseq)
+- (Compatibility is planned for Monocle in a future version.)
+
+All plotting functions spit out easy-to-read, color blind friendly, plots (ggplot2, plotly, or pheatmap) upon minimal coding input for your daily analysis needs, yet also allow sufficient manipulations to provide for out-of-the-box submission-quality figures!
+
+dittoSeq also makes collection of underlying data easy, for submitting to journals, with `data.out = TRUE` inputs!
+
 ![Overview](Vignette/dittoSeq.gif)
-
-*For a description of how to use the visualization functions, click [here](Vignette)*
-
-*For a description of how to use the Demuxlet import functions, click [here](Demuxlet-Vignette)*
-
-All plotting functions spit out easy-to-read, color blind friendly, ggplot2 plots upon minimal coding input for your daily analysis needs, and they also allow sufficient manipulations to provide for out-of-the-box submission-quality figures.
-
-Package includes various helper and plotting functions for working with RNAseq data analyzed in other packages; handles data stored in these object types:
-
-- Seurat (v2 & v3), single-cell RNAseq
-- SingleCellExperiment, single-cell RNAseq
-- DESeq, bulk RNAseq.
 
 Additionally, contains import functions for [Demuxlet](https://github.com/statgen/demuxlet) cell annotations as Mux-seq datasets often consist of side-by-side bulk and single-cell RNAseq.  (If you would like a pipeline for extraction of genotypes from bulk RNAseq to enable Demuxlet-calling of single-cell RNAseq, shoot me an email.)
 
-Extends the visualization functionality of the widely used Seurat package, and allows generation of similar figures from alternatively encoded single-cell data, or bulk RNA sequencing data. Thus, it enables analysis of single cell and bulk data side-by-side.
+## Installataion:
 
-NOTE: I use this package daily, and am constantly coming up with new ideas for tweaks and additional utility myself.  To report errors, give feedback, or suggest new features, you can do so either through [github](https://github.com/dtm2451/DittoSeq/issues), or by email at <daniel.bunis@ucsf.edu>.
+```
+devtools::install_github("dtm2451/dittoSeq")
 
-## News:
+# For older versions:
+#   Old DB plotter version
+# devtools::install_github("dtm2451/dittoSeq@v0.2")
+#   Old DB plotter version plus some early ditto plotters
+# devtools::install_github("dtm2451/dittoSeq@v0.2.20")
+```
 
-**Name Change:** I recently changed the package name from DittoSeq to dittoSeq to abide by camelCase package naming, as suggested by Bioconductor.  If you get issues loading the package after an update, you likely just need to change `library(DittoSeq)` to `library(dittoSeq)`.
+## News: version 0.3.0 is LIVE
 
-**Colors Storage:** I also updated how the default colors are stored: The package used to add a `MYcolors` object within the workspace.  Now, the colors can be accessed using a `dittoColors()` function.  If you used  `MYcolors` before in your code, just swap that our for `dittoColors()` after updating.
+**Includes lots of new features!**
 
-**New functions updated in the development branch:** (from "old" `DB` version to "new" `ditto` versions)
+  - Compatibility with bulk RNAseq data that was processed with edgeR & limma-voom.
+  - `dittoScatterPlot()` which allows plotting of gene x gene / metadata x metadata / gene x metadata.  Great for examining raw droplet data QC, or potential marker gene RNA or CITE-seq expression.
+  - `dittoDimPlot` now supports overlay of pseudotime-analysis trajectory paths.
+  - Retrieval of underlying data as a dataframe or matrix.  Just add `data.out = TRUE` to the call.
+  - Many more!
 
-- dittoDimPlot
-- multi_dittoDimPlot
-- dittoHeatmap
-- dittoPlot
-  - Also added Ridgeplot capability & wrappers `dittoRidgePlot()` + `dittoBoxPlot()`
-- multi_dittoPlot
-- dittoBarPlot
-- dittoPlotVarsAcrossGroups (old = DBPlor_multi_var_summary)
-- multi_dittoDimPlotVaryCells
-- **All plotting functions have now been updated**
-  
-**Entirely new functions in the development branch:**
+**Other updates since version 0.2:**
 
-- dittoScatterPlot() - allows plotting of gene x gene / metadata x metadata / gene x metadata... scatterplots, with potential to overlay colors or shapes.  Similar to dittoDimPlot, but with more flexible axes.
+- Documentation overhaul for most functions with plenty of example code added.
+- The package is now camelCase, **d**ittoSeq, to go along with typical conventions.
+- Visualization names all start with `ditto...` and `multi_ditto...` instead of `DB...` and `multiDB...` Example: `dittoDimPlot` and `multi_dittoDimPlot`.
+- Color Storage: The colors are now retrievable with a simple, empty, function call, `dittoColors()`.  For use outside of dittoSeq, simply use `dittoColors()`.  Example within dittoSeq: `dittoDimPlot("ident", seurat, color.panel = dittoColors() )`.
 
-**Updated vignettes with these functions coming soon.** Hopefully, R documentation (example: `?dittoDimPlot`) can suffice in the meantime.
+**More detailed vignettes are planned**, but in the meantime, if the in-R documentation (example: `?dittoScatterPlot`) and examples are not enough, please create an issue asking how to make whatever plot you would like!
 
 ## Color blindness friendliness:
 
-The default colors of this package are meant to be red-green color blindness friendly.  To make it so, I used the suggested colors from this source: [Wong B, "Points of view: Color blindness." Nature Methods, 2011.](https://www.nature.com/articles/nmeth.1618) and adapted them slightly by appending darker and lighter versions to create a 24 color vector.  All plotting functions use these colors, stored in `dittoColors()`, by default.  Also included is a `Simulate()` function that allows you to see what your function might look like to a colorblind individual.  For more info on that, see my [Colorblindness Compatibility Page](ColorblindCompatibility)
+The default colors of this package are meant to be color blind friendly.  To make it so, I used the suggested colors from this source: [Wong B, "Points of view: Color blindness." Nature Methods, 2011](https://www.nature.com/articles/nmeth.1618) and adapted them slightly by appending darker and lighter versions to create a 24 color vector. All plotting functions use these colors, stored in `dittoColors()`, by default. Also included is a Simulate() function that allows you to see what your function might look like to a colorblind individual. For more info on that, see my [Colorblindness Compatibility Page](ColorblindCompatibility)
 
-## To install:
+# Quick Start Guide:
 
-Simply run this code:
+(For rendered plots, download and open [Vignette/QuickStartRender.html](Vignette/QuickStartRender.html))
 
-```
-install.packages("devtools")
+```{r}
+# Install
 devtools::install_github("dtm2451/dittoSeq")
+# (Be sure to restart after a re-install!)
 ```
 
-## Development:
-
-Updated functionality is on the way!  I am currently going through the process of overhauling most dittoSeq visualizations prior to submission to CRAN / Bioconductor.  To test out what's new, check out the development node.
-
-New plotters will be named "ditto"PlottingFunction instead of "DB"PlottingFunction, so installing development versions should not break any old code.  Be warned though that any "ditto"PlottingFunction is subject to change until such time that version 1.0.0 is released.
-
-To install the development version, run:
-
-```
-devtools::install_github("dtm2451/dittoSeq@development")
+```{r}
+# For older versions:
+#   Old DB plotter version
+# devtools::install_github("dtm2451/dittoSeq@v0.2")
+#   Old DB plotter version plus some early ditto plotters
+# devtools::install_github("dtm2451/dittoSeq@v0.2.20")
 ```
 
-# DittoSeq Functions (as of DittoSeq-0.2.06)
+Load in your data, then go!:
 
-## Plotting Functions
+```{r}
+library(dittoSeq)
+# library(Seurat)
 
-For an explanation on how to use the visualization functions, see the vignette [here](Vignette).
+# For working with scRNAseq data, works directly with Seurat and SingleCellExperiment objects
+seurat <- Seurat::pbmc_small
+dittoPlot("CD14", seurat, group.by = "ident")
 
-**`DBBarPlot()`** = No analogous function currently in Seurat, but incredibly useful! Most common use: Plotting the cluster breakdown of all cells within each sample. Essentially, it is similar to DBPlot, but for discrete variables. Handles plotting of discrete data on a per-sample or per-condition grouping.
+sce <- Seurat::as.SingleCellExperiment(seurat)
+dittoBarPlot("ident", sce, group.by = "RNA_snn_res.0.8")
 
-**`DBDimPlot()`** = Analogous Seurat functions: TSNEPlot / PCAPlot / DimPlot.  Improves on Seurat functions' capabilities to present continuous (including negative) numerical data, or descrete data (clustering, samples, batches, condition, etc.) in various ways.
+# For working with bulk RNAseq data, first load your data into a format that dittoSeq quickly understands
+# deseq2 <- importDESeq2()
+# edger <- importEdgeR()
+# limma.voom <- importEdgeR()
+myRNA <- RNAseq_mock
+dittoDimPlot("Gene1", myRNA, size = 3)
+```
 
-**`DBPlot()`** = Analogous Seurat function: VlnPlot. Allows generation of jitter/dot-plot, boxplot, and/or violin-plot representation of numerical data, with order of what's on top easily settable. Data can be expression of particular genes or any numerical metadata like percent.mito, nUMI, and nGene.  Colors and grouping of cells is tunable through discrete inputs.
+Quickly determine the metadata and gene options for plotting with helper functions:
 
-**`DBHeatmap()`** = Given a set of genes to focus on, outputs a heatmap.  Colors, cell annotations, names, are all tunable with discrete inputs.  Many others are possible as well; this function is a wrapper for pheatmap.
+```{r}
+get.metas(seurat)
+is.meta("nCount_RNA", seurat)
 
-**`DBPlot_multi_var_summary()`** = No analogous function currently in Seurat.  Given a set of genes (like a signature set from a reference dataset, or a set of genes associated with a GO term or pathway), plots expression of all genes in the set across groups of cells/samples.
+get.genes(myRNA)
+is.gene("CD3E", myRNA)
 
-**multi-plotters** = Plot multiple DBDimPlots or DBPlots in an array.  Can handle most inputs that would be given to the individual functions.  Names are **`multiDBDimPlot()`**, **`multiDBPlot()`**, and **`multiDBDimPlot_vary_cells()`**.
+# View them with these:
+gene("CD3E", seurat, data.type = "raw")
+meta("groups", seurat)
+meta.levels("groups", seurat)
+```
 
-## Color adjustment functions
+### There are many dittoSeq Plot Types
 
-**`Darken()`**: Darkens a color or color.panel by a given amount. (note: use these on a color.panel, not on a generated plot)
+**Intuitive default adjustments generally allow creation of immediately useable plots.**
 
-**`Lighten()`**: Lightens a color or color.panel by a given amount. (note: use these on a color.panel, not on a generated plot)
+```{r}
+# dittoPlot
+dittoPlot("CD3E", seurat, group.by = "ident")
+dittoPlot("CD3E", seurat, group.by = "ident",
+    plots = c("boxplot", "jitter"))
+dittoPlot("CD3E", seurat, group.by = "ident",
+    plots = c("ridgeplot", "jitter"))
 
-**`Simulate()`**: Generates any of the plot-types included in this package with colors adjusted to simulate any of the major forms of colorblindness.
+# dittoDimPlot
+dittoDimPlot("ident", seurat, size = 3)
+dittoDimPlot("CD3E", seurat, size = 3)
 
-## Helper functions
+# dittoBarPlot
+dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8")
+dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+    scale = "count")
 
-These make manipulating Seurat data, and using my plotting functons, easier.
+# dittoHeatmap
+dittoHeatmap(genes = get.genes(seurat)[1:20], seurat)
+dittoHeatmap(genes = get.genes(seurat)[1:20], seurat,
+    annotation.metas = c("groups", "ident"),
+    scaled.to.max = TRUE,
+    show.colnames = FALSE)
+# Turning off cell clustering can be necessary for many cell scRNAseq
+dittoHeatmap(genes = get.genes(seurat)[1:20], seurat,
+    cluster_cols = FALSE)
 
-**`get.metas()`**, **`get.genes()`**, and **`get.reductions()`**: Returns the list of meta.data slots, the list of genes, or the names of dimensional reduction slots that exist in the dataset.  Works exactly like typing `names(object@meta.data)` or `rownames(object@data)` or `names(object@dr)` for a Seurat.v2 object, only easier and adapts to the object type.
+# dittoScatterPlot
+dittoScatterPlot(
+    x.var = "CD3E", y.var = "nCount_RNA",
+    color.var = "ident", shape.var = "RNA_snn_res.0.8",
+    object = seurat,
+    size = 3)
 
-**`is.meta()`** and **`is.gene()`**: Returns TRUE or FALSE for whether a "meta.data" or "gene" input is part of the dataset.  Both work for testing multiple queries at once as well.
+# Also:
+    # multi_dittoDimPlot (multiple, in an array)
+    # multi_dittoDimPlotVaryCells (multiple, in an array, but showing only certain
+    #     cells in each plot)
+    # multi_dittoPlot (multiple, in an array)
+    # dittoPlot_VarsAcrossGroups (multiple genes or metadata as the jitterpoints (and
+    #     other representations), summarized across groups by mean, median, ..., )
+```
 
-**`meta()`**, **`gene()`**, and **`var_OR_get_meta_or_gene()`**: Returns the values of a meta.data for every cell or the expression data for all cells.  meta() and gene() are specific to one type. var_OR_get_meta_or_gene can be used to retrieve either type.
+**Many adjustments can be made with simple additional inputs:**
 
-**`meta.levels()`**: Returns the range of values of metadata. Like running `levels(as.factor(object@meta.data$meta))`. Alternatively, can reurn the counts of each value of the meta.data is the optional input `table.out = TRUE` is set given.
+Many adjustments to how data is reresented are within the examples above.  See documentation for more!  Also,
 
-**`extDim()`**: extracts the loadings of each cell for a given dimensional reduction space.  The output has 2 slots: `$embeddings` = the loadings of each cell, `$name` = the suggested way of naming this reduction in text or as an axis of a plot.
+- All Titles are adjustable.
+- Colors can be adjusted easily.
+- Underlying data can be output.
+- plotly hovering can be added.
+- Many more! (Legends removal, label rotation, labels' and groupings' names, ...)
 
-**`grab_legend()`**: Extracts and plots the legend from a ggplot
+```{r}
+dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+    main = "Starters",
+    sub = "By Type",
+    xlab = NULL,
+    ylab = "Generation 1",
+    x.labels = c("Ash", "Misty"),
+    legend.title = "Types",
+    var.labels.rename = c("Fire", "Water", "Grass"),
+    x.labels.rotate = FALSE)
 
-**`remove_legend()`**: Replots a ggplot without its legend.
+dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+    colors = c(3,1,2)) #Just changes the color order, probably most useful for dittoDimPlots
+dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+    color.panel = c("red", "orange", "purple"))
 
-## Demuxlet functions
+dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+    data.out = TRUE)
 
-For an explanation of the Demuxlet import functions, click [here](Demuxlet-Vignette)
-
-**`ImportDemux2Seurat()`** - Imports demuxlet info into a pre-made Seurat object.
-
-**`demux.calls.summary()`** - Makes a plot of how many calls were made per sample, separated by the separate lanes.
-
-**`demux.SNP.summary()`** - Creates a plot of the number of SNPs per cell.
-
+dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+    do.hover = TRUE)
+```

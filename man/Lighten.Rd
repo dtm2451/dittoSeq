@@ -23,4 +23,8 @@ A wrapper for the lighten function of the colorspace package.
 Lighten("blue") #"blue" = "#0000FF"
 #Output: "#4040FF"
 Lighten(dittoColors()[1:8]) #Works for multiple color inputs as well.
+
+}
+\author{
+Daniel Bunis
 }

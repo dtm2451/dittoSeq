@@ -1,6 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+.DS_Store
+.gitignore
 ColorblindCompatibility
 Vignette
-LICENSE
 README.md

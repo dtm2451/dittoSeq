@@ -4,10 +4,10 @@
 \alias{demux.calls.summary}
 \title{Plots the number of annotations per sample, per lane}
 \usage{
-demux.calls.summary(object = DEFAULT, singlets.only = TRUE,
+demux.calls.summary(object = DEFAULT, singlets.only = FALSE,
   main = "Sample Annotations by Lane", sub = NULL,
   ylab = "Annotations", xlab = "Sample", color = dittoColors()[2],
-  theme = NULL, rotate.labels = TRUE)
+  theme = NULL, rotate.labels = TRUE, data.out = FALSE)
 }
 \arguments{
 \item{object}{the Seurat Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.}
@@ -22,11 +22,13 @@ demux.calls.summary(object = DEFAULT, singlets.only = TRUE,
 
 \item{xlab}{x axis label, default is "Sample"}
 
-\item{color}{bars color. Default is blue.}
+\item{color}{bars color. Default is the dittoColors skyBlue.}
 
-\item{theme}{A complete ggplot theme. Default is a modified theme_bw().}
+\item{theme}{A complete ggplot theme. Default is a slightly modified theme_bw().}
 
 \item{rotate.labels}{whether sample names / x-axis labels should be rotated or not. Default is TRUE.}
+
+\item{data.out}{Logical, whether underlying data for the plot should be output instead of the plot itself.}
 }
 \value{
 For a given Seurat object, summarizes how many cells in each lane were anotated to each sample.  Assumes that the Sample calls of each cells, and which lane each cell belonged to, are stored in 'Sample' and 'Lane' metadata slots, respectively, as would be the case if the Seurat object was created with the Import10XDemux function.
@@ -35,5 +37,32 @@ For a given Seurat object, summarizes how many cells in each lane were anotated 
 Plots the number of annotations per sample, per lane
 }
 \examples{
-#Data required for an example would be rather large.  For an example, see the online vignette.
+pbmc <- Seurat::pbmc_small
+
+# Generate some mock lane, sample, and doublet.call metadata
+pbmc$Lane <- sample(
+    c("Lane1", "Lane2", "Lane3", "Lane4"),
+    ncol(pbmc),
+    replace = TRUE)
+pbmc$Sample <- sample(
+    c("Sample-1", "Sample-2", "Sample-3", "Sample-4", "Sample-5"),
+    ncol(pbmc),
+    replace = TRUE)
+pbmc$demux.doublet.call <- "SNG"
+
+demux.calls.summary(pbmc)
+
+demux.calls.summary(pbmc, data.out = TRUE)
+
+}
+\seealso{
+\code{\link{demux.SNP.summary}} for plotting the number of SNPs measured per cell.
+This is the other Demuxlet-associated QC visualization included with dittoSeq.
+
+\code{\link{importDemux2Seurat}}, for how to import relevant demuxlet information as metadata.
+
+Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
+}
+\author{
+Daniel Bunis
 }
