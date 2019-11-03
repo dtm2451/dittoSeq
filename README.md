@@ -2,7 +2,6 @@
 
 ![Logo](Vignette/dittoLogo_mini.png)
 
-**A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by novice, experienced, and color blind coders**
 A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by novice, experienced, and color blind coders
 
 **This branch contains an older version of dittoSeq, retained to enable backwards compatibility. Many new features have been added since. READMEs and vignettes are a bit out of date.**
