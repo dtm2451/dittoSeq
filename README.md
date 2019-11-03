@@ -9,7 +9,9 @@ dittoSeq includes universal plotting and helper functions for working with (sc)R
 - Seurat, (versions 2 & 3, single-cell RNAseq)
 - SingleCellExperiment (single-cell RNAseq)
 - DESeq2 (bulk RNAseq)
-- (Compatibility is planned for Monocle, Limma-voom, and EdgeR)
+- edgeR (bulk RNAseq)
+- Limma-Voom (bulk RNAseq)
+- (Compatibility is planned for Monocle in a future version.)
 
 All plotting functions spit out easy-to-read, color blind friendly, plots (ggplot2, plotly, or pheatmap) upon minimal coding input for your daily analysis needs, yet also allow sufficient manipulations to provide for out-of-the-box submission-quality figures!
 
@@ -23,10 +25,10 @@ Additionally, contains import functions for [Demuxlet](https://github.com/statge
 
 Includes lots of new features!
 
-  - Bulk RNAseq compatibility for Limma-voom processed data [planning stages].
+  - Compatibility with bulk RNAseq data that was processed with edgeR & limma-voom.
   - `dittoScatterPlot()` which allows plotting of gene x gene / metadata x metadata / gene x metadata.  Great for examining raw droplet data QC, or potential marker gene RNA or CITE-seq expression.
-  - `dittoDimPlot` supports overlay of cluster-based trajectories paths in any dimensionality reduction space.
-  - Retrieval of underlying data as a dataframe or matrix that is as simple as adding `data.out = TRUE`
+  - `dittoDimPlot` now supports overlay of pseudotime-analysis trajectory paths.
+  - Retrieval of underlying data as a dataframe or matrix.  Just add `data.out = TRUE` to the call.
   - Many more!
 
 Other updates since version 0.2:
@@ -36,7 +38,9 @@ Other updates since version 0.2:
 - Visualization names all start with `ditto...` and `multi_ditto...` instead of `DB...` and `multiDB...` Example: `dittoDimPlot` and `multi_dittoDimPlot`.
 - Color Storage: The colors are now retrievable with a simple, empty, function call, `dittoColors()`.  For use outside of dittoSeq, simply use `dittoColors()`.  Example within dittoSeq: `dittoDimPlot("ident", seurat, color.panel = dittoColors() )`.
 
-**Updated vignette with these functions is coming soon.** In the meantime, if the R documentation (example: `?dittoScatterPlot`) is not enough, please create an issue!
+**Updated vignette with these functions is coming soon.** In the meantime, if the R documentation (example: `?dittoScatterPlot`) is not enough, please create an issue!  For working with bulk data, start with `?importDESeq2` if the data was analyzed with DESeq2 or `?importEdgeR` if the data was analyzed with edgeR or Limma-Voom.
+
+A quick additional note on use of dittoSeq for bulkRNAseq data: dittoSeq is built to be a companion package for aiding analysis of RNAseq datasets of diverse structures. It works quite well for this purpose, but is not meant to be used as the main tool for data-processing and normalization. Inclusion of automatic normalization of bulk RNAseq data in import functions is provided for ease-of-use, but it is the responsibility of the user to provide properly normalized data (to the `normalized.data` inputs of import functions) when the default settings for rlog (DESeq2) or cpm (edgeR/Limma-Voom) calculation are improper.
 
 ## To install:
 
@@ -44,7 +48,6 @@ To install the version 0.3.0, run:
 
 ```
 devtools::install_github("dtm2451/dittoSeq@Development-v0.3.0")
-
 ```
 
 ## Color blindness friendliness:
