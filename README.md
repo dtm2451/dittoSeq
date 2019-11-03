@@ -21,10 +21,14 @@ Additionally, contains import functions for [Demuxlet](https://github.com/statge
 
 ## Installataion:
 
-To install the version 0.3.0, run:
-
 ```
-devtools::install_github("dtm2451/dittoSeq@Development-v0.3.0")
+devtools::install_github("dtm2451/dittoSeq")
+
+# For older versions:
+#   Old DB plotter version
+# devtools::install_github("dtm2451/dittoSeq@v0.2")
+#   Old DB plotter version plus some early ditto plotters
+# devtools::install_github("dtm2451/dittoSeq@v0.2.20")
 ```
 
 ## News: version 0.3.0 is LIVE
@@ -56,8 +60,16 @@ The default colors of this package are meant to be color blind friendly.  To mak
 
 ```{r}
 # Install
-devtools::install_github("dtm2451/dittoSeq@Development-v0.3.0")
+devtools::install_github("dtm2451/dittoSeq")
 # (Be sure to restart after a re-install!)
+```
+
+```{r}
+# For older versions:
+#   Old DB plotter version
+# devtools::install_github("dtm2451/dittoSeq@v0.2")
+#   Old DB plotter version plus some early ditto plotters
+# devtools::install_github("dtm2451/dittoSeq@v0.2.20")
 ```
 
 Load in your data, then go!:
