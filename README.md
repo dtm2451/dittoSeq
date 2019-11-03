@@ -1,36 +1,28 @@
-# dittoSeq [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2577576.svg)](https://doi.org/10.5281/zenodo.2577576)
+# dittoSeq
 
 ![Logo](Vignette/dittoLogo_mini.png)
 
 **A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by novice, experienced, and color blind coders**
+A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by novice, experienced, and color blind coders
 
-![Overview](Vignette/dittoSeq.gif)
+**This branch contains an older version of dittoSeq, retained to enable backwards compatibility. Many new features have been added since. READMEs and vignettes are a bit out of date.**
+
+```
+# To install from this branch, use:
+devtools::install_github("dtm2451/dittoSeq@v0.2.20")
+```
 
 *For a description of how to use the visualization functions, click [here](Vignette)*
 
 *For a description of how to use the Demuxlet import functions, click [here](Demuxlet-Vignette)*
 
-All plotting functions spit out easy-to-read, color blind friendly, ggplot2 plots upon minimal coding input for your daily analysis needs, and they also allow sufficient manipulations to provide for out-of-the-box submission-quality figures.
-
-Package includes various helper and plotting functions for working with RNAseq data analyzed in other packages; handles data stored in these object types:
-
-- Seurat (v2 & v3), single-cell RNAseq
-- SingleCellExperiment, single-cell RNAseq
-- DESeq, bulk RNAseq.
-
-Additionally, contains import functions for [Demuxlet](https://github.com/statgen/demuxlet) cell annotations as Mux-seq datasets often consist of side-by-side bulk and single-cell RNAseq.  (If you would like a pipeline for extraction of genotypes from bulk RNAseq to enable Demuxlet-calling of single-cell RNAseq, shoot me an email.)
-
-Extends the visualization functionality of the widely used Seurat package, and allows generation of similar figures from alternatively encoded single-cell data, or bulk RNA sequencing data. Thus, it enables analysis of single cell and bulk data side-by-side.
-
-NOTE: I use this package daily, and am constantly coming up with new ideas for tweaks and additional utility myself.  To report errors, give feedback, or suggest new features, you can do so either through [github](https://github.com/dtm2451/dittoSeq/issues), or by email at <daniel.bunis@ucsf.edu>.
-
-## News:
+## News, for things in this branch, since the beginning of v0.2:
 
 **Name Change:** I recently changed the package name from DittoSeq to dittoSeq to abide by camelCase package naming, as suggested by Bioconductor.  If you get issues loading the package after an update, you likely just need to change `library(DittoSeq)` to `library(dittoSeq)`.
 
 **Colors Storage:** I also updated how the default colors are stored: The package used to add a `MYcolors` object within the workspace.  Now, the colors can be accessed using a `dittoColors()` function.  If you used  `MYcolors` before in your code, just swap that our for `dittoColors()` after updating.
 
-**New functions updated in the development branch:** (from "old" `DB` version to "new" `ditto` versions)
+**New functions added in this +development branch:** (from "old" `DB` version to "new" `ditto` versions)
 
 - dittoDimPlot
 - multi_dittoDimPlot
@@ -39,15 +31,9 @@ NOTE: I use this package daily, and am constantly coming up with new ideas for t
   - Also added Ridgeplot capability & wrappers `dittoRidgePlot()` + `dittoBoxPlot()`
 - multi_dittoPlot
 - dittoBarPlot
-- dittoPlotVarsAcrossGroups (old = DBPlor_multi_var_summary)
-- multi_dittoDimPlotVaryCells
-- **All plotting functions have now been updated**
-  
-**Entirely new functions in the development branch:**
-
-- dittoScatterPlot() - allows plotting of gene x gene / metadata x metadata / gene x metadata... scatterplots, with potential to overlay colors or shapes.  Similar to dittoDimPlot, but with more flexible axes.
-
-**Updated vignettes with these functions coming soon.** Hopefully, R documentation (example: `?dittoDimPlot`) can suffice in the meantime.
+- dittoPlotVarsAcrossGroups (old = DBPlot_multi_var_summary)
+- multi_dittoDimPlotVaryCells (old = multiDBDimPlot_vary_cells)
+- dittoScatterPlot - allows plotting of gene x gene / metadata x metadata / gene x metadata... scatterplots, with potential to overlay colors or shapes.  Similar to dittoDimPlot, but with more flexible axes.
 
 ## Color blindness friendliness:
 
@@ -59,19 +45,7 @@ Simply run this code:
 
 ```
 install.packages("devtools")
-devtools::install_github("dtm2451/dittoSeq")
-```
-
-## Development:
-
-Updated functionality is on the way!  I am currently going through the process of overhauling most DittoSeq visualizations prior to submission to CRAN / Bioconductor.  To test out what's new, check out the development node.
-
-New plotters will be named "ditto"PlottingFunction instead of "DB"PlottingFunction, so installing development versions should not break any old code.  Be warned though that any "ditto"PlottingFunction is subject to change until such time that version 1.0.0 is released.
-
-To install the development version, run:
-
-```
-devtools::install_github("dtm2451/dittoSeq@development")
+devtools::install_github("dtm2451/dittoSeq@v0.2.20")
 ```
 
 # dittoSeq Functions (as of dittoSeq-0.2.06)
