@@ -23,6 +23,7 @@
 #' @slot misc A great place to store any other data associated with your bulk experiment that does not fit elsewhere in the object. Left \code{NULL} by default, and dittoSeq functions do not use or adjust this slot in any way.
 #'
 #' This slot can hold data of any type, including a list of multiple data objects.
+#' @slot version The version of dittoSeq used to create this RNAseq object.
 #' @seealso
 #' \code{\link{importDESeq2}} for automated import of DESeq objects into an \code{RNAseq} class object
 #'
@@ -44,7 +45,8 @@ Class <- setClass(
         meta.data = "data.frame",
         reductions = "list",
         samples = "character",
-        misc = "ANY"
+        misc = "ANY",
+        version = "ANY"
     ))
 
 #' Add a prcomp pca calculation to an RNAseq object

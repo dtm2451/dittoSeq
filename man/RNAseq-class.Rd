@@ -38,6 +38,8 @@ Each should be a list containing 3 elements:
 \item{\code{misc}}{A great place to store any other data associated with your bulk experiment that does not fit elsewhere in the object. Left \code{NULL} by default, and dittoSeq functions do not use or adjust this slot in any way.
 
 This slot can hold data of any type, including a list of multiple data objects.}
+
+\item{\code{version}}{The version of dittoSeq used to create this RNAseq object.}
 }}
 
 \seealso{

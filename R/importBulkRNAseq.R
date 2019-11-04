@@ -56,7 +56,8 @@ importDESeq2 <- function(
     dds, normalized.data = NULL, blind, counts = NULL, reductions = NULL) {
 
     object <- new(
-        "RNAseq", DEobject = dds, DEtype = "DESeq2")
+        "RNAseq", DEobject = dds, DEtype = "DESeq2",
+        version = packageVersion("dittoSeq"))
 
     if (is.null(counts)) {
         object@counts <- DESeq2::counts(dds)
@@ -153,7 +154,8 @@ importEdgeR <- function(
     counts = NULL, reductions = NULL) {
 
     object <- new(
-        "RNAseq", DEobject = DGEList, DEtype = "EdgeR")
+        "RNAseq", DEobject = DGEList, DEtype = "EdgeR",
+        version = packageVersion("dittoSeq"))
 
     if (is.null(counts)) {
         object@counts <- DGEList$counts
