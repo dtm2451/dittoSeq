@@ -181,7 +181,7 @@ dittoPlot <- function(
     ylab <- .leave_default_or_null(ylab,
         default = paste0(var,exp),
         null.if = !(length(var)==1 && is.character(var)))
-    main <- .leave_default_or_null(ylab, var,
+    main <- .leave_default_or_null(main, var,
         null.if = !(length(var)==1 && is.character(var)))
     legend.title <- .leave_default_or_null(legend.title, var,
         null.if = is.null(shape.var))
@@ -245,12 +245,13 @@ dittoPlot <- function(
 #' @param show.legend TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE
 #' @param ncol Integer which sets how many plots will be arranged per row.  Default = 3.
 #' @param nrow  Integer which sets how many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
-#' @param add.title Logical which sets whether a title should be added to each individual plot
-#' @param ylab Logical or string (with "var" being a special case).
-#' If logical, sets whether a y-axis title should be added.
-#' When set to \code{TRUE}, default dittoPlot behavior will be observed: y-label for any gene vars will be "'var' expression"
-#' When set to \code{"var"}, then the \code{vars} names alone will be used.
-#' When set as any other string, that string will be used as the y-axis label for every plot.
+#' @param mains,ylabs String which sets whether / how plot titles or y-axis labels should be added to each individual plot
+#' \itemize{
+#' \item When set to \code{"var"}, the \code{vars} names alone will be used.
+#' \item When set to \code{"make"}, the default dittoPlot behavior will be observed: For gene vars will be "'var' expression"
+#' \item When set as any other string, that string will be used as the y-axis label for every plot.
+#' \item When set to \code{NULL}, titles / axes labels will not be added.
+#' }
 #' @param xlab String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 #' Default is \code{NULL}, which removes it from plotting.
 #' @param OUT.List Logical which sets whether the output should be a list of objects instead of the plots arranged into a single plot grid.
@@ -278,51 +279,39 @@ dittoPlot <- function(
 #' multi_dittoPlot(genes,
 #'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
 #'     nrow = 2, ncol = 2,
-#'     add.title = FALSE, ylab = TRUE,  #Add y axis labels instead of titles
-#'     show.legend = TRUE)              #Show legends
-#' # To eliminate the "expression", change ylab = TRUE to ylab = "var"
+#'     mains = FALSE, ylabs = TRUE,  #Add y axis labels instead of titles
+#'     show.legend = TRUE)           #Show legends
+#'
+#' # To eliminate the "expression", change ylabs = TRUE to ylabs = "var"
 #' multi_dittoPlot(genes,
 #'             group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
-#'             nrow = 2, ncol = 2,              #Make it 2x2
-#'             add.title = FALSE, ylab = "var", #Add y axis labels without "expression"
-#'             show.legend = TRUE)              #Show legends
+#'             nrow = 2, ncol = 2,   #Make it 2x2
+#'             mains = FALSE,
+#'             ylabs = "var",        #Add y axis labels without "expression"
+#'             show.legend = TRUE)   #Show legends
 #'
 #' @author Daniel Bunis
 #' @export
 
 multi_dittoPlot <- function(
     vars, object = DEFAULT, group.by, color.by = group.by, show.legend = FALSE,
-    ncol = 3, nrow = NULL, add.title=TRUE, ylab = FALSE, xlab = NULL, OUT.List = FALSE,
-    ...) {
+    ncol = 3, nrow = NULL, mains="var", ylabs = NULL, xlab = NULL,
+    OUT.List = FALSE, ...) {
 
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
 
-    ylab.input <- ylab
-
     plots <- lapply(vars, function(X) {
-        dittoPlot(X, object, group.by, color.by, xlab = xlab,
-            ylab =
-                if (is.character(ylab.input)) {
-                    ifelse(
-                        ylab.input == "var",
-                        X,
-                        ylab.input)
-                } else {
-                    if (ylab.input) {
-                        "make" }
-                    else {
-                        NULL
-                    }
-                },
-            main =
-                if (add.title) {
-                    "make"
-                } else {
-                    NULL
-                },
-            ...) +
+        args <- list(X, object, group.by, color.by, xlab = xlab,
+            ylab = ylabs, main = mains,...)
+        if (!is.null(ylabs)) {
+            args$ylab <- ifelse(ylabs == "var", X, ylabs)
+        }
+        if (!is.null(mains)) {
+            args$main <- ifelse(mains == "var", X, mains)
+        }
+        do.call(dittoPlot, args) +
             theme(legend.position = ifelse(show.legend, "right", "none"))
     })
 

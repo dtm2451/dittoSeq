@@ -5,8 +5,8 @@
 \title{Generates multiple dittoPlots arranged into a grid.}
 \usage{
 multi_dittoPlot(vars, object = DEFAULT, group.by, color.by = group.by,
-  show.legend = FALSE, ncol = 3, nrow = NULL, add.title = TRUE,
-  ylab = FALSE, xlab = NULL, OUT.List = FALSE, ...)
+  show.legend = FALSE, ncol = 3, nrow = NULL, mains = "var",
+  ylabs = NULL, xlab = NULL, OUT.List = FALSE, ...)
 }
 \arguments{
 \item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
@@ -23,13 +23,13 @@ multi_dittoPlot(vars, object = DEFAULT, group.by, color.by = group.by,
 
 \item{nrow}{Integer which sets how many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.}
 
-\item{add.title}{Logical which sets whether a title should be added to each individual plot}
-
-\item{ylab}{Logical or string (with "var" being a special case).
-If logical, sets whether a y-axis title should be added.
-When set to \code{TRUE}, default dittoPlot behavior will be observed: y-label for any gene vars will be "'var' expression"
-When set to \code{"var"}, then the \code{vars} names alone will be used.
-When set as any other string, that string will be used as the y-axis label for every plot.}
+\item{mains, ylabs}{String which sets whether / how plot titles or y-axis labels should be added to each individual plot
+\itemize{
+\item When set to \code{"var"}, the \code{vars} names alone will be used.
+\item When set to \code{"make"}, the default dittoPlot behavior will be observed: For gene vars will be "'var' expression"
+\item When set as any other string, that string will be used as the y-axis label for every plot.
+\item When set to \code{NULL}, titles / axes labels will not be added.
+}}
 
 \item{xlab}{String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 Default is \code{NULL}, which removes it from plotting.}
@@ -64,14 +64,16 @@ multi_dittoPlot(genes,
 multi_dittoPlot(genes,
     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
     nrow = 2, ncol = 2,
-    add.title = FALSE, ylab = TRUE,  #Add y axis labels instead of titles
-    show.legend = TRUE)              #Show legends
-# To eliminate the "expression", change ylab = TRUE to ylab = "var"
+    mains = FALSE, ylabs = TRUE,  #Add y axis labels instead of titles
+    show.legend = TRUE)           #Show legends
+
+# To eliminate the "expression", change ylabs = TRUE to ylabs = "var"
 multi_dittoPlot(genes,
             group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
-            nrow = 2, ncol = 2,              #Make it 2x2
-            add.title = FALSE, ylab = "var", #Add y axis labels without "expression"
-            show.legend = TRUE)              #Show legends
+            nrow = 2, ncol = 2,   #Make it 2x2
+            mains = FALSE,
+            ylabs = "var",        #Add y axis labels without "expression"
+            show.legend = TRUE)   #Show legends
 
 }
 \seealso{
