@@ -28,4 +28,15 @@ Suggests: plotly,
     DESeq2,
     SummarizedExperiment,
     edgeR,
-    SingleCellExperiment
+    SingleCellExperiment,
+    knitr
+biocViews: 
+    Software,
+    Visualization,
+    RNASeq,
+    SingleCell,
+    GeneExpression, 
+    Transcriptomics
+VignetteBuilder: knitr
+Encoding: UTF-8
+RoxygenNote: 6.1.1
