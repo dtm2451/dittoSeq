@@ -9,6 +9,9 @@
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
 #' @param data.type String. Options are "normalized" (data slot, default), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects). Note: scaling is performed on the data matrix by default.
+#' @param order.by Single string or numeric vector which sets the ordering of cells/samples.
+#' Can be the name of a gene, or metadata slot.
+#' Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.
 #' @param heatmap.colors the colors to use within the heatmap.
 #' Default is a ramp from navy to white to red with 50 slices.
 #' @param scaled.to.max Logical which sets whether expression shoud be scaled between [0, 1].
@@ -134,7 +137,7 @@
 
 dittoHeatmap <- function(
     genes=NULL, object = DEFAULT, cells.use = NULL, main = NA,
-    cell.names.meta = NULL, data.type = "normalized",
+    cell.names.meta = NULL, data.type = "normalized", order.by = NULL,
     heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
     scaled.to.max = FALSE,
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
@@ -149,7 +152,7 @@ dittoHeatmap <- function(
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
-    #If cells.use given as logical, populate as names.
+    # If cells.use given as logical, populate as names.
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)
 
@@ -157,7 +160,7 @@ dittoHeatmap <- function(
         main <- NA
     }
 
-    #Make the data matrix
+    # Make the data matrix
     data <- as.matrix(.which_data(data.type,object)[genes,cells.use])
     if (sum(rowSums(data)==0)) {
         data <- data[rowSums(data)!=0,]
@@ -172,10 +175,16 @@ dittoHeatmap <- function(
         heatmap.colors <- heatmap.colors.max.scaled
     }
 
+    # Create the base pheatmap inputs
     args <- list(
         mat = data, main = main, show_colnames = show.colnames,
         show_rownames = show.rownames, color = heatmap.colors,
         ...)
+    if (!is.null(order.by)) {
+        order_data <- .var_OR_get_meta_or_gene(order.by, object, data.type)
+        args$mat <- args$mat[,order(order_data[all.cells %in% cells.use])]
+        args$cluster_cols <- FALSE
+    }
     if (is.null(args$scale)) {
         args$scale <- ifelse(scaled.to.max, "none", "row")
     }
@@ -183,12 +192,12 @@ dittoHeatmap <- function(
         args$border_color <- NA
     }
 
-    #Add cell/sample/row names unless provided separately by user
+    # Add cell/sample/row names unless provided separately by user
     if(is.null(args$labels_col) && !(is.null(cell.names.meta))) {
         args$labels_col <- as.character(meta(cell.names.meta, object)[all.cells %in% cells.use])
     }
 
-    #Make a labels_row input for displaying only certain genes if genes were given to highlight.genes input
+    # Make a labels_row input for displaying only certain genes if genes were given to highlight.genes input
     if (!(is.null(highlight.genes)) && sum(highlight.genes %in% rownames(data))>0) {
         highlight.genes <- highlight.genes[highlight.genes %in% rownames(data)]
         args$labels_row <- rownames(data)
@@ -197,11 +206,12 @@ dittoHeatmap <- function(
         args$show_rownames <- TRUE
     }
 
-    #Make the columns annotations data for colored annotation bars
+    # Make the columns annotations data for colored annotation bars
     if (!is.null(annotation.metas)) {
         args$annotation_col <- data.frame(row.names = cells.use)
         for (i in seq_along(annotation.metas)) {
-            args$annotation_col[,i] <- meta(annotation.metas[i], object)
+            args$annotation_col[,i] <-
+                meta(annotation.metas[i], object)[all.cells %in% cells.use]
         }
         names(args$annotation_col) <- annotation.metas
     }
@@ -219,7 +229,7 @@ dittoHeatmap <- function(
     OUT
 }
 
-#This next function creates pheatmap annotations_colors dataframe
+# This next function creates pheatmap annotations_colors dataframe
     # list of character vectors, all named.
         # vector names = annotation titles
         # vector members' (colors') names = annotation identities
