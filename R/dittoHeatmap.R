@@ -32,8 +32,6 @@
 #' @description Given a set of genes, cells/samples, and metadata names for column annotations, it will retrieve the expression data for those genes and cells, and the annotation data for those cells.
 #' It will then utilize these data to make a heatmap using the \code{\link[pheatmap]{pheatmap}} function of the \code{pheatmap} package.
 #'
-#' @note For scRNAseq data, running with \code{cluster_cols=FALSE} first is recommended because clustering of thousands of cells can tak a long time!
-#'
 #' @return A \code{pheatmap} object.
 #' Alternatively, if \code{data.out} was set to \code{TRUE}, a list containing
 #' \code{args}, a list of arguments passed to \code{pheatmap}, and
@@ -61,6 +59,8 @@
 #'
 #' Many additional characteristics of the plot can be adjusted using discrete inputs:
 #' \itemize{
+#' \item The cells can be ordered by in a set way using the \code{order.by} input.
+#' Note: It can take a long time to cluster thousands of samples or cells, so adding \code{order.by = 'useful-method'} can be quite useful.
 #' \item A plot title can be added with \code{main}.
 #' \item Gene or cell/sample annotations can be turned off with \code{show.rownames} and \code{show.colnames}, respectively, or...
 #' \itemize{
@@ -71,7 +71,7 @@
 #' Some examples of useful \code{pheatmap} parameters are:
 #' \itemize{
 #' \item \code{cluster_cols} and \code{cluster_rows} for controlling clustering.
-#' Note: It can take a long time to cluster thousands of samples or cells, so adding \code{cluster_cols=FALSE} can be quite useful when planning added tweaks.
+#' Note: cluster_cols will always be over-written to be \code{FALSE} when the input \code{order.by} is used above.
 #' \item \code{treeheight_row} and \code{treeheight_col} for setting how large the trees on the side/top should be drawn.
 #' \item \code{cutree_col} and \code{cutree_row} for spliting the heatmap based on kmeans clustering
 #' }
@@ -94,15 +94,15 @@
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     annotation.metas = "ident")
 #'
-#' # For real single cell data, you will have more cells than
-#' #   in this truncated dataset,
-#' #   so turning off cell clustering when trying out tweaks is recommended.
-#' #   Do so by adding cluster_cols=FALSE
+#' # Using the 'order.by' input:
+#' #   For real single cell data, you will typically have more cells than in
+#' #   this truncated dataset, so turning off cell clustering off and instead
+#' #   ordering by a useful metadata or gene can help speed the process a lot!
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
 #'     annotation.metas = "ident",
-#'     cluster_cols=FALSE)
+#'     order.by = "ident")
 #'
 #' # When there are many cells, showing names becomes less useful.
 #' #   Names can be turned off with the show.colnames parameter.
@@ -110,7 +110,7 @@
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
 #'     annotation.metas = "ident",
-#'     cluster_cols=FALSE,
+#'     order.by = "ident",
 #'     show.colnames = FALSE)
 #'
 #' # Additionally, it is recommended for single-cell data that the parameter
@@ -121,12 +121,14 @@
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
 #'     annotation.metas = "ident",
+#'     order.by = "ident",
 #'     show.colnames = FALSE,
 #'     scaled.to.max = TRUE)
 #' dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #'     "FCGR3A","LYZ","PPBP","CD8A"),
 #'     object = pbmc,
 #'     annotation.metas = "ident",
+#'     order.by = "ident",
 #'     show.colnames = FALSE,
 #'     scaled.to.max = FALSE,
 #'     scale = "none",
