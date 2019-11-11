@@ -33,7 +33,7 @@
 #' Lane information and demuxlet calls and statistics are then imported into the \code{Seurat} as metadata:
 #' \itemize{
 #' \item Lane = guided by \code{lane.meta} import input, represents of separate droblet-generation lane, pool, sequencing lane, etc.
-#' \item Sample =	The sample call, parsed from the BEST column
+#' \item Sample = The sample call, parsed from the BEST column
 #' \item demux.doublet.call = whether the sample was a singlet (SNG), doublet (DBL), or ambiguious (AMB), parsed from the BEST column
 #' \item demux.RD.TOTL = RD.TOTL column
 #' \item demux.RD.PASS = RD.PASS column
