@@ -93,8 +93,6 @@ sce <- as.SingleCellExperiment(seurat)
 
 Now that we have a single-cell dataset loaded, we are ready to go.  All functions work for either the Seurat or SCE version.
 
-[Skip to visualizations link]
-
 ```{r}
 dittoDimPlot("Sample", seurat)
 dittoPlot("ENO1", object = seurat, group.by = "celltype")
@@ -118,7 +116,44 @@ counts.data <- RNAseq_mock@counts
 norm.data <- RNAseq_mock@data
 ```
 
-By default:
+### Standard Workflow
+
+```{r}
+# Import
+myRNA <- importDESeq2(dds, normalized.data = norm.data)
+
+# Add metadata
+myRNA <- addMetaRNAseq(
+    object = myRNA,
+    value = rep(c("M", "F"), each = 5),
+    name = "sex")
+# Or, alternatively:
+scoreX <- 1:10/10
+addMeta(myRNA) <- scoreX
+
+# Calculate & Add PCA or other dimensionality reduction.
+prcomp_obj <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
+pca_mat <- prcomp_obj$x
+
+myRNA <- addDimReduction(
+    embeddings = pca_mat,
+    object = myRNA,
+    name = "pca",
+    raw.object = prcomp_obj)
+
+# Make Plots
+DEFAULT <- "myRNA"
+dittoDimPlot("sex", size = 3, do.ellipse = TRUE)
+dittoDimPlot("scoreX", size = 3)
+dittoBoxPlot("scoreX", group.by = "sex")
+dittoHeatmap(get.genes(myRNA)[1:10],
+    annotation.metas = c("scoreX", "sex", "Sample"))
+```
+
+
+### Import Data
+
+Default:
 
 When importing DESeq2 data, dittoSeq uses the DESeq2 `rlog()` function to create normalized data. This calculation can either be blinded to samples' condition identities, or not. Typically, `blind = FALSE` will be the proper option, but it is the responsibility of the user to decide what is best for their own data. See the `?rlog` documentation for more information.
 
@@ -130,7 +165,7 @@ library(DESeq2)
 myRNA <- importDESeq2(dds, blind = FALSE)
 ```
 
-Alternatively, users can also use the `normalized.data` input to provide pre-calculated normalized data and skip this recalculation.  The input for this ia a matrix with named columns (samples) and rows (genes).
+**Alternatively**, users can also use the `normalized.data` input to provide pre-calculated normalized data and skip this recalculation.  The input for this ia a matrix with named columns (samples) and rows (genes).
 
 Optionally, users can also use the `counts` input to provide a different raw counts matrix than the one within their DDS or DGEList.
 
@@ -322,30 +357,30 @@ This function is essentially a wrapper for generating heatmaps with pheatmap, bu
 
 The `annotation.metas` input can be used to have the function extract and properly format metadata that should be added as column annotation bars. `scaled.to.max = TRUE` will normalize all expression data between [0,1]. `show.colnames`/`show.rownames` controls whether cell/gene names will be shown.  A subset of the supplied genes can be given to the `highlight.genes` input to have names shown for just these genes.
 
+Additional tweaks can be added by providing additional inputs to pheatmap (see `?pheatmap`) which will be passed through to the pheatmap call.  One important example is the `cluster_cols` input. It can be good to set this to FALSE, at least initially, for single-cell datasets as clustering of thousands of cells tends to be memory intensive.
+
 ```{r, results = "hold"}
+# Pick Genes
 genes <- c("SST", "REG1A", "PPY", "INS", "CELA3A", "PRSS2", "CTRB1",
     "CPA1", "CTRB2" , "REG3A", "REG1B", "PRSS1", "GCG", "CPB1",
     "SPINK1", "CELA3B", "CLPS", "OLFM4", "ACTG1", "FTL")
-dittoHeatmap(genes, seurat)
-dittoHeatmap(genes, seurat,
-    annotation.metas = c("celltype", "Sample"),
-    scaled.to.max = TRUE,
-    show.colnames = FALSE,
-    show.rownames = FALSE)
-dittoHeatmap(genes, seurat,
-    highlight.genes = genes[1:3],
-    show.colnames = FALSE,
-    show.rownames = FALSE)
-```
 
-Additional tweaks can be added by providing additional inputs to pheatmap (see `?pheatmap`) which will be passed through to the pheatmap call.  One important example is the `cluster_cols` input. It can be good to set this to FALSE, at least initially, for single-cell datasets as clustering of thousands of cells tends to be memory intensive.
+# Turning off cell clustering can be necessary for many-cell scRNAseq
+dittoHeatmap(genes, seurat,
+    cluster_cols = FALSE)
 
-```{r}
-# Turning off cell clustering can be necessary for many cell scRNAseq
-dittoHeatmap(genes = get.genes(seurat)[1:20], seurat,
+# Add annotations
+dittoHeatmap(genes, seurat,
     cluster_cols = FALSE,
     annotation.metas = c("celltype", "Sample"),
     scaled.to.max = TRUE,
+    show.colnames = FALSE,
+    show.rownames = FALSE)
+
+# Highlight certain genes
+dittoHeatmap(genes, seurat,
+    cluster_cols = FALSE,
+    highlight.genes = genes[1:3],
     show.colnames = FALSE,
     show.rownames = FALSE)
 ```
@@ -357,10 +392,15 @@ These create either multiple plots or create plots that summarize data for multi
 Some setup for these, let's roughly pick out the markers of delta cells in this dataset
 
 ```{r}
-Idents(seurat) <- "celltype"
-delta.marker.table <- FindMarkers(seurat, ident.1 = "delta")
-delta.genes <- rownames(delta.marker.table)[1:20]
-Idents(seurat) <- "seurat_clusters"
+# Idents(seurat) <- "celltype"
+# delta.marker.table <- FindMarkers(seurat, ident.1 = "delta")
+# delta.genes <- rownames(delta.marker.table)[1:20]
+# Idents(seurat) <- "seurat_clusters"
+
+delta.genes <- c("SST", "RBP4", "PCSK1", "CPE", "GPX3",
+    "NLRP1", "PPP1R1A", "PCP4", "CHGB", "DHRS2", "LEPR", 
+    "PTPRN", "BEX1", "SCGN", "PCSK1N", "SCG5", "UCHL1",
+    "CHGA", "GAD2", "SEC11C")
 ```
 
 ### multi_dittoPlot & dittoPlot_VarsAcrossGroups
