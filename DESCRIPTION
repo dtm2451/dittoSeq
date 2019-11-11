@@ -29,7 +29,9 @@ Suggests: plotly,
     SummarizedExperiment,
     edgeR,
     SingleCellExperiment,
-    knitr
+    knitr,
+    BiocStyle,
+    scRNAseq
 biocViews: 
     Software,
     Visualization,
