@@ -1,4 +1,4 @@
-# dittoSeq ![Logo](Vignette/dittoLogo_mini.png)
+# dittoSeq ![Logo](Misc/dittoLogo_mini.png)
 
 **A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by novice, experienced, and color blind coders**
 
@@ -15,7 +15,7 @@ All plotting functions spit out easy-to-read, color blind friendly, plots (ggplo
 
 dittoSeq also makes collection of underlying data easy, for submitting to journals, with `data.out = TRUE` inputs!
 
-![Overview](Vignette/dittoSeq.gif)
+![Overview](Misc/dittoSeq.gif)
 
 Additionally, contains import functions for [Demuxlet](https://github.com/statgen/demuxlet) cell annotations as Mux-seq datasets often consist of side-by-side bulk and single-cell RNAseq.  (If you would like a pipeline for extraction of genotypes from bulk RNAseq to enable Demuxlet-calling of single-cell RNAseq, shoot me an email.)
 
@@ -56,15 +56,13 @@ The default colors of this package are meant to be color blind friendly.  To mak
 
 # Quick Start Guide:
 
-(For rendered plots, download and open [Vignette/QuickStartRender.html](Vignette/QuickStartRender.html))
-
-```{r}
+```
 # Install
 devtools::install_github("dtm2451/dittoSeq")
 # (Be sure to restart after a re-install!)
 ```
 
-```{r}
+```
 # For older versions:
 #   Old DB plotter version
 # devtools::install_github("dtm2451/dittoSeq@v0.2")
@@ -74,7 +72,7 @@ devtools::install_github("dtm2451/dittoSeq")
 
 Load in your data, then go!:
 
-```{r}
+```
 library(dittoSeq)
 # library(Seurat)
 
@@ -93,14 +91,16 @@ myRNA <- RNAseq_mock
 dittoDimPlot("Gene1", myRNA, size = 3)
 ```
 
-Quickly determine the metadata and gene options for plotting with helper functions:
+Quickly determine the metadata and gene options for plotting with universal helper functions:
 
-```{r}
+```
 get.metas(seurat)
 is.meta("nCount_RNA", seurat)
 
 get.genes(myRNA)
 is.gene("CD3E", myRNA)
+
+get.reductions(sce)
 
 # View them with these:
 gene("CD3E", seurat, data.type = "raw")
@@ -112,23 +112,36 @@ meta.levels("groups", seurat)
 
 **Intuitive default adjustments generally allow creation of immediately useable plots.**
 
-```{r}
+```
+# dittoDimPlot
+dittoDimPlot("ident", seurat, size = 3)
+dittoDimPlot("CD3E", seurat, size = 3)
+```
+
+![](Misc/QuickStart1_Dim.png)
+
+```
+# dittoBarPlot
+dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8")
+dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+    scale = "count")
+```
+
+![](Misc/QuickStart2_Bar.png)
+
+```
 # dittoPlot
 dittoPlot("CD3E", seurat, group.by = "ident")
 dittoPlot("CD3E", seurat, group.by = "ident",
     plots = c("boxplot", "jitter"))
 dittoPlot("CD3E", seurat, group.by = "ident",
     plots = c("ridgeplot", "jitter"))
+gridExtra::grid.arrange(grobs = list(p1,p2,p3))
+```
 
-# dittoDimPlot
-dittoDimPlot("ident", seurat, size = 3)
-dittoDimPlot("CD3E", seurat, size = 3)
+![](Misc/QuickStart3_Plot.png)
 
-# dittoBarPlot
-dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8")
-dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
-    scale = "count")
-
+```
 # dittoHeatmap
 dittoHeatmap(genes = get.genes(seurat)[1:20], seurat)
 dittoHeatmap(genes = get.genes(seurat)[1:20], seurat,
@@ -138,15 +151,28 @@ dittoHeatmap(genes = get.genes(seurat)[1:20], seurat,
 # Turning off cell clustering can be necessary for many cell scRNAseq
 dittoHeatmap(genes = get.genes(seurat)[1:20], seurat,
     cluster_cols = FALSE)
+```
 
+![](Misc/QuickStart4_Heatmap.png)
+
+```
 # dittoScatterPlot
 dittoScatterPlot(
     x.var = "CD3E", y.var = "nCount_RNA",
     color.var = "ident", shape.var = "RNA_snn_res.0.8",
     object = seurat,
     size = 3)
+dittoScatterPlot(
+    x.var = "nCount_RNA", y.var = "nFeature_RNA",
+    color.var = "percent.mt",
+    object = sce,
+    size = 1.5)
+```
 
-# Also:
+![](Misc/QuickStart5_Scatter.png)
+
+```
+# Also multi-plotters:
     # multi_dittoDimPlot (multiple, in an array)
     # multi_dittoDimPlotVaryCells (multiple, in an array, but showing only certain
     #     cells in each plot)
@@ -159,14 +185,20 @@ dittoScatterPlot(
 
 Many adjustments to how data is reresented are within the examples above.  See documentation for more!  Also,
 
+- DEFAULTing: Set `DEFAULT <- object_name` to elinate the need to type `object = object_name` except when switching between multiple objects.
 - All Titles are adjustable.
+- Easily subset the cells shown with 
 - Colors can be adjusted easily.
 - Underlying data can be output.
 - plotly hovering can be added.
 - Many more! (Legends removal, label rotation, labels' and groupings' names, ...)
 
-```{r}
-dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+```
+# Set default
+DEFAULT <- "seurat"
+
+# Adjust titles
+dittoBarPlot("ident", group.by = "RNA_snn_res.0.8",
     main = "Starters",
     sub = "By Type",
     xlab = NULL,
@@ -176,14 +208,25 @@ dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
     var.labels.rename = c("Fire", "Water", "Grass"),
     x.labels.rotate = FALSE)
 
-dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+# Subset cells / samples
+dittoBarPlot("ident", group.by = "RNA_snn_res.0.8",
+    cells.use = meta("ident")!=1)
+
+# Adjust colors
+dittoBarPlot("ident", group.by = "RNA_snn_res.0.8",
     colors = c(3,1,2)) #Just changes the color order, probably most useful for dittoDimPlots
 dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
     color.panel = c("red", "orange", "purple"))
+```
 
-dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+![](Misc/QuickStart6_Customizations.png)
+
+```
+# Output data
+dittoBarPlot("ident", group.by = "RNA_snn_res.0.8",
     data.out = TRUE)
 
-dittoBarPlot("ident", seurat, group.by = "RNA_snn_res.0.8",
+# Add plotly hovering
+dittoBarPlot("ident", group.by = "RNA_snn_res.0.8",
     do.hover = TRUE)
 ```
