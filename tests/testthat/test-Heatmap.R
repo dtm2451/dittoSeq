@@ -56,23 +56,6 @@ test_that("Heatmap can hide rownames/colnames", {
         "pheatmap")
 })
 
-test_that("Heatmap can be subset to certain cells", {
-    # "Coloring works for discrete column and row annotations"
-        # If: annotations are all discrete.
-    expect_s3_class(
-        dittoHeatmap(
-            genes,
-            object = pbmc,
-            cells.use = meta("number", pbmc)<60),
-        "pheatmap")
-    expect_s3_class(
-        dittoHeatmap(
-            genes,
-            object = pbmc,
-            cells.use = colnames(pbmc)[meta("number", pbmc)<60]),
-        "pheatmap")
-})
-
 test_that("Heatmap gives proper warnings when it should", {
     # Function gives and error if no geens are provided.
     expect_error(
@@ -152,6 +135,30 @@ test_that("Heatmap annotations can be given through metadata provision", {
         "pheatmap")
 })
 
+test_that("Heatmap can be subset to certain cells", {
+    # "Coloring works for discrete column and row annotations"
+        # If: annotations are all discrete.
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc,
+            cells.use = meta("number", pbmc)<60),
+        "pheatmap")
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc,
+            cells.use = colnames(pbmc)[meta("number", pbmc)<60]),
+        "pheatmap")
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc,
+            annotation.metas = "ident",
+            cells.use = colnames(pbmc)[meta("number", pbmc)<60]),
+        "pheatmap")
+})
+
 test_that("Heatmap annotation colors can be adjusted", {
     expect_s3_class(
         dittoHeatmap(
@@ -205,5 +212,60 @@ test_that("Coloring works for continuous column and row annotations", {
                 row.names = genes),
             cluster_rows = FALSE,
             cluster_cols = FALSE),
+        "pheatmap")
+})
+
+test_that("Heatmap can be ordered by metadata, expression, or user-input vector", {
+    # Works for expression
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc,
+            order.by = "CD3E"),
+        "pheatmap")
+    # Works for metadata
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc,
+            order.by = "groups",
+            annotation.metas = "groups"),
+        "pheatmap")
+    # Works with vectors provided
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc,
+            annotation.metas = "number",
+            order.by = seq_along(colnames(pbmc))),
+        "pheatmap")
+})
+
+test_that("Heatmap can be ordered when also subset to certain cells", {
+    # Works for expression
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc,
+            order.by = "CD3E",
+            cells.use = meta("number", pbmc)<60),
+        "pheatmap")
+    # Works for metadata
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc,
+            order.by = "groups",
+            annotation.metas = "groups",
+            cells.use = colnames(pbmc)[meta("number", pbmc)<60]),
+        "pheatmap")
+    # Works with vectors provided
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = pbmc,
+            annotation.metas = "number",
+            order.by = seq_along(colnames(pbmc)),
+            cells.use = colnames(pbmc)[meta("number", pbmc)<60]),
         "pheatmap")
 })

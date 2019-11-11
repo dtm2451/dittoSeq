@@ -356,9 +356,7 @@ dittoBarPlot("ident", seurat, group.by = "Sample",
 
 This function is essentially a wrapper for generating heatmaps with pheatmap, but with the same automatic, user-friendly, data extraction, (subsetting,) and metadata integrations common to other dittoSeq functions.
 
-The `annotation.metas` input can be used to have the function extract and properly format metadata that should be added as column annotation bars. `scaled.to.max = TRUE` will normalize all expression data between [0,1]. `show.colnames`/`show.rownames` controls whether cell/gene names will be shown.  A subset of the supplied genes can be given to the `highlight.genes` input to have names shown for just these genes.
-
-Additional tweaks can be added by providing additional inputs to pheatmap (see `?pheatmap`) which will be passed through to the pheatmap call.  One important example is the `cluster_cols` input. It can be good to set this to FALSE, at least initially, for single-cell datasets as clustering of thousands of cells tends to be memory intensive.
+For large, many cell, single-cell datasets, it can be necessary to turn off clustering by cells in generating the heatmap because the process is very memory intensive. As an alternative, dittoHeatmap offers the ability to order columns in alternative functional ways using the `order.by` input.
 
 ```{r, results = "hold"}
 # Pick Genes
@@ -366,25 +364,38 @@ genes <- c("SST", "REG1A", "PPY", "INS", "CELA3A", "PRSS2", "CTRB1",
     "CPA1", "CTRB2" , "REG3A", "REG1B", "PRSS1", "GCG", "CPB1",
     "SPINK1", "CELA3B", "CLPS", "OLFM4", "ACTG1", "FTL")
 
-# Turning off cell clustering can be necessary for many-cell scRNAseq
+# Ordering cells by some meaningful feature:
+#   Turning off cell clustering can be necessary for many-cell scRNAseq.
+#   Ordering can be a functional way of doing that.
 dittoHeatmap(genes, seurat,
-    cluster_cols = FALSE)
+    order.by = "celltype")
+```
 
+Annotation bars can be added using the `annotation.metas` input. The function will then extract and properly format metadata for adding them as column annotation bars. `scaled.to.max = TRUE` will normalize all expression data between [0,1], which is often useful for zero-enriched single-cell expression data. `show.colnames`/`show.rownames` controls whether cell/gene names will be shown.
+
+```{r}
 # Add annotations
 dittoHeatmap(genes, seurat,
-    cluster_cols = FALSE,
+    order.by = "celltype",
     annotation.metas = c("celltype", "Sample"),
     scaled.to.max = TRUE,
     show.colnames = FALSE,
     show.rownames = FALSE)
+```
 
+A subset of the supplied genes can be given to the `highlight.genes` input to have names shown for just these genes.
+
+```{r}
 # Highlight certain genes
 dittoHeatmap(genes, seurat,
-    cluster_cols = FALSE,
+    order.by = "celltype",
+    annotation.metas = "celltype",
     highlight.genes = genes[1:3],
     show.colnames = FALSE,
     show.rownames = FALSE)
 ```
+
+Additional tweaks can be added by providing additional inputs to pheatmap (see `?pheatmap`) which will be passed through to the pheatmap call.  One important example is the `cluster_cols` input. It can be good to set this to FALSE, at least initially, for single-cell datasets as clustering of thousands of cells tends to be memory intensive.
 
 ## Multi-Plotters
 
@@ -448,7 +459,6 @@ dittoBarPlot("celltype", seurat, group.by = "Sample", scale = "count",
 # Logical method, only acinar cells
 dittoBarPlot("celltype", seurat, group.by = "Sample", scale = "count",
     cells.use = meta("celltype", seurat) == "acinar")
-
 ```
 
 ## All titles are adjustable.
