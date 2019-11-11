@@ -10,7 +10,7 @@ dittoHeatmap(genes = NULL, object = DEFAULT, cells.use = NULL,
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
   annotation.metas = NULL, annotation.colors = c(rep(dittoColors(), 9),
-  dittoColors()[1:7]), data.out = FALSE, highlight.genes = NULL,
+  dittoColors()[seq_len(7)]), data.out = FALSE, highlight.genes = NULL,
   show.colnames = TRUE, show.rownames = TRUE, ...)
 }
 \arguments{

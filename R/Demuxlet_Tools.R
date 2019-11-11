@@ -266,7 +266,7 @@ importDemux2Seurat <- function(
     Demuxlet.calls <- data.frame(t(
         vapply(
             as.character(Demuxlet.best$BEST),
-            function(X) strsplit(X,'-')[[1]][1:2],
+            function(X) strsplit(X,'-')[[1]][seq_len(2)],
             FUN.VALUE = character(2))),
         row.names = as.character(Demuxlet.best$BARCODE),
         stringsAsFactors = FALSE)
