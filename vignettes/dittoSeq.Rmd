@@ -18,7 +18,7 @@ vignette: >
 
 ```{r, echo=FALSE, results="hide", message=FALSE}
 knitr::opts_chunk$set(error=FALSE, message=FALSE, warning=FALSE,
-    dev="jpeg", dpi = 72, fig.width = 5.5, fig.height = 4.5)
+    dev="jpeg", dpi = 72, fig.width = 4.5, fig.height = 3.5)
 library(BiocStyle)
 ```
 
@@ -445,7 +445,7 @@ dittoBarPlot("celltype", seurat, group.by = "Sample", scale = "count")
 dittoBarPlot("celltype", seurat, group.by = "Sample", scale = "count",
     cells.use = colnames(seurat)[1:10])
 
-# String method, only acinar cells
+# Logical method, only acinar cells
 dittoBarPlot("celltype", seurat, group.by = "Sample", scale = "count",
     cells.use = meta("celltype", seurat) == "acinar")
 
