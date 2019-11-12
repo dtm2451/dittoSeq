@@ -95,7 +95,7 @@
 #' pbmc <- Seurat::pbmc_small
 #'
 #' # Pick a set of genes
-#' genes <- get.genes("pbmc")[1:30]
+#' genes <- getGenes("pbmc")[1:30]
 #'
 #' dittoPlotVarsAcrossGroups(
 #'     genes, object = pbmc,
@@ -160,7 +160,7 @@ dittoPlotVarsAcrossGroups <- function(
     if (data.type == "relative") {
         data.type <- "z-score"
     }
-    all.genes <- ifelse(sum(!is.gene(vars, object))==0, TRUE, FALSE)
+    all.genes <- ifelse(sum(!isGene(vars, object))==0, TRUE, FALSE)
     ylab <- .leave_default_or_null(ylab,
         default = paste(
             deparse(substitute(summary.fxn)),

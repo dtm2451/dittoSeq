@@ -1,23 +1,23 @@
 # Tests for visualization functions
 # library(dittoSeq); library(testthat); source("tests/testthat/setup.R"); source("tests/testthat/test-getters.R")
 
-test_that("get.metas works for Seurat.v3, SCE, and RNAseq", {
-    expect_type(metas <- get.metas(pbmc),
+test_that("getMetas works for Seurat.v3, SCE, and RNAseq", {
+    expect_type(metas <- getMetas(pbmc),
         "character")
-    expect_true(all(metas %in% get.metas(pbmc.rnaseq)))
-    expect_true(all(metas %in% get.metas(pbmc.rnaseq)))
+    expect_true(all(metas %in% getMetas(pbmc.rnaseq)))
+    expect_true(all(metas %in% getMetas(pbmc.rnaseq)))
 })
 
-metas <- get.metas(pbmc)
+metas <- getMetas(pbmc)
 
-test_that("is.meta works for Seurat.v3, SCE, and RNAseq", {
-    expect_false(is.meta("HELLO", pbmc))
-    expect_false(is.meta("HELLO", pbmc.se))
-    expect_false(is.meta("HELLO", pbmc.rnaseq))
-    expect_true(is.meta("ident", pbmc))
-    expect_true(is.meta("nCount_RNA", pbmc))
-    expect_true(is.meta("nCount_RNA", pbmc.se))
-    expect_true(is.meta("nCount_RNA", pbmc.rnaseq))
+test_that("isMeta works for Seurat.v3, SCE, and RNAseq", {
+    expect_false(isMeta("HELLO", pbmc))
+    expect_false(isMeta("HELLO", pbmc.se))
+    expect_false(isMeta("HELLO", pbmc.rnaseq))
+    expect_true(isMeta("ident", pbmc))
+    expect_true(isMeta("nCount_RNA", pbmc))
+    expect_true(isMeta("nCount_RNA", pbmc.se))
+    expect_true(isMeta("nCount_RNA", pbmc.rnaseq))
 })
 
 test_that("meta works for Seurat.v3, SCE, and RNAseq", {
@@ -34,22 +34,22 @@ test_that("meta.levels works for Seurat.v3, SCE, and RNAseq", {
     expect_equal(groups, meta.levels("groups", pbmc.rnaseq))
 })
 
-test_that("get.genes works for Seurat.v3, SCE, and RNAseq", {
-    expect_type(genes <- get.genes(pbmc),
+test_that("getGenes works for Seurat.v3, SCE, and RNAseq", {
+    expect_type(genes <- getGenes(pbmc),
         "character")
-    expect_equal(genes, get.genes(pbmc.se))
-    expect_equal(genes, get.genes(pbmc.rnaseq))
+    expect_equal(genes, getGenes(pbmc.se))
+    expect_equal(genes, getGenes(pbmc.rnaseq))
 })
 
-genes <- get.genes(pbmc)
+genes <- getGenes(pbmc)
 
-test_that("is.gene works for Seurat.v3, SCE, and RNAseq", {
-    expect_false(is.gene("HELLO", pbmc))
-    expect_false(is.gene("HELLO", pbmc.se))
-    expect_false(is.gene("HELLO", pbmc.rnaseq))
-    expect_true(is.gene("MYL9", pbmc))
-    expect_true(is.gene("MYL9", pbmc.se))
-    expect_true(is.gene("MYL9", pbmc.rnaseq))
+test_that("isGene works for Seurat.v3, SCE, and RNAseq", {
+    expect_false(isGene("HELLO", pbmc))
+    expect_false(isGene("HELLO", pbmc.se))
+    expect_false(isGene("HELLO", pbmc.rnaseq))
+    expect_true(isGene("MYL9", pbmc))
+    expect_true(isGene("MYL9", pbmc.se))
+    expect_true(isGene("MYL9", pbmc.rnaseq))
 })
 
 test_that("gene works for Seurat.v3, SCE, and RNAseq", {
@@ -80,10 +80,10 @@ test_that("gene works for different data.types (Seurat.v3)", {
         gene("MYL9", pbmc, data.type = "normalized.to.max")))
 })
 
-test_that("get.reductions works for Seurat.v3, SCE, and RNAseq", {
-    expect_type(reductions <- get.reductions(pbmc),
+test_that("getReductions works for Seurat.v3, SCE, and RNAseq", {
+    expect_type(reductions <- getReductions(pbmc),
         "character")
-    expect_equal(reductions, tolower(get.reductions(pbmc.se)))
-    expect_equal(reductions, get.reductions(pbmc.rnaseq))
+    expect_equal(reductions, tolower(getReductions(pbmc.se)))
+    expect_equal(reductions, getReductions(pbmc.rnaseq))
 })
 

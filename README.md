@@ -35,7 +35,9 @@ devtools::install_github("dtm2451/dittoSeq")
 ## News: dittoSeq is being submitted to Bioconductor!
 
 - Version 0.3.0 is being up'd to 0.99.0 for that purpose.
-- Some changes are expected, so I will maintain the current 0.3 version throughout 
+- Changes are expected, so I will maintain the current 0.3 version throughout.
+- Changes in 0.3 -> 0.99:
+  - Helper function names changed from `get.X` and `is.X` to `getX` and `isX`
 
 ## News: version 0.3.0 is LIVE
 
@@ -101,13 +103,13 @@ dittoDimPlot("Gene1", myRNA, size = 3)
 Quickly determine the metadata and gene options for plotting with universal helper functions:
 
 ```
-get.metas(seurat)
-is.meta("nCount_RNA", seurat)
+getMetas(seurat)
+isMeta("nCount_RNA", seurat)
 
-get.genes(myRNA)
-is.gene("CD3E", myRNA)
+getGenes(myRNA)
+isGene("CD3E", myRNA)
 
-get.reductions(sce)
+getReductions(sce)
 
 # View them with these:
 gene("CD3E", seurat, data.type = "raw")
@@ -150,13 +152,13 @@ gridExtra::grid.arrange(grobs = list(p1,p2,p3))
 
 ```
 # dittoHeatmap
-dittoHeatmap(genes = get.genes(seurat)[1:20], seurat)
-dittoHeatmap(genes = get.genes(seurat)[1:20], seurat,
+dittoHeatmap(genes = getGenes(seurat)[1:20], seurat)
+dittoHeatmap(genes = getGenes(seurat)[1:20], seurat,
     annotation.metas = c("groups", "ident"),
     scaled.to.max = TRUE,
     show.colnames = FALSE)
 # Turning off cell clustering can be necessary for many cell scRNAseq
-dittoHeatmap(genes = get.genes(seurat)[1:20], seurat,
+dittoHeatmap(genes = getGenes(seurat)[1:20], seurat,
     cluster_cols = FALSE)
 ```
 

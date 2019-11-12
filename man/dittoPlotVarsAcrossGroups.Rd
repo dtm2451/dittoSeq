@@ -156,7 +156,7 @@ library(Seurat)
 pbmc <- Seurat::pbmc_small
 
 # Pick a set of genes
-genes <- get.genes("pbmc")[1:30]
+genes <- getGenes("pbmc")[1:30]
 
 dittoPlotVarsAcrossGroups(
     genes, object = pbmc,

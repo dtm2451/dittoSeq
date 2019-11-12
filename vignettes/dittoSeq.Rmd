@@ -147,7 +147,7 @@ DEFAULT <- "myRNA"
 dittoDimPlot("sex", size = 3, do.ellipse = TRUE)
 dittoDimPlot("scoreX", size = 3)
 dittoBoxPlot("scoreX", group.by = "sex")
-dittoHeatmap(get.genes(myRNA)[1:10],
+dittoHeatmap(getGenes(myRNA)[1:10],
     annotation.metas = c("scoreX", "sex", "Sample"))
 ```
 
@@ -252,17 +252,17 @@ dittoSeq's helper functions make it easy to determine the metadata and gene opti
 
 ```{r}
 # Retrieve all metadata slot names
-get.metas(seurat)
+getMetas(seurat)
 # Query for the presence of a metadata slot
-is.meta("nCount_RNA", seurat)
+isMeta("nCount_RNA", seurat)
 
 # Retrieve all gene names
-get.genes(seurat)[1:10]
+getGenes(seurat)[1:10]
 # Query for the presence of a gene
-is.gene("CD3E", seurat)
+isGene("CD3E", seurat)
 
 # Retrieve all dimensionality reductions
-get.reductions(seurat)
+getReductions(seurat)
 
 # Retrieve gene expression values:
 gene("ENO1", seurat, data.type = "raw")[1:10]

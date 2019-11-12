@@ -175,7 +175,7 @@ dittoPlot <- function(
 
     #Parse Title Defaults
     exp <- NULL
-    if (is.gene(var[1], object)) {
+    if (isGene(var[1], object)) {
         exp <- " expression"
     }
     ylab <- .leave_default_or_null(ylab,
@@ -187,7 +187,7 @@ dittoPlot <- function(
         null.if = is.null(shape.var))
 
     #Grab the data
-    if (!is.null(shape.var) && is.meta(shape.var, object)) {
+    if (!is.null(shape.var) && isMeta(shape.var, object)) {
         extra.vars = shape.var
     } else {
         extra.vars = NULL
@@ -384,7 +384,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 height = 0,
                 color = jitter.color)
             #If shape.var metadata given, use it. Else, shapes[1] which = dots (16) by default
-            if (!is.null(shape.var) && is.meta(shape.var, object)) {
+            if (!is.null(shape.var) && isMeta(shape.var, object)) {
                 #Make jitter with shapes
                 jitter.args$mapping <- if (do.hover) {
                     aes_string(shape = shape.var, text = "hover.string")

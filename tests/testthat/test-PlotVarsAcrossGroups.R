@@ -3,7 +3,7 @@
 
 pbmc@meta.data$number <- as.numeric(seq_along(colnames(pbmc)))
 pbmc@meta.data$number2 <- as.numeric(seq_along(colnames(pbmc)))
-genes <- get.genes(pbmc)[1:5]
+genes <- getGenes(pbmc)[1:5]
 grp <- "RNA_snn_res.1"
 clr <- "orig.ident"
 clr2 <- "RNA_snn_res.0.8"

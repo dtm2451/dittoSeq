@@ -1,4 +1,4 @@
-#### is.meta: Is this the name of a meta.data slot in my dataset? ####
+#### isMeta: Is this the name of a meta.data slot in my dataset? ####
 #' Tests if an input is the name of a meta.data slot in a target object.
 #'
 #' @param test String or vector of strings, the "potential.metadata.name"(s) to check for.
@@ -11,7 +11,7 @@
 #' For Seurat objects, also returns TRUE for the input \code{"ident"} because, for all dittoSeq visualiztions, \code{"ident"} will retrieve a Seurat objects' clustering slot.
 #'
 #' @seealso
-#' \code{\link{get.metas}} for returning all metadata slots of an \code{object}
+#' \code{\link{getMetas}} for returning all metadata slots of an \code{object}
 #'
 #' \code{\link{meta}} for obtaining the contants of metadata slots
 #'
@@ -20,21 +20,21 @@
 #' pbmc <- Seurat::pbmc_small
 #'
 #' # To see all metadata slots of an object
-#' get.metas(pbmc)
+#' getMetas(pbmc)
 #'
 #' # To check if something is a metadata slot
-#' is.meta("age", object = pbmc) # False
-#' is.meta("nCount_RNA", object = pbmc) # True
+#' isMeta("age", object = pbmc) # False
+#' isMeta("nCount_RNA", object = pbmc) # True
 #'
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
 #' DEFAULT <- "pbmc"
-#' is.meta("groups")
+#' isMeta("groups")
 #'
 #' # works for multiple test metas
-#' is.meta(c("age","nCount_RNA"))
+#' isMeta(c("age","nCount_RNA"))
 #'
 #' # and with return.values = TRUE, returns all elements that are indeed slots
-#' is.meta(c("age","nCount_RNA", "RNA_snn_res.0.8"),
+#' isMeta(c("age","nCount_RNA", "RNA_snn_res.0.8"),
 #'     return.values = TRUE)
 #'
 #' @author Daniel Bunis
@@ -42,14 +42,14 @@
 #' @import ggplot2
 #' @importFrom utils packageVersion
 
-is.meta <- function(test, object=DEFAULT, return.values=FALSE){
+isMeta <- function(test, object=DEFAULT, return.values=FALSE){
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
     if (return.values) {
-        return(test[is.meta(test, object, return.values=FALSE)])
+        return(test[isMeta(test, object, return.values=FALSE)])
     } else {
-        metas <- get.metas(object)
+        metas <- getMetas(object)
         if (grepl("Seurat", .class_of(object))) {
             metas <- c(metas,"ident")
         }
@@ -57,14 +57,14 @@ is.meta <- function(test, object=DEFAULT, return.values=FALSE){
     }
 }
 
-#### get.metas: prints the names of all the metadata lists for the object ####
+#### getMetas: prints the names of all the metadata lists for the object ####
 #' Returns the names of all meta.data slots of a target object.
 #'
 #' @param object A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".
 #' @param names.only Logical, \code{TRUE} by default, which sets whether just the names should be output versus the entire metadata dataframe.
 #' @return A string vector of the names of all metadata slots of the \code{object}, or alternatively the entire dataframe of metadatas if \code{names.only} is set to \code{FALSE}
 #' @seealso
-#' \code{\link{is.meta}} for checking if certain metadata slots exist in an \code{object}
+#' \code{\link{isMeta}} for checking if certain metadata slots exist in an \code{object}
 #'
 #' \code{\link{meta}} for obtaining the contants of metadata slots
 #'
@@ -73,15 +73,15 @@ is.meta <- function(test, object=DEFAULT, return.values=FALSE){
 #' pbmc <- Seurat::pbmc_small
 #'
 #' # To see all metadata slots of an object
-#' get.metas(pbmc)
+#' getMetas(pbmc)
 #'
 #' # To retrieve the entire metadata matrix
-#' get.metas(pbmc, names.only = FALSE)
+#' getMetas(pbmc, names.only = FALSE)
 #'
 #' @author Daniel Bunis
 #' @export
 
-get.metas <- function(object=DEFAULT, names.only = TRUE){
+getMetas <- function(object=DEFAULT, names.only = TRUE){
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
@@ -107,9 +107,9 @@ get.metas <- function(object=DEFAULT, names.only = TRUE){
 #' @seealso
 #' \code{\link{meta.levels}} for returning just the unique discrete identities that exist within a metadata slot
 #'
-#' \code{\link{get.metas}} for returning all metadata slots of an \code{object}
+#' \code{\link{getMetas}} for returning all metadata slots of an \code{object}
 #'
-#' \code{\link{is.meta}} for testing whether something is the name of a metadata slot
+#' \code{\link{isMeta}} for testing whether something is the name of a metadata slot
 #' @examples
 #'
 #' pbmc <- Seurat::pbmc_small
@@ -137,7 +137,7 @@ meta <- function(meta, object=DEFAULT){
                     "object@ident")))))
         }
     }
-    get.metas(object, names.only = FALSE)[,meta]
+    getMetas(object, names.only = FALSE)[,meta]
 }
 
 #### meta.levels: for obtaining the different classifications of a meta.data
@@ -153,9 +153,9 @@ meta <- function(meta, object=DEFAULT){
 #' @seealso
 #' \code{\link{meta}} for returning an entire metadata slots of an \code{object}, not just the potential levels
 #'
-#' \code{\link{get.metas}} for returning all metadata slots of an \code{object}
+#' \code{\link{getMetas}} for returning all metadata slots of an \code{object}
 #'
-#' \code{\link{is.meta}} for testing whether something is the name of a metadata slot
+#' \code{\link{isMeta}} for testing whether something is the name of a metadata slot
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small

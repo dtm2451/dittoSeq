@@ -220,7 +220,7 @@ dittoDimPlot("CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
     trajectory.cluster.meta = "ident")
 }
 \seealso{
-\code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
+\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
 
 \code{\link{importDESeq2}} for how to create a bulk \code{\linkS4class{RNAseq}} data structure that dittoSeq functions can use &
 \code{\link{addDimReduction}} for how to add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
