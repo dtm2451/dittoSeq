@@ -34,9 +34,9 @@ meta.levels("RNA_snn_res.1")
 \seealso{
 \code{\link{meta}} for returning an entire metadata slots of an \code{object}, not just the potential levels
 
-\code{\link{get.metas}} for returning all metadata slots of an \code{object}
+\code{\link{getMetas}} for returning all metadata slots of an \code{object}
 
-\code{\link{is.meta}} for testing whether something is the name of a metadata slot
+\code{\link{isMeta}} for testing whether something is the name of a metadata slot
 }
 \author{
 Daniel Bunis

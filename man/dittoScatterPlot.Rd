@@ -175,7 +175,7 @@ dittoScatterPlot(
 #   with percentage of reads coming from genes as the color overlay.
 }
 \seealso{
-\code{\link{get.genes}} and \code{\link{get.metas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.var}, and \code{hover.data} options are.
+\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.var}, and \code{hover.data} options are.
 
 \code{\link{dittoDimPlot}} for making very similar data representations, but where dimensionality reduction (PCA, t-SNE, UMAP, etc.) dimensions are the scatterplot axes.
 }

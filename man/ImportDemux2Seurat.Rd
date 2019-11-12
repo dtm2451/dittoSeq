@@ -105,7 +105,7 @@ Demux <- dittoSeq::demuxlet.example
 ### Method 1 ###
 
 # Notice there is a groups metadata in this Seurat object.
-get.metas(pbmc)
+getMetas(pbmc)
 # We will treat these as if that holds Lane information
 
 # Now, running importDemux2Seurat:

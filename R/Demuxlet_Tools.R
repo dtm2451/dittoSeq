@@ -94,7 +94,7 @@
 #' ### Method 1 ###
 #'
 #' # Notice there is a groups metadata in this Seurat object.
-#' get.metas(pbmc)
+#' getMetas(pbmc)
 #' # We will treat these as if that holds Lane information
 #'
 #' # Now, running importDemux2Seurat:
@@ -185,19 +185,19 @@ importDemux2Seurat <- function(
     check.these <- c("Lane", "Sample", "demux.doublet.call", "demux.RD.TOTL",
         "demux.RD.PASS", "demux.RD.UNIQ", "demux.N.SNP", "demux.PRB.DBL",
         "demux.barcode.dup")
-    if (sum(check.these %in% get.metas(Seurat))>0) {
+    if (sum(check.these %in% getMetas(Seurat))>0) {
         if(bypass.check) {
             message(
                 "Note: '",
                 paste0(
-                    check.these[check.these %in% get.metas(Seurat)],
+                    check.these[check.these %in% getMetas(Seurat)],
                     collapse = "' and '"),
                 "' will be overwritten.\n")
         } else {
             stop(
                 "WARNING: metadata slots would be overwritten:\n",
                 paste0(
-                    check.these[check.these %in% get.metas(Seurat)],
+                    check.these[check.these %in% getMetas(Seurat)],
                     collapse = " and "),
                 ".\n If this is okay, rerun with `bypass.check = TRUE`.")
         }

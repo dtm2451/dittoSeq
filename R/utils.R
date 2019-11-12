@@ -50,10 +50,10 @@
 .var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type) {
     OUT <- var
     if (length(var)==1 && typeof(var)=="character") {
-        if (is.meta(var, object)) {
+        if (isMeta(var, object)) {
             OUT <- meta(var, object)
         }
-        if (is.gene(var, object)) {
+        if (isGene(var, object)) {
             OUT <- gene(var, object, data.type)
         }
     }
@@ -159,8 +159,8 @@
     fillable <- vapply(
         seq_along(data.hover),
         function(i)
-            (is.meta(data.hover[i],object) |
-                is.gene(data.hover[i],object) |
+            (isMeta(data.hover[i],object) |
+                isGene(data.hover[i],object) |
                 (data.hover[i]=="ident")),
         logical(1))
     data.hover <- data.hover[fillable]

@@ -1,4 +1,4 @@
-#### is.gene: Is this the name of a gene in my dataset? ####
+#### isGene: Is this the name of a gene in my dataset? ####
 #' Tests if input is the name of a gene in a target object.
 #'
 #' @param test String or vector of strings, the "potential.gene.name"(s) to check for.
@@ -8,7 +8,7 @@
 #' @return Returns a logical or logical vector indicating whether each instance in \code{test} is a gene within the \code{object}.
 #' Alternatively, returns the values of \code{test} that were indeed genes if \code{return.values = TRUE}.
 #' @seealso
-#' \code{\link{get.genes}} for returning all genes in an \code{object}
+#' \code{\link{getGenes}} for returning all genes in an \code{object}
 #'
 #' \code{\link{gene}} for obtaining the expression data of genes
 #'
@@ -17,44 +17,44 @@
 #' pbmc <- Seurat::pbmc_small
 #'
 #' # To see all genes of an object
-#' get.genes(pbmc)
+#' getGenes(pbmc)
 #'
 #' # To test if something is a gene in an object:
-#' is.gene("CD14", object = "pbmc") # TRUE
-#' is.gene("CD12345", pbmc) # FALSE
+#' isGene("CD14", object = "pbmc") # TRUE
+#' isGene("CD12345", pbmc) # FALSE
 #'
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped.
 #' DEFAULT <- "pbmc"
-#' is.gene("CD14")
+#' isGene("CD14")
 #'   # TRUE
 #'
 #' # To test if many things are genes of an object
-#' is.gene(c("CD14", "IL32", "CD3E", "CD12345"))
+#' isGene(c("CD14", "IL32", "CD3E", "CD12345"))
 #'
 #' # return.values input is especially useful in these cases.
-#' is.gene(c("CD14", "IL32", "CD3E", "CD12345"), return.values = TRUE)
+#' isGene(c("CD14", "IL32", "CD3E", "CD12345"), return.values = TRUE)
 #'
 #' @author Daniel Bunis
 #' @export
 
-is.gene <- function(test, object=DEFAULT, return.values = FALSE){
+isGene <- function(test, object=DEFAULT, return.values = FALSE){
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
     if (return.values) {
-        return(test[is.gene(test, object, return.values=FALSE)])
+        return(test[isGene(test, object, return.values=FALSE)])
     } else {
-        return(test %in% get.genes(object))
+        return(test %in% getGenes(object))
     }
 }
 
-#### get.genes: prints the names of all the genes for a Seurat or RNAseq ####
+#### getGenes: prints the names of all the genes for a Seurat or RNAseq ####
 #' Returns the names of all genes of a target object.
 #'
 #' @param object A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".
 #' @return A string vector, returns the names of all genes of the \code{object}.
 #' @seealso
-#' \code{\link{is.gene}} for returning all genes in an \code{object}
+#' \code{\link{isGene}} for returning all genes in an \code{object}
 #'
 #' \code{\link{gene}} for obtaining the expression data of genes
 #'
@@ -63,12 +63,12 @@ is.gene <- function(test, object=DEFAULT, return.values = FALSE){
 #' pbmc <- Seurat::pbmc_small
 #'
 #' # To see all genes of an object
-#' get.genes(pbmc)
+#' getGenes(pbmc)
 #'
 #' @author Daniel Bunis
 #' @export
 
-get.genes <- function(object=DEFAULT){
+getGenes <- function(object=DEFAULT){
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
