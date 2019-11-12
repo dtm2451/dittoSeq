@@ -24,6 +24,9 @@ Additionally, contains import functions for [Demuxlet](https://github.com/statge
 ```
 devtools::install_github("dtm2451/dittoSeq")
 
+# For stable pre-bioconductor submission version:
+devtools::install_github("dtm2451/dittoSeq@v0.3")
+
 # For older versions:
 #   Old DB plotter version
 # devtools::install_github("dtm2451/dittoSeq@v0.2")
