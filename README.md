@@ -31,15 +31,21 @@ devtools::install_github("dtm2451/dittoSeq")
 # devtools::install_github("dtm2451/dittoSeq@v0.2.20")
 ```
 
+
+## News: dittoSeq is being submitted to Bioconductor!
+
+- Version 0.3.0 is being up'd to 0.99.0 for that purpose.
+- Some changes are expected, so I will maintain the current 0.3 version throughout 
+
 ## News: version 0.3.0 is LIVE
 
 **Includes lots of new features!**
 
-  - Compatibility with bulk RNAseq data that was processed with edgeR & limma-voom.
-  - `dittoScatterPlot()` which allows plotting of gene x gene / metadata x metadata / gene x metadata.  Great for examining raw droplet data QC, or potential marker gene RNA or CITE-seq expression.
-  - `dittoDimPlot` now supports overlay of pseudotime-analysis trajectory paths.
-  - Retrieval of underlying data as a dataframe or matrix.  Just add `data.out = TRUE` to the call.
-  - Many more!
+- Compatibility with bulk RNAseq data that was processed with edgeR & limma-voom.
+- `dittoScatterPlot()` which allows plotting of gene x gene / metadata x metadata / gene x metadata.  Great for examining raw droplet data QC, or potential marker gene RNA or CITE-seq expression.
+- `dittoDimPlot` now supports overlay of pseudotime-analysis trajectory paths.
+- Retrieval of underlying data as a dataframe or matrix.  Just add `data.out = TRUE` to the call.
+- Many more!
 
 **Other updates since version 0.2:**
 
@@ -61,6 +67,9 @@ devtools::install_github("dtm2451/dittoSeq")
 ```
 
 ```
+# For stable pre-bioconductor submission version:
+# devtools::install_github("dtm2451/dittoSeq@v0.3")
+
 # For older versions:
 #   Old DB plotter version
 # devtools::install_github("dtm2451/dittoSeq@v0.2")
