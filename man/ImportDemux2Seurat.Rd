@@ -4,8 +4,14 @@
 \alias{importDemux2Seurat}
 \title{Extracts Demuxlet information into a pre-made Seurat object}
 \usage{
-importDemux2Seurat(Seurat, lane.meta = NULL, lane.names = NA,
-  Demuxlet.best, bypass.check = FALSE, verbose = TRUE)
+importDemux2Seurat(
+  Seurat,
+  lane.meta = NULL,
+  lane.names = NA,
+  Demuxlet.best,
+  bypass.check = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{Seurat}{A pre-made Seurat object to add demuxlet information to.}

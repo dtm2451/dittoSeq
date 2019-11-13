@@ -4,8 +4,13 @@
 \alias{addDimReduction}
 \title{Add any dimensionality reduction space to an RNAseq object}
 \usage{
-addDimReduction(embeddings, object = DEFAULT, name,
-  key = .gen_key(name), raw.object = NULL)
+addDimReduction(
+  embeddings,
+  object = DEFAULT,
+  name,
+  key = .gen_key(name),
+  raw.object = NULL
+)
 }
 \arguments{
 \item{embeddings}{a numeric matrix containing the coordinates of all samples within the dimensionality reduction space.}

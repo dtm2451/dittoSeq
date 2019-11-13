@@ -4,10 +4,18 @@
 \alias{demux.calls.summary}
 \title{Plots the number of annotations per sample, per lane}
 \usage{
-demux.calls.summary(object = DEFAULT, singlets.only = FALSE,
-  main = "Sample Annotations by Lane", sub = NULL,
-  ylab = "Annotations", xlab = "Sample", color = dittoColors()[2],
-  theme = NULL, rotate.labels = TRUE, data.out = FALSE)
+demux.calls.summary(
+  object = DEFAULT,
+  singlets.only = FALSE,
+  main = "Sample Annotations by Lane",
+  sub = NULL,
+  ylab = "Annotations",
+  xlab = "Sample",
+  color = dittoColors()[2],
+  theme = NULL,
+  rotate.labels = TRUE,
+  data.out = FALSE
+)
 }
 \arguments{
 \item{object}{the Seurat Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.}

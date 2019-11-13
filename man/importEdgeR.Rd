@@ -4,8 +4,13 @@
 \alias{importEdgeR}
 \title{Creates an RNAseq object from edgeR or limma-voom processed bulk RNAseq data objects.}
 \usage{
-importEdgeR(DGEList, normalized.data = NULL,
-  normalization.fxn = "edgeR::cpm", counts = NULL, reductions = NULL)
+importEdgeR(
+  DGEList,
+  normalized.data = NULL,
+  normalization.fxn = "edgeR::cpm",
+  counts = NULL,
+  reductions = NULL
+)
 }
 \arguments{
 \item{DGEList}{a \link[edgeR]{DGEList-class} object, the main edgeR / Limma-Voom object for storing your data. REQUIRED.}

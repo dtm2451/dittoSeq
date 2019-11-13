@@ -4,8 +4,12 @@
 \alias{Simulate}
 \title{Simulates what a colorblind person would see for any dittoSeq plot!}
 \usage{
-Simulate(type = c("deutan", "protan", "tritan"), plot.function, ...,
-  color.panel = dittoColors())
+Simulate(
+  type = c("deutan", "protan", "tritan"),
+  plot.function,
+  ...,
+  color.panel = dittoColors()
+)
 }
 \arguments{
 \item{type}{The type of colorblindness that you want to simulate for. Options: "deutan", "protan", "tritan". Anything else, and you will get an error.}
