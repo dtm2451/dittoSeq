@@ -216,7 +216,8 @@ importDemux2Seurat <- function(
                 vapply(
                     cell.names,
                     function(X){
-                        strsplit(X, split = "-")[[1]][length(strsplit(X, split = "-")[[1]])]
+                        chunks <- strsplit(X, split = "-")[[1]]
+                        chunks[length(chunks)]
                     }, FUN.VALUE = character(1)))
         } else {
             lane.idents <- array(1, dim = length(cell.names))
