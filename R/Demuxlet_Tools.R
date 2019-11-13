@@ -211,7 +211,7 @@ importDemux2Seurat <- function(
         auto_lane.names <- meta.levels(lane.meta, Seurat)
     } else {
         # Use the `#` of `-#` parts of cellnames (cellranger aggr notation)
-        if (grepl("-",cell.names)) {
+        if (grepl("-",cell.names[1])) {
             lane.idents <- as.factor(
                 vapply(
                     cell.names,
