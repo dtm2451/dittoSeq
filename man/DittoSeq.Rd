@@ -3,7 +3,6 @@
 \docType{package}
 \name{dittoSeq}
 \alias{dittoSeq}
-\alias{dittoSeq-package}
 \title{dittoSeq}
 \description{
 This package was built to make the analysis and visualization of single-cell and bulk RNA-sequencing data accessible for both experience and novice coders, and for colorblind individuals.

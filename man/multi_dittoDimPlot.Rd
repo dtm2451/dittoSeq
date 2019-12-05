@@ -4,9 +4,16 @@
 \alias{multi_dittoDimPlot}
 \title{Generates multiple dittoDimPlots arranged in a grid.}
 \usage{
-multi_dittoDimPlot(vars, object = DEFAULT, legend.show = FALSE,
-  ncol = NULL, nrow = NULL, axes.labels.show = FALSE,
-  OUT.List = FALSE, ...)
+multi_dittoDimPlot(
+  vars,
+  object = DEFAULT,
+  legend.show = FALSE,
+  ncol = NULL,
+  nrow = NULL,
+  axes.labels.show = FALSE,
+  OUT.List = FALSE,
+  ...
+)
 }
 \arguments{
 \item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
