@@ -206,25 +206,30 @@ importDemux2Seurat <- function(
 
 .parse_and_add_lanes <- function(Seurat, lane.meta, lane.names, cell.names) {
     if (!(is.null(lane.meta))) {
+        # Extract from given metadata
         lane.idents <- as.factor(
             as.character(meta(lane.meta, Seurat)))
         auto_lane.names <- meta.levels(lane.meta, Seurat)
     } else {
-        # Use the `#` of `-#` parts of cellnames (cellranger aggr notation)
         if (grepl("-",cell.names[1])) {
+            # Use the `#` of `-#` parts of cellnames (cellranger aggr notation)
             lane.idents <- as.factor(
                 vapply(
                     cell.names,
                     function(X){
                         chunks <- strsplit(X, split = "-")[[1]]
-                        chunks[length(chunks)]
-                    }, FUN.VALUE = character(1)))
+                        as.numeric(chunks[length(chunks)])
+                    }, FUN.VALUE = numeric(1)))
         } else {
-            lane.idents <- array(1, dim = length(cell.names))
+            # Treat as a single lane
+            lane.idents <- as.factor(array(1, dim = length(cell.names)))
         }
         auto_lane.names <- paste0("Lane",seq_along(levels(lane.idents)))
     }
+    # Add the Lane metadata, currently in number form
     Seurat@meta.data$Lane <- lane.idents
+
+    # Rename lanes from numbers to Lane# or given lane.names
     if (is.na(lane.names[1])) {
         lane.names <- auto_lane.names
     }
