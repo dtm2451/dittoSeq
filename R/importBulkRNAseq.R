@@ -123,7 +123,7 @@ importDESeq2 <- function(
 #'
 #' Metadata are pulled from the supplied \code{DGEList$samples} slot. Then "Sample" names and "Nreads" metadata are generated automatically if not already included.
 #' @seealso
-#' \code{\link[edgeR]{edgeR}}, \code{\link[edgeR]{DGEList-class}}, and \code{\link[edgeR]{cpm}} for information about edgeR, the DGEList class, and the log2 counts per million calculation.
+#' \code{\link[edgeR]{DGEList-class}}, and \code{\link[edgeR]{cpm}} for information about edgeR, the DGEList class, and the log2 counts per million calculation.
 #'
 #' \code{\link{addMetaRNAseq}} for how to add additional metadata to an \code{RNAseq} object
 #'
