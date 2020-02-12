@@ -4,7 +4,12 @@ Title: User Friendly Single-Cell and Bulk RNA Sequencing Visualization
 Version: 0.99.5
 Author: Daniel Bunis
 Maintainer: Daniel Bunis <daniel.bunis@ucsf.edu>
-Description: A set of functions for generating publication-ready (sc)RNAseq figures with as simple of coding input as possible.  This package attempts to be colorblind friendly by default & novice-to-coding user-friendly.  It mimics and extends Seurat plotting capabilities, and enables side-by-side analysis of bulk and scRNAseq data through the creation of a Seurat-like S4 data structure for the analysis of bulk sequencing data.
+Description: A set of functions for generating publication-ready (sc)RNAseq
+figures with as simple of coding input as possible.  This package attempts to
+be colorblind friendly by default & novice-to-coding user-friendly.  It mimics
+and extends Seurat plotting capabilities, and enables side-by-side analysis of
+bulk and scRNAseq data through the creation of a Seurat-like S4 data structure
+for the analysis of bulk sequencing data.
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
