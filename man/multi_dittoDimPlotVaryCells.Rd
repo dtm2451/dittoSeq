@@ -4,14 +4,27 @@
 \alias{multi_dittoDimPlotVaryCells}
 \title{Generates multiple dittoDimPlots, each showing different cells, arranged into a grid.}
 \usage{
-multi_dittoDimPlotVaryCells(var, object = DEFAULT, vary.cells.meta,
+multi_dittoDimPlotVaryCells(
+  var,
+  object = DEFAULT,
+  vary.cells.meta,
   vary.cells.levels = meta.levels(vary.cells.meta, object),
-  data.type = "normalized", min = NULL, max = NULL,
-  color.panel = dittoColors(), colors = seq_along(color.panel),
-  show.titles = TRUE, show.allcells.plot = TRUE,
-  allcells.main = "All Cells", show.legend.single = TRUE,
-  show.legend.plots = FALSE, show.legend.allcells.plot = FALSE,
-  nrow = NULL, ncol = NULL, OUT.List = FALSE, ...)
+  data.type = "normalized",
+  min = NULL,
+  max = NULL,
+  color.panel = dittoColors(),
+  colors = seq_along(color.panel),
+  show.titles = TRUE,
+  show.allcells.plot = TRUE,
+  allcells.main = "All Cells",
+  show.legend.single = TRUE,
+  show.legend.plots = FALSE,
+  show.legend.allcells.plot = FALSE,
+  nrow = NULL,
+  ncol = NULL,
+  OUT.List = FALSE,
+  ...
+)
 }
 \arguments{
 \item{var}{String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.

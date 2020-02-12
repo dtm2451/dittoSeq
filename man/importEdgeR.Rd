@@ -4,8 +4,13 @@
 \alias{importEdgeR}
 \title{Creates an RNAseq object from edgeR or limma-voom processed bulk RNAseq data objects.}
 \usage{
-importEdgeR(DGEList, normalized.data = NULL,
-  normalization.fxn = "edgeR::cpm", counts = NULL, reductions = NULL)
+importEdgeR(
+  DGEList,
+  normalized.data = NULL,
+  normalization.fxn = "edgeR::cpm",
+  counts = NULL,
+  reductions = NULL
+)
 }
 \arguments{
 \item{DGEList}{a \link[edgeR]{DGEList-class} object, the main edgeR / Limma-Voom object for storing your data. REQUIRED.}
@@ -63,7 +68,7 @@ DGE <- estimateDisp(DGE,design)
 myRNA <- importEdgeR(DGE)
 }
 \seealso{
-\code{\link[edgeR]{edgeR}}, \code{\link[edgeR]{DGEList-class}}, and \code{\link[edgeR]{cpm}} for information about edgeR, the DGEList class, and the log2 counts per million calculation.
+\code{\link[edgeR]{DGEList-class}}, and \code{\link[edgeR]{cpm}} for information about edgeR, the DGEList class, and the log2 counts per million calculation.
 
 \code{\link{addMetaRNAseq}} for how to add additional metadata to an \code{RNAseq} object
 

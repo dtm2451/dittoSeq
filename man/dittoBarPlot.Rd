@@ -4,15 +4,32 @@
 \alias{dittoBarPlot}
 \title{Outputs a stacked bar plot to show the percent composition of samples or other cell groupings}
 \usage{
-dittoBarPlot(var, object = DEFAULT, group.by = "Sample",
-  scale = c("percent", "count"), cells.use = NULL, data.out = FALSE,
-  do.hover = FALSE, color.panel = dittoColors(),
-  colors = seq_along(color.panel), y.breaks = NA, min = 0,
-  max = NULL, var.labels.rename = NULL, var.labels.reorder = NULL,
-  x.labels = NULL, x.labels.rotate = TRUE, x.reorder = NULL,
-  theme = theme_classic(), xlab = group.by, ylab = "make",
-  main = "make", sub = NULL, legend.show = TRUE,
-  legend.title = NULL)
+dittoBarPlot(
+  var,
+  object = DEFAULT,
+  group.by = "Sample",
+  scale = c("percent", "count"),
+  cells.use = NULL,
+  data.out = FALSE,
+  do.hover = FALSE,
+  color.panel = dittoColors(),
+  colors = seq_along(color.panel),
+  y.breaks = NA,
+  min = 0,
+  max = NULL,
+  var.labels.rename = NULL,
+  var.labels.reorder = NULL,
+  x.labels = NULL,
+  x.labels.rotate = TRUE,
+  x.reorder = NULL,
+  theme = theme_classic(),
+  xlab = group.by,
+  ylab = "make",
+  main = "make",
+  sub = NULL,
+  legend.show = TRUE,
+  legend.title = NULL
+)
 }
 \arguments{
 \item{var}{String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}. REQUIRED.}

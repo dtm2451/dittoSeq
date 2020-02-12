@@ -4,8 +4,13 @@
 \alias{importDESeq2}
 \title{Creates an RNAseq object from a DESeq2 processed bulk RNAseq data object.}
 \usage{
-importDESeq2(dds, normalized.data = NULL, blind, counts = NULL,
-  reductions = NULL)
+importDESeq2(
+  dds,
+  normalized.data = NULL,
+  blind,
+  counts = NULL,
+  reductions = NULL
+)
 }
 \arguments{
 \item{dds}{The output of running DESeq() on your data. = The DESeq2 object for your data. REQUIRED.}

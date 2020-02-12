@@ -4,9 +4,16 @@
 \alias{demux.SNP.summary}
 \title{Plots the number of SNPs sequenced per droplet}
 \usage{
-demux.SNP.summary(object = DEFAULT, group.by = "Lane",
-  color.by = group.by, plots = c("jitter", "boxplot"),
-  boxplot.color = "grey30", add.line = 50, min = 0, ...)
+demux.SNP.summary(
+  object = DEFAULT,
+  group.by = "Lane",
+  color.by = group.by,
+  plots = c("jitter", "boxplot"),
+  boxplot.color = "grey30",
+  add.line = 50,
+  min = 0,
+  ...
+)
 }
 \arguments{
 \item{object}{A Seurat or SingleCellExperiment object containing , or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.}

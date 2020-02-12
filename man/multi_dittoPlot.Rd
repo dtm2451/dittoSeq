@@ -4,9 +4,20 @@
 \alias{multi_dittoPlot}
 \title{Generates multiple dittoPlots arranged into a grid.}
 \usage{
-multi_dittoPlot(vars, object = DEFAULT, group.by, color.by = group.by,
-  show.legend = FALSE, ncol = 3, nrow = NULL, mains = "var",
-  ylabs = NULL, xlab = NULL, OUT.List = FALSE, ...)
+multi_dittoPlot(
+  vars,
+  object = DEFAULT,
+  group.by,
+  color.by = group.by,
+  show.legend = FALSE,
+  ncol = 3,
+  nrow = NULL,
+  mains = "var",
+  ylabs = NULL,
+  xlab = NULL,
+  OUT.List = FALSE,
+  ...
+)
 }
 \arguments{
 \item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
