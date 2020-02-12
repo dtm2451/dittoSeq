@@ -4,7 +4,7 @@ author:
 - name: Daniel Bunis
   affiliation: Bakar Computational Health Sciences Institute, University of California San Francisco, San
   email: daniel.bunis@ucsf.edu
-date: "November 6th, 2019"
+date: "February 11th, 2020"
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -24,9 +24,20 @@ library(BiocStyle)
 
 # Introduction
 
-dittoSeq is a tool built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by novice, experienced, and color blind coders. Thus, it provides many useful visualizations, which all utilize red-green color blindness-optimized colors by default, and which allow sufficient customizations, via discrete inputs, for out-of-the-box creation of publication-ready figures.
+dittoSeq is a tool built to enable analysis and visualization of single-cell
+and bulk RNA-sequencing data by novice, experienced, and color blind coders.
+Thus, it provides many useful visualizations, which all utilize red-green
+color blindness-optimized colors by default, and which allow sufficient
+customizations, via discrete inputs, for out-of-the-box creation of
+publication-ready figures.
 
-For single-cell data, dittoSeq works directly with data pre-processed in other popular packages (Seurat, scater, scran, ...). For bulk RNAseq data, dittoSeq's import functions will convert bulk RNAseq data of various different structures into a set structure that dittoSeq helper and visualization functions can work with. So ultimately, dittoSeq includes universal plotting and helper functions for working with (sc)RNAseq data processed in these packages:
+For single-cell data, dittoSeq works directly with data pre-processed in other
+popular packages (Seurat, scater, scran, ...). For bulk RNAseq data,
+dittoSeq's import functions will convert bulk RNAseq data of various different
+structures into a set structure that dittoSeq helper and visualization
+functions can work with. So ultimately, dittoSeq includes universal plotting
+and helper functions for working with (sc)RNAseq data processed in these
+packages:
 
 Single-Cell:
 
@@ -41,11 +52,20 @@ Bulk:
 
 ## Color blindness friendliness:
 
-The default colors of this package are red-green color blindness friendly. To make it so, I used the suggested colors from [@wong_points_2011] and adapted them slightly by appending darker and lighter versions to create a 24 color vector. All plotting functions use these colors, stored in `dittoColors()`, by default. Additionally, shapes displayed in the legends are generally enlarged as this can be almost as helpful for colorblind individuals like me to distinguish between groups as the actual color choice!
+The default colors of this package are red-green color blindness friendly. To
+make it so, I used the suggested colors from [@wong_points_2011] and adapted
+them slightly by appending darker and lighter versions to create a 24 color
+vector. All plotting functions use these colors, stored in `dittoColors()`, by
+default. Additionally, shapes displayed in the legends are generally enlarged
+as this can be almost as helpful for colorblind individuals like me to
+distinguish between groups as the actual color choice!
 
 # Installation:
 
-Currently, dittoSeq is only available via github, but it will be submitted to CRAN soon and Bioconductor not long after that!  I expect both by early 2020.  Until then, the best way to install dittoSeq will be with devtools through github:
+Currently, dittoSeq is only available via github, but it will be submitted to
+CRAN soon and Bioconductor not long after that!  I expect both by early 2020.
+Until then, the best way to install dittoSeq will be with devtools through
+github:
 
 ```{r, eval=FALSE}
 # Install devtools if needed
@@ -59,9 +79,11 @@ devtools::install_github("dtm2451/dittoSeq")
 
 ## Single-cell RNAseq data
 
-dittoSeq works directly with Seurat and SingleCellExperiment objects.  Nothing special is needed. Just load in your data if it isn't already loaded, then go!
+dittoSeq works directly with Seurat and SingleCellExperiment objects.  Nothing
+special is needed. Just load in your data if it isn't already loaded, then go!
 
-Here, we will need to do some prep as the dataset we will use is not normalized nor dimensionality reduced.
+Here, we will need to do some prep as the dataset we will use is not
+normalized nor dimensionality reduced.
 
 ```{r}
 library(dittoSeq)
@@ -92,7 +114,8 @@ seurat <- FindClusters(object = seurat, verbose = FALSE)
 sce <- as.SingleCellExperiment(seurat)
 ```
 
-Now that we have a single-cell dataset loaded, we are ready to go.  All functions work for either the Seurat or SCE version.
+Now that we have a single-cell dataset loaded, we are ready to go.  All
+functions work for either the Seurat or SCE version.
 
 ```{r}
 dittoDimPlot("Sample", seurat)
@@ -102,53 +125,59 @@ dittoBarPlot("celltype", object = sce, group.by = "Sample")
 
 ## Bulk RNAseq data
 
-dittoSeq contains functions for importing RNAseq data into the 'RNAseq' data structure that dittoSeq functions understand.
+*The underlying data structure for how dittoSeq handles bulk RNAseq data will
+soon change.* 
 
-DESeq2 processed data is imported with `importDESeq2()` and edgeR/limma-voom processed data is imported with `importEdgeR()`.  The process for both is quite similar.
+dittoSeq contains functions for importing RNAseq data into the 'RNAseq' data
+structure that dittoSeq functions understand.
+
+DESeq2 processed data is imported with `importDESeq2()` and edgeR/limma-voom
+processed data is imported with `importEdgeR()`.  The process for both is
+quite similar.
 
 A bit of setup...
 
 ```{r}
-# We'll first grab the DESeqDataSet from dittoSeq's included mock DESeq2 data:
-dds <- RNAseq_mock@DEobject
-
-# From some of the extra features, let's grab some additional pieces as well
-counts.data <- RNAseq_mock@counts
-norm.data <- RNAseq_mock@data
+# # We'll first grab the DESeqDataSet from dittoSeq's included mock DESeq2 data:
+# dds <- RNAseq_mock@DEobject
+# 
+# # From some of the extra features, let's grab some additional pieces as well
+# counts.data <- RNAseq_mock@counts
+# norm.data <- RNAseq_mock@data
 ```
 
 ### Standard Workflow
 
 ```{r}
-# Import
-myRNA <- importDESeq2(dds, normalized.data = norm.data)
-
-# Add metadata
-myRNA <- addMetaRNAseq(
-    object = myRNA,
-    value = rep(c("M", "F"), each = 5),
-    name = "sex")
-# Or, alternatively:
-scoreX <- 1:10/10
-addMeta(myRNA) <- scoreX
-
-# Calculate & Add PCA or other dimensionality reduction.
-prcomp_obj <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
-pca_mat <- prcomp_obj$x
-
-myRNA <- addDimReduction(
-    embeddings = pca_mat,
-    object = myRNA,
-    name = "pca",
-    raw.object = prcomp_obj)
-
-# Make Plots
-DEFAULT <- "myRNA"
-dittoDimPlot("sex", size = 3, do.ellipse = TRUE)
-dittoDimPlot("scoreX", size = 3)
-dittoBoxPlot("scoreX", group.by = "sex")
-dittoHeatmap(getGenes(myRNA)[1:10],
-    annotation.metas = c("scoreX", "sex", "Sample"))
+# # Import
+# myRNA <- importDESeq2(dds, normalized.data = norm.data)
+# 
+# # Add metadata
+# myRNA <- addMetaRNAseq(
+#     object = myRNA,
+#     value = rep(c("M", "F"), each = 5),
+#     name = "sex")
+# # Or, alternatively:
+# scoreX <- 1:10/10
+# addMeta(myRNA) <- scoreX
+# 
+# # Calculate & Add PCA or other dimensionality reduction.
+# prcomp_obj <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
+# pca_mat <- prcomp_obj$x
+# 
+# myRNA <- addDimReduction(
+#     embeddings = pca_mat,
+#     object = myRNA,
+#     name = "pca",
+#     raw.object = prcomp_obj)
+# 
+# # Make Plots
+# DEFAULT <- "myRNA"
+# dittoDimPlot("sex", size = 3, do.ellipse = TRUE)
+# dittoDimPlot("scoreX", size = 3)
+# dittoBoxPlot("scoreX", group.by = "sex")
+# dittoHeatmap(getGenes(myRNA)[1:10],
+#     annotation.metas = c("scoreX", "sex", "Sample"))
 ```
 
 
@@ -156,99 +185,125 @@ dittoHeatmap(getGenes(myRNA)[1:10],
 
 Default:
 
-When importing DESeq2 data, dittoSeq uses the DESeq2 `rlog()` function to create normalized data. This calculation can either be blinded to samples' condition identities, or not. Typically, `blind = FALSE` will be the proper option, but it is the responsibility of the user to decide what is best for their own data. See the `?rlog` documentation for more information.
+When importing DESeq2 data, dittoSeq uses the DESeq2 `rlog()` function to
+create normalized data. This calculation can either be blinded to samples'
+condition identities, or not. Typically, `blind = FALSE` will be the proper
+option, but it is the responsibility of the user to decide what is best for
+their own data. See the `?rlog` documentation for more information.
 
-When importing edgeR or Limma-voom data, dittoSeq uses the edgeR `cpm()` function to calculate normalized data.
+When importing edgeR or Limma-voom data, dittoSeq uses the edgeR `cpm()`
+function to calculate normalized data.
 
 ```{r}
-# Importing is simple
-library(DESeq2)
-myRNA <- importDESeq2(dds, blind = FALSE)
+# # Importing is simple
+# library(DESeq2)
+# myRNA <- importDESeq2(dds, blind = FALSE)
 ```
 
-**Alternatively**, users can also use the `normalized.data` input to provide pre-calculated normalized data and skip this recalculation.  The input for this ia a matrix with named columns (samples) and rows (genes).
+**Alternatively**, users can also use the `normalized.data` input to provide
+pre-calculated normalized data and skip this recalculation.  The input for
+this ia a matrix with named columns (samples) and rows (genes).
 
-Optionally, users can also use the `counts` input to provide a different raw counts matrix than the one within their DDS or DGEList.
+Optionally, users can also use the `counts` input to provide a different raw
+counts matrix than the one within their DDS or DGEList.
 
 ```{r}
-head(norm.data)
-head(counts.data)
-
-# Manual normalized data provision
-myRNA <- importDESeq2(dds, normalized.data = norm.data)
-
-# Manual counts data provision as well
-myRNA <- importDESeq2(dds, normalized.data = norm.data,
-    counts = counts.data)
+# head(norm.data)
+# head(counts.data)
+# 
+# # Manual normalized data provision
+# myRNA <- importDESeq2(dds, normalized.data = norm.data)
+# 
+# # Manual counts data provision as well
+# myRNA <- importDESeq2(dds, normalized.data = norm.data,
+#     counts = counts.data)
 ```
 
 ### Adding metadata
 
-Metadata is extra information about your samples (or cells for single-cell data) that is stored within the RNAseq object (or Seurat/SCE).  That might include sample sizes, ages, batches, conditions, functional scores, or any other relevant info.  dittoSeq functions pull from metadata many functionalities, so adding as much of this inoformation as possible is generally a good idea.
+Metadata is extra information about your samples (or cells for single-cell
+data) that is stored within the RNAseq object (or Seurat/SCE).  That might
+include sample sizes, ages, batches, conditions, functional scores, or any
+other relevant info.  dittoSeq functions pull from metadata many
+functionalities, so adding as much of this inoformation as possible is
+generally a good idea.
 
-Any metadata already contained within the imported DESeqDataSet or DGEList will be imported into dittoSeq, and metadata slots named "Nreads" and "Sample" will be added as well.  But this may not cover everything, so...
+Any metadata already contained within the imported DESeqDataSet or DGEList
+will be imported into dittoSeq, and metadata slots named "Nreads" and "Sample"
+will be added as well.  But this may not cover everything, so...
 
-Extra metadata can be added with the `addMetaRNAseq()` function. Just provide the `value`s for each sample and a `name` for the data.  OR store the values in a variable of the name you would like the metadata slot to have, and you can just provide that in either of the ways below:
+Extra metadata can be added with the `addMetaRNAseq()` function. Just provide
+the `value`s for each sample and a `name` for the data.  OR store the values
+in a variable of the name you would like the metadata slot to have, and you
+can just provide that in either of the ways below:
 
 ```{r}
-myRNA <- addMetaRNAseq(
-    value = factor(rep(1:2, each = 5)),
-    name = "batch",
-    object = myRNA)
-
-# OR:
-scoreX <- 1:10/10
-# With the same funciton, providing the values in this way, you can skip the `name` input.
-myRNA <- addMetaRNAseq(
-    value = scoreX,
-    object = myRNA)
-# Or alternatively, it can be set in this way.  Both have the same outcome.
-addMeta(myRNA) <- scoreX
+# myRNA <- addMetaRNAseq(
+#     value = factor(rep(1:2, each = 5)),
+#     name = "batch",
+#     object = myRNA)
+# 
+# # OR:
+# scoreX <- 1:10/10
+# # With the same funciton, providing the values in this way, you can skip the `name` input.
+# myRNA <- addMetaRNAseq(
+#     value = scoreX,
+#     object = myRNA)
+# # Or alternatively, it can be set in this way.  Both have the same outcome.
+# addMeta(myRNA) <- scoreX
 ```
 
 Now, we can make plots with the new metadata:
 
 ```{r}
-dittoPlot("Gene1", object = myRNA, group.by = "batch",
-          plots = c("boxplot", "jitter"), jitter.size = 2)
-dittoPlot("scoreX", object = myRNA, group.by = "batch",
-          plots = c("boxplot", "jitter"), jitter.size = 2)
+# dittoPlot("Gene1", object = myRNA, group.by = "batch",
+#           plots = c("boxplot", "jitter"), jitter.size = 2)
+# dittoPlot("scoreX", object = myRNA, group.by = "batch",
+#           plots = c("boxplot", "jitter"), jitter.size = 2)
 ```
 
 ### Adding dimensionality reductions to RNAseq data
 
-At this point, most dittoSeq visualizations will work, but one of the most useful, `dittoDimPlot()`, which outputs dimensionality reduction plots (like PCA or tSNE plots) with other data overlayed on top, requires that these dimensionality reductions be added to the object.
+At this point, most dittoSeq visualizations will work, but one of the most
+useful, `dittoDimPlot()`, which outputs dimensionality reduction plots (like
+PCA or tSNE plots) with other data overlayed on top, requires that these
+dimensionality reductions be added to the object.
 
-These can be calculated with tools like the base-R `prcomp()` function for PCA, or the `tsne` package for tSNE.
+These can be calculated with tools like the base-R `prcomp()` function for
+PCA, or the `tsne` package for tSNE.
 
 ```{r}
-# Calculating PCA for our mock data
-#   NOTE: This is often not done with all genes in a dataset.
-#   The inclusion of this example code is not an endorsement of a particular
-#   method of PCA. Consult yourself, a bioinformatician, or literature for
-#   tips on proper techniques.
-prcomp_out <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
-# Grabbing the embeddings matrix
-pca_mat <- prcomp_out$x
+# # Calculating PCA for our mock data
+# #   NOTE: This is often not done with all genes in a dataset.
+# #   The inclusion of this example code is not an endorsement of a particular
+# #   method of PCA. Consult yourself, a bioinformatician, or literature for
+# #   tips on proper techniques.
+# prcomp_out <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
+# # Grabbing the embeddings matrix
+# pca_mat <- prcomp_out$x
 ```
 
-Then, add the matrix of `embeddings` of each sample within the dimensionality reduction space as with the `addDimReduction()` function.
+Then, add the matrix of `embeddings` of each sample within the dimensionality
+reduction space as with the `addDimReduction()` function.
 
 ```{r}
-myRNA <- addDimReduction(embeddings = pca_mat, object = myRNA, name = "pca")
-
-dittoDimPlot("Gene1", myRNA, size = 3)
+# myRNA <- addDimReduction(embeddings = pca_mat, object = myRNA, name = "pca")
+# 
+# dittoDimPlot("Gene1", myRNA, size = 3)
 ```
 
-Note: adding PCA calculated by the base-R prcomp function can be done with the slightly simpler `addPrcomp` function can be used instead. Here, the reduction name will be set to "pca" by default.
+Note: adding PCA calculated by the base-R prcomp function can be done with the
+slightly simpler `addPrcomp` function can be used instead. Here, the reduction
+name will be set to "pca" by default.
 
 ```{r}
-myRNA <- addPrcomp(prcomp_out, myRNA)
+# myRNA <- addPrcomp(prcomp_out, myRNA)
 ```
 
 # Helper Functions
 
-dittoSeq's helper functions make it easy to determine the metadata and gene options for plotting with helper functions:
+dittoSeq's helper functions make it easy to determine the metadata and gene
+options for plotting with helper functions:
 
 ```{r}
 # Retrieve all metadata slot names
@@ -274,11 +329,17 @@ meta.levels("celltype", seurat)
 
 # Visualizations
 
-There are many different types of dittoSeq visualizations. Each has intuitive defaults which generally allow creation of immediately useable plots. Each also have many additional tweaks that can help ensure you can create publication-ready plots out-of-the-box.
+There are many different types of dittoSeq visualizations. Each has intuitive
+defaults which generally allow creation of immediately useable plots. Each
+also have many additional tweaks that can help ensure you can create
+publication-ready plots out-of-the-box.
 
 ## dittoDimPlot & dittoScatterPlot
 
-These show cells/samples data overlayed on a scatter plot, with the axes of `dittoScatterPlot()` being gene expression or metadata data and with the axes of `dittoDimPlot()` being dimensionality reductions like tsne, pca, umap or similar.
+These show cells/samples data overlayed on a scatter plot, with the axes of
+`dittoScatterPlot()` being gene expression or metadata data and with the axes
+of `dittoDimPlot()` being dimensionality reductions like tsne, pca, umap or
+similar.
 
 ```{r, results = "hold"}
 dittoDimPlot("celltype", seurat)
@@ -300,7 +361,11 @@ dittoScatterPlot(
 
 ### Many additional dittoDimPlot features
 
-dittoDimPlot has various additional features which can be overlayed on top. Adding each is controlled by an input that starts with `add.` or `do.` such as `do.label` or `add.trajectory.lineages`. Additional inputs that apply to these features will then start with the XXXX part that comes after `add.XXXX` or `do.XXXX`, as exemplified below.
+dittoDimPlot has various additional features which can be overlayed on top.
+Adding each is controlled by an input that starts with `add.` or `do.` such as
+`do.label` or `add.trajectory.lineages`. Additional inputs that apply to these
+features will then start with the XXXX part that comes after `add.XXXX` or
+`do.XXXX`, as exemplified below.
 
 ```{r}
 dittoDimPlot("ident", seurat,
@@ -316,9 +381,18 @@ dittoDimPlot("ident", seurat,
 
 ## dittoPlot (and dittoRidgePlot + dittoBoxPlot wrappers)
 
-These display *continuous* cells/samples' data on a y-axis (or x-axis for ridgeplots) grouped on the x-axis by sample, age, condition, or any discrete grouping metadata. Data can be represented with violin plots, box plots, individual points for each cell/sample, and/or ridge plots. The `plots` input controls which data representations are used.  The `group.by` input controls how the data are grouped in the x-axis.  And the `color.by` input controls the color that fills in violin, box, and ridge plots.
+These display *continuous* cells/samples' data on a y-axis (or x-axis for
+ridgeplots) grouped on the x-axis by sample, age, condition, or any discrete
+grouping metadata. Data can be represented with violin plots, box plots,
+individual points for each cell/sample, and/or ridge plots. The `plots` input
+controls which data representations are used.  The `group.by` input controls
+how the data are grouped in the x-axis.  And the `color.by` input controls the
+color that fills in violin, box, and ridge plots.
 
-`dittoPlot()` is the main function, but `dittoRidgePlot()` and `dittoBoxPlot()` are wrappers which essentially just adjust the default for the `plots` input from c("jitter", "vlnplot") to c("ridgeplot") or c("boxplot","jitter"), respectively.
+`dittoPlot()` is the main function, but `dittoRidgePlot()` and
+`dittoBoxPlot()` are wrappers which essentially just adjust the default for
+the `plots` input from c("jitter", "vlnplot") to c("ridgeplot") or
+c("boxplot","jitter"), respectively.
 
 ```{r, results = "hold"}
 dittoPlot("ENO1", seurat, group.by = "celltype",
@@ -327,7 +401,9 @@ dittoRidgePlot("ENO1", sce, group.by = "celltype")
 dittoBoxPlot("ENO1", seurat, group.by = "celltype")
 ```
 
-Tweaks to the individual data representation types can be made with discrete inputs, all of which start with the representation types' name.  For example...
+Tweaks to the individual data representation types can be made with discrete
+inputs, all of which start with the representation types' name.  For
+example...
 
 ```{r}
 dittoPlot("ENO1", seurat, group.by = "celltype",
@@ -344,7 +420,10 @@ dittoPlot("ENO1", seurat, group.by = "celltype",
 
 ## dittoBarPlot
 
-This function displays *discrete* cells/samples' data on a y-axis, grouped on the x-axis by sample, age, condition, or any discrete grouping metadata. Data can be represented as percentages or counts, and this is controlled by the `scale` input.
+This function displays *discrete* cells/samples' data on a y-axis, grouped on
+the x-axis by sample, age, condition, or any discrete grouping metadata. Data
+can be represented as percentages or counts, and this is controlled by the
+`scale` input.
 
 ```{r, results = "hold"}
 dittoBarPlot("celltype", seurat, group.by = "Sample")
@@ -354,9 +433,14 @@ dittoBarPlot("ident", seurat, group.by = "Sample",
 
 ## dittoHeatmap
 
-This function is essentially a wrapper for generating heatmaps with pheatmap, but with the same automatic, user-friendly, data extraction, (subsetting,) and metadata integrations common to other dittoSeq functions.
+This function is essentially a wrapper for generating heatmaps with pheatmap,
+but with the same automatic, user-friendly, data extraction, (subsetting,) and
+metadata integrations common to other dittoSeq functions.
 
-For large, many cell, single-cell datasets, it can be necessary to turn off clustering by cells in generating the heatmap because the process is very memory intensive. As an alternative, dittoHeatmap offers the ability to order columns in alternative functional ways using the `order.by` input.
+For large, many cell, single-cell datasets, it can be necessary to turn off
+clustering by cells in generating the heatmap because the process is very
+memory intensive. As an alternative, dittoHeatmap offers the ability to order
+columns in alternative functional ways using the `order.by` input.
 
 ```{r, results = "hold"}
 # Pick Genes
@@ -371,7 +455,12 @@ dittoHeatmap(genes, seurat,
     order.by = "celltype")
 ```
 
-Annotation bars can be added using the `annotation.metas` input. The function will then extract and properly format metadata for adding them as column annotation bars. `scaled.to.max = TRUE` will normalize all expression data between [0,1], which is often useful for zero-enriched single-cell expression data. `show.colnames`/`show.rownames` controls whether cell/gene names will be shown.
+Annotation bars can be added using the `annotation.metas` input. The function
+will then extract and properly format metadata for adding them as column
+annotation bars. `scaled.to.max = TRUE` will normalize all expression data
+between [0,1], which is often useful for zero-enriched single-cell expression
+data. `show.colnames`/`show.rownames` controls whether cell/gene names will be
+shown.
 
 ```{r}
 # Add annotations
@@ -383,7 +472,8 @@ dittoHeatmap(genes, seurat,
     show.rownames = FALSE)
 ```
 
-A subset of the supplied genes can be given to the `highlight.genes` input to have names shown for just these genes.
+A subset of the supplied genes can be given to the `highlight.genes` input to
+have names shown for just these genes.
 
 ```{r}
 # Highlight certain genes
@@ -395,13 +485,20 @@ dittoHeatmap(genes, seurat,
     show.rownames = FALSE)
 ```
 
-Additional tweaks can be added by providing additional inputs to pheatmap (see `?pheatmap`) which will be passed through to the pheatmap call.  One important example is the `cluster_cols` input. It can be good to set this to FALSE, at least initially, for single-cell datasets as clustering of thousands of cells tends to be memory intensive.
+Additional tweaks can be added by providing additional inputs to pheatmap (see
+`?pheatmap`) which will be passed through to the pheatmap call.  One important
+example is the `cluster_cols` input. It can be good to set this to FALSE, at
+least initially, for single-cell datasets as clustering of thousands of cells
+tends to be memory intensive.
 
 ## Multi-Plotters
 
-These create either multiple plots or create plots that summarize data for multiple variables all in one plot.  They make it easier to create sumarzies for many genes or many celltypes without the need for writing loops.
+These create either multiple plots or create plots that summarize data for
+multiple variables all in one plot.  They make it easier to create sumarzies
+for many genes or many celltypes without the need for writing loops.
 
-Some setup for these, let's roughly pick out the markers of delta cells in this dataset
+Some setup for these, let's roughly pick out the markers of delta cells in
+this dataset
 
 ```{r}
 # Idents(seurat) <- "celltype"
@@ -417,9 +514,13 @@ delta.genes <- c("SST", "RBP4", "PCSK1", "CPE", "GPX3",
 
 ### multi_dittoPlot & dittoPlot_VarsAcrossGroups
 
-`multi_dittoPlot()` creates dittoPlots for multiple genes or metadata, one plot each.
+`multi_dittoPlot()` creates dittoPlots for multiple genes or metadata, one
+plot each.
 
-`dittoPlotVarsAcrossGroups()` creates a dittoPlot-like representation where instead of representing samples/cells as in typical dittoPlots, each data point instead represents the average expression, across each x-grouping, of a gene (or value of a metadata).
+`dittoPlotVarsAcrossGroups()` creates a dittoPlot-like representation where
+instead of representing samples/cells as in typical dittoPlots, each data
+point instead represents the average expression, across each x-grouping, of a
+gene (or value of a metadata).
 
 ```{r}
 multi_dittoPlot(delta.genes[1:6], object = seurat, group.by = "celltype",
@@ -430,23 +531,37 @@ dittoPlotVarsAcrossGroups(delta.genes, object = seurat, group.by = "celltype",
 
 ### multi_dittoDimPlot & multi_dittoDimPlotVaryCells
 
-`multi_dittoDimPlot()` creates dittoDimPlots for multiple genes or metadata, one plot each.
+`multi_dittoDimPlot()` creates dittoDimPlots for multiple genes or metadata,
+one plot each.
 
-`multi_dittoDimPlotVaryCells()` creates dittoDimPlots for a single gene or metadata, but where distinct cells are highlighted in each plot. The `vary.cells.meta` input sets the discrete metadata to be used for breaking up cells/samples over distinct plots. This can be useful for checking/highlighting when a gene may be differentially expressed within multiple cell types or accross all samples
+`multi_dittoDimPlotVaryCells()` creates dittoDimPlots for a single gene or
+metadata, but where distinct cells are highlighted in each plot. The
+`vary.cells.meta` input sets the discrete metadata to be used for breaking up
+cells/samples over distinct plots. This can be useful for
+checking/highlighting when a gene may be differentially expressed within
+multiple cell types or accross all samples
 
 ```{r, results = "hold"}
 multi_dittoDimPlot(delta.genes[1:6], object = seurat)
-multi_dittoDimPlotVaryCells(delta.genes[1], object = seurat, vary.cells.meta = "celltype")
-multi_dittoDimPlotVaryCells("celltype", object = seurat, vary.cells.meta = "celltype")
+multi_dittoDimPlotVaryCells(delta.genes[1], object = seurat,
+    vary.cells.meta = "celltype")
+multi_dittoDimPlotVaryCells("celltype", object = seurat,
+    vary.cells.meta = "celltype")
 ```
 
 # Common Addtional Inputs 
 
-**Many adjustments can be made with simple additional inputs**.  Here, we go through a few that are consistent across most dittoSeq functions, but there are many more.  Be sure to check the function documentation (e.g. `?dittoDimPlot`) to explore more!
+**Many adjustments can be made with simple additional inputs**.  Here, we go
+through a few that are consistent across most dittoSeq functions, but there
+are many more.  Be sure to check the function documentation (e.g.
+`?dittoDimPlot`) to explore more!
 
 ## Subsetting to certain cells/samples
 
-The cells/samples shown in a given plot can be adjusted with the `cells.use` input. This can be provided as either a list of cells' / samples' names to include, or as a logical vector that states whether each cell / sample should be included.
+The cells/samples shown in a given plot can be adjusted with the `cells.use`
+input. This can be provided as either a list of cells' / samples' names to
+include, or as a logical vector that states whether each cell / sample should
+be included.
 
 ```{r}
 # Original
@@ -463,7 +578,8 @@ dittoBarPlot("celltype", seurat, group.by = "Sample", scale = "count",
 
 ## All titles are adjustable.
 
-Relevant inputs are generally `main`, `sub`, `xlab`, `ylab`, `x.labels`, and `legend.title`.
+Relevant inputs are generally `main`, `sub`, `xlab`, `ylab`, `x.labels`, and
+`legend.title`.
 
 ```{r}
 dittoBarPlot("celltype", seurat, group.by = "Sample",
@@ -479,7 +595,10 @@ dittoBarPlot("celltype", seurat, group.by = "Sample",
 
 ## Colors can be adjusted easily.
 
-Colors are normally set with `color.panel` or `max.color` and `min.color`. When color.panel is used, an additional input called `colors` sets the order in which those are actually used to make swapping around colors easy when nearby clusters appear too similar in tSNE/umap plots!
+Colors are normally set with `color.panel` or `max.color` and `min.color`.
+When color.panel is used, an additional input called `colors` sets the order
+in which those are actually used to make swapping around colors easy when
+nearby clusters appear too similar in tSNE/umap plots!
 
 ```{r, results="hold"}
 # original - discrete
@@ -502,14 +621,18 @@ dittoDimPlot("INS", seurat,
 
 ## Underlying data can be output.
 
-Simply add  `data.out = TRUE` to any of the individual plotters and a representation of the underlying data will be output.
+Simply add  `data.out = TRUE` to any of the individual plotters and a
+representation of the underlying data will be output.
 
 ```{r}
 dittoBarPlot("celltype", seurat, group.by = "Sample",
     data.out = TRUE)
 ```
 
-For dittoHeatmap, a list of all the arguments that would be supplied to pheatmap are output.  This allows users to make their own tweaks to how the expression matrix is represented before plotting, or even to use a different heatmap creator from pheatmap altogether.
+For dittoHeatmap, a list of all the arguments that would be supplied to
+pheatmap are output.  This allows users to make their own tweaks to how the
+expression matrix is represented before plotting, or even to use a different
+heatmap creator from pheatmap altogether.
 
 ```{r}
 dittoHeatmap(c("SST","CPE","GPX3"), seurat, cells.use = colnames(seurat)[1:5],
@@ -518,9 +641,15 @@ dittoHeatmap(c("SST","CPE","GPX3"), seurat, cells.use = colnames(seurat)[1:5],
 
 ## plotly hovering can be added.
 
-Any dittoSeq function that normally outputs a ggplot (dittoDimPlot, dittoPlot, dittoBarPlot, dittoPlotVarsAcrossGroups) can be supplied `do.hover = TRUE` to have it be converted into a plotly object that will display additional data about each data point when the user hovers their cursor on top.
+Any dittoSeq function that normally outputs a ggplot (dittoDimPlot, dittoPlot,
+dittoBarPlot, dittoPlotVarsAcrossGroups) can be supplied `do.hover = TRUE` to
+have it be converted into a plotly object that will display additional data
+about each data point when the user hovers their cursor on top.
 
-Generally, a second input, `hover.data`, is used to tell dittoSeq qhat extra data to display.  This input takes in a vector of gene or metadata names (or "ident" for seurat object clustering) in the order you wish for them to be displayed.
+Generally, a second input, `hover.data`, is used to tell dittoSeq qhat extra
+data to display.  This input takes in a vector of gene or metadata names (or
+"ident" for seurat object clustering) in the order you wish for them to be
+displayed.
 
 ```{r, eval = FALSE}
 # These can be finicky to render in knitting, but still, example code:
@@ -532,7 +661,9 @@ dittoPlot("INS", seurat, group.by = "celltype", plots = c("vlnplot", "jitter"),
     hover.data = c("celltype", "Sample", "ENO1", "ident", "nCount_RNA"))
 ```
 
-When the types of underlying data possible to be shown are constrained because the plot pieces represent summary data (dittoBarPlot and dittoPlotVarsAcrossGroups), just `do.hover` is enough: 
+When the types of underlying data possible to be shown are constrained because
+the plot pieces represent summary data (dittoBarPlot and
+dittoPlotVarsAcrossGroups), just `do.hover` is enough: 
 
 ```{r, eval = FALSE}
 # These can be finicky to render in knitting, but still, example code:
