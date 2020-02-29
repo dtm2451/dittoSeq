@@ -65,7 +65,8 @@ REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
-Default = "tsne" for Seurat objects, and "pca" for RNAseq objects, and "TSNE" for SingleCellExperiment objects.}
+Default = the first dimensionality reduction slot in the object containing (non-case sensitive) "umap" > "tsne" > "pca" in its name,
+or else simply the first dimensionality reduction slot if none of those are found.}
 
 \item{size}{Number which sets the size of data points. Default = 1.}
 

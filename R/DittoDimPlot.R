@@ -13,7 +13,8 @@
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param reduction.use String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 #'
-#' Default = "tsne" for Seurat objects, and "pca" for RNAseq objects, and "TSNE" for SingleCellExperiment objects.
+#' Default = the first dimensionality reduction slot in the object containing (non-case sensitive) "umap" > "tsne" > "pca" in its name,
+#' or else simply the first dimensionality reduction slot if none of those are found.
 #' @param size Number which sets the size of data points. Default = 1.
 #' @param opacity Number between 0 and 1.
 #' Great for when you have MANY overlapping points, this sets how solid the points should be:
@@ -282,14 +283,15 @@ dittoDimPlot <- function(
 }
 
 .default_reduction <- function(object) {
-    if (grepl("Seurat",.class_of(object))) {
-        reduction.use <- "tsne"
+    # Use umap > tsne > pca, or whatever the first reduction slot is.
+    opts <- get.reductions(object)
+    reduction.use <- opts[1]
+    prefered <- match(c("umap","tsne","pca"), tolower(opts))
+    if (any(!is.na(prefered))) {
+        reduction.use <- (opts[prefered[!is.na(prefered)]])[1]
     }
-    if (.class_of(object)=="SingleCellExperiment") {
-        reduction.use <- "TSNE"
-    }
-    if (.class_of(object)=="RNAseq") {
-        reduction.use <- "pca"
+    if (is.na(reduction.use)) {
+        stop("No dimensionality reductions found.")
     }
     reduction.use
 }
