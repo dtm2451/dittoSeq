@@ -7,13 +7,12 @@
 }
 
 .all_cells <- function(object = DEFAULT) {
-    target <- data.frame(
-        use = c("@samples", "@cell.names"),
-        row.names = c("RNAseq", "Seurat.v2"))
-    if (.class_of(object) %in% c("Seurat.v3", "SingleCellExperiment")) {
+    if (is(object, "Seurat") || is(object,"SingleCellExperiment")) {
+        # Seurat-v3, bulk or single-cell SCE
         return(colnames(object))
     } else {
-        eval(expr = parse(text = paste0("object", target[.class_of(object),])))
+        # Seurat-v2
+        return(object@cell.names)
     }
 }
 
@@ -25,26 +24,8 @@
     if (is.logical(cells.use)) {
         return(all.cells[cells.use])
     }
+    # If here, not a logical or NULL, thus should already be a list of names
     cells.use
-}
-
-.class_of <- function (object = DEFAULT) {
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
-    class <- class(object)
-
-    #If a Seurat, need to add what version
-    if (grepl("Seurat|seurat",class)) {
-        if(object@version >= '3.0.0') {
-            #Then needs to be
-            class <- "Seurat.v3"
-        } else {
-            class <- "Seurat.v2"
-        }
-    }
-
-    class
 }
 
 .var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type) {
@@ -68,32 +49,32 @@
             "@data",
             "@counts",
             "error_Do_not_use_scaled_for_RNAseq_objects"),
-        Seurat.v2 = c("@data", "@raw.data", "@scale.data"),
-        Seurat.v3 = c("nope", "counts", "scale.data"),
+        seurat = c("@data", "@raw.data", "@scale.data"),
+        Seurat = c("nope", "counts", "scale.data"),
         SingleCellExperiment = c(
             "SingleCellExperiment::logcounts(",
             "SingleCellExperiment::counts(",
             "error_do_not_use_scaled_for_SCE_objects("),
         stringsAsFactors = FALSE,
         row.names = c("normalized","raw","scaled"))
-    if (.class_of(object) == "SingleCellExperiment") {
+    if (is(object,"SingleCellExperiment")) {
         OUT <- as.matrix(
             eval(expr = parse(text = paste0(
-                target[data.type,.class_of(object)],
+                target[data.type,class(object)],
                 "object)"))))
     } else {
-        if (.class_of(object)=="Seurat.v3") {
+        if (class(object)=="Seurat") {
             if(data.type == "normalized"){
                 OUT <- Seurat::GetAssayData(object)
             } else {
                 OUT <- Seurat::GetAssayData(
                     object,
-                    slot = target[data.type,.class_of(object)])
+                    slot = target[data.type,class(object)])
             }
         } else {
             OUT <- eval(expr = parse(text = paste0(
                 "object",
-                target[data.type,.class_of(object)]
+                target[data.type,class(object)]
             )))
         }
     }
@@ -102,25 +83,19 @@
 
 .extract_Reduced_Dim <- function(reduction.use, dim=1, object=DEFAULT) {
     # If object is a Seurat object
-    if (.class_of(object)=="Seurat.v2") {
+    if (is(object,"seurat")) {
         OUT <- list(eval(expr = parse(text = paste0(
             "object@dr$",reduction.use,"@cell.embeddings[,",dim,"]"))))
         OUT[2] <- paste0(eval(expr = parse(text = paste0(
             "object@dr$",reduction.use,"@key"))),dim)
     }
-    if (.class_of(object)=="Seurat.v3") {
+    if (is(object,"Seurat")) {
         OUT <- list(eval(expr = parse(text = paste0(
             "object@reductions$",reduction.use,"@cell.embeddings[,",dim,"]"))))
         OUT[2] <- paste0(eval(expr = parse(text = paste0(
             "object@reductions$",reduction.use,"@key"))),dim)
     }
-    if (.class_of(object)=="RNAseq"){
-        OUT <- list(eval(expr = parse(text = paste0(
-            "object@reductions$",reduction.use,"$embeddings[,",dim,"]"))))
-        OUT[2] <- paste0(eval(expr = parse(text = paste0(
-            "object@reductions$",reduction.use,"$key"))),dim)
-    }
-    if (.class_of(object)=="SingleCellExperiment"){
+    if (is(object,"SingleCellExperiment")) {
         OUT <- list(eval(expr = parse(text = paste0(
             "SingleCellExperiment::reducedDim(",
             "object, type = '",reduction.use,"')[,",dim,"]"))))

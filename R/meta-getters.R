@@ -50,7 +50,7 @@ isMeta <- function(test, object=DEFAULT, return.values=FALSE){
         return(test[isMeta(test, object, return.values=FALSE)])
     } else {
         metas <- getMetas(object)
-        if (grepl("Seurat", .class_of(object))) {
+        if (class(object) %in% c("Seurat","seurat")) {
             metas <- c(metas,"ident")
         }
         return(test %in% metas)
@@ -86,7 +86,7 @@ getMetas <- function(object=DEFAULT, names.only = TRUE){
         object <- eval(expr = parse(text = object))
     }
     metadata <-
-        if (.class_of(object)=="SingleCellExperiment") {
+        if (is(object,"SummarizedExperiment")) {
             SummarizedExperiment::colData(object)
         } else {
             object@meta.data
@@ -127,14 +127,12 @@ meta <- function(meta, object=DEFAULT){
         object <- eval(expr = parse(text = object))
     }
 
-    if( meta=="ident" & grepl("Seurat", .class_of(object))) {
+    if (meta=="ident" && !is(object,"SingleCellExperiment")) {
     # Retrieve clustering from Seurats
-        if (grepl("v3",.class_of(object))) {
-            return(as.character(Seurat::Idents(object)))
+        if (is(object, "Seurat")) {
+            return(Seurat::Idents(object))
         } else {
-            return(as.character(
-                eval(expr = parse(text = paste0(
-                    "object@ident")))))
+            return(object@ident)
         }
     }
     getMetas(object, names.only = FALSE)[,meta]

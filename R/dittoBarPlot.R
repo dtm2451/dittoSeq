@@ -121,7 +121,9 @@ dittoBarPlot <- function(
             ylab.start <- ifelse(scale=="count", "Number of ", "Percent of ")
             ylab <- paste0(
                 ylab.start,
-                ifelse(grepl("RNAseq",.class_of(object)), "samples", "cells"))
+                ifelse(
+                    is(object,"SingleCellExperiment") && int_metadata(object)$bulk,
+                    "samples", "cells"))
         }
     }
     if (!(is.null(main)) && main=="make"){

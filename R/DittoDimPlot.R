@@ -282,14 +282,15 @@ dittoDimPlot <- function(
 }
 
 .default_reduction <- function(object) {
-    if (grepl("Seurat",.class_of(object))) {
-        reduction.use <- "tsne"
+    # Use umap > tsne > pca, or whatever the first reduction slot is.
+    opts <- getReductions(object)
+    reduction.use <- opts[1]
+    prefered <- match(c("umap","tsne","pca"), tolower(opts))
+    if (any(!is.na(prefered))) {
+        reduction.use <- (opts[prefered[!is.na(prefered)]])[1]
     }
-    if (.class_of(object)=="SingleCellExperiment") {
-        reduction.use <- "TSNE"
-    }
-    if (.class_of(object)=="RNAseq") {
-        reduction.use <- "pca"
+    if (is.na(reduction.use)) {
+        stop("No dimensionality reductions found.")
     }
     reduction.use
 }

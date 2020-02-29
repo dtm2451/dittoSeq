@@ -19,18 +19,13 @@ getReductions <- function(object=DEFAULT){
         object <- eval(expr = parse(text = object))
     }
 
-    if (.class_of(object)=="SingleCellExperiment") {
-        reductions <- SingleCellExperiment::reducedDimNames(object)
+    if (is(object,"SingleCellExperiment")) {
+        return(SingleCellExperiment::reducedDimNames(object))
     }
-    if (.class_of(object)=="Seurat.v3") {
-        reductions <- Seurat::Reductions(object)
+    if (is(object,"Seurat")) {
+        return(Seurat::Reductions(object))
     }
-    if (.class_of(object)=="Seurat.v2") {
-        reductions <- names(object@dr)
+    if (is(object,"seurat")) {
+        return(names(object@dr))
     }
-    if (.class_of(object)=="RNAseq") {
-        reductions <- names(object@reductions)
-    }
-
-    reductions
 }
