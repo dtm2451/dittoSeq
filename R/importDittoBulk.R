@@ -1,7 +1,7 @@
 #' import bulk sequencing data into a format that dittoSeq functions expect.
 #' @rdname importDittoBulk
 #' @param ... For the generic, additional arguments passed to specific methods.
-#' @param x a \code{\linkS4class{DGEList}}, \code{\linkS4class{DESeqDataSet}}, or \code{\linkS4class{SummarizedExperiment}} class object containing the sequencing data to be imported
+#' @param x a \code{\linkS4class{DGEList}}, or \code{\linkS4class{SummarizedExperiment}} (includes \code{DESeqDataSet}) class object containing the sequencing data to be imported
 #' @param reductions a named list of dimensionality reduction embeddings matrices.
 #' names will become the names of the dimensionality reductions and how each will be used with the \code{reduction.use} input of \code{dittoDimPlot}
 #' rows of the matrices should represent the different cells/samples of the dataset, and columns the different dimensions
@@ -62,14 +62,16 @@ setMethod("importDittoBulk", "SummarizedExperiment", function(
 
     object <- as(x, "SingleCellExperiment")
     # Use SCE int_metadata to store dittoSeq version and that dataset is bulk
-    int_metadata(object) <- c(int_metadata(object),
-        dittoSeqVersion = packageVersion("dittoSeq"), bulk = TRUE)
+    SingleCellExperiment::int_metadata(object) <- c(
+        SingleCellExperiment::int_metadata(object),
+        dittoSeqVersion = packageVersion("dittoSeq"),
+        bulk = TRUE)
 
     # Add metadata
     if (!is.null(metadata)) {
         if (combine_metadata) {
             # Add metadata from `x` to provided `metadata` dataframe.
-            obj_metadata <- colData(object)
+            obj_metadata <- SummarizedExperiment::colData(object)
             dups <- colnames(obj_metadata) %in% colnames(metadata)
             # If any names are repeated, use from the provided `metadata`
             if (any(dups)) {
@@ -79,13 +81,13 @@ setMethod("importDittoBulk", "SummarizedExperiment", function(
             }
             metadata <- cbind(obj_metadata[,!dups], metadata)
         }
-        colData(object) <- metadata
+        SummarizedExperiment::colData(object) <- metadata
     }
 
     # Add reductions
     if (!is.null(reductions)) {
         for (i in names(reductions)) {
-            reducedDim(object, i) <- reductions[[i]]
+            SingleCellExperiment::reducedDim(object, i) <- reductions[[i]]
         }
     }
     object
@@ -98,8 +100,9 @@ setMethod("importDittoBulk", "DGEList", function(
     ### Convert DGEList to Summarized Experiment while preserving as many
     ### optional slots as possible
     # Grab essential slots
-    args <- list(assays = list(counts=x$counts),
-                 colData = data.frame(samples = x$samples))
+    args <- list(
+        assays = list(counts=x$counts),
+        SummarizedExperiment::colData = data.frame(samples = x$samples))
     # Add optional rowData
     rowData <- list()
     add_if_slot <- function(i, out = rowData) {
@@ -123,7 +126,7 @@ setMethod("importDittoBulk", "DGEList", function(
                             offset = x$offset)
     }
     # Make SE
-    se <- do.call(SummarizedExperiment, args)
+    se <- do.call(SummarizedExperiment::SummarizedExperiment, args)
 
     # Import as if the DGEList was always an SE
     importDittoBulk(se, reductions, metadata, combine_metadata)

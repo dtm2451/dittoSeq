@@ -13,7 +13,7 @@ importDittoBulk(x, ...)
 \S4method{importDittoBulk}{DGEList}(x, reductions = NULL, metadata = NULL, combine_metadata = TRUE)
 }
 \arguments{
-\item{x}{a \code{\linkS4class{DGEList}}, \code{\linkS4class{DESeqDataSet}}, or \code{\linkS4class{SummarizedExperiment}} class object containing the sequencing data to be imported}
+\item{x}{a \code{\linkS4class{DGEList}}, or \code{\linkS4class{SummarizedExperiment}} (includes \code{DESeqDataSet}) class object containing the sequencing data to be imported}
 
 \item{...}{For the generic, additional arguments passed to specific methods.}
 
