@@ -42,6 +42,7 @@ The logNormCounts function of the scater package is an easy way to make such a s
 dittoSeq defaults to grabbing expression data from an assay named logcounts > normcounts > counts
 }
 \examples{
+library(SingleCellExperiment)
 nsamples <- 20
 conditions <- factor(rep(1:4, each=5))
 exp <- matrix(rpois(20000, 5), ncol=nsamples)
