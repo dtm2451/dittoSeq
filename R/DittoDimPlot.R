@@ -41,7 +41,12 @@
 #' @param legend.title String which sets the title for the main legend which includes the colors. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.
 #' @param shape.legend.size Number representing the size to increase the plotting of shapes legend shapes to.
 #' @param shape.legend.title String which sets the title of the shapes legend.  Default is the \code{shape.var}
-#' @param data.type For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".
+#' @param assay,slot single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.
+#' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
+#' \itemize{
+#' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+#' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+#' }
 #' @param main String, sets the plot title.
 #' Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.
 #' @param sub String, sets the plot subtitle
@@ -73,7 +78,7 @@
 #' @param do.hover Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 #' \code{hover.data} argument is used to determine what data to use.
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
-#' @param hover.data.type Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.
+#' @param hover.assay,hover.slot,hover.adjustment Similar to the non-hover versions, when showing expression data upon hover, these set what data will be shown.
 #' @param add.trajectory.lineages List of vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 #'
 #' If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
@@ -88,7 +93,7 @@
 #' @details
 #' The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that),
 #' plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
-#' The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
+#' The \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to change what expression data is used when displaying gene expression.
 #' If a metadata is given to \code{shape.var}, that is retrieved and added to the dataframe as well.
 #'
 #' Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
@@ -139,6 +144,7 @@
 #' \code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
 #'
 #' @author Daniel Bunis
+#' @importFrom stats median
 #' @export
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -169,7 +175,8 @@ dittoDimPlot <- function(
     show.axes.numbers = TRUE,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     shape.var = NULL, shape.panel=c(16,15,17,23,25,8),
-    data.type = "normalized",
+    assay = .default_assay(object), slot = .default_slot(object),
+    adjustment = NULL,
     main = "make", sub = NULL, xlab = "make", ylab = "make",
     theme = NA, legend.show = TRUE, legend.size = 5,
     legend.title = "make",
@@ -180,7 +187,8 @@ dittoDimPlot <- function(
     min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
     legend.breaks = waiver(), legend.breaks.labels = waiver(),
     do.letter = FALSE, do.hover = FALSE, hover.data = var,
-    hover.data.type = data.type,
+    hover.assay = .default_assay(object), hover.slot = .default_slot(object),
+    hover.adjustment = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
     trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE) {
 
@@ -226,9 +234,10 @@ dittoDimPlot <- function(
     p.df <- dittoScatterPlot(
         xdat$embeddings, ydat$embeddings, var, shape.var, object, cells.use,
         show.others, size, opacity, color.panel, colors,
-        data.type.x = "normalized", data.type.y = "normalized",
-        data.type, do.hover, hover.data, hover.data.type, shape.panel,
-        rename.var.groups, rename.shape.groups, min.color, max.color, min, max,
+        NULL, NULL, NULL, NULL, NULL, NULL, assay, slot, adjustment,
+        do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
+        shape.panel, rename.var.groups, rename.shape.groups,
+        min.color, max.color, min, max,
         xlab, ylab, main, sub, theme, legend.show, legend.title, legend.size,
         legend.breaks, legend.breaks.labels, shape.legend.title,
         shape.legend.size, data.out = TRUE)

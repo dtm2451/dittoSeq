@@ -2,25 +2,43 @@
 % Please edit documentation in R/gene-getters.R
 \name{gene}
 \alias{gene}
-\title{Returns the values of a gene for all cells/samples}
+\title{Returns the expression values of a gene for all cells/samples}
 \usage{
-gene(gene, object = DEFAULT, data.type = "normalized")
+gene(
+  gene,
+  object = DEFAULT,
+  assay = .default_assay(object),
+  slot = .default_slot(object),
+  adjustment = c(NULL, "z-score", "relative.to.max")
+)
 }
 \arguments{
 \item{gene}{quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.}
 
 \item{object}{"name" of the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
-\item{data.type}{Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation)? Default = "normalized"}
+\item{assay, slot}{single strings or integer that set which data to use.
+Seurat and SingleCellExperiments deal with these differently, so be sure to check the documentation for whichever object you are using.
+When not provided, these typical defaults for the provided \code{object} class are used:
+\itemize{
+\item{SingleCellExperiment (single-cell or bulk data): \code{assay} = "logcounts", "normcounts", "counts", or the first element of assays(object), \code{slot} not used}
+\item{Seurat-v3: \code{assay} = DefaultAssay(object), \code{slot} = "data"}
+\item{Seurat-v2: \code{assay} not used, \code{slot} = "data"}
+}}
+
+\item{adjustment}{Should expression data be used directly (default) or should it be adjusted to be
+\itemize{
+\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+\item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+}}
 }
 \value{
-Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
+Returns the expression values of a gene for all cells/samples.
 }
 \description{
-Returns the values of a gene for all cells/samples
+Returns the expression values of a gene for all cells/samples
 }
 \examples{
-library(Seurat)
 pbmc <- Seurat::pbmc_small
 gene("CD14", object = "pbmc")
 # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.

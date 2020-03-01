@@ -72,18 +72,29 @@ getGenes <- function(object=DEFAULT){
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
-    rownames(.which_data("normalized", object))
+    rownames(.which_data(object=object))
 }
 
 #### gene: for extracting the expression values of a particular gene for all cells/samples ####
-#' Returns the values of a gene for all cells/samples
+#' Returns the expression values of a gene for all cells/samples
 #'
-#' @param gene               quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.
-#' @param object             "name" of the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param data.type          Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), or "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation)? Default = "normalized"
-#' @return Returns the values of a meta.data slot, or the ident (clustering) slot if "ident" was given and the object is a Seurat object.
+#' @param gene quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.
+#' @param object "name" of the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param assay,slot single strings or integer that set which data to use.
+#' Seurat and SingleCellExperiments deal with these differently, so be sure to check the documentation for whichever object you are using.
+#' When not provided, these typical defaults for the provided \code{object} class are used:
+#' \itemize{
+#' \item{SingleCellExperiment (single-cell or bulk data): \code{assay} = "logcounts", "normcounts", "counts", or the first element of assays(object), \code{slot} not used}
+#' \item{Seurat-v3: \code{assay} = DefaultAssay(object), \code{slot} = "data"}
+#' \item{Seurat-v2: \code{assay} not used, \code{slot} = "data"}
+#' }
+#' @param adjustment Should expression data be used directly (default) or should it be adjusted to be
+#' \itemize{
+#' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+#' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+#' }
+#' @return Returns the expression values of a gene for all cells/samples.
 #' @examples
-#' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
 #' gene("CD14", object = "pbmc")
 #' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
@@ -93,25 +104,26 @@ getGenes <- function(object=DEFAULT){
 #' @author Daniel Bunis
 #' @export
 
-gene <- function(gene, object=DEFAULT, data.type = "normalized"){
+gene <- function(
+    gene, object=DEFAULT,
+    assay = .default_assay(object), slot = .default_slot(object),
+    adjustment = c(NULL,"z-score", "relative.to.max")){
+
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
+    adjustment <- match.arg(adjustment)
 
-    # Recursive functions for non
-    if (data.type == "relative") {
-        return(as.numeric(scale(gene(gene, object, "normalized"))))
+    # Recursive functions for adjustments
+    if (adjustment=="z-score") {
+        return(as.numeric(scale(gene(gene,object,assay,slot))))
     }
-    if (data.type == "normalized.to.max") {
-        exp <- gene(gene, object, "normalized")
-        return(exp/max(exp))
-    }
-    if (data.type == "raw.normalized.to.max") {
-        exp <- gene(gene, object, "raw")
+    if (adjustment=="relative.to.max") {
+        exp <- gene(gene,object,assay,slot)
         return(exp/max(exp))
     }
 
-    exp <- .which_data(data.type, object)[gene,]
+    exp <- as.vector(.which_data(assay, slot, object)[gene,])
     names(exp) <- .all_cells(object)
 
     exp

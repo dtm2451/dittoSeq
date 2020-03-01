@@ -15,7 +15,12 @@
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
 #' @param plots String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot". See details section for more info.
-#' @param data.type String, for when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"
+#' @param assay,slot single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.
+#' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
+#' \itemize{
+#' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+#' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+#' }
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} (and if there is a jitter - the data it will work with): object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them,
 #' and 'hover.data' argument will be used to determine what data to use.
@@ -81,7 +86,7 @@
 #' Alternatively, will return the data that would go into such a plot as well with \code{data.out=TRUE}
 #' @details
 #' The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that) plus metadata associated with the \code{group.by} and \code{color.by} variables.
-#' The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
+#' The \code{assay} and \code{slot} inputs can be used to change what expression data is used when displaying gene expression.
 #' If a set of cells to use is indicated with the \code{cells.use} input, the dataframe is then subset to include only those cells.
 #' Then, a plot where data is grouped by the \code{group.by} metadata and colored by the \code{color.by} metadata is generated.
 #'
@@ -148,7 +153,9 @@
 dittoPlot <- function(
     var, object = DEFAULT, group.by, color.by = group.by,
     shape.var = NULL,
-    cells.use = NULL, plots = c("jitter","vlnplot"), data.type = "normalized",
+    cells.use = NULL, plots = c("jitter","vlnplot"),
+    assay = .default_assay(object), slot = .default_slot(object),
+    adjustment = NULL,
     do.hover = FALSE, hover.data = var,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     shape.panel = c(16,15,17,23,25,8),
@@ -193,8 +200,8 @@ dittoPlot <- function(
         extra.vars = NULL
     }
     Target_data <- .dittoPlot_data_gather(
-        var, object, group.by, color.by, extra.vars, cells.use, data.type,
-        do.hover, hover.data)$Target_data
+        var, object, group.by, color.by, extra.vars, cells.use, assay, slot,
+        adjustment, do.hover, hover.data)$Target_data
     Target_data$grouping <-
         .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
 
@@ -474,7 +481,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 
 .dittoPlot_data_gather <- function(
     main.var, object = DEFAULT, group.by = "Sample", color.by = group.by,
-    extra.vars = NULL, cells.use = NULL, data.type = "normalized",
+    extra.vars = NULL, cells.use = NULL, assay, slot, adjustment,
     do.hover = FALSE, hover.data = c(main.var, extra.vars)) {
 
     if (is.character(object)) {
@@ -486,7 +493,8 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     all.cells <- .all_cells(object)
     ### Make dataframe for storing the plotting data:
     full_data <- data.frame(
-        var.data = .var_OR_get_meta_or_gene(main.var, object, data.type),
+        var.data = .var_OR_get_meta_or_gene(
+            main.var, object, assay, slot, adjustment),
         grouping = meta(group.by, object),
         color = meta(color.by, object),
         row.names = all.cells)
@@ -494,13 +502,15 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     # Add Extra data
     if(length(extra.vars)>0){
         for (i in seq_along(extra.vars)){
-            full_data <- cbind(full_data, .var_OR_get_meta_or_gene(extra.vars, object, data.type))
+            full_data <- cbind(full_data, .var_OR_get_meta_or_gene(
+                extra.vars, object, assay, slot, adjustment))
         }
         names <- c(names, extra.vars)
     }
     # Add hover strings
     if (do.hover) {
-        full_data$hover.string <- .make_hover_strings_from_vars(hover.data, object, data.type)
+        full_data$hover.string <- .make_hover_strings_from_vars(
+            hover.data, object, assay, slot, adjustment)
         names <- c(names, "hover.string")
     }
     # Add column names

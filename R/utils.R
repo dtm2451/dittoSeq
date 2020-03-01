@@ -28,57 +28,75 @@
     cells.use
 }
 
-.var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type) {
+.var_OR_get_meta_or_gene <- function(var, object = DEFAULT,
+    assay = .default_assay(object), slot = .default_slot(object),
+    adjustment = NULL) {
+
     OUT <- var
     if (length(var)==1 && typeof(var)=="character") {
         if (isMeta(var, object)) {
             OUT <- meta(var, object)
         }
         if (isGene(var, object)) {
-            OUT <- gene(var, object, data.type)
+            OUT <- gene(var, object, assay, slot, adjustment)
         }
     }
     names(OUT) <- .all_cells(object)
     OUT
 }
 
-.which_data <- function(data.type, object=DEFAULT) {
-    #Set up data frame for establishing how to deal with different input object types
-    target <- data.frame(
-        RNAseq = c(
-            "@data",
-            "@counts",
-            "error_Do_not_use_scaled_for_RNAseq_objects"),
-        seurat = c("@data", "@raw.data", "@scale.data"),
-        Seurat = c("nope", "counts", "scale.data"),
-        SingleCellExperiment = c(
-            "SingleCellExperiment::logcounts(",
-            "SingleCellExperiment::counts(",
-            "error_do_not_use_scaled_for_SCE_objects("),
-        stringsAsFactors = FALSE,
-        row.names = c("normalized","raw","scaled"))
-    if (is(object,"SingleCellExperiment")) {
-        OUT <- as.matrix(
-            eval(expr = parse(text = paste0(
-                target[data.type,class(object)],
-                "object)"))))
-    } else {
-        if (class(object)=="Seurat") {
-            if(data.type == "normalized"){
-                OUT <- Seurat::GetAssayData(object)
-            } else {
-                OUT <- Seurat::GetAssayData(
-                    object,
-                    slot = target[data.type,class(object)])
-            }
-        } else {
-            OUT <- eval(expr = parse(text = paste0(
-                "object",
-                target[data.type,class(object)]
-            )))
-        }
+.preferred_or_first <- function(opts, prefs) {
+    # Given a String vectors options and prefs,
+    # with prefs being a set of targets in decreasing preferrence order and all
+    # lower case, outputs the first element of options that is found to be an
+    # element of prefs.
+    # tolower is used to allow upper/lower case to be ignored
+    # If no options contain an element of prefs, outputs the first option.
+    out <- opts[1]
+    preferred <- match(prefs, tolower(opts))
+    if (any(!is.na(preferred))) {
+        out <- (opts[preferred[!is.na(preferred)]])[1]
     }
-    OUT
+    out
+}
+
+.default_assay <- function(object) {
+    #Decide which assy should be used
+    if (is(object, "SingleCellExperiment")) {
+        return(.preferred_or_first(
+            SummarizedExperiment::assays(object),
+            c("logcounts","normcounts","counts")))
+    }
+    if (is(object, "seurat")) {
+        return(NA)
+    }
+    if (is(object, "Seurat")) {
+        return(Seurat::DefaultAssay(object))
+    }
+}
+
+.default_slot <- function(object) {
+    #Decide which assy should be used
+    if (is(object, "SingleCellExperiment")) {
+        return(NA)
+    } else {
+        return("data")
+    }
+}
+
+.which_data <- function(
+    assay = .default_assay(object), slot = .default_slot(object), object) {
+
+    if (is(object,"SingleCellExperiment")) {
+        return(SummarizedExperiment::assay(object, assay))
+    }
+    if (is(object,"Seurat")) {
+        return(Seurat::GetAssayData(object, assay, slot))
+    }
+    if (is(object,"seurat")) {
+        return(eval(expr = parse(text = paste0(
+                "object@",slot))))
+    }
 }
 
 .extract_Reduced_Dim <- function(reduction.use, dim=1, object=DEFAULT) {
@@ -126,11 +144,13 @@
     key
 }
 
-.make_hover_strings_from_vars <- function(data.hover, object, data.type) {
+.make_hover_strings_from_vars <- function(
+    data.hover, object, assay, slot, adjustment) {
+
     # Overall: if do.hover=TRUE and data.hover has a list of genes / metas called
     #   c(var1, var2, var3, ...), then for all cells, make a string:
     #   "var1: var1-value\nvar2: var2-value\nvar3: var3-value\n..."
-    #   vars that are not genes of metadata are ignored.
+    #   vars that are not genes or metadata are ignored.
     fillable <- vapply(
         seq_along(data.hover),
         function(i)
@@ -148,7 +168,8 @@
     features.info <- vapply(
         data.hover,
         function(this.data)
-            as.character(.var_OR_get_meta_or_gene(this.data,object, data.type)),
+            as.character(.var_OR_get_meta_or_gene(
+                this.data,object, assay, slot, adjustment)),
         character(nrow(features.info)))
     names(features.info) <- data.hover[fillable]
 

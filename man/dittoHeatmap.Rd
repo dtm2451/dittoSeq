@@ -8,10 +8,11 @@ dittoHeatmap(
   genes = NULL,
   object = DEFAULT,
   cells.use = NULL,
+  order.by = NULL,
   main = NA,
   cell.names.meta = NULL,
-  data.type = "normalized",
-  order.by = NULL,
+  assay = .default_assay(object),
+  slot = .default_slot(object),
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
@@ -34,15 +35,15 @@ REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
 
+\item{order.by}{Single string or numeric vector which sets the ordering of cells/samples.
+Can be the name of a gene, or metadata slot.
+Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.}
+
 \item{main}{String that sets the title for the heatmap.}
 
 \item{cell.names.meta}{quoted "name" of a meta.data slot to use for naming the columns instead of using the raw cell/sample names.}
 
-\item{data.type}{String. Options are "normalized" (data slot, default), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects). Note: scaling is performed on the data matrix by default.}
-
-\item{order.by}{Single string or numeric vector which sets the ordering of cells/samples.
-Can be the name of a gene, or metadata slot.
-Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.}
+\item{assay, slot}{single strings or integer that set which expression data to use. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
 
 \item{heatmap.colors}{the colors to use within the heatmap.
 Default is a ramp from navy to white to red with 50 slices.}

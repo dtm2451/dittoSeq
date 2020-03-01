@@ -19,7 +19,9 @@ dittoDimPlot(
   colors = seq_along(color.panel),
   shape.var = NULL,
   shape.panel = c(16, 15, 17, 23, 25, 8),
-  data.type = "normalized",
+  assay = .default_assay(object),
+  slot = .default_slot(object),
+  adjustment = NULL,
   main = "make",
   sub = NULL,
   xlab = "make",
@@ -46,7 +48,9 @@ dittoDimPlot(
   do.letter = FALSE,
   do.hover = FALSE,
   hover.data = var,
-  hover.data.type = data.type,
+  hover.assay = .default_assay(object),
+  hover.slot = .default_slot(object),
+  hover.adjustment = NULL,
   add.trajectory.lineages = NULL,
   add.trajectory.curves = NULL,
   trajectory.cluster.meta,
@@ -103,7 +107,13 @@ Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, sol
 Note: Unfortunately, shapes can be hard to see when points are on top of each other & they are more slowly processed by the brain.
 For these reasons, even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.}
 
-\item{data.type}{For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".}
+\item{assay, slot}{single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.}
+
+\item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
+\itemize{
+\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+\item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+}}
 
 \item{main}{String, sets the plot title.
 Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.}
@@ -163,7 +173,7 @@ lettering is incompatible with plotly and with changing the dots' to be differen
 
 \item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.}
 
-\item{hover.data.type}{Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.}
+\item{hover.assay, hover.slot, hover.adjustment}{Similar to the non-hover versions, when showing expression data upon hover, these set what data will be shown.}
 
 \item{add.trajectory.lineages}{List of vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 
@@ -189,7 +199,7 @@ Shows data overlayed on a tsne, pca, or similar type of plot
 \details{
 The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that),
 plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
-The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
+The \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to change what expression data is used when displaying gene expression.
 If a metadata is given to \code{shape.var}, that is retrieved and added to the dataframe as well.
 
 Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
