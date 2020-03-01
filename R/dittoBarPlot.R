@@ -122,7 +122,8 @@ dittoBarPlot <- function(
             ylab <- paste0(
                 ylab.start,
                 ifelse(
-                    is(object,"SingleCellExperiment") && int_metadata(object)$bulk,
+                    is(object,"SingleCellExperiment") &&
+                        SingleCellExperiment::int_metadata(object)$bulk,
                     "samples", "cells"))
         }
     }
