@@ -25,7 +25,8 @@
 #' nsamples <- 20
 #' conditions <- factor(rep(1:4, each=5))
 #' exp <- matrix(rpois(20000, 5), ncol=nsamples)
-#' colnames(exp) <- paste0("sample", seq_len(nsamples))
+#' colnames(exp) <- paste0("sample", seq_len(ncol(exp)))
+#' rownames(exp) <- paste0("gene", seq_len(nrow(exp)))
 #' logexp <- log2(exp + 1)
 #'
 #' # Make this into a SummarizedExperiment
