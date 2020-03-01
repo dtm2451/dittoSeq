@@ -9,7 +9,7 @@ meta.levels(meta, object = DEFAULT, cells.use = NULL)
 \arguments{
 \item{meta}{quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.}
 
-\item{object}{the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{the Seurat or SingleCellExperiment object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.

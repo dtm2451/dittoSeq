@@ -5,7 +5,7 @@
 #' This is the data that will be displayed for each cell/sample.
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 #' Discrete or continuous data both work. REQUIRED.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.
+#' @param object A Seurat or SingleCellExperiment object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.
 #' @param vary.cells.meta String name of a metadata that should be used for selecting which cells to show in each "varycells" plot. REQUIRED.
 #' @param vary.cells.levels The values/groupings of the \code{vary.cells.meta} metadata that should get a plot.
 #' Defaults to all levels of the metadata.

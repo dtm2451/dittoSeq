@@ -72,7 +72,7 @@ Note: must be discrete.
 Can be the name of a metadata, or "ident" for clusters of a Seurat object.
 Alternatively, can be a string vector or a factor of length equal to the total number of cells/samples in object.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+\item{object}{A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.

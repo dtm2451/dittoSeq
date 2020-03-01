@@ -4,19 +4,26 @@
 \alias{isGene}
 \title{Tests if input is the name of a gene in a target object.}
 \usage{
-isGene(test, object = DEFAULT, return.values = FALSE)
+isGene(
+  test,
+  object = DEFAULT,
+  assay = .default_assay(object),
+  return.values = FALSE
+)
 }
 \arguments{
 \item{test}{String or vector of strings, the "potential.gene.name"(s) to check for.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".}
+\item{object}{A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".}
+
+\item{assay}{single string or integer that sets which set of seq data inside the object to check.}
 
 \item{return.values}{Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
 REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 }
 \value{
-Returns a logical or logical vector indicating whether each instance in \code{test} is a gene within the \code{object}.
-Alternatively, returns the values of \code{test} that were indeed genes if \code{return.values = TRUE}.
+Returns a logical vector indicating whether each instance in \code{test} is a rowname within the requested \code{assay} of the \code{object}.
+Alternatively, returns the values of \code{test} that were indeed rownames if \code{return.values = TRUE}.
 }
 \description{
 Tests if input is the name of a gene in a target object.
@@ -25,7 +32,11 @@ Tests if input is the name of a gene in a target object.
 
 pbmc <- Seurat::pbmc_small
 
-# To see all genes of an object
+# To see all genes of an object of a particular assay
+getGenes(pbmc, assay = "RNA")
+
+# To see all genes of an object for the default assay that dittoSeq would use
+# leave out the assay input
 getGenes(pbmc)
 
 # To test if something is a gene in an object:

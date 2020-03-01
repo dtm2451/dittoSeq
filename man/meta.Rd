@@ -9,7 +9,7 @@ meta(meta, object = DEFAULT)
 \arguments{
 \item{meta}{String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".}
+\item{object}{A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".}
 }
 \value{
 Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.

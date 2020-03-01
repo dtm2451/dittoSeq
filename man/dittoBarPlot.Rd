@@ -34,7 +34,7 @@ dittoBarPlot(
 \arguments{
 \item{var}{String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}. REQUIRED.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+\item{object}{A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
 \item{group.by}{String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.}

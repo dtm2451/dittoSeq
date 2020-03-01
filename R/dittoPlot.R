@@ -5,7 +5,7 @@
 #'
 #' @param var Single string representing the name of a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
 #' This is the data that will be displayed.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups. REQUIRED.
 #' @param color.by String representing the name of a metadata to use for setting color.
@@ -182,7 +182,7 @@ dittoPlot <- function(
 
     #Parse Title Defaults
     exp <- NULL
-    if (isGene(var[1], object)) {
+    if (isGene(var[1], object, assay)) {
         exp <- " expression"
     }
     ylab <- .leave_default_or_null(ylab,
@@ -246,7 +246,7 @@ dittoPlot <- function(
 #' Generates multiple dittoPlots arranged into a grid.
 #'
 #' @param vars c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
-#' @param object the Seurat, SingleCellExperiment, or RNAseq object to draw from, or the "quoted" name of such an object. REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object the Seurat or SingleCellExperiment object to draw from, or the "quoted" name of such an object. REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param group.by "metadata" to use for separating values. REQUIRED.
 #' @param color.by "metadata" to use for coloring. Affects boxplot, vlnplot, or ridgeplot fills. Defaults to \code{group.by} if not provided.
 #' @param show.legend TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE

@@ -2,7 +2,7 @@
 #' Tests if an input is the name of a meta.data slot in a target object.
 #'
 #' @param test String or vector of strings, the "potential.metadata.name"(s) to check for.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 #' @param return.values Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @return Returns a logical or logical vector indicating whether each instance in \code{test} is a meta.data slot within the \code{object}.
@@ -60,7 +60,7 @@ isMeta <- function(test, object=DEFAULT, return.values=FALSE){
 #### getMetas: prints the names of all the metadata lists for the object ####
 #' Returns the names of all meta.data slots of a target object.
 #'
-#' @param object A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".
+#' @param object A target Seurat or SingleCellExperiment object, OR the name of the target object in "quotes".
 #' @param names.only Logical, \code{TRUE} by default, which sets whether just the names should be output versus the entire metadata dataframe.
 #' @return A string vector of the names of all metadata slots of the \code{object}, or alternatively the entire dataframe of metadatas if \code{names.only} is set to \code{FALSE}
 #' @seealso
@@ -102,7 +102,7 @@ getMetas <- function(object=DEFAULT, names.only = TRUE){
 #' Returns the values of a meta.data  for all cells/samples
 #'
 #' @param meta String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 #' @return Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
 #' @seealso
 #' \code{\link{meta.levels}} for returning just the unique discrete identities that exist within a metadata slot
@@ -142,7 +142,7 @@ meta <- function(meta, object=DEFAULT){
 #' Gives the distinct values of a meta.data slot (or ident)
 #'
 #' @param meta quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.
-#' @param object the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object the Seurat or SingleCellExperiment object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).

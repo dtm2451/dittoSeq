@@ -3,7 +3,7 @@
 #' @importFrom grDevices colorRampPalette
 #'
 #' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap. REQUIRED.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.

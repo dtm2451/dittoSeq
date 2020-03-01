@@ -37,7 +37,7 @@
         if (isMeta(var, object)) {
             OUT <- meta(var, object)
         }
-        if (isGene(var, object)) {
+        if (isGene(var, object, assay)) {
             OUT <- gene(var, object, assay, slot, adjustment)
         }
     }
@@ -91,7 +91,7 @@
         return(SummarizedExperiment::assay(object, assay))
     }
     if (is(object,"Seurat")) {
-        return(Seurat::GetAssayData(object, assay, slot))
+        return(Seurat::GetAssayData(object, assay = assay, slot = slot))
     }
     if (is(object,"seurat")) {
         return(eval(expr = parse(text = paste0(
@@ -155,7 +155,7 @@
         seq_along(data.hover),
         function(i)
             (isMeta(data.hover[i],object) |
-                isGene(data.hover[i],object) |
+                isGene(data.hover[i],object, assay) |
                 (data.hover[i]=="ident")),
         logical(1))
     data.hover <- data.hover[fillable]

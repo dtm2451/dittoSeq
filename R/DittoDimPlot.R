@@ -9,11 +9,11 @@
 #' This is the data that will be displayed for each cell/sample.
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 #' Discrete or continuous data both work. REQUIRED.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param reduction.use String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 #'
-#' Default = "tsne" for Seurat objects, and "pca" for RNAseq objects, and "TSNE" for SingleCellExperiment objects.
+#' Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", or the first dimensionality reduction slot if nonw of those exist.
 #' @param size Number which sets the size of data points. Default = 1.
 #' @param opacity Number between 0 and 1.
 #' Great for when you have MANY overlapping points, this sets how solid the points should be:
@@ -134,10 +134,10 @@
 #' @seealso
 #' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
 #'
-#' \code{\link{importDESeq2}} for how to create a bulk \code{\linkS4class{RNAseq}} data structure that dittoSeq functions can use &
+#' \code{\link{importDittoBulk}} for how to create a \code{\link{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
 #' \code{\link{addDimReduction}} for how to add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 #'
-#' \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are the scatterplot axes.
+#' \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are wanted as the axes.
 #'
 #' \code{\link{dittoPlot}} for an alternative continuous data display method where data is shown on a y- (or x-) axis.
 #'
@@ -442,7 +442,7 @@ dittoDimPlot <- function(
 #' Generates multiple dittoDimPlots arranged in a grid.
 #'
 #' @param vars               c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
-#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object             A Seurat or SingleCellExperiment object to work with = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param legend.show        Logical. Whether or not you would like a legend to be plotted.  Default = FALSE
 #' @param ncol               #. How many plots should be arranged per row.  Default = 3 unless \code{length(vars)} is shorter.
 #' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.

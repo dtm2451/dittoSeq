@@ -63,7 +63,7 @@ dittoBoxPlot(..., plots = c("boxplot", "jitter"))
 \item{var}{Single string representing the name of a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
 This is the data that will be displayed.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+\item{object}{A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups. REQUIRED.}

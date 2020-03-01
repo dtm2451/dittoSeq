@@ -2,11 +2,12 @@
 #' Tests if input is the name of a gene in a target object.
 #'
 #' @param test String or vector of strings, the "potential.gene.name"(s) to check for.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
+#' @param assay single string or integer that sets which set of seq data inside the object to check.
 #' @param return.values Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
-#' @return Returns a logical or logical vector indicating whether each instance in \code{test} is a gene within the \code{object}.
-#' Alternatively, returns the values of \code{test} that were indeed genes if \code{return.values = TRUE}.
+#' @return Returns a logical vector indicating whether each instance in \code{test} is a rowname within the requested \code{assay} of the \code{object}.
+#' Alternatively, returns the values of \code{test} that were indeed rownames if \code{return.values = TRUE}.
 #' @seealso
 #' \code{\link{getGenes}} for returning all genes in an \code{object}
 #'
@@ -16,7 +17,11 @@
 #'
 #' pbmc <- Seurat::pbmc_small
 #'
-#' # To see all genes of an object
+#' # To see all genes of an object of a particular assay
+#' getGenes(pbmc, assay = "RNA")
+#'
+#' # To see all genes of an object for the default assay that dittoSeq would use
+#' # leave out the assay input
 #' getGenes(pbmc)
 #'
 #' # To test if something is a gene in an object:
@@ -37,49 +42,57 @@
 #' @author Daniel Bunis
 #' @export
 
-isGene <- function(test, object=DEFAULT, return.values = FALSE){
+isGene <- function(test, object=DEFAULT, assay = .default_assay(object),
+    return.values = FALSE) {
+
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
     if (return.values) {
-        return(test[isGene(test, object, return.values=FALSE)])
+        return(test[isGene(test, object, assay, return.values=FALSE)])
     } else {
-        return(test %in% getGenes(object))
+        return(test %in% getGenes(object, assay))
     }
 }
 
-#### getGenes: prints the names of all the genes for a Seurat or RNAseq ####
 #' Returns the names of all genes of a target object.
 #'
-#' @param object A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".
-#' @return A string vector, returns the names of all genes of the \code{object}.
+#' @param object A target Seurat or SingleCellExperiment object, OR the name of the target object in "quotes".
+#' @param assay single string or integer that sets which set of seq data inside the object to check.
+#' @return A string vector, returns the names of all genes of the \code{object} for the requested \code{assay}.
 #' @seealso
 #' \code{\link{isGene}} for returning all genes in an \code{object}
 #'
 #' \code{\link{gene}} for obtaining the expression data of genes
 #'
 #' @examples
+#' example(importDittoBulk, echo = FALSE)
+#' getGenes(object = myRNA, assay = "counts")
 #'
-#' pbmc <- Seurat::pbmc_small
+#' # To see all genes of an object for the default assay that dittoSeq would use
+#' # leave out the assay input
+#' getGenes(myRNA)
 #'
-#' # To see all genes of an object
-#' getGenes(pbmc)
+#' # Seurat
+#' # pbmc <- Seurat::pbmc_small
+#' # # To see all genes of an object of a particular assay
+#' # getGenes(pbmc, assay = "RNA")
 #'
 #' @author Daniel Bunis
 #' @export
 
-getGenes <- function(object=DEFAULT){
+getGenes <- function(object=DEFAULT, assay = .default_assay(object)){
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
-    rownames(.which_data(object=object))
+    rownames(.which_data(object=object,assay = assay))
 }
 
 #### gene: for extracting the expression values of a particular gene for all cells/samples ####
 #' Returns the expression values of a gene for all cells/samples
 #'
 #' @param gene quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.
-#' @param object "name" of the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object "name" of the Seurat or SingleCellExperiment object = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param assay,slot single strings or integer that set which data to use.
 #' Seurat and SingleCellExperiments deal with these differently, so be sure to check the documentation for whichever object you are using.
 #' When not provided, these typical defaults for the provided \code{object} class are used:
@@ -95,32 +108,41 @@ getGenes <- function(object=DEFAULT){
 #' }
 #' @return Returns the expression values of a gene for all cells/samples.
 #' @examples
-#' pbmc <- Seurat::pbmc_small
-#' gene("CD14", object = "pbmc")
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' gene("CD14")
+#' example(importDittoBulk, echo = FALSE)
+#' gene("gene1", object = myRNA, assay = "counts")
 #'
+#' # z-scored
+#' gene("gene1", object = myRNA, assay = "counts", adjustment = "z-score")
+#'
+#' # To see expression of the gene for the default assay that dittoSeq would use
+#' # leave out the assay input
+#' # (For this object, the default assay is the logcounts assay)
+#' gene("gene1", myRNA)
+#'
+#' # Seurat
+#' # pbmc <- Seurat::pbmc_small
+#' # gene("CD14", object = pbmc, assay = "RNA", slot = "counts")
 #' @author Daniel Bunis
 #' @export
 
 gene <- function(
     gene, object=DEFAULT,
     assay = .default_assay(object), slot = .default_slot(object),
-    adjustment = c(NULL,"z-score", "relative.to.max")){
+    adjustment = NULL){
 
     if (is.character(object)) {
         object <- eval(expr = parse(text = object))
     }
-    adjustment <- match.arg(adjustment)
 
     # Recursive functions for adjustments
-    if (adjustment=="z-score") {
-        return(as.numeric(scale(gene(gene,object,assay,slot))))
-    }
-    if (adjustment=="relative.to.max") {
-        exp <- gene(gene,object,assay,slot)
-        return(exp/max(exp))
+    if (!is.null(adjustment)) {
+        if (adjustment=="z-score") {
+            return(as.numeric(scale(gene(gene,object,assay,slot))))
+        }
+        if (adjustment=="relative.to.max") {
+            exp <- gene(gene,object,assay,slot)
+            return(exp/max(exp))
+        }
     }
 
     exp <- as.vector(.which_data(assay, slot, object)[gene,])

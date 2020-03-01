@@ -64,12 +64,12 @@ This is the data that will be displayed for each cell/sample.
 Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 Discrete or continuous data both work. REQUIRED.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+\item{object}{A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
-Default = "tsne" for Seurat objects, and "pca" for RNAseq objects, and "TSNE" for SingleCellExperiment objects.}
+Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", or the first dimensionality reduction slot if nonw of those exist.}
 
 \item{size}{Number which sets the size of data points. Default = 1.}
 
@@ -263,10 +263,10 @@ dittoDimPlot("CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
 \seealso{
 \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
 
-\code{\link{importDESeq2}} for how to create a bulk \code{\linkS4class{RNAseq}} data structure that dittoSeq functions can use &
+\code{\link{importDittoBulk}} for how to create a \code{\link{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
 \code{\link{addDimReduction}} for how to add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 
-\code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are the scatterplot axes.
+\code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are wanted as the axes.
 
 \code{\link{dittoPlot}} for an alternative continuous data display method where data is shown on a y- (or x-) axis.
 

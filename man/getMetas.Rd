@@ -7,7 +7,7 @@
 getMetas(object = DEFAULT, names.only = TRUE)
 }
 \arguments{
-\item{object}{A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".}
+\item{object}{A target Seurat or SingleCellExperiment object, OR the name of the target object in "quotes".}
 
 \item{names.only}{Logical, \code{TRUE} by default, which sets whether just the names should be output versus the entire metadata dataframe.}
 }

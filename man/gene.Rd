@@ -9,13 +9,13 @@ gene(
   object = DEFAULT,
   assay = .default_assay(object),
   slot = .default_slot(object),
-  adjustment = c(NULL, "z-score", "relative.to.max")
+  adjustment = NULL
 )
 }
 \arguments{
 \item{gene}{quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.}
 
-\item{object}{"name" of the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{"name" of the Seurat or SingleCellExperiment object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
 \item{assay, slot}{single strings or integer that set which data to use.
 Seurat and SingleCellExperiments deal with these differently, so be sure to check the documentation for whichever object you are using.
@@ -39,12 +39,20 @@ Returns the expression values of a gene for all cells/samples.
 Returns the expression values of a gene for all cells/samples
 }
 \examples{
-pbmc <- Seurat::pbmc_small
-gene("CD14", object = "pbmc")
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-DEFAULT <- "pbmc"
-gene("CD14")
+example(importDittoBulk, echo = FALSE)
+gene("gene1", object = myRNA, assay = "counts")
 
+# z-scored
+gene("gene1", object = myRNA, assay = "counts", adjustment = "z-score")
+
+# To see expression of the gene for the default assay that dittoSeq would use
+# leave out the assay input
+gene("gene1", myRNA)
+# For this object, the default assay is the logcounts assay
+
+# Seurat
+# pbmc <- Seurat::pbmc_small
+# gene("CD14", object = pbmc, assay = "RNA", slot = "counts")
 }
 \author{
 Daniel Bunis
