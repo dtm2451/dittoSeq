@@ -1,19 +1,30 @@
+#' import bulk sequencing data into a format that dittoSeq functions expect.
+#' @rdname importDittoBulk
 #' @param ... For the generic, additional arguments passed to specific methods.
-
-# One recommended assay to have, in addition to raw counts, is logcounts as this is what dittoSeq expression visualizations will look to by default.
-# A common way to generate one is through
-
+#' @param x placeholder
+#' @param reductions placeholder
+#' @param metadata placeholder
+#' @param combine_metadata placeholder
+#' @return placeholder
+#' One recommended assay to have, in addition to raw counts, is logcounts as this is what dittoSeq expression visualizations will look to by default.
+#' A common way to generate one is through
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @importClassesFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom methods is as
+#' @importFrom SummarizedExperiment SummarizedExperiment "colData<-" colData rowData
+#' @importFrom utils packageVersion
+#' @importFrom SingleCellExperiment "int_metadata<-" int_metadata
 #' @export
-#' @rdname logNormCounts
 setGeneric("importDittoBulk", function(x, ...) standardGeneric("importDittoBulk"))
 
-setMethod("importDittoBulk", "SummarizedExperiment", function(
+#' @rdname importDittoBulk
+importDittoBulk.SummarizedExperiment <- function(
     x, reductions = NULL, metadata = NULL, combine_metadata = TRUE) {
 
     object <- as(x, "SingleCellExperiment")
     # Use SCE int_metadata to store dittoSeq version and that dataset is bulk
     int_metadata(object) <- c(int_metadata(object),
-        dittoSeqVersion = "0.3.0", bulk = TRUE)
+        dittoSeqVersion = packageVersion("dittoSeq"), bulk = TRUE)
 
     # Add metadata
     if (!is.null(metadata)) {
@@ -39,16 +50,17 @@ setMethod("importDittoBulk", "SummarizedExperiment", function(
         }
     }
     object
-})
+}
 
-setMethod("importDittoBulk", "DGEList", function(
+#' @rdname importDittoBulk
+importDittoBulk.DGEList <- function(
     x, reductions = NULL, metadata = NULL, combine_metadata = TRUE) {
 
     ### Convert DGEList to Summarized Experiment while preserving as many
     ### optional slots as possible
     # Grab essential slots
     args <- list(assays = list(counts=x$counts),
-                 colData = DataFrame(x$samples))
+                 colData = data.frame(samples = x$samples))
     # Add optional rowData
     rowData <- list()
     add_if_slot <- function(i, out = rowData) {
@@ -63,11 +75,11 @@ setMethod("importDittoBulk", "DGEList", function(
     rowData <- add_if_slot("common.dispersion")
     rowData <- add_if_slot("trended.dispersion")
     rowData <- add_if_slot("tagwise.dispersion")
-    if (length(rowdata)>0) {
-        args$rowData <- DataFrame(rowData)
+    if (length(rowData)>0) {
+        args$rowData <- data.frame(rowData)
     }
     # Add optional assay: offset
-    if (!is.null(data$offset)) {
+    if (!is.null(x$offset)) {
         args$assays <- list(counts = x$counts,
                             offset = x$offset)
     }
@@ -76,5 +88,5 @@ setMethod("importDittoBulk", "DGEList", function(
 
     # Import as if the DGEList was always an SE
     importDittoBulk(se, reductions, metadata, combine_metadata)
-})
+}
 

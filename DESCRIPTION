@@ -26,14 +26,14 @@ Imports: methods,
     ggrepel,
     ggridges,
     stats,
-    utils
+    utils,
+    SummarizedExperiment,
+    SingleCellExperiment
 Suggests: plotly,
     testthat,
     Seurat (>= 2.2),
     DESeq2,
-    SummarizedExperiment,
     edgeR,
-    SingleCellExperiment,
     knitr,
     BiocStyle,
     scRNAseq
