@@ -99,27 +99,23 @@
     }
 }
 
-.extract_Reduced_Dim <- function(reduction.use, dim=1, object=DEFAULT) {
+.extract_Reduced_Dim <- function(reduction.use, dim=1, object) {
     # If object is a Seurat object
     if (is(object,"seurat")) {
-        OUT <- list(eval(expr = parse(text = paste0(
-            "object@dr$",reduction.use,"@cell.embeddings[,",dim,"]"))))
-        OUT[2] <- paste0(eval(expr = parse(text = paste0(
-            "object@dr$",reduction.use,"@key"))),dim)
+        embeds <- eval(expr = parse(text = paste0(
+            "object@dr$",reduction.use,"@cell.embeddings")))
+        colnames(embeds) <- paste0(eval(expr = parse(text = paste0(
+            "object@dr$",reduction.use,"@key"))),seq_len(ncol(embeds)))
     }
     if (is(object,"Seurat")) {
-        OUT <- list(eval(expr = parse(text = paste0(
-            "object@reductions$",reduction.use,"@cell.embeddings[,",dim,"]"))))
-        OUT[2] <- paste0(eval(expr = parse(text = paste0(
-            "object@reductions$",reduction.use,"@key"))),dim)
+        embeds <- Seurat::Embeddings(object, reduction = reduction.use)
     }
     if (is(object,"SingleCellExperiment")) {
-        OUT <- list(eval(expr = parse(text = paste0(
-            "SingleCellExperiment::reducedDim(",
-            "object, type = '",reduction.use,"')[,",dim,"]"))))
-        OUT[2] <- paste0(.gen_key(reduction.use),dim)
+        embeds <- SingleCellExperiment::reducedDim(
+            object, type = reduction.use, withDimnames=TRUE)
     }
-
+    OUT <- list(embeds[,dim])
+    OUT[2] <- colnames(embeds)[dim]
     names(OUT) <- c("embeddings","name")
     OUT
 }
