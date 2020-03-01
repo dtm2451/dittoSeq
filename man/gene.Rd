@@ -47,8 +47,8 @@ gene("gene1", object = myRNA, assay = "counts", adjustment = "z-score")
 
 # To see expression of the gene for the default assay that dittoSeq would use
 # leave out the assay input
+# (For this object, the default assay is the logcounts assay)
 gene("gene1", myRNA)
-# For this object, the default assay is the logcounts assay
 
 # Seurat
 # pbmc <- Seurat::pbmc_small
