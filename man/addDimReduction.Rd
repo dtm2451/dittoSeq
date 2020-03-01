@@ -27,26 +27,23 @@ Add any dimensionality reduction space to a SingleCellExperiment object containi
 }
 \examples{
 
-# Import mock data
-myRNA <- RNAseq_mock
+example("importDittoBulk", echo = FALSE)
 
-# Add a dimensionality reduction to myRNA
-#   NOTE: This is typically not done with all genes in a dataset.
+# Calculate PCA
+#   NOTE: This is typically not done with all genes in the dataset.
 #   The inclusion of this example code is not an endorsement of a particular
 #   method of PCA. Consult yourself, a bioinformatician, or literature for
 #   tips on proper techniques.
-PCA <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
-myRNA <- addDimReduction(
-    embeddings = PCA$x,
-    object = myRNA,
-    name = "pca",
-    key = "PC",
-    raw.object = PCA)
+embeds <- prcomp(t(logcounts(myRNA)), center = TRUE, scale = TRUE)$x
 
-# Visualize Nreads metadata on a PCA plot
-#   Note: For RNAseq objects, reduction.use defaults to "pca"
-#   so just dittoDimPlot("Nreads", myRNA, size = 3) would work the same!
-dittoDimPlot("Nreads", myRNA, reduction.use = "pca", size = 3)
+myRNA <- addDimReduction(
+    object = myRNA,
+    embeddings = embeds,
+    name = "pca",
+    key = "PC")
+
+# Visualize conditions metadata on a PCA plot
+dittoDimPlot("conditions", myRNA, reduction.use = "pca", size = 3)
 
 }
 \seealso{

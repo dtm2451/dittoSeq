@@ -2,42 +2,73 @@
 % Please edit documentation in R/importDittoBulk.R
 \name{importDittoBulk}
 \alias{importDittoBulk}
-\alias{importDittoBulk.SummarizedExperiment}
-\alias{importDittoBulk.DGEList}
+\alias{importDittoBulk,SummarizedExperiment-method}
+\alias{importDittoBulk,DGEList-method}
 \title{import bulk sequencing data into a format that dittoSeq functions expect.}
 \usage{
 importDittoBulk(x, ...)
 
-importDittoBulk.SummarizedExperiment(
-  x,
-  reductions = NULL,
-  metadata = NULL,
-  combine_metadata = TRUE
-)
+\S4method{importDittoBulk}{SummarizedExperiment}(x, reductions = NULL, metadata = NULL, combine_metadata = TRUE)
 
-importDittoBulk.DGEList(
-  x,
-  reductions = NULL,
-  metadata = NULL,
-  combine_metadata = TRUE
-)
+\S4method{importDittoBulk}{DGEList}(x, reductions = NULL, metadata = NULL, combine_metadata = TRUE)
 }
 \arguments{
-\item{x}{placeholder}
+\item{x}{a \code{\linkS4class{DGEList}}, \code{\linkS4class{DESeqDataSet}}, or \code{\linkS4class{SummarizedExperiment}} class object containing the sequencing data to be imported}
 
 \item{...}{For the generic, additional arguments passed to specific methods.}
 
-\item{reductions}{placeholder}
+\item{reductions}{a named list of dimensionality reduction embeddings matrices.
+names will become the names of the dimensionality reductions and how each will be used with the \code{reduction.use} input of \code{dittoDimPlot}
+rows of the matrices should represent the different cells/samples of the dataset, and columns the different dimensions}
 
-\item{metadata}{placeholder}
+\item{metadata}{a data.frame like object containing columns of extra information about the cells/samples (rows).
+The names of these columns can then be used to tretrieve and plot such data in any dittoSeq visualizations.}
 
-\item{combine_metadata}{placeholder}
+\item{combine_metadata}{Logical which sets whether original colData from x should be retained.}
 }
 \value{
-placeholder
-One recommended assay to have, in addition to raw counts, is logcounts as this is what dittoSeq expression visualizations will look to by default.
-A common way to generate one is through
+A \code{\linkS4class{SingleCellExperiment}} object containing all assays (DESeqDataSet or SummarizeedExperiment) or all common slots (DGEList) of the input \code{x},
+as well as any dimensionality reductions provided to \code{reductions}, and any provided \code{metadata} stored in colData.
+
+When \code{combine_metadata} is set to FALSE, metadata inside \code{x} (colData or $samples) is ignored entirely.
+When \code{combine_metadata} is TRUE (the default), metadata inside \code{x} is combined with what is provided to the \code{metadata} input; but names must be unique, so when there are similarly named slots, the values provided to the \code{metadata} input are used.
 }
 \description{
 import bulk sequencing data into a format that dittoSeq functions expect.
+}
+\note{
+One recommended assay to create if it is not already present in your dataset, is a log-normalized version of the counts data.
+The logNormCounts function of the scater package is an easy way to make such a slot.
+dittoSeq defaults to grabbing expression data from an assay named logcounts > normcounts > counts
+}
+\examples{
+nsamples <- 20
+conditions <- factor(rep(1:4, each=5))
+exp <- matrix(rpois(20000, 5), ncol=nsamples)
+colnames(exp) <- paste0("sample", seq_len(nsamples))
+logexp <- log2(exp + 1)
+
+# Make this into a SummarizedExperiment
+se <- SummarizedExperiment(
+    list(counts = exp, logcounts = logexp),
+    colData = data.frame(conditions))
+
+# import
+myRNA <- importDittoBulk(se)
+
+### For DESeq2, how we might have made this:
+# library(DESeq2)
+# dds <- DESeqDataSetFromMatrix(
+#     exp, data.frame(conditions), ~ conditions)
+# dds <- DESeq(dds)
+# dds_ditto <- importDittoBulk(dds)
+
+### For edgeR
+# library(edgeR)
+# dgelist <- DGEList(counts=exp, group=conditions)
+# dge_ditto <- importDittoBulk(dgelist)
+
+}
+\seealso{
+\code{\linkS4class{SingleCellExperiment}} for more information about this storage system.
 }

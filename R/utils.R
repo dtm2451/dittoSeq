@@ -64,7 +64,7 @@
     #Decide which assy should be used
     if (is(object, "SingleCellExperiment")) {
         return(.preferred_or_first(
-            SummarizedExperiment::assays(object),
+            names(SummarizedExperiment::assays(object)),
             c("logcounts","normcounts","counts")))
     }
     if (is(object, "seurat")) {

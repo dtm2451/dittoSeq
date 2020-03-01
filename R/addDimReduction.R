@@ -7,7 +7,7 @@
 #' This will become the name of the slot and what should be provided to the \code{reduction.use} input when making a \code{\link{dittoDimPlot}}.
 #' When the name given is the same as that of a slot that already exists inside the \code{object}, the previous slot is replaced with the newly provided data.
 #' @param key String, like "PC", which sets the default axes-label prefix when this reduction is used for making a \code{\link{dittoDimPlot}}
-#' @return Outputs an \code{\linkS4class{RNAseq}} object with a new \code{@reductions$'name'} slot.
+#' @return Outputs an \code{\linkS4class{SingleCellExperiment}} object with an added or replaced pca reduction slot.
 #' @seealso
 #' \code{\link{addDimReduction}} for adding other types of dimensionality reductions
 #'
@@ -16,23 +16,21 @@
 #' \code{\link{dittoDimPlot}} for visualizing how samples group within added dimensionality reduction spaces
 #' @examples
 #'
-#' # Import mock data
-#' myRNA <- RNAseq_mock
+#' example("importDittoBulk", echo = FALSE)
 #'
-#' # Add PCA calculated with prcomp using addPrcomp
+#' # Calculate PCA with prcomp
 #' #   NOTE: This is typically not done with all genes in a dataset.
 #' #   The inclusion of this example code is not an endorsement of a particular
 #' #   method of PCA. Consult yourself, a bioinformatician, or literature for
 #' #   tips on proper techniques.
+#' calc <- prcomp(t(logcounts(myRNA)), center = TRUE, scale = TRUE)
+#'
 #' myRNA <- addPrcomp(
-#'     prcomp = prcomp(t(myRNA@data), center = TRUE, scale = TRUE),
-#'     object = myRNA)
+#'     object = myRNA,
+#'     prcomp = calc)
 #'
-#' # Visualize Nreads metadata on a PCA plot
-#' #   Note: For RNAseq objects, reduction.use defaults to "pca"
-#' #   so just dittoDimPlot("Nreads", myRNA, size = 3) would work the same!
-#' dittoDimPlot("Nreads", myRNA, reduction.use = "pca", size = 3)
-#'
+#' # Now we can visualize conditions metadata on a PCA plot
+#' dittoDimPlot("conditions", myRNA, reduction.use = "pca", size = 3)
 #' @author Daniel Bunis
 #' @export
 
@@ -59,26 +57,23 @@ addPrcomp <- function(object, prcomp, name = "pca", key = "PC") {
 #' \code{\link{dittoDimPlot}} for visualizing how samples group within added dimensionality reduction spaces
 #' @examples
 #'
-#' # Import mock data
-#' myRNA <- RNAseq_mock
+#' example("importDittoBulk", echo = FALSE)
 #'
-#' # Add a dimensionality reduction to myRNA
-#' #   NOTE: This is typically not done with all genes in a dataset.
+#' # Calculate PCA
+#' #   NOTE: This is typically not done with all genes in the dataset.
 #' #   The inclusion of this example code is not an endorsement of a particular
 #' #   method of PCA. Consult yourself, a bioinformatician, or literature for
 #' #   tips on proper techniques.
-#' PCA <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
-#' myRNA <- addDimReduction(
-#'     embeddings = PCA$x,
-#'     object = myRNA,
-#'     name = "pca",
-#'     key = "PC",
-#'     raw.object = PCA)
+#' embeds <- prcomp(t(logcounts(myRNA)), center = TRUE, scale = TRUE)$x
 #'
-#' # Visualize Nreads metadata on a PCA plot
-#' #   Note: For RNAseq objects, reduction.use defaults to "pca"
-#' #   so just dittoDimPlot("Nreads", myRNA, size = 3) would work the same!
-#' dittoDimPlot("Nreads", myRNA, reduction.use = "pca", size = 3)
+#' myRNA <- addDimReduction(
+#'     object = myRNA,
+#'     embeddings = embeds,
+#'     name = "pca",
+#'     key = "PC")
+#'
+#' # Visualize conditions metadata on a PCA plot
+#' dittoDimPlot("conditions", myRNA, reduction.use = "pca", size = 3)
 #'
 #' @author Daniel Bunis
 #' @importFrom SingleCellExperiment reducedDim<-
@@ -92,5 +87,6 @@ addDimReduction <- function(
     # Add dim names based on key
     colnames(embeddings) <- paste0(key, seq_len(ncol(embeddings)))
     # Add
-    reducedDim(object, name) <- embeddings
+    SingleCellExperiment::reducedDim(object, name) <- embeddings
+    object
 }
