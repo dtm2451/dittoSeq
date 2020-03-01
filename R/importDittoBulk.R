@@ -102,7 +102,7 @@ setMethod("importDittoBulk", "DGEList", function(
     # Grab essential slots
     args <- list(
         assays = list(counts=x$counts),
-        SummarizedExperiment::colData = data.frame(samples = x$samples))
+        colData = data.frame(samples = x$samples))
     # Add optional rowData
     rowData <- list()
     add_if_slot <- function(i, out = rowData) {
