@@ -14,8 +14,7 @@ License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
-Depends: R (>= 4.0),
-    ggplot2
+Depends: ggplot2
 Imports: methods,
     colorspace (>= 1.4),
     gridExtra,
@@ -28,12 +27,12 @@ Imports: methods,
     stats,
     utils,
     SummarizedExperiment,
-    SingleCellExperiment
+    SingleCellExperiment,
+    edgeR
 Suggests: plotly,
     testthat,
     Seurat (>= 2.2),
     DESeq2,
-    edgeR,
     knitr,
     BiocStyle,
     scRNAseq
