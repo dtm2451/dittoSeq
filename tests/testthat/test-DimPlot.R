@@ -26,7 +26,17 @@ test_that("dittoDimPlot can plot continuous or discrete data & raw or normalized
     expect_s3_class(
         dittoDimPlot(
             gene, pbmc,
-            data.type = "raw"),
+            slot = "counts"),
+        "ggplot")
+    expect_s3_class(
+        dittoDimPlot(
+            gene, pbmc.se,
+            assay = "logcounts"),
+        "ggplot")
+    expect_s3_class(
+        dittoDimPlot(
+            gene, pbmc.se,
+            assay = "counts"),
         "ggplot")
 })
 
@@ -35,11 +45,6 @@ test_that("dittoDimPlot (and reduction.use defaults) work for sce too", {
     expect_s3_class(
         dittoDimPlot(
             disc, pbmc.se),
-        "ggplot")
-    # RNAseq
-    expect_s3_class(
-        dittoDimPlot(
-            disc, pbmc.rnaseq),
         "ggplot")
 })
 

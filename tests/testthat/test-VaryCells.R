@@ -15,12 +15,9 @@ test_that("VaryCells fxn can show continuous or discrete data", {
         "gtable")
 })
 
-test_that("VaryCells works for SCE and RNAseq", {
+test_that("VaryCells works for SCE", {
     expect_s3_class(
         multi_dittoDimPlotVaryCells(cont, pbmc.se, grp),
-        "gtable")
-    expect_s3_class(
-        multi_dittoDimPlotVaryCells(disc, pbmc.rnaseq, grp),
         "gtable")
 })
 
@@ -39,7 +36,7 @@ test_that("VaryCells fxn can adjust how expression data is obtained", {
     #Manual Check: scales should be different in the next 2
     expect_s3_class(
         multi_dittoDimPlotVaryCells(cont, pbmc, grp,
-            data.type = "raw"),
+            slot = "counts"),
         "gtable")
     expect_s3_class(
         multi_dittoDimPlotVaryCells(cont, pbmc, grp),
