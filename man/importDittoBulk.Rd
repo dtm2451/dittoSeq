@@ -4,6 +4,7 @@
 \alias{importDittoBulk}
 \alias{importDittoBulk,SummarizedExperiment-method}
 \alias{importDittoBulk,DGEList-method}
+\alias{importDittoBulk,list-method}
 \title{import bulk sequencing data into a format that dittoSeq functions expect.}
 \usage{
 importDittoBulk(x, ...)
@@ -11,6 +12,8 @@ importDittoBulk(x, ...)
 \S4method{importDittoBulk}{SummarizedExperiment}(x, reductions = NULL, metadata = NULL, combine_metadata = TRUE)
 
 \S4method{importDittoBulk}{DGEList}(x, reductions = NULL, metadata = NULL, combine_metadata = TRUE)
+
+\S4method{importDittoBulk}{list}(x, reductions = NULL, metadata = NULL)
 }
 \arguments{
 \item{x}{a \code{\linkS4class{DGEList}}, or \code{\linkS4class{SummarizedExperiment}} (includes \code{DESeqDataSet}) class object containing the sequencing data to be imported}
@@ -24,7 +27,7 @@ rows of the matrices should represent the different cells/samples of the dataset
 \item{metadata}{a data.frame like object containing columns of extra information about the cells/samples (rows).
 The names of these columns can then be used to tretrieve and plot such data in any dittoSeq visualizations.}
 
-\item{combine_metadata}{Logical which sets whether original colData from x should be retained.}
+\item{combine_metadata}{Logical which sets whether original colData (DESeqDataSet/SummarizedExperiment) or $samples (DGEList) from x should be retained.}
 }
 \value{
 A \code{\linkS4class{SingleCellExperiment}} object containing all assays (DESeqDataSet or SummarizeedExperiment) or all common slots (DGEList) of the input \code{x},

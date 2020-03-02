@@ -7,7 +7,7 @@
 #' rows of the matrices should represent the different cells/samples of the dataset, and columns the different dimensions
 #' @param metadata a data.frame like object containing columns of extra information about the cells/samples (rows).
 #' The names of these columns can then be used to tretrieve and plot such data in any dittoSeq visualizations.
-#' @param combine_metadata Logical which sets whether original colData from x should be retained.
+#' @param combine_metadata Logical which sets whether original colData (DESeqDataSet/SummarizedExperiment) or $samples (DGEList) from x should be retained.
 #' @return A \code{\linkS4class{SingleCellExperiment}} object containing all assays (DESeqDataSet or SummarizeedExperiment) or all common slots (DGEList) of the input \code{x},
 #' as well as any dimensionality reductions provided to \code{reductions}, and any provided \code{metadata} stored in colData.
 #'
@@ -55,6 +55,7 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment "colData<-" colData rowData
 #' @importFrom utils packageVersion
 #' @importFrom SingleCellExperiment "int_metadata<-" int_metadata
+#' @importFrom S4Vectors DataFrame
 #' @export
 setGeneric("importDittoBulk", function(x, ...) standardGeneric("importDittoBulk"))
 
@@ -81,14 +82,18 @@ setMethod("importDittoBulk", "SummarizedExperiment", function(
                     paste(colnames(obj_metadata)[dups], collapse = ", "),
                     " metadata originally within `x` was overwitten from provided `metadata`")
             }
-            metadata <- cbind(obj_metadata[,!dups], metadata)
+            metadata <- cbind(obj_metadata[,!dups, drop = FALSE], metadata)
         }
-        SummarizedExperiment::colData(object) <- metadata
+        SummarizedExperiment::colData(object) <- S4Vectors::DataFrame(metadata)
     }
 
     # Add reductions
     if (!is.null(reductions)) {
+        if (is.null(names(reductions))) {
+            stop("Elements of reductions must be named to be added.")
+        }
         for (i in names(reductions)) {
+            if (i == "") stop("All elements of reductions must be named.")
             SingleCellExperiment::reducedDim(object, i) <- reductions[[i]]
         }
     }
@@ -104,7 +109,7 @@ setMethod("importDittoBulk", "DGEList", function(
     # Grab essential slots
     args <- list(
         assays = list(counts=x$counts),
-        colData = data.frame(samples = x$samples))
+        colData = data.frame(x$samples))
     # Add optional rowData
     rowData <- list()
     add_if_slot <- function(i, out = rowData) {
@@ -134,3 +139,23 @@ setMethod("importDittoBulk", "DGEList", function(
     importDittoBulk(se, reductions, metadata, combine_metadata)
 })
 
+#' @rdname importDittoBulk
+setMethod("importDittoBulk", "list", function(
+    x, reductions = NULL, metadata = NULL) {
+
+    # Check that the elements of x are named matrices with equal ncols
+    ncol1 <- ncol(x[[1]])
+    ncol.same <- all(vapply(
+        seq_along(x),
+        function (ind) {ncol(x[[ind]])==ncol1},
+        FUN.VALUE = logical(1)))
+    if (is.null(names(x)) || !ncol.same) {
+        stop("Elements of x should be named and should all have the same number of columns.")
+    }
+
+    # Create SummarizedExperiment
+    se <- SummarizedExperiment::SummarizedExperiment(assays = x)
+
+    # Import as if the DGEList was always an SE
+    importDittoBulk(se, reductions, metadata, combine_metadata = TRUE)
+})

@@ -28,7 +28,8 @@ Imports: methods,
     utils,
     SummarizedExperiment,
     SingleCellExperiment,
-    edgeR
+    edgeR,
+    S4Vectors
 Suggests: plotly,
     testthat,
     Seurat (>= 2.2),
