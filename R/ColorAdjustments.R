@@ -59,6 +59,7 @@ Lighten <- function(colors, percent.change = 0.25, relative = TRUE) {
 #' Simulate("tritan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
 #'
 #' @author Daniel Bunis
+#' @importFrom colorspace deutan protan tritan
 #' @export
 Simulate <- function(
     type = c("deutan","protan","tritan"),
@@ -67,7 +68,8 @@ Simulate <- function(
 
     type <- match.arg(type)
 
-    color.p <- do.call(paste0("colorspace::",type),color.panel)
+    color.p <- eval(expr = parse(text = paste0(
+        "colorspace::",type,"(color.panel)")))
 
     #Make the plot!
     plot.function(color.panel = color.p, ... )
