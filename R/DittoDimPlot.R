@@ -293,15 +293,11 @@ dittoDimPlot <- function(
 .default_reduction <- function(object) {
     # Use umap > tsne > pca, or whatever the first reduction slot is.
     opts <- getReductions(object)
-    reduction.use <- opts[1]
-    prefered <- match(c("umap","tsne","pca"), tolower(opts))
-    if (any(!is.na(prefered))) {
-        reduction.use <- (opts[prefered[!is.na(prefered)]])[1]
+    if (is.null(opts)) {
+        stop("No dimensionality reductions available.")
     }
-    if (is.na(reduction.use)) {
-        stop("No dimensionality reductions found.")
-    }
-    reduction.use
+    use <- .preferred_or_first(opts, c("umap","tsne","pca"))
+    use
 }
 
 .add_labels <- function(p, Target_data, col.use = "color", labels.highlight, labels.size, labels.repel) {
