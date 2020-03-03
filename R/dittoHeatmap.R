@@ -135,6 +135,8 @@
 #'     heatmap.colors = colorRampPalette(c("white", "red"))(25))
 #'
 #' @author Daniel Bunis
+#' @importFrom pheatmap pheatmap
+#' @importFrom grDevices colorRampPalette
 #' @export
 
 dittoHeatmap <- function(

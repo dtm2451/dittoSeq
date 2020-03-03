@@ -54,7 +54,7 @@
 #' @importFrom methods is as
 #' @importFrom SummarizedExperiment SummarizedExperiment "colData<-" colData rowData
 #' @importFrom utils packageVersion
-#' @importFrom SingleCellExperiment "int_metadata<-" int_metadata
+#' @importFrom SingleCellExperiment "int_metadata<-" int_metadata "reducedDim<-"
 #' @importFrom S4Vectors DataFrame
 #' @export
 setGeneric("importDittoBulk", function(x, ...) standardGeneric("importDittoBulk"))

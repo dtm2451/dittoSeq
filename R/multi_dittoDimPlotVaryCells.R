@@ -83,6 +83,7 @@
 #' #   conditions of cells disperse accross clusters, see '?dittoBarPlot'
 #'
 #' @author Daniel Bunis
+#' @importFrom gridExtra grid.arrange
 #' @export
 
 multi_dittoDimPlotVaryCells <- function(
