@@ -12,6 +12,7 @@
 #' getReductions(pbmc)
 #'
 #' @author Daniel Bunis
+#' @importFrom SingleCellExperiment reducedDimNames
 #' @export
 
 getReductions <- function(object=DEFAULT){
@@ -23,6 +24,7 @@ getReductions <- function(object=DEFAULT){
         return(SingleCellExperiment::reducedDimNames(object))
     }
     if (is(object,"Seurat")) {
+        .error_if_no_Seurat()
         return(Seurat::Reductions(object))
     }
     if (is(object,"seurat")) {

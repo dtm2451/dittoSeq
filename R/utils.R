@@ -71,6 +71,7 @@
         return(NA)
     }
     if (is(object, "Seurat")) {
+        .error_if_no_Seurat()
         return(Seurat::DefaultAssay(object))
     }
 }
@@ -91,6 +92,7 @@
         return(SummarizedExperiment::assay(object, assay))
     }
     if (is(object,"Seurat")) {
+        .error_if_no_Seurat()
         return(Seurat::GetAssayData(object, assay = assay, slot = slot))
     }
     if (is(object,"seurat")) {
@@ -108,6 +110,7 @@
             "object@dr$",reduction.use,"@key"))),seq_len(ncol(embeds)))
     }
     if (is(object,"Seurat")) {
+        .error_if_no_Seurat()
         embeds <- Seurat::Embeddings(object, reduction = reduction.use)
     }
     if (is(object,"SingleCellExperiment")) {
@@ -150,9 +153,8 @@
     fillable <- vapply(
         seq_along(data.hover),
         function(i)
-            (isMeta(data.hover[i],object) |
-                isGene(data.hover[i],object, assay) |
-                (data.hover[i]=="ident")),
+            (isMeta(data.hover[i],object) ||
+                isGene(data.hover[i],object, assay)),
         logical(1))
     data.hover <- data.hover[fillable]
     if (is.null(data.hover)) {
@@ -224,4 +226,10 @@
         }
     }
     OUT
+}
+
+.error_if_no_Seurat <- function() {
+    if (!requireNamespace("Seurat")) {
+        stop("Seurat installation required.")
+    }
 }

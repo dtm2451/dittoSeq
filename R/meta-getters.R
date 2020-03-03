@@ -130,6 +130,7 @@ meta <- function(meta, object=DEFAULT){
     if (meta=="ident" && !is(object,"SingleCellExperiment")) {
     # Retrieve clustering from Seurats
         if (is(object, "Seurat")) {
+            .error_if_no_Seurat()
             return(Seurat::Idents(object))
         } else {
             return(object@ident)

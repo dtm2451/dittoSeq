@@ -136,9 +136,7 @@ importDemux2Seurat <- function(
     Seurat, lane.meta = NULL, lane.names=NA, Demuxlet.best,
     bypass.check = FALSE, verbose = TRUE) {
 
-    if (is.character(Seurat)) {
-        Seurat <- eval(expr = parse(text = Seurat))
-    }
+    .error_if_no_Seurat()
     if (!verbose) {
         return(suppressMessages(importDemux2Seurat(
             Seurat,lane.meta,lane.names,Demuxlet.best,bypass.check)))
