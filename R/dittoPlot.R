@@ -3,10 +3,9 @@
 #' Plots continuous data for cutomizable cells'/samples' groupings on a y-axis
 #' @import ggplot2
 #'
+#' @param object A Seurat or SingleCellExperiment object to work with
 #' @param var Single string representing the name of a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
 #' This is the data that will be displayed.
-#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
-#' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups. REQUIRED.
 #' @param color.by String representing the name of a metadata to use for setting color.
 #' Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so this input can be skipped if both are the same.
@@ -151,7 +150,7 @@
 #' @export
 
 dittoPlot <- function(
-    var, object = DEFAULT, group.by, color.by = group.by,
+    object, var, group.by, color.by = group.by,
     shape.var = NULL,
     cells.use = NULL, plots = c("jitter","vlnplot"),
     assay = .default_assay(object), slot = .default_slot(object),
@@ -172,9 +171,6 @@ dittoPlot <- function(
     add.line = NULL, line.linetype = "dashed", line.color = "black",
     legend.show = TRUE, legend.title = "make", data.out = FALSE){
 
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
     #Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
     #Establish the full list of cell/sample names
@@ -200,7 +196,7 @@ dittoPlot <- function(
         extra.vars = NULL
     }
     Target_data <- .dittoPlot_data_gather(
-        var, object, group.by, color.by, extra.vars, cells.use, assay, slot,
+        object, var, group.by, color.by, extra.vars, cells.use, assay, slot,
         adjustment, do.hover, hover.data)$Target_data
     Target_data$grouping <-
         .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
@@ -243,85 +239,70 @@ dittoPlot <- function(
     }
 }
 
-#### multi_dittoPlot : a function for quickly making multiple DBPlots arranged in a grid.
 #' Generates multiple dittoPlots arranged into a grid.
 #'
-#' @param vars c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
-#' @param object the Seurat or SingleCellExperiment object to draw from, or the "quoted" name of such an object. REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param group.by "metadata" to use for separating values. REQUIRED.
-#' @param color.by "metadata" to use for coloring. Affects boxplot, vlnplot, or ridgeplot fills. Defaults to \code{group.by} if not provided.
-#' @param show.legend TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE
+#' @param object the Seurat or SingleCellExperiment object to draw from
+#' @param vars c("var1","var2","var3",...). A list of vars from which to generate the separate plots
+#' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups. REQUIRED.
+#' @param color.by String representing the name of a metadata to use for setting color.
 #' @param ncol Integer which sets how many plots will be arranged per row.  Default = 3.
 #' @param nrow  Integer which sets how many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
-#' @param mains,ylabs String which sets whether / how plot titles or y-axis labels should be added to each individual plot
+#' @param main,ylab String which sets whether / how plot titles or y-axis labels should be added to each individual plot
 #' \itemize{
 #' \item When set to \code{"var"}, the \code{vars} names alone will be used.
-#' \item When set to \code{"make"}, the default dittoPlot behavior will be observed: For gene vars will be "'var' expression"
-#' \item When set as any other string, that string will be used as the y-axis label for every plot.
+#' \item When set to \code{"make"}, the default dittoPlot behavior will be observed: For y-axis labels, gene vars will become "'var' expression" or similar.
+#' \item When set as any other string, that string will be used as the title / y-axis label for every plot.
 #' \item When set to \code{NULL}, titles / axes labels will not be added.
 #' }
-#' @param xlab String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
-#' Default is \code{NULL}, which removes it from plotting.
-#' @param OUT.List Logical which sets whether the output should be a list of objects instead of the plots arranged into a single plot grid.
-#' Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.
-#' In the list, all plots will be named by the element of \code{vars} the represent.
-#' @param ... other paramters passed along to dittoPlot.
-#' @return Given multiple 'var' parameters, this function will output a DBPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBPlot can be adjusted here.
+#' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+#' @param xlab,legend.show,... other paramters passed along to dittoPlot.
+#' @return Given multiple 'var' parameters, this function will output a dittoPlot for each one, arranged into a grid, with some slight tweaks to the defaults.
+#' If \code{OUT.list} was set to TRUE, the list of individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+#' All parameters that can be adjusted in dittoPlot can be adjusted here.
 #' @seealso
 #' \code{\link{dittoPlot}} for the single plot version of this function
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
-#' genes <- c("CD8A","CD3E","FCER1A","CD14")
-#' multi_dittoPlot(genes, object = "pbmc",
-#'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 #'
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object
-#'       # input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' multi_dittoPlot(genes,
+#' genes <- c("CD8A","CD3E","FCER1A","CD14")
+#' multi_dittoPlot(pbmc, genes,
 #'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 #'
 #' #To make it output a grid that is 2x2, to add y-axis labels
 #' # instead of titles, and to show legends...
-#' multi_dittoPlot(genes,
+#' multi_dittoPlot(pbmc, genes,
 #'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
-#'     nrow = 2, ncol = 2,
-#'     mains = FALSE, ylabs = TRUE,  #Add y axis labels instead of titles
-#'     show.legend = TRUE)           #Show legends
+#'     nrow = 2, ncol = 2,           #Make grid 2x2
+#'     main = FALSE, ylab = "make",  #Add y axis labels instead of titles
+#'     legend.show = TRUE)           #Show legends
 #'
-#' # To eliminate the "expression", change ylabs = TRUE to ylabs = "var"
-#' multi_dittoPlot(genes,
-#'             group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
-#'             nrow = 2, ncol = 2,   #Make it 2x2
-#'             mains = FALSE,
-#'             ylabs = "var",        #Add y axis labels without "expression"
-#'             show.legend = TRUE)   #Show legends
+#' # To eliminate the "expression", change ylab = "var"
+#' multi_dittoPlot(pbmc, genes,
+#'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+#'     nrow = 2, ncol = 2,         #Make grid 2x2
+#'     main = FALSE, ylab = "var", #Add y axis labels without "expression"
+#'     legend.show = TRUE)         #Show legends
 #'
 #' @author Daniel Bunis
 #' @importFrom ggridges geom_density_ridges2
 #' @export
 
 multi_dittoPlot <- function(
-    vars, object = DEFAULT, group.by, color.by = group.by, show.legend = FALSE,
-    ncol = 3, nrow = NULL, mains="var", ylabs = NULL, xlab = NULL,
+    object, vars, group.by, color.by = group.by, legend.show = FALSE,
+    ncol = 3, nrow = NULL, main="var", ylab = NULL, xlab = NULL,
     OUT.List = FALSE, ...) {
 
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
-
     plots <- lapply(vars, function(X) {
-        args <- list(X, object, group.by, color.by, xlab = xlab,
-            ylab = ylabs, main = mains,...)
+        args <- list(object, X, group.by, color.by,
+            ylab = ylabs, main = mains, legend.show = legend.show, ...)
         if (!is.null(ylabs)) {
             args$ylab <- ifelse(ylabs == "var", X, ylabs)
         }
         if (!is.null(mains)) {
             args$main <- ifelse(mains == "var", X, mains)
         }
-        do.call(dittoPlot, args) +
-            theme(legend.position = ifelse(show.legend, "right", "none"))
+        do.call(dittoPlot, args)
     })
 
     #Output
@@ -482,7 +463,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 }
 
 .dittoPlot_data_gather <- function(
-    main.var, object = DEFAULT, group.by = "Sample", color.by = group.by,
+    object, main.var, group.by = "Sample", color.by = group.by,
     extra.vars = NULL, cells.use = NULL, assay, slot, adjustment,
     do.hover = FALSE, hover.data = c(main.var, extra.vars)) {
 
