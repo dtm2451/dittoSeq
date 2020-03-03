@@ -235,6 +235,7 @@ dittoPlot <- function(
         return(list(p = p, data = Target_data))
     } else {
         if (do.hover & ("jitter" %in% plots)) {
+            .error_if_no_plotly()
             return(plotly::ggplotly(p, tooltip = "text"))
         } else {
             return(p)
@@ -298,6 +299,7 @@ dittoPlot <- function(
 #'             show.legend = TRUE)   #Show legends
 #'
 #' @author Daniel Bunis
+#' @importFrom ggridges geom_density_ridges2
 #' @export
 
 multi_dittoPlot <- function(

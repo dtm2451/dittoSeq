@@ -238,6 +238,7 @@ dittoScatterPlot <- function(
         return(list(plot = p, Target_data = Target_data, Others_data = Others_data))
     } else{
         if (do.hover) {
+            .error_if_no_plotly()
             return(plotly::ggplotly(p, tooltip = "text"))
         } else {
             return(p)

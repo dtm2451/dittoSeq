@@ -205,6 +205,7 @@ dittoPlotVarsAcrossGroups <- function(
         return(list(p = p, data = data))
     } else {
         if (do.hover & ("jitter" %in% plots)) {
+            .error_if_no_plotly()
             return(plotly::ggplotly(p, tooltip = "text"))
         } else {
             return(p)

@@ -1,3 +1,7 @@
+#' @importFrom SingleCellExperiment reducedDim int_metadata
+#' @importFrom SummarizedExperiment assay assays
+#' @importFrom cowplot ggdraw get_legend
+
 .remove_legend <- function(ggplot) {
     ggplot + theme(legend.position = "none")
 }
@@ -231,5 +235,11 @@
 .error_if_no_Seurat <- function() {
     if (!requireNamespace("Seurat")) {
         stop("Seurat installation required.")
+    }
+}
+
+.error_if_no_plotly <- function() {
+    if (!requireNamespace("plotly")) {
+        stop("plotly installation required for using hover")
     }
 }
