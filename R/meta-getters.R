@@ -50,7 +50,7 @@ isMeta <- function(test, object=DEFAULT, return.values=FALSE){
         return(test[isMeta(test, object, return.values=FALSE)])
     } else {
         metas <- getMetas(object)
-        if (class(object) %in% c("Seurat","seurat")) {
+        if (is(object,"Seurat") || is(object,"seurat")) {
             metas <- c(metas,"ident")
         }
         return(test %in% metas)
