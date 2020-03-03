@@ -9,11 +9,11 @@
 #' This is the data that will be displayed for each cell/sample.
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 #' Discrete or continuous data both work. REQUIRED.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param reduction.use String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 #'
-#' Default = "tsne" for Seurat objects, and "pca" for RNAseq objects, and "TSNE" for SingleCellExperiment objects.
+#' Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", or the first dimensionality reduction slot if nonw of those exist.
 #' @param size Number which sets the size of data points. Default = 1.
 #' @param opacity Number between 0 and 1.
 #' Great for when you have MANY overlapping points, this sets how solid the points should be:
@@ -41,7 +41,12 @@
 #' @param legend.title String which sets the title for the main legend which includes the colors. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.
 #' @param shape.legend.size Number representing the size to increase the plotting of shapes legend shapes to.
 #' @param shape.legend.title String which sets the title of the shapes legend.  Default is the \code{shape.var}
-#' @param data.type For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".
+#' @param assay,slot single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.
+#' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
+#' \itemize{
+#' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+#' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+#' }
 #' @param main String, sets the plot title.
 #' Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.
 #' @param sub String, sets the plot subtitle
@@ -73,7 +78,7 @@
 #' @param do.hover Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 #' \code{hover.data} argument is used to determine what data to use.
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
-#' @param hover.data.type Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.
+#' @param hover.assay,hover.slot,hover.adjustment Similar to the non-hover versions, when showing expression data upon hover, these set what data will be shown.
 #' @param add.trajectory.lineages List of vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 #'
 #' If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
@@ -88,7 +93,7 @@
 #' @details
 #' The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that),
 #' plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
-#' The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
+#' The \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to change what expression data is used when displaying gene expression.
 #' If a metadata is given to \code{shape.var}, that is retrieved and added to the dataframe as well.
 #'
 #' Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
@@ -129,16 +134,17 @@
 #' @seealso
 #' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
 #'
-#' \code{\link{importDESeq2}} for how to create a bulk \code{\linkS4class{RNAseq}} data structure that dittoSeq functions can use &
+#' \code{\link{importDittoBulk}} for how to create a \code{\link{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
 #' \code{\link{addDimReduction}} for how to add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 #'
-#' \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are the scatterplot axes.
+#' \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are wanted as the axes.
 #'
 #' \code{\link{dittoPlot}} for an alternative continuous data display method where data is shown on a y- (or x-) axis.
 #'
 #' \code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
 #'
 #' @author Daniel Bunis
+#' @importFrom stats median
 #' @export
 #' @examples
 #' pbmc <- Seurat::pbmc_small
@@ -169,7 +175,8 @@ dittoDimPlot <- function(
     show.axes.numbers = TRUE,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     shape.var = NULL, shape.panel=c(16,15,17,23,25,8),
-    data.type = "normalized",
+    assay = .default_assay(object), slot = .default_slot(object),
+    adjustment = NULL,
     main = "make", sub = NULL, xlab = "make", ylab = "make",
     theme = NA, legend.show = TRUE, legend.size = 5,
     legend.title = "make",
@@ -180,7 +187,8 @@ dittoDimPlot <- function(
     min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
     legend.breaks = waiver(), legend.breaks.labels = waiver(),
     do.letter = FALSE, do.hover = FALSE, hover.data = var,
-    hover.data.type = data.type,
+    hover.assay = .default_assay(object), hover.slot = .default_slot(object),
+    hover.adjustment = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
     trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE) {
 
@@ -226,9 +234,10 @@ dittoDimPlot <- function(
     p.df <- dittoScatterPlot(
         xdat$embeddings, ydat$embeddings, var, shape.var, object, cells.use,
         show.others, size, opacity, color.panel, colors,
-        data.type.x = "normalized", data.type.y = "normalized",
-        data.type, do.hover, hover.data, hover.data.type, shape.panel,
-        rename.var.groups, rename.shape.groups, min.color, max.color, min, max,
+        NULL, NULL, NULL, NULL, NULL, NULL, assay, slot, adjustment,
+        do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
+        shape.panel, rename.var.groups, rename.shape.groups,
+        min.color, max.color, min, max,
         xlab, ylab, main, sub, theme, legend.show, legend.title, legend.size,
         legend.breaks, legend.breaks.labels, shape.legend.title,
         shape.legend.size, data.out = TRUE)
@@ -282,14 +291,15 @@ dittoDimPlot <- function(
 }
 
 .default_reduction <- function(object) {
-    if (grepl("Seurat",.class_of(object))) {
-        reduction.use <- "tsne"
+    # Use umap > tsne > pca, or whatever the first reduction slot is.
+    opts <- getReductions(object)
+    reduction.use <- opts[1]
+    prefered <- match(c("umap","tsne","pca"), tolower(opts))
+    if (any(!is.na(prefered))) {
+        reduction.use <- (opts[prefered[!is.na(prefered)]])[1]
     }
-    if (.class_of(object)=="SingleCellExperiment") {
-        reduction.use <- "TSNE"
-    }
-    if (.class_of(object)=="RNAseq") {
-        reduction.use <- "pca"
+    if (is.na(reduction.use)) {
+        stop("No dimensionality reductions found.")
     }
     reduction.use
 }
@@ -432,7 +442,7 @@ dittoDimPlot <- function(
 #' Generates multiple dittoDimPlots arranged in a grid.
 #'
 #' @param vars               c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
-#' @param object             the Seurat or RNAseq object to draw from = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object             A Seurat or SingleCellExperiment object to work with = REQUIRED, unless `DEFAULT <- "object"` has been run.
 #' @param legend.show        Logical. Whether or not you would like a legend to be plotted.  Default = FALSE
 #' @param ncol               #. How many plots should be arranged per row.  Default = 3 unless \code{length(vars)} is shorter.
 #' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.

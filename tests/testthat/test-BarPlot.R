@@ -7,6 +7,7 @@ grp2 <- "RNA_snn_res.0.8"
 grp3 <- "RNA_snn_res.1"
 cells.names <- colnames(pbmc)[1:40]
 cells.logical <- c(rep(TRUE, 40), rep(FALSE,40))
+pbmc.bulk <- importDittoBulk(pbmc.se)
 
 test_that("dittoBarPlot can quantify clustering of groupings in percent or raw count", {
     expect_s3_class(
@@ -19,16 +20,16 @@ test_that("dittoBarPlot can quantify clustering of groupings in percent or raw c
         "ggplot")
 })
 
-test_that("dittoBarPlot works for SCE and RNAseq too", {
+test_that("dittoBarPlot works for SCE", {
     # SCE
     expect_s3_class(
         dittoBarPlot(
             grp2, pbmc.se, group.by = grp3),
         "ggplot")
-    # RNAseq
+    # bulk SCE
     expect_s3_class(
         dittoBarPlot(
-            grp2, pbmc.rnaseq, group.by = grp3),
+            grp2, pbmc.bulk, group.by = grp3),
         "ggplot")
 })
 

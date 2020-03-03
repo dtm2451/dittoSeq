@@ -4,7 +4,7 @@ author:
 - name: Daniel Bunis
   affiliation: Bakar Computational Health Sciences Institute, University of California San Francisco, San
   email: daniel.bunis@ucsf.edu
-date: "February 11th, 2020"
+date: "March 2nd, 2020"
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -36,19 +36,23 @@ popular packages (Seurat, scater, scran, ...). For bulk RNAseq data,
 dittoSeq's import functions will convert bulk RNAseq data of various different
 structures into a set structure that dittoSeq helper and visualization
 functions can work with. So ultimately, dittoSeq includes universal plotting
-and helper functions for working with (sc)RNAseq data processed in these
-packages:
+and helper functions for working with (sc)RNAseq data processed and stored in
+these formats:
 
 Single-Cell:
 
-- Seurat (versions 2 & 3, single-cell RNAseq)
-- SingleCellExperiment (single-cell RNAseq)
+- Seurat (versions 2 & 3)
+- SingleCellExperiment
 
 Bulk:
 
-- DESeq2 (bulk RNAseq)
-- edgeR (bulk RNAseq)
-- Limma-Voom (bulk RNAseq)
+- SummarizedExperiment (the general Bioconductor Seq-data storage system)
+- DESeqDataSet (DESeq2 package output)
+- DGEList (edgeR package output)
+
+For bulk data, or if your data is currently not analyzed, or simply not in one
+of these structures, you can still pull it in as a SingleCellExperiment
+structure that dittoSeq works with using the `importDittoBulk` function.
 
 ## Color blindness friendliness:
 
@@ -57,22 +61,38 @@ make it so, I used the suggested colors from [@wong_points_2011] and adapted
 them slightly by appending darker and lighter versions to create a 24 color
 vector. All plotting functions use these colors, stored in `dittoColors()`, by
 default. Additionally, shapes displayed in the legends are generally enlarged
-as this can be almost as helpful for colorblind individuals like me to
-distinguish between groups as the actual color choice!
+as this can be almost as helpful as the actual color choice for colorblind
+individuals (like me)!
+
+## Disclaimer
+
+Code used here for dataset processing and normalization should not be seen as
+a suggestion of the proper methods for performing such steps. dittoSeq is a
+visualization tool, and my focus while developing this vignette has been simply
+creating values required for providing visualization examples.
 
 # Installation:
 
-Currently, dittoSeq is only available via github, but it will be submitted to
-CRAN soon and Bioconductor not long after that!  I expect both by early 2020.
-Until then, the best way to install dittoSeq will be with devtools through
-github:
+Currently, dittoSeq is only available via github, but is submitted to
+Bioconductor. Currently, major changes are being implemented in the master
+branch as part of meeting Bioconductor standards.
+
+NOTE: For anyone hoping to analyze data with dittoSeq currently, I recommend
+using the stable v0.3 branch, and the separate vignette associated with that.
+
+Here, I detail how to install & utilize the Bioconductor devel version of
+dittoSeq.
 
 ```{r, eval=FALSE}
-# Install devtools if needed
-install.packages("devtools")
+# Install BiocManager if needed
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
 
-# Install dittoSeq
-devtools::install_github("dtm2451/dittoSeq")
+# The following initializes usage of Bioc devel
+BiocManager::install(version='devel')
+
+# Install dittoSeq (from github)
+BiocManager::install("dtm2451/dittoSeq")
 ```
 
 # Getting started
@@ -95,6 +115,15 @@ sce <- BaronPancreasData()
 # Trim to only 5 of the celltypes for simplicity of vignette
 sce <- sce[,meta("label",sce) %in% c(
     "acinar", "endothelial", "gamma", "delta", "ductal")]
+```
+
+Now that we have a single-cell dataset loaded, we are ready to go.  All
+functions work for either Seurat or SCE encapsulated single-cell data.
+
+But to make full use of dittoSeq, we should reaally have this data
+log-normalized, and dimensionality reductions and clustering run.
+
+```{r}
 # Make Seurat and grab metadata
 seurat <- CreateSeuratObject(counts(sce))
 seurat <- AddMetaData(seurat, sce$label, col.name = "celltype")
@@ -102,7 +131,7 @@ seurat <- AddMetaData(seurat, sce$donor, col.name = "Sample")
 seurat <- AddMetaData(seurat,
                       PercentageFeatureSet(seurat, pattern = "^MT"),
                       col.name = "percent.mt")
-# Basic Seurat workflow
+# Basic Seurat workflow (possibly outdated, but fine for this vignette)
 seurat <- NormalizeData(seurat, verbose = FALSE)
 seurat <- FindVariableFeatures(object = seurat, verbose = FALSE)
 seurat <- ScaleData(object = seurat, verbose = FALSE)
@@ -110,12 +139,28 @@ seurat <- RunPCA(object = seurat, verbose = FALSE)
 seurat <- RunTSNE(object = seurat)
 seurat <- FindNeighbors(object = seurat, verbose = FALSE)
 seurat <- FindClusters(object = seurat, verbose = FALSE)
-# Turn back into sce for sce examples
-sce <- as.SingleCellExperiment(seurat)
 ```
 
-Now that we have a single-cell dataset loaded, we are ready to go.  All
-functions work for either the Seurat or SCE version.
+```{r}
+# Grab PCA, TSNE, clustering, log-norm data, and metadata to sce
+
+# sce <- as.SingleCellExperiment(seurat)
+# At the time this vignette was made, the above function gave warnings
+
+# So... manual method
+sce <- addDimReduction(
+  sce, embeddings = Embeddings(seurat, reduction = "pca"), name = "PCA")
+sce <- addDimReduction(
+  sce, embeddings = Embeddings(seurat, reduction = "tsne"), name = "TSNE")
+sce$idents <- seurat$seurat_clusters
+assay(sce, "logcounts") <- GetAssayData(seurat)
+sce$percent.mt <- seurat$percent.mt
+sce$celltype <- seurat$celltype
+sce$Sample <- seurat$Sample
+```
+
+Now that we have a single-cell dataset loaded as both Seurat and SCE, we are
+ready to go.  All functions work for either the Seurat or SCE version.
 
 ```{r}
 dittoDimPlot("Sample", seurat)
@@ -125,180 +170,73 @@ dittoBarPlot("celltype", object = sce, group.by = "Sample")
 
 ## Bulk RNAseq data
 
-*The underlying data structure for how dittoSeq handles bulk RNAseq data will
-soon change.* 
-
-dittoSeq contains functions for importing RNAseq data into the 'RNAseq' data
-structure that dittoSeq functions understand.
-
-DESeq2 processed data is imported with `importDESeq2()` and edgeR/limma-voom
-processed data is imported with `importEdgeR()`.  The process for both is
-quite similar.
-
-A bit of setup...
+Bulk RNAseq data is handled by dittoSeq using the SingleCellExperiment
+structure (as of version 0.99). This structure is essentially very similar
+to the Bioconductor standard SUmmarizedExperiment, just with room added for
+storing calculated dimensionality reductions.
 
 ```{r}
-# # We'll first grab the DESeqDataSet from dittoSeq's included mock DESeq2 data:
-# dds <- RNAseq_mock@DEobject
-# 
-# # From some of the extra features, let's grab some additional pieces as well
-# counts.data <- RNAseq_mock@counts
-# norm.data <- RNAseq_mock@data
+# First, lets make some mock expression and conditions data
+exp <- matrix(rpois(20000, 5), ncol=20)
+colnames(exp) <- paste0("sample", seq_len(ncol(exp)))
+rownames(exp) <- paste0("gene", seq_len(nrow(exp)))
+logexp <- logexp <- log2(exp + 1)
+
+conditions <- factor(rep(1:4, 5))
+sex <- c(rep("M", 9), rep("F", 11))
 ```
 
-### Standard Workflow
+### Standard bulk data import workflow
+
+Importing bulk data can be accomplished with just the `importDittoBulk()`
+function, but metadata and dimensionality reductions can also be added after.
 
 ```{r}
-# # Import
-# myRNA <- importDESeq2(dds, normalized.data = norm.data)
-# 
-# # Add metadata
-# myRNA <- addMetaRNAseq(
-#     object = myRNA,
-#     value = rep(c("M", "F"), each = 5),
-#     name = "sex")
-# # Or, alternatively:
-# scoreX <- 1:10/10
-# addMeta(myRNA) <- scoreX
-# 
-# # Calculate & Add PCA or other dimensionality reduction.
-# prcomp_obj <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
-# pca_mat <- prcomp_obj$x
-# 
-# myRNA <- addDimReduction(
-#     embeddings = pca_mat,
-#     object = myRNA,
-#     name = "pca",
-#     raw.object = prcomp_obj)
-# 
-# # Make Plots
-# DEFAULT <- "myRNA"
-# dittoDimPlot("sex", size = 3, do.ellipse = TRUE)
-# dittoDimPlot("scoreX", size = 3)
-# dittoBoxPlot("scoreX", group.by = "sex")
-# dittoHeatmap(getGenes(myRNA)[1:10],
-#     annotation.metas = c("scoreX", "sex", "Sample"))
+# Import
+myRNA <- importDittoBulk(
+    # x can be a DGEList, a DESeqDataSet, a SummarizedExperiment,
+    #   or a list of data matrices
+    x = list(counts = exp,
+             logcounts = logexp),
+    # Optional inputs:
+    #   For adding metadata
+    metadata = data.frame(conditions = conditions,
+                          sex = sex),
+    #   For adding dimensionality reductions
+    reductions = list(pca = matrix(rnorm(20000), nrow=20)))
+
+# Add metadata (metadata can also be added in this way)
+myRNA$conditions <- conditions
+myRNA$sex <- sex
+
+# Add dimensionality reductions (can also be done this way)
+# (We aren't actually calculating PCA here.)
+myRNA <- addDimReduction(
+    object = myRNA,
+    embeddings = matrix(rnorm(20000), nrow=20),
+    name = "pca",
+    key = "PC")
+
+# Make Plots
+dittoDimPlot("sex", myRNA, size = 3, do.ellipse = TRUE)
+dittoBarPlot("sex", myRNA, group.by = "conditions")
+dittoBoxPlot("gene1", myRNA, group.by = "sex")
+dittoHeatmap(getGenes(myRNA)[1:10], object = myRNA,
+    annotation.metas = c("conditions", "sex"))
 ```
 
+By default, provided metadata is added to (or replaces) any metadata already
+inside of x, but the `combine_metadata` input can additionally be used to
+turn retention of previous metadata slots off.
 
-### Import Data
+Raw data note: can be provided as a list containing a single or multiple
+matrices. It is recommended that matrices containing raw feature counts data
+be named `counts`, and log-normalized counts data be named `logcounts`.
 
-Default:
-
-When importing DESeq2 data, dittoSeq uses the DESeq2 `rlog()` function to
-create normalized data. This calculation can either be blinded to samples'
-condition identities, or not. Typically, `blind = FALSE` will be the proper
-option, but it is the responsibility of the user to decide what is best for
-their own data. See the `?rlog` documentation for more information.
-
-When importing edgeR or Limma-voom data, dittoSeq uses the edgeR `cpm()`
-function to calculate normalized data.
-
-```{r}
-# # Importing is simple
-# library(DESeq2)
-# myRNA <- importDESeq2(dds, blind = FALSE)
-```
-
-**Alternatively**, users can also use the `normalized.data` input to provide
-pre-calculated normalized data and skip this recalculation.  The input for
-this ia a matrix with named columns (samples) and rows (genes).
-
-Optionally, users can also use the `counts` input to provide a different raw
-counts matrix than the one within their DDS or DGEList.
-
-```{r}
-# head(norm.data)
-# head(counts.data)
-# 
-# # Manual normalized data provision
-# myRNA <- importDESeq2(dds, normalized.data = norm.data)
-# 
-# # Manual counts data provision as well
-# myRNA <- importDESeq2(dds, normalized.data = norm.data,
-#     counts = counts.data)
-```
-
-### Adding metadata
-
-Metadata is extra information about your samples (or cells for single-cell
-data) that is stored within the RNAseq object (or Seurat/SCE).  That might
-include sample sizes, ages, batches, conditions, functional scores, or any
-other relevant info.  dittoSeq functions pull from metadata many
-functionalities, so adding as much of this inoformation as possible is
-generally a good idea.
-
-Any metadata already contained within the imported DESeqDataSet or DGEList
-will be imported into dittoSeq, and metadata slots named "Nreads" and "Sample"
-will be added as well.  But this may not cover everything, so...
-
-Extra metadata can be added with the `addMetaRNAseq()` function. Just provide
-the `value`s for each sample and a `name` for the data.  OR store the values
-in a variable of the name you would like the metadata slot to have, and you
-can just provide that in either of the ways below:
-
-```{r}
-# myRNA <- addMetaRNAseq(
-#     value = factor(rep(1:2, each = 5)),
-#     name = "batch",
-#     object = myRNA)
-# 
-# # OR:
-# scoreX <- 1:10/10
-# # With the same funciton, providing the values in this way, you can skip the `name` input.
-# myRNA <- addMetaRNAseq(
-#     value = scoreX,
-#     object = myRNA)
-# # Or alternatively, it can be set in this way.  Both have the same outcome.
-# addMeta(myRNA) <- scoreX
-```
-
-Now, we can make plots with the new metadata:
-
-```{r}
-# dittoPlot("Gene1", object = myRNA, group.by = "batch",
-#           plots = c("boxplot", "jitter"), jitter.size = 2)
-# dittoPlot("scoreX", object = myRNA, group.by = "batch",
-#           plots = c("boxplot", "jitter"), jitter.size = 2)
-```
-
-### Adding dimensionality reductions to RNAseq data
-
-At this point, most dittoSeq visualizations will work, but one of the most
-useful, `dittoDimPlot()`, which outputs dimensionality reduction plots (like
-PCA or tSNE plots) with other data overlayed on top, requires that these
-dimensionality reductions be added to the object.
-
-These can be calculated with tools like the base-R `prcomp()` function for
-PCA, or the `tsne` package for tSNE.
-
-```{r}
-# # Calculating PCA for our mock data
-# #   NOTE: This is often not done with all genes in a dataset.
-# #   The inclusion of this example code is not an endorsement of a particular
-# #   method of PCA. Consult yourself, a bioinformatician, or literature for
-# #   tips on proper techniques.
-# prcomp_out <- prcomp(t(myRNA@data), center = TRUE, scale = TRUE)
-# # Grabbing the embeddings matrix
-# pca_mat <- prcomp_out$x
-```
-
-Then, add the matrix of `embeddings` of each sample within the dimensionality
-reduction space as with the `addDimReduction()` function.
-
-```{r}
-# myRNA <- addDimReduction(embeddings = pca_mat, object = myRNA, name = "pca")
-# 
-# dittoDimPlot("Gene1", myRNA, size = 3)
-```
-
-Note: adding PCA calculated by the base-R prcomp function can be done with the
-slightly simpler `addPrcomp` function can be used instead. Here, the reduction
-name will be set to "pca" by default.
-
-```{r}
-# myRNA <- addPrcomp(prcomp_out, myRNA)
-```
+DGEList note: The import function attempts to pull in all information stored in
+common DGEList slots (\$counts, \$samples, \$genes, \$AveLogCPM,
+\$common.dispersion, \$trended.dispersion, \$tagwise.dispersion, and \$offset),
+but any other slots are ignored.
 
 # Helper Functions
 
@@ -320,7 +258,7 @@ isGene("CD3E", seurat)
 getReductions(seurat)
 
 # Retrieve gene expression values:
-gene("ENO1", seurat, data.type = "raw")[1:10]
+gene("ENO1", seurat)[1:10]
 # Retrieve metadata values:
 meta("celltype", seurat)[1:10]
 # Retrieve unique values of a metadata
@@ -350,12 +288,12 @@ dittoDimPlot("ENO1", sce)
 dittoScatterPlot(
     x.var = "ENO1", y.var = "INS",
     color.var = "celltype", shape.var = "Sample",
-    object = seurat,
+    object = sce,
     size = 3)
 dittoScatterPlot(
     x.var = "nCount_RNA", y.var = "nFeature_RNA",
     color.var = "percent.mt",
-    object = sce,
+    object = seurat,
     size = 3)
 ```
 

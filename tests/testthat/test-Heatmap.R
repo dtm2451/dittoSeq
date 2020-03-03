@@ -5,7 +5,7 @@ pbmc@meta.data$number <- as.numeric(seq_along(colnames(pbmc)))
 pbmc@meta.data$number2 <- as.numeric(rev(seq_along(colnames(pbmc))))
 genes <- c("MS4A1","GNLY","CD3E","CD14","FCER1A","FCGR3A","LYZ","PPBP","CD8A")
 
-test_that("Heatmap can be plotted for Seurat, SCE, RNAseq", {
+test_that("Heatmap can be plotted for Seurat or SCE", {
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -15,11 +15,6 @@ test_that("Heatmap can be plotted for Seurat, SCE, RNAseq", {
         dittoHeatmap(
             genes,
             object = pbmc.se),
-        "pheatmap")
-    expect_s3_class(
-        dittoHeatmap(
-            genes,
-            object = pbmc.rnaseq),
         "pheatmap")
 })
 

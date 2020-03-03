@@ -29,11 +29,6 @@ test_that("dittoPlotVarsAcrossGroups can work for SE and RNAseq", {
             genes, pbmc.se, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter")),
         "ggplot")
-    expect_s3_class(
-        dittoPlotVarsAcrossGroups(
-            genes, pbmc.rnaseq, group.by = grp,
-            plots = c("ridgeplot", "jitter")),
-        "ggplot")
 })
 
 test_that("dittoPlotVarsAcrossGroups can work for metadata", {

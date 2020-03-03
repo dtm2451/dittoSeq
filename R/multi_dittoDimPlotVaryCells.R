@@ -5,7 +5,7 @@
 #' This is the data that will be displayed for each cell/sample.
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 #' Discrete or continuous data both work. REQUIRED.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.
+#' @param object A Seurat or SingleCellExperiment object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.
 #' @param vary.cells.meta String name of a metadata that should be used for selecting which cells to show in each "varycells" plot. REQUIRED.
 #' @param vary.cells.levels The values/groupings of the \code{vary.cells.meta} metadata that should get a plot.
 #' Defaults to all levels of the metadata.
@@ -19,7 +19,12 @@
 #' @param color.panel a list of colors to be used for when plotting a discrete var.
 #' @param colors indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups
 #' @param min,max Numeric values which set the values associated with the minimum and maximum colors in the legend when data represented by \code{var} is numeric.
-#' @param data.type For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".
+#' @param assay,slot single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.
+#' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
+#' \itemize{
+#' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+#' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+#' }
 #' @param ... additional parameters passed todittoDimPlot.
 #' A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.
 #' \code{xlab} and \code{ylab} can be set to \code{NULL} to remove the axes labels and provide extra room for the data.
@@ -83,7 +88,8 @@
 multi_dittoDimPlotVaryCells <- function(
     var, object = DEFAULT, vary.cells.meta,
     vary.cells.levels = meta.levels(vary.cells.meta, object),
-    data.type = "normalized", min = NULL, max = NULL,
+    assay = .default_assay(object), slot = .default_slot(object),
+    adjustment = NULL, min = NULL, max = NULL,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     show.titles=TRUE, show.allcells.plot = TRUE, allcells.main = "All Cells",
     show.legend.single = TRUE, show.legend.plots = FALSE,
@@ -97,12 +103,12 @@ multi_dittoDimPlotVaryCells <- function(
     cells.meta <- meta(vary.cells.meta,object)
     #Determine if var is continuous vs discrete
     numeric <- ifelse(
-        is.numeric(.var_OR_get_meta_or_gene(var[1], object, data.type)),
+        is.numeric(.var_OR_get_meta_or_gene(var[1], object, assay, slot, adjustment)),
         TRUE,
         FALSE
     )
     if (numeric) {
-        the.range <- range(.var_OR_get_meta_or_gene(var, object, data.type))
+        the.range <- range(.var_OR_get_meta_or_gene(var, object, assay, slot, adjustment))
         min <- ifelse(is.null(min), the.range[1], min)
         max <- ifelse(is.null(max), the.range[2], max)
     }
@@ -110,8 +116,8 @@ multi_dittoDimPlotVaryCells <- function(
     ### Make Plots ###
     plot.args <- list(
         var = var, object = object, main = NULL, min = min,
-        max = max, legend.show = show.legend.plots, data.type = data.type,
-        color.panel = color.panel, ...)
+        max = max, legend.show = show.legend.plots, assay = assay, slot = slot,
+        adjustment = adjustment, color.panel = color.panel, ...)
     if (!is.null(plot.args$cells.use)) {
         stop("Subsetting with cells.use is incompatible with this function.")
     }

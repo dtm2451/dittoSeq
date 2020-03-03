@@ -9,7 +9,9 @@ multi_dittoDimPlotVaryCells(
   object = DEFAULT,
   vary.cells.meta,
   vary.cells.levels = meta.levels(vary.cells.meta, object),
-  data.type = "normalized",
+  assay = .default_assay(object),
+  slot = .default_slot(object),
+  adjustment = NULL,
   min = NULL,
   max = NULL,
   color.panel = dittoColors(),
@@ -32,14 +34,20 @@ This is the data that will be displayed for each cell/sample.
 Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 Discrete or continuous data both work. REQUIRED.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.}
+\item{object}{A Seurat or SingleCellExperiment object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.}
 
 \item{vary.cells.meta}{String name of a metadata that should be used for selecting which cells to show in each "varycells" plot. REQUIRED.}
 
 \item{vary.cells.levels}{The values/groupings of the \code{vary.cells.meta} metadata that should get a plot.
 Defaults to all levels of the metadata.}
 
-\item{data.type}{For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".}
+\item{assay, slot}{single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.}
+
+\item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
+\itemize{
+\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+\item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+}}
 
 \item{min, max}{Numeric values which set the values associated with the minimum and maximum colors in the legend when data represented by \code{var} is numeric.}
 

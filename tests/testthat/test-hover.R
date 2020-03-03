@@ -17,7 +17,7 @@ test_that("Showing hover.data works for DimPlot", {
     expect_s3_class(
         dittoDimPlot("MS4A1", object = pbmc, do.hover = TRUE,
             hover.data = c("MS4A1","RNA_snn_res.0.8","ident"),
-            hover.data.type = "raw"),
+            hover.slot = "counts"),
         "plotly")
 })
 

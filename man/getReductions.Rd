@@ -7,7 +7,7 @@
 getReductions(object = DEFAULT)
 }
 \arguments{
-\item{object}{A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".}
+\item{object}{A target Seurat or SingleCellExperiment object, OR the name of the target object in "quotes".}
 }
 \value{
 A string vector of the names of all dimensionality reduction slots of the \code{object}.

@@ -12,7 +12,7 @@ cells.names <- colnames(pbmc)[1:40]
 cells.logical <- c(rep(TRUE, 40), rep(FALSE,40))
 cols <- c("red", "blue", "yellow", "green", "black", "gray", "white")
 
-test_that("dittoScatterPlot can plot genes or metadata & work for SCE and RNAseq", {
+test_that("dittoScatterPlot can plot genes or metadata & work for SCE", {
     expect_s3_class(
         dittoScatterPlot(
             gene, cont, object = pbmc),
@@ -20,10 +20,6 @@ test_that("dittoScatterPlot can plot genes or metadata & work for SCE and RNAseq
     expect_s3_class(
         dittoScatterPlot(
             gene, gene, object = pbmc.se),
-        "ggplot")
-    expect_s3_class(
-        dittoScatterPlot(
-            gene, gene, object = pbmc.rnaseq),
         "ggplot")
 })
 
@@ -45,21 +41,21 @@ test_that("dittoScatterPlot can overlay shapes", {
         "ggplot")
 })
 
-test_that("dittoScatterPlot gene display can utilize different data.types", {
+test_that("dittoScatterPlot gene display can utilize different data.types (including for hover)", {
     expect_s3_class(
         dittoScatterPlot(
             gene, gene, gene, NULL, object = pbmc,
-            data.type.x = "raw",
-            data.type.y = "relative",
-            data.type.color = "raw.normalized.to.max"),
+            slot.x = "counts",
+            adjustment.y = "z-score",
+            adjustment.color = "relative.to.max"),
         "ggplot")
     expect_s3_class(
         dittoScatterPlot(
             gene, gene, gene, NULL, object = pbmc,
             do.hover = TRUE, hover.data = "PF4",
-            data.type.x = "raw",
-            data.type.y = "relative",
-            data.type.color = "raw.normalized.to.max",
-            hover.data.type = "scaled"),
+            slot.x = "counts",
+            adjustment.y = "z-score",
+            adjustment.color = "relative.to.max",
+            hover.slot = "scale.data"),
         "plotly")
 })

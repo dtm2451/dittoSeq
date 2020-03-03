@@ -22,7 +22,7 @@ multi_dittoPlot(
 \arguments{
 \item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
 
-\item{object}{the Seurat, SingleCellExperiment, or RNAseq object to draw from, or the "quoted" name of such an object. REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{the Seurat or SingleCellExperiment object to draw from, or the "quoted" name of such an object. REQUIRED, unless `DEFAULT <- "object"` has been run.}
 
 \item{group.by}{"metadata" to use for separating values. REQUIRED.}
 

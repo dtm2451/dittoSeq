@@ -16,7 +16,7 @@
 #' Note: must be discrete.
 #' Can be the name of a metadata, or "ident" for clusters of a Seurat object.
 #' Alternatively, can be a string vector or a factor of length equal to the total number of cells/samples in object.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -24,11 +24,11 @@
 #' @param show.others Logical. TRUE by default, whether other cells should be shown in the background in light gray.
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
-#' @param data.type.x,data.type.y,data.type.color For when the axes or coloring are based on expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized"
+#' @param assay.x,assay.y,assay.color,slot.x,slot.y,slot.color,adjustment.x,adjustment.y,adjustment.color assay, slot, and adjustment set which data to use when the axes or coloring are based on expression data. See \code{\link{gene}} for additional information.
 #' @param do.hover Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 #' \code{hover.data} argument is used to determine what data to use.
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
-#' @param hover.data.type For when showing expression data upon hover, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized"
+#' @param hover.assay,hover.slot,hover.adjustment Similar to the x, y, and color versions, when showing expression data upon hover, these set what data will be shown.
 #' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 #' When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
 #' When nothing is supplied to \code{shape.var}, only the first value is used.
@@ -64,7 +64,7 @@
 #' @details
 #' This function creates a dataframe with the X and Y coordinates determined by \code{x.var} and \code{y.var}.
 #' It then adds data for how coloring should be set if a \code{color.var} is given & for how shapes should be set if a \code{shape.var} is given.
-#' The \code{data.type} inputs (\code{.x}, \code{.y}, and \code{.color}) can be used to change what slot of expression data is used when the target data is gene expression data.
+#' The \code{assay}, \code{slot}, and \code{adjustment} inputs (\code{.x}, \code{.y}, and \code{.color}) can be used to change what expression data is used when the target data is gene expression data.
 #'
 #' Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
 #'
@@ -127,9 +127,15 @@ dittoScatterPlot <- function(
     object = DEFAULT, cells.use = NULL, show.others = FALSE,
     size = 1, opacity = 1,
     color.panel = dittoColors(), colors = seq_along(color.panel),
-    data.type.x = "normalized", data.type.y = "normalized",
-    data.type.color = "normalized", do.hover = FALSE, hover.data = NULL,
-    hover.data.type = "normalized", shape.panel=c(16,15,17,23,25,8),
+    assay.x = .default_assay(object), slot.x = .default_slot(object),
+    adjustment.x = NULL,
+    assay.y = .default_assay(object), slot.y = .default_slot(object),
+    adjustment.y = NULL,
+    assay.color = .default_assay(object), slot.color = .default_slot(object),
+    adjustment.color = NULL,
+    do.hover = FALSE, hover.data = NULL, hover.assay = .default_assay(object),
+    hover.slot = .default_slot(object), hover.adjustment = NULL,
+    shape.panel=c(16,15,17,23,25,8),
     rename.color.groups = NULL, rename.shape.groups = NULL,
     min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
     xlab = x.var, ylab = y.var,
@@ -149,15 +155,15 @@ dittoScatterPlot <- function(
 
     # Make dataframe
     dat <- data.frame(
-        X = .var_OR_get_meta_or_gene(x.var, object, data.type.x),
-        Y = .var_OR_get_meta_or_gene(y.var, object, data.type.y),
+        X = .var_OR_get_meta_or_gene(x.var, object, assay.x, slot.x, adjustment.x),
+        Y = .var_OR_get_meta_or_gene(y.var, object, assay.y, slot.y, adjustment.y),
         row.names = all.cells)
     aes.args <- list(x = "X", y = "Y")
     do.color <- FALSE
     do.shape <- FALSE
     if (!is.null(color.var)) {
         dat$color <- .var_OR_get_meta_or_gene(
-            color.var, object, data.type.color)
+            color.var, object, assay.color, slot.color, adjustment.color)
         dat$color <- .rename_and_or_reorder(
             dat$color, relabels = rename.color.groups)
         aes.args$color = "color"
@@ -165,7 +171,7 @@ dittoScatterPlot <- function(
     }
     if (!is.null(shape.var)) {
         dat$shape <- .var_OR_get_meta_or_gene(
-            shape.var, object, data.type.color)
+            shape.var, object)
         dat$shape <- .rename_and_or_reorder(
             dat$shape, relabels = rename.shape.groups)
         aes.args$shape = "shape"
@@ -173,7 +179,7 @@ dittoScatterPlot <- function(
     }
     if (do.hover) {
         hover.string <- .make_hover_strings_from_vars(
-            hover.data, object, hover.data.type)
+            hover.data, object, hover.assay, hover.slot, hover.adjustment)
         aes.args$text = "hover.string"
     }
     Target_data <- dat[cells.use,]
