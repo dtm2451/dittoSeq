@@ -117,7 +117,9 @@ meta <- function(meta, object){
             return(object@ident)
         }
     }
-    getMetas(object, names.only = FALSE)[,meta]
+    meta <- getMetas(object, names.only = FALSE)[,meta]
+    names(meta) <- .all_cells(object)
+    meta
 }
 
 #### meta.levels: for obtaining the different classifications of a meta.data

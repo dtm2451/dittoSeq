@@ -3,11 +3,11 @@
 
 test_that("Data outputing works for ScatterPlot", {
     expect_type(
-        dittoScatterPlot("MS4A1", "GNLY", object = pbmc,
+        dittoScatterPlot("gene1", "gene2", object = seurat,
             data.out = TRUE),
         "list")
     expect_type(
-        d1 <- dittoScatterPlot("MS4A1", "GNLY", object = pbmc,
+        d1 <- dittoScatterPlot("gene1", "gene2", object = seurat,
             data.out = TRUE)$Target_data,
         "list")
     expect_true(ncol(d1) >= 2 && nrow(d1) > 10)
@@ -15,11 +15,11 @@ test_that("Data outputing works for ScatterPlot", {
 
 test_that("Data outputing works for DimPlot", {
     expect_type(
-        dittoDimPlot("MS4A1", object = pbmc,
+        dittoDimPlot("gene1", object = seurat,
             data.out = TRUE),
         "list")
     expect_type(
-        d1 <- dittoDimPlot("MS4A1", object = pbmc,
+        d1 <- dittoDimPlot("gene1", object = seurat,
             data.out = TRUE)$Target_data,
         "list")
     expect_true(ncol(d1) > 2 && nrow(d1) > 10)
@@ -28,8 +28,8 @@ test_that("Data outputing works for DimPlot", {
 test_that("Data outputing works for BarPlot", {
     expect_s3_class(
         dittoBarPlot(
-            "RNA_snn_res.0.8", object = pbmc,
-            group.by = "RNA_snn_res.1", data.out = TRUE,
+            "clusters", object = seurat,
+            group.by = "age", data.out = TRUE,
             do.hover = TRUE),
         "data.frame")
 })
@@ -39,38 +39,38 @@ test_that("Data outputing works for Plot", {
         # If: annotations are all discrete.
     expect_type(
         dittoPlot(
-            "MS4A1", object = pbmc,
-            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+            "gene1", object = seurat,
+            group.by = "age", color.by = "age",
             data.out = TRUE),
         "list")
     expect_type(
         d1 <- dittoPlot(
-            "MS4A1", object = pbmc,
-            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+            "gene1", object = seurat,
+            group.by = "age", color.by = "age",
             data.out = TRUE)$data,
         "list")
     expect_type(
         dittoRidgePlot(
-            "MS4A1", object = pbmc,
-            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+            "gene1", object = seurat,
+            group.by = "age", color.by = "age",
             data.out = TRUE),
         "list")
     expect_type(
         d2 <- dittoRidgePlot(
-            "MS4A1", object = pbmc,
-            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+            "gene1", object = seurat,
+            group.by = "age", color.by = "age",
             data.out = TRUE)$data,
         "list")
     expect_type(
         dittoBoxPlot(
-            "MS4A1", object = pbmc,
-            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+            "gene1", object = seurat,
+            group.by = "age", color.by = "age",
             data.out = TRUE),
         "list")
     expect_type(
         d3 <- dittoBoxPlot(
-            "MS4A1", object = pbmc,
-            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+            "gene1", object = seurat,
+            group.by = "age", color.by = "age",
             data.out = TRUE)$data,
         "list")
     expect_true(ncol(d1) > 2 && nrow(d1) > 10)
@@ -81,7 +81,7 @@ test_that("Data outputing works for Plot", {
 test_that("Data outputing works for Plot_VarsByGroup", {
     expect_type(
         p <- dittoPlotVarsAcrossGroups(
-            c("MS4A1", "GNLY"), pbmc, group.by = "RNA_snn_res.1",
+            c("gene1", "gene2"), object = seurat, group.by = "age",
             data.out = TRUE),
         "list")
     expect_true(length(p) == 2)
@@ -90,7 +90,7 @@ test_that("Data outputing works for Plot_VarsByGroup", {
 
 test_that("Data outputing works for Heatmap", {
     expect_type(
-        hm <- dittoHeatmap(c("MS4A1", "GNLY"), pbmc,
+        hm <- dittoHeatmap(c("gene1", "gene2"), object = seurat,
             data.out = TRUE),
         "list")
     expect_true(length(hm) == 2)

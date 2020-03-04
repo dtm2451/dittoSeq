@@ -3,55 +3,55 @@
 
 # Most ScatterPlot features are used/tested in the test-DimPlot, so this will look light.
 
-pbmc@meta.data$number <- as.numeric(seq_along(colnames(pbmc)))
-gene <- "CD3E"
+seurat$number <- as.numeric(seq_along(colnames(seurat)))
+gene <- "gene1"
 cont <- "number"
-disc <- "RNA_snn_res.1"
-disc2 <- "RNA_snn_res.0.8"
-cells.names <- colnames(pbmc)[1:40]
-cells.logical <- c(rep(TRUE, 40), rep(FALSE,40))
+disc <- "groups"
+disc2 <- "age"
+cells.names <- colnames(seurat)[1:40]
+cells.logical <- c(rep(TRUE, 40), rep(FALSE,ncells-40))
 cols <- c("red", "blue", "yellow", "green", "black", "gray", "white")
 
 test_that("dittoScatterPlot can plot genes or metadata & work for SCE", {
     expect_s3_class(
         dittoScatterPlot(
-            gene, cont, object = pbmc),
+            gene, cont, object = seurat),
         "ggplot")
     expect_s3_class(
         dittoScatterPlot(
-            gene, gene, object = pbmc.se),
+            gene, gene, object = sce),
         "ggplot")
 })
 
 test_that("dittoScatterPlot can overlay colors, continuous or discrete", {
     expect_s3_class(
         dittoScatterPlot(
-            gene, cont, cont, object = pbmc),
+            gene, cont, cont, object = seurat),
         "ggplot")
     expect_s3_class(
         dittoScatterPlot(
-            gene, cont, disc, object = pbmc),
+            gene, cont, disc, object = seurat),
         "ggplot")
 })
 
 test_that("dittoScatterPlot can overlay shapes", {
     expect_s3_class(
         dittoScatterPlot(
-            gene, cont, NULL, disc, object = pbmc),
+            gene, cont, NULL, disc, object = seurat),
         "ggplot")
 })
 
 test_that("dittoScatterPlot gene display can utilize different data.types (including for hover)", {
     expect_s3_class(
         dittoScatterPlot(
-            gene, gene, gene, NULL, object = pbmc,
+            gene, gene, gene, NULL, object = seurat,
             slot.x = "counts",
             adjustment.y = "z-score",
             adjustment.color = "relative.to.max"),
         "ggplot")
     expect_s3_class(
         dittoScatterPlot(
-            gene, gene, gene, NULL, object = pbmc,
+            gene, gene, gene, NULL, object = seurat,
             do.hover = TRUE, hover.data = "PF4",
             slot.x = "counts",
             adjustment.y = "z-score",
