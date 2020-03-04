@@ -85,5 +85,3 @@ test_that("VaryCells color.panel can be adjusted", {
             colors = 5:1),
         "gtable")
 })
-
-# use of min and max
