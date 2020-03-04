@@ -1,7 +1,7 @@
 Package: dittoSeq
 Type: Package
 Title: User Friendly Single-Cell and Bulk RNA Sequencing Visualization
-Version: 0.99.6
+Version: 0.99.7
 Author: Daniel Bunis
 Maintainer: Daniel Bunis <daniel.bunis@ucsf.edu>
 Description: A set of functions for generating publication-ready (sc)RNAseq
@@ -14,8 +14,7 @@ License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
-Depends: R (>= 4.0),
-    ggplot2
+Depends: ggplot2
 Imports: methods,
     colorspace (>= 1.4),
     gridExtra,
@@ -26,14 +25,15 @@ Imports: methods,
     ggrepel,
     ggridges,
     stats,
-    utils
+    utils,
+    SummarizedExperiment,
+    SingleCellExperiment,
+    edgeR,
+    S4Vectors
 Suggests: plotly,
     testthat,
     Seurat (>= 2.2),
     DESeq2,
-    SummarizedExperiment,
-    edgeR,
-    SingleCellExperiment,
     knitr,
     BiocStyle,
     scRNAseq

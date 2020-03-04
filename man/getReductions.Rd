@@ -4,10 +4,10 @@
 \alias{getReductions}
 \title{Returns the names of all dimensionality reduction slots of a target object.}
 \usage{
-getReductions(object = DEFAULT)
+getReductions(object)
 }
 \arguments{
-\item{object}{A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".}
+\item{object}{A target Seurat or SingleCellExperiment object}
 }
 \value{
 A string vector of the names of all dimensionality reduction slots of the \code{object}.
@@ -18,10 +18,10 @@ Returns the names of all dimensionality reduction slots of a target object.
 }
 \examples{
 
-pbmc <- Seurat::pbmc_small
+example("addDimReduction", echo = FALSE)
 
 # To see all metadata slots of an object
-getReductions(pbmc)
+getReductions(myRNA)
 
 }
 \author{

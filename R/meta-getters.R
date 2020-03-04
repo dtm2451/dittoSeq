@@ -2,9 +2,8 @@
 #' Tests if an input is the name of a meta.data slot in a target object.
 #'
 #' @param test String or vector of strings, the "potential.metadata.name"(s) to check for.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param object A target Seurat or SingleCellExperiment object
 #' @param return.values Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
-#' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @return Returns a logical or logical vector indicating whether each instance in \code{test} is a meta.data slot within the \code{object}.
 #' Alternatively, returns the values of \code{test} that were indeed metadata slots if \code{return.values = TRUE}.
 #' @details
@@ -26,15 +25,11 @@
 #' isMeta("age", object = pbmc) # False
 #' isMeta("nCount_RNA", object = pbmc) # True
 #'
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' isMeta("groups")
-#'
 #' # works for multiple test metas
-#' isMeta(c("age","nCount_RNA"))
+#' isMeta(c("age","nCount_RNA"), pbmc)
 #'
 #' # and with return.values = TRUE, returns all elements that are indeed slots
-#' isMeta(c("age","nCount_RNA", "RNA_snn_res.0.8"),
+#' isMeta(c("age","nCount_RNA", "RNA_snn_res.0.8"), pbmc,
 #'     return.values = TRUE)
 #'
 #' @author Daniel Bunis
@@ -42,15 +37,12 @@
 #' @import ggplot2
 #' @importFrom utils packageVersion
 
-isMeta <- function(test, object=DEFAULT, return.values=FALSE){
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
+isMeta <- function(test, object, return.values=FALSE){
     if (return.values) {
         return(test[isMeta(test, object, return.values=FALSE)])
     } else {
         metas <- getMetas(object)
-        if (grepl("Seurat", .class_of(object))) {
+        if (is(object,"Seurat") || is(object,"seurat")) {
             metas <- c(metas,"ident")
         }
         return(test %in% metas)
@@ -60,7 +52,7 @@ isMeta <- function(test, object=DEFAULT, return.values=FALSE){
 #### getMetas: prints the names of all the metadata lists for the object ####
 #' Returns the names of all meta.data slots of a target object.
 #'
-#' @param object A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".
+#' @param object A target Seurat or SingleCellExperiment object
 #' @param names.only Logical, \code{TRUE} by default, which sets whether just the names should be output versus the entire metadata dataframe.
 #' @return A string vector of the names of all metadata slots of the \code{object}, or alternatively the entire dataframe of metadatas if \code{names.only} is set to \code{FALSE}
 #' @seealso
@@ -81,12 +73,9 @@ isMeta <- function(test, object=DEFAULT, return.values=FALSE){
 #' @author Daniel Bunis
 #' @export
 
-getMetas <- function(object=DEFAULT, names.only = TRUE){
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
+getMetas <- function(object, names.only = TRUE){
     metadata <-
-        if (.class_of(object)=="SingleCellExperiment") {
+        if (is(object,"SummarizedExperiment")) {
             SummarizedExperiment::colData(object)
         } else {
             object@meta.data
@@ -102,10 +91,10 @@ getMetas <- function(object=DEFAULT, names.only = TRUE){
 #' Returns the values of a meta.data  for all cells/samples
 #'
 #' @param meta String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+#' @param object A target Seurat or SingleCellExperiment object
 #' @return Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
 #' @seealso
-#' \code{\link{meta.levels}} for returning just the unique discrete identities that exist within a metadata slot
+#' \code{\link{metaLevels}} for returning just the unique discrete identities that exist within a metadata slot
 #'
 #' \code{\link{getMetas}} for returning all metadata slots of an \code{object}
 #'
@@ -113,38 +102,34 @@ getMetas <- function(object=DEFAULT, names.only = TRUE){
 #' @examples
 #'
 #' pbmc <- Seurat::pbmc_small
-#' meta("RNA_snn_res.1", object = "pbmc")
-#'
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' meta("RNA_snn_res.1")
+#' meta("RNA_snn_res.1", object = pbmc)
 #'
 #' @author Daniel Bunis
 #' @export
 
-meta <- function(meta, object=DEFAULT){
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
+meta <- function(meta, object) {
 
-    if( meta=="ident" & grepl("Seurat", .class_of(object))) {
+    if (!isMeta(meta, object)) {
+        stop(dQuote(meta)," is not a metadata of 'object'")
+    }
+    if (meta=="ident" && !is(object,"SingleCellExperiment")) {
     # Retrieve clustering from Seurats
-        if (grepl("v3",.class_of(object))) {
-            return(as.character(Seurat::Idents(object)))
+        if (is(object, "Seurat")) {
+            .error_if_no_Seurat()
+            return(Seurat::Idents(object))
         } else {
-            return(as.character(
-                eval(expr = parse(text = paste0(
-                    "object@ident")))))
+            return(object@ident)
         }
     }
-    getMetas(object, names.only = FALSE)[,meta]
+    meta <- getMetas(object, names.only = FALSE)[,meta]
+    names(meta) <- .all_cells(object)
+    meta
 }
 
-#### meta.levels: for obtaining the different classifications of a meta.data
 #' Gives the distinct values of a meta.data slot (or ident)
 #'
 #' @param meta quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.
-#' @param object the Seurat or RNAseq object = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object A target Seurat or SingleCellExperiment object
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
@@ -157,19 +142,17 @@ meta <- function(meta, object=DEFAULT){
 #'
 #' \code{\link{isMeta}} for testing whether something is the name of a metadata slot
 #' @examples
+#'
 #' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' meta.levels("RNA_snn_res.1", object = "pbmc")
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' meta.levels("RNA_snn_res.1")
+#' pbmc <- pbmc_small
+#' metaLevels("RNA_snn_res.1", object = pbmc)
 #'
 #' @author Daniel Bunis
 #' @export
 
-meta.levels <- function(meta, object = DEFAULT, cells.use = NULL){
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
+metaLevels <- function(meta, object, cells.use = NULL){
+    if (!isMeta(meta, object)) {
+        stop(dQuote(meta)," is not a metadata of 'object'")
     }
     meta.values <- as.character(meta(meta, object))
     if (!is.null(cells.use)) {

@@ -1,11 +1,12 @@
 ##################### multi_dittoDimPlotVaryCells #######################
 #' Generates multiple dittoDimPlots, each showing different cells, arranged into a grid.
 #'
+#' @param object A Seurat or SingleCellExperiment object to work with
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 #' This is the data that will be displayed for each cell/sample.
+#'
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 #' Discrete or continuous data both work. REQUIRED.
-#' @param object A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.
 #' @param vary.cells.meta String name of a metadata that should be used for selecting which cells to show in each "varycells" plot. REQUIRED.
 #' @param vary.cells.levels The values/groupings of the \code{vary.cells.meta} metadata that should get a plot.
 #' Defaults to all levels of the metadata.
@@ -16,11 +17,8 @@
 #' @param show.titles Logical which sets whether titles should be added to the individual varycells plots
 #' @param ncol,nrow Integers which set dimensions of the plot grid.
 #' @param allcells.main String which adjusts the title of the allcells plot. Default = "All Cells".  Set to \code{NULL} or \code{""} to remove.
-#' @param color.panel a list of colors to be used for when plotting a discrete var.
-#' @param colors indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups
-#' @param min,max Numeric values which set the values associated with the minimum and maximum colors in the legend when data represented by \code{var} is numeric.
-#' @param data.type For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".
-#' @param ... additional parameters passed todittoDimPlot.
+#' @param color.panel,colors,min,max,assay,slot,adjustment,... additional parameters passed todittoDimPlot.
+#' All parameters except for \code{cells.use}, \code{main}, and \code{legend.show} can be used.
 #' A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.
 #' \code{xlab} and \code{ylab} can be set to \code{NULL} to remove the axes labels and provide extra room for the data.
 #' \code{size} can be used to adjust the size of the dots.
@@ -38,7 +36,7 @@
 #'
 #' Plots are either  output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
 #' or alternatively as a simple list of ggplots if \code{OUT.List} is set to \code{TRUE}.
-#' In the list, the varycells plots will be named by the \code{cells.meta.level} that they contain,
+#' In the list, the varycells plots will be named by the value of \code{vary.cells.meta} that they contain,
 #' the allcells plot will be named "allcells" and the single legend will be named "legend".
 #'
 #' Either continuous or discrete \code{var} data can be displayed.
@@ -55,68 +53,69 @@
 #' @examples
 #' pbmc <- Seurat::pbmc_small
 #'
-#' multi_dittoDimPlotVaryCells("CD14", object = "pbmc", vary.cells.meta = "ident")
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
+#' multi_dittoDimPlotVaryCells(pbmc, "CD14", vary.cells.meta = "ident")
 #'
 #' # This function can be used to quickly scan for differences in expression
 #' #   within or accross clusters/cell types by providing a gene to 'var'
-#' multi_dittoDimPlotVaryCells("CD14", vary.cells.meta = "ident")
+#' multi_dittoDimPlotVaryCells(pbmc, "CD14", vary.cells.meta = "ident")
 #'
 #' # This function is also great for generating separate plots of each individual
 #' #   element of a tsne/PCplot/umap. This can be useful to check for dispersion
 #' #   of groups that might otherwise be hidden behind other cells/samples.
 #' #   To do so, set 'var' and 'vary.cells.meta' the same.
-#' multi_dittoDimPlotVaryCells("ident", vary.cells.meta = "ident")
+#' multi_dittoDimPlotVaryCells(pbmc, "ident", vary.cells.meta = "ident")
 #'
 #' # The function can also be used to quickly visualize how separate clustering
 #' #   resolutions match up to each other, or perhaps how certain conditions of
 #' #   cells disperse accross clusters.
-#' multi_dittoDimPlotVaryCells("RNA_snn_res.0.8", vary.cells.meta = "ident")
+#' multi_dittoDimPlotVaryCells(pbmc, "RNA_snn_res.0.8", vary.cells.meta = "ident")
 #'
-#' # For an alternative method of viewing, and easily quantifying, how ceratin
+#' # For an alternative method of viewing, and easily quantifying, how discrete
 #' #   conditions of cells disperse accross clusters, see '?dittoBarPlot'
 #'
 #' @author Daniel Bunis
+#' @importFrom gridExtra grid.arrange
 #' @export
 
 multi_dittoDimPlotVaryCells <- function(
-    var, object = DEFAULT, vary.cells.meta,
-    vary.cells.levels = meta.levels(vary.cells.meta, object),
-    data.type = "normalized", min = NULL, max = NULL,
+    object, var, vary.cells.meta,
+    vary.cells.levels = metaLevels(vary.cells.meta, object),
+    assay = .default_assay(object), slot = .default_slot(object),
+    adjustment = NULL, min = NULL, max = NULL,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     show.titles=TRUE, show.allcells.plot = TRUE, allcells.main = "All Cells",
     show.legend.single = TRUE, show.legend.plots = FALSE,
     show.legend.allcells.plot = FALSE, nrow = NULL, ncol = NULL,
     OUT.List = FALSE, ...)
 {
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
     color.panel <- color.panel[colors]
     cells.meta <- meta(vary.cells.meta,object)
     #Determine if var is continuous vs discrete
     numeric <- ifelse(
-        is.numeric(.var_OR_get_meta_or_gene(var[1], object, data.type)),
+        is.numeric(.var_OR_get_meta_or_gene(var, object, assay, slot, adjustment)),
         TRUE,
         FALSE
     )
     if (numeric) {
-        the.range <- range(.var_OR_get_meta_or_gene(var, object, data.type))
+        the.range <- range(.var_OR_get_meta_or_gene(var, object, assay, slot, adjustment))
         min <- ifelse(is.null(min), the.range[1], min)
         max <- ifelse(is.null(max), the.range[2], max)
     }
 
     ### Make Plots ###
     plot.args <- list(
-        var = var, object = object, main = NULL, min = min,
-        max = max, legend.show = show.legend.plots, data.type = data.type,
-        color.panel = color.panel, ...)
+        object = object, var = var, main = NULL, min = min,
+        max = max, legend.show = show.legend.plots, assay = assay, slot = slot,
+        adjustment = adjustment, color.panel = color.panel, ...)
     if (!is.null(plot.args$cells.use)) {
-        stop("Subsetting with cells.use is incompatible with this function.")
+        stop("Further subsetting with cells.use is incompatible with this function.")
+    }
+    if (!is.null(plot.args$main)) {
+        message("Universal title adjustment through `main` ignored.",
+                " Use `sub` instead.")
     }
     plots <- .make_vary_cell_plots(
-        var, object, vary.cells.meta, cells.meta, vary.cells.levels,
+        object, var, vary.cells.meta, cells.meta, vary.cells.levels,
         plot.args, numeric, show.titles)
     # Generate allcells.plot and legend
     plot.args$legend.show <- TRUE
@@ -146,7 +145,7 @@ multi_dittoDimPlotVaryCells <- function(
 }
 
 .make_vary_cell_plots <- function(
-    var, object, vary.cells.meta, cells.meta, vary.cells.levels,
+    object, var, vary.cells.meta, cells.meta, vary.cells.levels,
     plot.args, numeric, show.titles) {
     if (numeric) {
         # Case1: Numeric data, colors already matched across plots in min/max
@@ -161,7 +160,7 @@ multi_dittoDimPlotVaryCells <- function(
             })
     } else {
         # Case2: non-numeric, colors must be matched accross plots
-        all.var.levels <- meta.levels(var, object)
+        all.var.levels <- metaLevels(var, object)
         plots <- lapply(
             vary.cells.levels,
             function(level) {
@@ -170,7 +169,7 @@ multi_dittoDimPlotVaryCells <- function(
                 }
                 plot.args$cells.use <- cells.meta==level
                 plot.levels <-
-                    meta.levels(var, object,
+                    metaLevels(var, object,
                         cells.use = cells.meta==level)
                 plot.args$colors <-
                     seq_along(all.var.levels)[all.var.levels %in% plot.levels]

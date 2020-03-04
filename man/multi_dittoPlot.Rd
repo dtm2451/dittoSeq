@@ -5,54 +5,49 @@
 \title{Generates multiple dittoPlots arranged into a grid.}
 \usage{
 multi_dittoPlot(
+  object,
   vars,
-  object = DEFAULT,
   group.by,
   color.by = group.by,
-  show.legend = FALSE,
+  legend.show = FALSE,
   ncol = 3,
   nrow = NULL,
-  mains = "var",
-  ylabs = NULL,
+  main = "var",
+  ylab = NULL,
   xlab = NULL,
   OUT.List = FALSE,
   ...
 )
 }
 \arguments{
-\item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
+\item{object}{the Seurat or SingleCellExperiment object to draw from}
 
-\item{object}{the Seurat, SingleCellExperiment, or RNAseq object to draw from, or the "quoted" name of such an object. REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{vars}{c("var1","var2","var3",...). A list of vars from which to generate the separate plots}
 
-\item{group.by}{"metadata" to use for separating values. REQUIRED.}
+\item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups. REQUIRED.}
 
-\item{color.by}{"metadata" to use for coloring. Affects boxplot, vlnplot, or ridgeplot fills. Defaults to \code{group.by} if not provided.}
-
-\item{show.legend}{TRUE/FALSE. Whether or not you would like a legend to be plotted.  Default = FALSE}
+\item{color.by}{String representing the name of a metadata to use for setting color.}
 
 \item{ncol}{Integer which sets how many plots will be arranged per row.  Default = 3.}
 
 \item{nrow}{Integer which sets how many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.}
 
-\item{mains, ylabs}{String which sets whether / how plot titles or y-axis labels should be added to each individual plot
+\item{main, ylab}{String which sets whether / how plot titles or y-axis labels should be added to each individual plot
 \itemize{
 \item When set to \code{"var"}, the \code{vars} names alone will be used.
-\item When set to \code{"make"}, the default dittoPlot behavior will be observed: For gene vars will be "'var' expression"
-\item When set as any other string, that string will be used as the y-axis label for every plot.
+\item When set to \code{"make"}, the default dittoPlot behavior will be observed: For y-axis labels, gene vars will become "'var' expression" or similar.
+\item When set as any other string, that string will be used as the title / y-axis label for every plot.
 \item When set to \code{NULL}, titles / axes labels will not be added.
 }}
 
-\item{xlab}{String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
-Default is \code{NULL}, which removes it from plotting.}
+\item{xlab, legend.show, ...}{other paramters passed along to dittoPlot.}
 
-\item{OUT.List}{Logical which sets whether the output should be a list of objects instead of the plots arranged into a single plot grid.
-Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.
-In the list, all plots will be named by the element of \code{vars} the represent.}
-
-\item{...}{other paramters passed along to dittoPlot.}
+\item{OUT.List}{Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.}
 }
 \value{
-Given multiple 'var' parameters, this function will output a DBPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBPlot can be adjusted here.
+Given multiple 'var' parameters, this function will output a dittoPlot for each one, arranged into a grid, with some slight tweaks to the defaults.
+If \code{OUT.list} was set to TRUE, the list of individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+All parameters that can be adjusted in dittoPlot can be adjusted here.
 }
 \description{
 Generates multiple dittoPlots arranged into a grid.
@@ -60,31 +55,25 @@ Generates multiple dittoPlots arranged into a grid.
 \examples{
 library(Seurat)
 pbmc <- Seurat::pbmc_small
-genes <- c("CD8A","CD3E","FCER1A","CD14")
-multi_dittoPlot(genes, object = "pbmc",
-    group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object
-      # input can be skipped completely.
-DEFAULT <- "pbmc"
-multi_dittoPlot(genes,
+genes <- c("CD8A","CD3E","FCER1A","CD14")
+multi_dittoPlot(pbmc, genes,
     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 
 #To make it output a grid that is 2x2, to add y-axis labels
 # instead of titles, and to show legends...
-multi_dittoPlot(genes,
+multi_dittoPlot(pbmc, genes,
     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
-    nrow = 2, ncol = 2,
-    mains = FALSE, ylabs = TRUE,  #Add y axis labels instead of titles
-    show.legend = TRUE)           #Show legends
+    nrow = 2, ncol = 2,           #Make grid 2x2
+    main = FALSE, ylab = "make",  #Add y axis labels instead of titles
+    legend.show = TRUE)           #Show legends
 
-# To eliminate the "expression", change ylabs = TRUE to ylabs = "var"
-multi_dittoPlot(genes,
-            group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
-            nrow = 2, ncol = 2,   #Make it 2x2
-            mains = FALSE,
-            ylabs = "var",        #Add y axis labels without "expression"
-            show.legend = TRUE)   #Show legends
+# To eliminate the "expression", change ylab = "var"
+multi_dittoPlot(pbmc, genes,
+    group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+    nrow = 2, ncol = 2,         #Make grid 2x2
+    main = FALSE, ylab = "var", #Add y axis labels without "expression"
+    legend.show = TRUE)         #Show legends
 
 }
 \seealso{

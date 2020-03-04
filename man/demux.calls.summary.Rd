@@ -5,7 +5,7 @@
 \title{Plots the number of annotations per sample, per lane}
 \usage{
 demux.calls.summary(
-  object = DEFAULT,
+  object,
   singlets.only = FALSE,
   main = "Sample Annotations by Lane",
   sub = NULL,
@@ -18,7 +18,7 @@ demux.calls.summary(
 )
 }
 \arguments{
-\item{object}{the Seurat Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{A Seurat or SingleCellExperiment object}
 
 \item{singlets.only}{Whether to only show data for cells called as singlets by demuxlet. Default is TRUE. Note: if doublets are included, only one of their sample calls will be used.}
 

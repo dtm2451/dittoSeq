@@ -1,3 +1,7 @@
+#' @importFrom SingleCellExperiment reducedDim int_metadata
+#' @importFrom SummarizedExperiment assay assays
+#' @importFrom cowplot ggdraw get_legend
+
 .remove_legend <- function(ggplot) {
     ggplot + theme(legend.position = "none")
 }
@@ -6,18 +10,17 @@
     cowplot::ggdraw(cowplot::get_legend(ggplot))
 }
 
-.all_cells <- function(object = DEFAULT) {
-    target <- data.frame(
-        use = c("@samples", "@cell.names"),
-        row.names = c("RNAseq", "Seurat.v2"))
-    if (.class_of(object) %in% c("Seurat.v3", "SingleCellExperiment")) {
+.all_cells <- function(object) {
+    if (is(object, "Seurat") || is(object,"SingleCellExperiment")) {
+        # Seurat-v3, bulk or single-cell SCE
         return(colnames(object))
     } else {
-        eval(expr = parse(text = paste0("object", target[.class_of(object),])))
+        # Seurat-v2
+        return(object@cell.names)
     }
 }
 
-.which_cells <- function(cells.use, object = DEFAULT) {
+.which_cells <- function(cells.use, object) {
     all.cells <- .all_cells(object)
     if (is.null(cells.use)) {
         return(all.cells)
@@ -25,108 +28,106 @@
     if (is.logical(cells.use)) {
         return(all.cells[cells.use])
     }
+    # If here, not a logical or NULL, thus should already be a list of names
     cells.use
 }
 
-.class_of <- function (object = DEFAULT) {
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
-    class <- class(object)
+.var_OR_get_meta_or_gene <- function(var, object,
+    assay = .default_assay(object), slot = .default_slot(object),
+    adjustment = NULL) {
 
-    #If a Seurat, need to add what version
-    if (grepl("Seurat|seurat",class)) {
-        if(object@version >= '3.0.0') {
-            #Then needs to be
-            class <- "Seurat.v3"
-        } else {
-            class <- "Seurat.v2"
-        }
-    }
-
-    class
-}
-
-.var_OR_get_meta_or_gene <- function(var, object = DEFAULT, data.type) {
     OUT <- var
+    cells <- .all_cells(object)
     if (length(var)==1 && typeof(var)=="character") {
         if (isMeta(var, object)) {
             OUT <- meta(var, object)
         }
-        if (isGene(var, object)) {
-            OUT <- gene(var, object, data.type)
+        if (isGene(var, object, assay)) {
+            OUT <- gene(var, object, assay, slot, adjustment)
         }
     }
-    names(OUT) <- .all_cells(object)
+
+    if (length(OUT)!=length(cells)) {
+        stop("'var' is not a metadata or gene nor equal in length to ncol('object')")
+    }
+    names(OUT) <- cells
     OUT
 }
 
-.which_data <- function(data.type, object=DEFAULT) {
-    #Set up data frame for establishing how to deal with different input object types
-    target <- data.frame(
-        RNAseq = c(
-            "@data",
-            "@counts",
-            "error_Do_not_use_scaled_for_RNAseq_objects"),
-        Seurat.v2 = c("@data", "@raw.data", "@scale.data"),
-        Seurat.v3 = c("nope", "counts", "scale.data"),
-        SingleCellExperiment = c(
-            "SingleCellExperiment::logcounts(",
-            "SingleCellExperiment::counts(",
-            "error_do_not_use_scaled_for_SCE_objects("),
-        stringsAsFactors = FALSE,
-        row.names = c("normalized","raw","scaled"))
-    if (.class_of(object) == "SingleCellExperiment") {
-        OUT <- as.matrix(
-            eval(expr = parse(text = paste0(
-                target[data.type,.class_of(object)],
-                "object)"))))
+.preferred_or_first <- function(opts, prefs) {
+    # Given a String vectors options and prefs,
+    # with prefs being a set of targets in decreasing preferrence order and all
+    # lower case, outputs the first element of options that is found to be an
+    # element of prefs.
+    # tolower is used to allow upper/lower case to be ignored
+    # If no options contain an element of prefs, outputs the first option.
+    out <- opts[1]
+    preferred <- match(prefs, tolower(opts))
+    if (any(!is.na(preferred))) {
+        out <- (opts[preferred[!is.na(preferred)]])[1]
+    }
+    out
+}
+
+.default_assay <- function(object) {
+    #Decide which assy should be used
+    if (is(object, "SingleCellExperiment")) {
+        return(.preferred_or_first(
+            names(SummarizedExperiment::assays(object)),
+            c("logcounts","normcounts","counts")))
+    }
+    if (is(object, "seurat")) {
+        return(NA)
+    }
+    if (is(object, "Seurat")) {
+        .error_if_no_Seurat()
+        return(Seurat::DefaultAssay(object))
+    }
+}
+
+.default_slot <- function(object) {
+    #Decide which assy should be used
+    if (is(object, "SingleCellExperiment")) {
+        return(NA)
     } else {
-        if (.class_of(object)=="Seurat.v3") {
-            if(data.type == "normalized"){
-                OUT <- Seurat::GetAssayData(object)
-            } else {
-                OUT <- Seurat::GetAssayData(
-                    object,
-                    slot = target[data.type,.class_of(object)])
-            }
-        } else {
-            OUT <- eval(expr = parse(text = paste0(
-                "object",
-                target[data.type,.class_of(object)]
-            )))
-        }
+        return("data")
     }
-    OUT
 }
 
-.extract_Reduced_Dim <- function(reduction.use, dim=1, object=DEFAULT) {
-    # If object is a Seurat object
-    if (.class_of(object)=="Seurat.v2") {
-        OUT <- list(eval(expr = parse(text = paste0(
-            "object@dr$",reduction.use,"@cell.embeddings[,",dim,"]"))))
-        OUT[2] <- paste0(eval(expr = parse(text = paste0(
-            "object@dr$",reduction.use,"@key"))),dim)
-    }
-    if (.class_of(object)=="Seurat.v3") {
-        OUT <- list(eval(expr = parse(text = paste0(
-            "object@reductions$",reduction.use,"@cell.embeddings[,",dim,"]"))))
-        OUT[2] <- paste0(eval(expr = parse(text = paste0(
-            "object@reductions$",reduction.use,"@key"))),dim)
-    }
-    if (.class_of(object)=="RNAseq"){
-        OUT <- list(eval(expr = parse(text = paste0(
-            "object@reductions$",reduction.use,"$embeddings[,",dim,"]"))))
-        OUT[2] <- paste0(eval(expr = parse(text = paste0(
-            "object@reductions$",reduction.use,"$key"))),dim)
-    }
-    if (.class_of(object)=="SingleCellExperiment"){
-        OUT <- list(eval(expr = parse(text = paste0(
-            "SingleCellExperiment::reducedDim(",
-            "object, type = '",reduction.use,"')[,",dim,"]"))))
-        OUT[2] <- paste0(.gen_key(reduction.use),dim)
-    }
+.which_data <- function(
+    assay = .default_assay(object), slot = .default_slot(object), object) {
 
+    if (is(object,"SingleCellExperiment")) {
+        return(SummarizedExperiment::assay(object, assay))
+    }
+    if (is(object,"Seurat")) {
+        .error_if_no_Seurat()
+        return(Seurat::GetAssayData(object, assay = assay, slot = slot))
+    }
+    if (is(object,"seurat")) {
+        return(eval(expr = parse(text = paste0(
+                "object@",slot))))
+    }
+}
+
+.extract_Reduced_Dim <- function(reduction.use, dim=1, object) {
+    # If object is a Seurat object
+    if (is(object,"seurat")) {
+        embeds <- eval(expr = parse(text = paste0(
+            "object@dr$",reduction.use,"@cell.embeddings")))
+        colnames(embeds) <- paste0(eval(expr = parse(text = paste0(
+            "object@dr$",reduction.use,"@key"))),seq_len(ncol(embeds)))
+    }
+    if (is(object,"Seurat")) {
+        .error_if_no_Seurat()
+        embeds <- Seurat::Embeddings(object, reduction = reduction.use)
+    }
+    if (is(object,"SingleCellExperiment")) {
+        embeds <- SingleCellExperiment::reducedDim(
+            object, type = reduction.use, withDimnames=TRUE)
+    }
+    OUT <- list(embeds[,dim])
+    OUT[2] <- colnames(embeds)[dim]
     names(OUT) <- c("embeddings","name")
     OUT
 }
@@ -151,17 +152,18 @@
     key
 }
 
-.make_hover_strings_from_vars <- function(data.hover, object, data.type) {
+.make_hover_strings_from_vars <- function(
+    data.hover, object, assay, slot, adjustment) {
+
     # Overall: if do.hover=TRUE and data.hover has a list of genes / metas called
     #   c(var1, var2, var3, ...), then for all cells, make a string:
     #   "var1: var1-value\nvar2: var2-value\nvar3: var3-value\n..."
-    #   vars that are not genes of metadata are ignored.
+    #   vars that are not genes or metadata are ignored.
     fillable <- vapply(
         seq_along(data.hover),
         function(i)
-            (isMeta(data.hover[i],object) |
-                isGene(data.hover[i],object) |
-                (data.hover[i]=="ident")),
+            (isMeta(data.hover[i],object) ||
+                isGene(data.hover[i],object, assay)),
         logical(1))
     data.hover <- data.hover[fillable]
     if (is.null(data.hover)) {
@@ -173,7 +175,8 @@
     features.info <- vapply(
         data.hover,
         function(this.data)
-            as.character(.var_OR_get_meta_or_gene(this.data,object, data.type)),
+            as.character(.var_OR_get_meta_or_gene(
+                this.data,object, assay, slot, adjustment)),
         character(nrow(features.info)))
     names(features.info) <- data.hover[fillable]
 
@@ -200,9 +203,15 @@
     }
     rename.args <- list(x = orig.data)
     if (!(is.null(reorder))) {
-        rename.args$levels <- levels(factor(rename.args$x))[reorder]
+        if (length(reorder)!=length(levels(factor(orig.data)))) {
+            stop("incorrect number of indices provided to 'reorder' input")
+        }
+        rename.args$levels <- levels(factor(orig.data))[reorder]
     }
     if (!(is.null(relabels))) {
+        if (length(relabels)!=length(levels(factor(orig.data)))) {
+            stop("incorrect number of labels provided to 'relabel' input")
+        }
         rename.args$labels <- relabels
     }
     do.call(factor, args = rename.args)
@@ -220,4 +229,28 @@
         }
     }
     target
+}
+
+.is_bulk <- function(object) {
+    OUT <- FALSE
+    if (is(object,"SingleCellExperiment")) {
+        if (!is.null(SingleCellExperiment::int_metadata(object)$bulk)) {
+            if (SingleCellExperiment::int_metadata(object)$bulk) {
+                OUT <- TRUE
+            }
+        }
+    }
+    OUT
+}
+
+.error_if_no_Seurat <- function() {
+    if (!requireNamespace("Seurat")) {
+        stop("Seurat installation required.")
+    }
+}
+
+.error_if_no_plotly <- function() {
+    if (!requireNamespace("plotly")) {
+        stop("plotly installation required for using hover")
+    }
 }

@@ -4,15 +4,14 @@
 \alias{isMeta}
 \title{Tests if an input is the name of a meta.data slot in a target object.}
 \usage{
-isMeta(test, object = DEFAULT, return.values = FALSE)
+isMeta(test, object, return.values = FALSE)
 }
 \arguments{
 \item{test}{String or vector of strings, the "potential.metadata.name"(s) to check for.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".}
+\item{object}{A target Seurat or SingleCellExperiment object}
 
-\item{return.values}{Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
-REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
+\item{return.values}{Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}}
 }
 \value{
 Returns a logical or logical vector indicating whether each instance in \code{test} is a meta.data slot within the \code{object}.
@@ -35,15 +34,11 @@ getMetas(pbmc)
 isMeta("age", object = pbmc) # False
 isMeta("nCount_RNA", object = pbmc) # True
 
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-DEFAULT <- "pbmc"
-isMeta("groups")
-
 # works for multiple test metas
-isMeta(c("age","nCount_RNA"))
+isMeta(c("age","nCount_RNA"), pbmc)
 
 # and with return.values = TRUE, returns all elements that are indeed slots
-isMeta(c("age","nCount_RNA", "RNA_snn_res.0.8"),
+isMeta(c("age","nCount_RNA", "RNA_snn_res.0.8"), pbmc,
     return.values = TRUE)
 
 }

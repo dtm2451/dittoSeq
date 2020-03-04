@@ -4,23 +4,31 @@
 \alias{getGenes}
 \title{Returns the names of all genes of a target object.}
 \usage{
-getGenes(object = DEFAULT)
+getGenes(object, assay = .default_assay(object))
 }
 \arguments{
-\item{object}{A target Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object, OR the name of the target object in "quotes".}
+\item{object}{A target Seurat or SingleCellExperiment object}
+
+\item{assay}{single string or integer that sets which set of seq data inside the object to check.}
 }
 \value{
-A string vector, returns the names of all genes of the \code{object}.
+A string vector, returns the names of all genes of the \code{object} for the requested \code{assay}.
 }
 \description{
 Returns the names of all genes of a target object.
 }
 \examples{
+example(importDittoBulk, echo = FALSE)
+getGenes(object = myRNA, assay = "counts")
 
-pbmc <- Seurat::pbmc_small
+# To see all genes of an object for the default assay that dittoSeq would use
+# leave out the assay input
+getGenes(myRNA)
 
-# To see all genes of an object
-getGenes(pbmc)
+# Seurat
+# pbmc <- Seurat::pbmc_small
+# # To see all genes of an object of a particular assay
+# getGenes(pbmc, assay = "RNA")
 
 }
 \seealso{

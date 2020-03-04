@@ -5,8 +5,8 @@
 \title{Shows data overlayed on a tsne, pca, or similar type of plot}
 \usage{
 dittoDimPlot(
+  object,
   var = "ident",
-  object = DEFAULT,
   reduction.use = NA,
   size = 1,
   opacity = 1,
@@ -19,7 +19,9 @@ dittoDimPlot(
   colors = seq_along(color.panel),
   shape.var = NULL,
   shape.panel = c(16, 15, 17, 23, 25, 8),
-  data.type = "normalized",
+  assay = .default_assay(object),
+  slot = .default_slot(object),
+  adjustment = NULL,
   main = "make",
   sub = NULL,
   xlab = "make",
@@ -46,7 +48,9 @@ dittoDimPlot(
   do.letter = FALSE,
   do.hover = FALSE,
   hover.data = var,
-  hover.data.type = data.type,
+  hover.assay = .default_assay(object),
+  hover.slot = .default_slot(object),
+  hover.adjustment = NULL,
   add.trajectory.lineages = NULL,
   add.trajectory.curves = NULL,
   trajectory.cluster.meta,
@@ -55,17 +59,17 @@ dittoDimPlot(
 )
 }
 \arguments{
+\item{object}{A Seurat or SingleCellExperiment object to work with}
+
 \item{var}{String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 This is the data that will be displayed for each cell/sample.
 Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
-Discrete or continuous data both work. REQUIRED.}
-
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
+Discrete or continuous data both work. REQUIRED.
 REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
-Default = "tsne" for Seurat objects, and "pca" for RNAseq objects, and "TSNE" for SingleCellExperiment objects.}
+Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", or the first dimensionality reduction slot if nonw of those exist.}
 
 \item{size}{Number which sets the size of data points. Default = 1.}
 
@@ -103,7 +107,13 @@ Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, sol
 Note: Unfortunately, shapes can be hard to see when points are on top of each other & they are more slowly processed by the brain.
 For these reasons, even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.}
 
-\item{data.type}{For when plotting expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized".}
+\item{assay, slot}{single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.}
+
+\item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
+\itemize{
+\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+\item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+}}
 
 \item{main}{String, sets the plot title.
 Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.}
@@ -163,7 +173,7 @@ lettering is incompatible with plotly and with changing the dots' to be differen
 
 \item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.}
 
-\item{hover.data.type}{Character which, when adding gene expression data to hover, sets the data-type slot that will be obtained. See \link[dittoSeq]{gene} for options.  Default is the \code{data.type} for plotting the main \code{var}, which itself defaults to the \code{"normalized"} data.}
+\item{hover.assay, hover.slot, hover.adjustment}{Similar to the non-hover versions, when showing expression data upon hover, these set what data will be shown.}
 
 \item{add.trajectory.lineages}{List of vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 
@@ -189,7 +199,7 @@ Shows data overlayed on a tsne, pca, or similar type of plot
 \details{
 The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that),
 plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
-The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
+The \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to change what expression data is used when displaying gene expression.
 If a metadata is given to \code{shape.var}, that is retrieved and added to the dataframe as well.
 
 Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
@@ -229,34 +239,31 @@ Arrow size is controlled with the \code{trajectory.arrow.size} input.
 }
 \examples{
 pbmc <- Seurat::pbmc_small
+
 # Display discrete data:
-dittoDimPlot("RNA_snn_res.1", object = "pbmc")
+dittoDimPlot(pbmc, "RNA_snn_res.1")
 # Display continuous data:
-dittoDimPlot("CD14", object = "pbmc")
+dittoDimPlot(pbmc, "CD14")
 
 # To show currently set clustering for seurat objects, you can use "ident".
 # To change the dimensional reduction type, use reduction.use.
 
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-DEFAULT <- "pbmc"
-dittoDimPlot("nFeature_RNA")
-
 # MANY addtional tweaks are possible.
 # Also, many extra features are easy to add as well:
-dittoDimPlot("ident", do.label = TRUE)
-dittoDimPlot("ident", do.label = TRUE, do.ellipse = TRUE)
-dittoDimPlot("CD3E", do.hover = TRUE,
+dittoDimPlot(pbmc, "ident", do.label = TRUE)
+dittoDimPlot(pbmc, "ident", do.label = TRUE, do.ellipse = TRUE)
+dittoDimPlot(pbmc, "CD3E", do.hover = TRUE,
     hover.data = c("CD14", "RNA_snn_res.0.8", "groups"))
-dittoDimPlot("CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
+dittoDimPlot(pbmc, "CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
     trajectory.cluster.meta = "ident")
 }
 \seealso{
 \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
 
-\code{\link{importDESeq2}} for how to create a bulk \code{\linkS4class{RNAseq}} data structure that dittoSeq functions can use &
+\code{\link{importDittoBulk}} for how to create a \code{\link{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
 \code{\link{addDimReduction}} for how to add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 
-\code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are the scatterplot axes.
+\code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are wanted as the axes.
 
 \code{\link{dittoPlot}} for an alternative continuous data display method where data is shown on a y- (or x-) axis.
 

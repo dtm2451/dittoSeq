@@ -136,9 +136,7 @@ importDemux2Seurat <- function(
     Seurat, lane.meta = NULL, lane.names=NA, Demuxlet.best,
     bypass.check = FALSE, verbose = TRUE) {
 
-    if (is.character(Seurat)) {
-        Seurat <- eval(expr = parse(text = Seurat))
-    }
+    .error_if_no_Seurat()
     if (!verbose) {
         return(suppressMessages(importDemux2Seurat(
             Seurat,lane.meta,lane.names,Demuxlet.best,bypass.check)))
@@ -209,7 +207,7 @@ importDemux2Seurat <- function(
         # Extract from given metadata
         lane.idents <- as.factor(
             as.character(meta(lane.meta, Seurat)))
-        auto_lane.names <- meta.levels(lane.meta, Seurat)
+        auto_lane.names <- metaLevels(lane.meta, Seurat)
     } else {
         if (grepl("-",cell.names[1])) {
             # Use the `#` of `-#` parts of cellnames (cellranger aggr notation)
@@ -314,10 +312,10 @@ importDemux2Seurat <- function(
     num_doublets <- sum(meta("demux.doublet.call",Seurat)=="DBL", na.rm = TRUE)
     num_ambig <- sum(meta("demux.doublet.call",Seurat)=="AMB", na.rm = TRUE)
     message("SUMMARY:\n",
-        length(meta.levels("Lane", Seurat)),
+        length(metaLevels("Lane", Seurat)),
         " lanes were identified and named:\n  ",
 
-        paste0(meta.levels("Lane", Seurat), collapse = ", "),
+        paste0(metaLevels("Lane", Seurat), collapse = ", "),
         "\nThe average number of SNPs per cell for all lanes was: ",
         round(mean(meta("demux.N.SNP", Seurat), na.rm = TRUE),1), "\n",
 
@@ -338,7 +336,7 @@ importDemux2Seurat <- function(
 
 #' Plots the number of SNPs sequenced per droplet
 #'
-#' @param object A Seurat or SingleCellExperiment object containing , or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.
+#' @param object A Seurat or SingleCellExperiment object
 #' @param group.by String "name" of a metadata to use for grouping values.
 #' Default is "Lane".
 #' @param color.by String "name" of a metadata to use for coloring.
@@ -380,21 +378,17 @@ importDemux2Seurat <- function(
 #'     ncol(pbmc),
 #'     replace = TRUE)
 #'
-#' demux.SNP.summary("pbmc")
+#' demux.SNP.summary(pbmc)
 #'
 #' @author Daniel Bunis
 #' @export
 demux.SNP.summary <- function(
-    object = DEFAULT, group.by = "Lane", color.by = group.by,
+    object, group.by = "Lane", color.by = group.by,
     plots = c("jitter","boxplot"), boxplot.color = "grey30",
     add.line = 50, min = 0, ...) {
 
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
-
     dittoPlot(
-        "demux.N.SNP", object, group.by, color.by,
+        object, "demux.N.SNP", group.by, color.by,
         plots = plots, boxplot.color = boxplot.color,
         add.line = add.line, min = min, ...)
 }
@@ -402,7 +396,7 @@ demux.SNP.summary <- function(
 #' Plots the number of annotations per sample, per lane
 #' @import ggplot2
 #'
-#' @param object the Seurat Object = name of object in "quotes". REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object A Seurat or SingleCellExperiment object
 #' @param singlets.only Whether to only show data for cells called as singlets by demuxlet. Default is TRUE. Note: if doublets are included, only one of their sample calls will be used.
 #' @param main plot title. Default = "Sample Annotations by Lane"
 #' @param sub plot subtitle
@@ -441,14 +435,10 @@ demux.SNP.summary <- function(
 #' @author Daniel Bunis
 #' @export
 demux.calls.summary <- function(
-    object = DEFAULT, singlets.only = FALSE,
+    object, singlets.only = FALSE,
     main = "Sample Annotations by Lane", sub = NULL, ylab = "Annotations",
     xlab = "Sample", color = dittoColors()[2], theme = NULL,
     rotate.labels = TRUE, data.out = FALSE) {
-
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
 
     if (singlets.only) {
         cells.use <- .which_cells(

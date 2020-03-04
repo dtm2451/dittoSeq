@@ -5,23 +5,31 @@
 \title{Show RNAseq data overlayed on a scatter plot}
 \usage{
 dittoScatterPlot(
+  object,
   x.var,
   y.var,
   color.var = NULL,
   shape.var = NULL,
-  object = DEFAULT,
   cells.use = NULL,
   show.others = FALSE,
   size = 1,
   opacity = 1,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
-  data.type.x = "normalized",
-  data.type.y = "normalized",
-  data.type.color = "normalized",
+  assay.x = .default_assay(object),
+  slot.x = .default_slot(object),
+  adjustment.x = NULL,
+  assay.y = .default_assay(object),
+  slot.y = .default_slot(object),
+  adjustment.y = NULL,
+  assay.color = .default_assay(object),
+  slot.color = .default_slot(object),
+  adjustment.color = NULL,
   do.hover = FALSE,
   hover.data = NULL,
-  hover.data.type = "normalized",
+  hover.assay = .default_assay(object),
+  hover.slot = .default_slot(object),
+  hover.adjustment = NULL,
   shape.panel = c(16, 15, 17, 23, 25, 8),
   rename.color.groups = NULL,
   rename.shape.groups = NULL,
@@ -45,6 +53,8 @@ dittoScatterPlot(
 )
 }
 \arguments{
+\item{object}{A Seurat or SingleCellExperiment object}
+
 \item{x.var}{Single string or numeric vector which sets x-axis position of cells/samples.
 Note: must be continuous.
 Can be the name of a gene or metadata.
@@ -64,9 +74,6 @@ Note: must be discrete.
 Can be the name of a metadata, or "ident" for clusters of a Seurat object.
 Alternatively, can be a string vector or a factor of length equal to the total number of cells/samples in object.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
-REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
-
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
@@ -84,14 +91,14 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
-\item{data.type.x, data.type.y, data.type.color}{For when the axes or coloring are based on expression data, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized"}
+\item{assay.x, assay.y, assay.color, slot.x, slot.y, slot.color, adjustment.x, adjustment.y, adjustment.color}{assay, slot, and adjustment set which data to use when the axes or coloring are based on expression data. See \code{\link{gene}} for additional information.}
 
 \item{do.hover}{Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 \code{hover.data} argument is used to determine what data to use.}
 
 \item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.}
 
-\item{hover.data.type}{For when showing expression data upon hover, sets the data-type slot that will be obtained. See \code{\link{gene}} for options and details. DEFAULT = "normalized"}
+\item{hover.assay, hover.slot, hover.adjustment}{Similar to the x, y, and color versions, when showing expression data upon hover, these set what data will be shown.}
 
 \item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
@@ -145,7 +152,7 @@ Show RNAseq data overlayed on a scatter plot
 \details{
 This function creates a dataframe with the X and Y coordinates determined by \code{x.var} and \code{y.var}.
 It then adds data for how coloring should be set if a \code{color.var} is given & for how shapes should be set if a \code{shape.var} is given.
-The \code{data.type} inputs (\code{.x}, \code{.y}, and \code{.color}) can be used to change what slot of expression data is used when the target data is gene expression data.
+The \code{assay}, \code{slot}, and \code{adjustment} inputs (\code{.x}, \code{.y}, and \code{.color}) can be used to change what expression data is used when the target data is gene expression data.
 
 Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
 
@@ -176,25 +183,25 @@ pbmc <- Seurat::pbmc_small
 pbmc$percent.mito <- sample(c(runif(75,0,0.05),runif(5,0.05,0.2)))
 
 dittoScatterPlot(
-    x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc")
+    pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA")
 
 # Shapes or colors can be overlaid representing discrete metadata
 #   or (only colors) continuous metadata / expression data by providing
 #   metadata or gene names to 'color.var' and 'shape.var'
 dittoScatterPlot(
-    x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc",
+    pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
     color.var = "RNA_snn_res.1",
     shape.var = "RNA_snn_res.0.8")
 dittoScatterPlot(
-    x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc",
+    pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
     color.var = "percent.mito",
     shape.var = "RNA_snn_res.0.8")
 dittoScatterPlot(
-    x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc",
+    pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
     color.var = "CD14",
     shape.var = "RNA_snn_res.0.8")
 
-# Note: scatterplots like this can be very useful for dataset QC, epecially
+# Note: scatterplots like this can be very useful for dataset QC, especially
 #   with percentage of reads coming from genes as the color overlay.
 }
 \seealso{

@@ -5,13 +5,14 @@
 \title{Outputs a heatmap of given genes}
 \usage{
 dittoHeatmap(
-  genes = NULL,
-  object = DEFAULT,
+  object,
+  genes = getGenes(object),
   cells.use = NULL,
+  order.by = NULL,
   main = NA,
   cell.names.meta = NULL,
-  data.type = "normalized",
-  order.by = NULL,
+  assay = .default_assay(object),
+  slot = .default_slot(object),
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
@@ -25,24 +26,23 @@ dittoHeatmap(
 )
 }
 \arguments{
-\item{genes}{String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap. REQUIRED.}
+\item{object}{A Seurat or SingleCellExperiment object to work with}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
-REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
+\item{genes}{String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap. REQUIRED.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
 
+\item{order.by}{Single string or numeric vector which sets the ordering of cells/samples.
+Can be the name of a gene, or metadata slot.
+Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.}
+
 \item{main}{String that sets the title for the heatmap.}
 
 \item{cell.names.meta}{quoted "name" of a meta.data slot to use for naming the columns instead of using the raw cell/sample names.}
 
-\item{data.type}{String. Options are "normalized" (data slot, default), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects). Note: scaling is performed on the data matrix by default.}
-
-\item{order.by}{Single string or numeric vector which sets the ordering of cells/samples.
-Can be the name of a gene, or metadata slot.
-Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.}
+\item{assay, slot}{single strings or integer that set which expression data to use. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
 
 \item{heatmap.colors}{the colors to use within the heatmap.
 Default is a ramp from navy to white to red with 50 slices.}
@@ -121,14 +121,8 @@ Note: cluster_cols will always be over-written to be \code{FALSE} when the input
 \examples{
 library(Seurat)
 pbmc <- Seurat::pbmc_small
-dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-    "FCGR3A","LYZ","PPBP","CD8A"),
-    object = pbmc,
-    annotation.metas = "ident")
-
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-DEFAULT <- "pbmc"
-dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+dittoHeatmap(pbmc,
+    genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
     annotation.metas = "ident")
 
@@ -136,17 +130,17 @@ dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #   For real single cell data, you will typically have more cells than in
 #   this truncated dataset, so turning off cell clustering off and instead
 #   ordering by a useful metadata or gene can help speed the process a lot!
-dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+dittoHeatmap(pbmc,
+    genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
-    object = pbmc,
     annotation.metas = "ident",
     order.by = "ident")
 
 # When there are many cells, showing names becomes less useful.
 #   Names can be turned off with the show.colnames parameter.
-dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+dittoHeatmap(pbmc,
+    genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
-    object = pbmc,
     annotation.metas = "ident",
     order.by = "ident",
     show.colnames = FALSE)
@@ -155,16 +149,16 @@ dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
 #   scaled.to.max be set to TRUE, or scaling be turned off altogether,
 #   because these data are generally enriched for zeros that otherwise get
 #   scaled to a negative value.
-dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+dittoHeatmap(pbmc,
+    genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
-    object = pbmc,
     annotation.metas = "ident",
     order.by = "ident",
     show.colnames = FALSE,
     scaled.to.max = TRUE)
-dittoHeatmap(c("MS4A1","GNLY","CD3E","CD14","FCER1A",
+dittoHeatmap(pbmc,
+    genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
     "FCGR3A","LYZ","PPBP","CD8A"),
-    object = pbmc,
     annotation.metas = "ident",
     order.by = "ident",
     show.colnames = FALSE,

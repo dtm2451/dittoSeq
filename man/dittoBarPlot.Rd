@@ -5,8 +5,8 @@
 \title{Outputs a stacked bar plot to show the percent composition of samples or other cell groupings}
 \usage{
 dittoBarPlot(
+  object,
   var,
-  object = DEFAULT,
   group.by = "Sample",
   scale = c("percent", "count"),
   cells.use = NULL,
@@ -32,10 +32,9 @@ dittoBarPlot(
 )
 }
 \arguments{
-\item{var}{String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}. REQUIRED.}
+\item{object}{A Seurat or SingleCellExperiment object.}
 
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
-REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
+\item{var}{String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}. REQUIRED.}
 
 \item{group.by}{String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.}
 
@@ -128,21 +127,16 @@ Many characteristics of the plot can be adjusted using discrete inputs:
 library(Seurat)
 pbmc <- pbmc_small
 
-dittoBarPlot("RNA_snn_res.0.8", object = "pbmc", group.by = "ident")
-dittoBarPlot("RNA_snn_res.0.8", object = "pbmc", group.by = "ident",
+dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident")
+dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident",
     scale = "count")
-
-# Note: if DEFAULT <- "pbmc" is run beforehand,
-  # the object input can be skipped completely.
-DEFAULT <- "pbmc"
-dittoBarPlot("RNA_snn_res.0.8", group.by = "ident")
 
 # Accessing underlying data:
 # as dataframe
-dittoBarPlot("RNA_snn_res.0.8", object = "pbmc", group.by = "ident",
+dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident",
     data.out = TRUE)
 # through hovering the cursor over the relevant parts of the plot
-dittoBarPlot("RNA_snn_res.0.8", object = "pbmc", group.by = "ident",
+dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident",
     do.hover = TRUE)
 
 }

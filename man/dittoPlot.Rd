@@ -7,14 +7,16 @@
 \title{Plots continuous data for cutomizable cells'/samples' groupings on a y-axis}
 \usage{
 dittoPlot(
+  object,
   var,
-  object = DEFAULT,
   group.by,
   color.by = group.by,
   shape.var = NULL,
   cells.use = NULL,
   plots = c("jitter", "vlnplot"),
-  data.type = "normalized",
+  assay = .default_assay(object),
+  slot = .default_slot(object),
+  adjustment = NULL,
   do.hover = FALSE,
   hover.data = var,
   color.panel = dittoColors(),
@@ -58,11 +60,10 @@ dittoRidgePlot(..., plots = c("ridgeplot"))
 dittoBoxPlot(..., plots = c("boxplot", "jitter"))
 }
 \arguments{
+\item{object}{A Seurat or SingleCellExperiment object to work with}
+
 \item{var}{Single string representing the name of a metadata or gene, OR a numeric vector with length equal to the total number of cells/samples in the dataset.
 This is the data that will be displayed.}
-
-\item{object}{A Seurat, SingleCellExperiment, or \linkS4class{RNAseq} object to work with, OR the name of the object in "quotes".
-REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups. REQUIRED.}
 
@@ -77,7 +78,13 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 
 \item{plots}{String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot". See details section for more info.}
 
-\item{data.type}{String, for when plotting expression data: Should the data be "normalized" (data slot), "raw" (raw.data or counts slot), "scaled" (the scale.data slot of Seurat objects), "relative" (= pulls normalized data, then uses the scale() function to produce a relative-to-mean representation), or "normalized.to.max" (= pulls normalized data, then divides by the maximum value)? DEFAULT = "normalized"}
+\item{assay, slot}{single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.}
+
+\item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
+\itemize{
+\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+\item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+}}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE} (and if there is a jitter - the data it will work with): object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them,
@@ -185,7 +192,7 @@ Plots continuous data for cutomizable cells'/samples' groupings on a y-axis
 }
 \details{
 The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that) plus metadata associated with the \code{group.by} and \code{color.by} variables.
-The \code{data.type} input can be used to change what slot of expression data is used when displaying gene expression.
+The \code{assay} and \code{slot} inputs can be used to change what expression data is used when displaying gene expression.
 If a set of cells to use is indicated with the \code{cells.use} input, the dataframe is then subset to include only those cells.
 Then, a plot where data is grouped by the \code{group.by} metadata and colored by the \code{color.by} metadata is generated.
 
@@ -225,29 +232,30 @@ Linetype and color are set with \code{line.linetype}, which is "dashed" by defau
 \examples{
 library(Seurat)
 pbmc <- pbmc_small
-dittoPlot("CD14", object = "pbmc", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-DEFAULT <- "pbmc"
-dittoPlot("CD14", group.by = "RNA_snn_res.1")
+dittoPlot(pbmc, "CD14", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 
 # We can adjust the types of plots displayed with the plots input:
-dittoPlot("CD14", group.by = "RNA_snn_res.1",
+dittoPlot(pbmc, "CD14", group.by = "RNA_snn_res.1",
     plots = c("vlnplot", "boxplot", "jitter"),
     boxplot.fill = FALSE)
 
 # Quickly make a Ridgeplot
-dittoRidgePlot("CD14", group.by = "RNA_snn_res.1")
+dittoRidgePlot(pbmc, "CD14", group.by = "RNA_snn_res.1")
 
 # Quickly make a Boxplot
-dittoBoxPlot("CD14", group.by = "RNA_snn_res.1")
+dittoBoxPlot(pbmc, "CD14", group.by = "RNA_snn_res.1")
 
 # Any of these can be combined with 'hovering' to retrieve specific info
 #   about certain data points.  Just add 'do.hover = TRUE' and pick what
 #   extra data to display by provide set of gene or metadata names to
 #   'hover.data'.
 #     Note: ggplotly plots ignores certain dittoSeq plot tweaks.
-dittoBoxPlot("CD14", group.by = "RNA_snn_res.1",
-    do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
+#     Also note: requires the plotly package
+if (!requireNamespace("plotly")) {
+    dittoBoxPlot(pbmc, "CD14", group.by = "RNA_snn_res.1",
+        do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
+}
+
 
 }
 \seealso{
