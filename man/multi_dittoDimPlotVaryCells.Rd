@@ -8,7 +8,7 @@ multi_dittoDimPlotVaryCells(
   object,
   var,
   vary.cells.meta,
-  vary.cells.levels = meta.levels(vary.cells.meta, object),
+  vary.cells.levels = metaLevels(vary.cells.meta, object),
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -83,7 +83,7 @@ as well as a single legend.  Either of these can be turned off with the \code{sh
 
 Plots are either  output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
 or alternatively as a simple list of ggplots if \code{OUT.List} is set to \code{TRUE}.
-In the list, the varycells plots will be named by the \code{cells.meta.level} that they contain,
+In the list, the varycells plots will be named by the value of \code{vary.cells.meta} that they contain,
 the allcells plot will be named "allcells" and the single legend will be named "legend".
 
 Either continuous or discrete \code{var} data can be displayed.

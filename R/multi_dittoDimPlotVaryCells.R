@@ -36,7 +36,7 @@
 #'
 #' Plots are either  output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
 #' or alternatively as a simple list of ggplots if \code{OUT.List} is set to \code{TRUE}.
-#' In the list, the varycells plots will be named by the \code{cells.meta.level} that they contain,
+#' In the list, the varycells plots will be named by the value of \code{vary.cells.meta} that they contain,
 #' the allcells plot will be named "allcells" and the single legend will be named "legend".
 #'
 #' Either continuous or discrete \code{var} data can be displayed.
@@ -79,7 +79,7 @@
 
 multi_dittoDimPlotVaryCells <- function(
     object, var, vary.cells.meta,
-    vary.cells.levels = meta.levels(vary.cells.meta, object),
+    vary.cells.levels = metaLevels(vary.cells.meta, object),
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL, min = NULL, max = NULL,
     color.panel = dittoColors(), colors = seq_along(color.panel),
@@ -160,7 +160,7 @@ multi_dittoDimPlotVaryCells <- function(
             })
     } else {
         # Case2: non-numeric, colors must be matched accross plots
-        all.var.levels <- meta.levels(var, object)
+        all.var.levels <- metaLevels(var, object)
         plots <- lapply(
             vary.cells.levels,
             function(level) {
@@ -169,7 +169,7 @@ multi_dittoDimPlotVaryCells <- function(
                 }
                 plot.args$cells.use <- cells.meta==level
                 plot.levels <-
-                    meta.levels(var, object,
+                    metaLevels(var, object,
                         cells.use = cells.meta==level)
                 plot.args$colors <-
                     seq_along(all.var.levels)[all.var.levels %in% plot.levels]

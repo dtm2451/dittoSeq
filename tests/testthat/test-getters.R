@@ -23,10 +23,10 @@ test_that("meta works for Seurat and SCE", {
     expect_equal(counts, meta("score", sce))
 })
 
-test_that("meta.levels works for Seurat and SCE", {
-    expect_type(groups <- meta.levels("groups", seurat),
+test_that("metaLevels works for Seurat and SCE", {
+    expect_type(groups <- metaLevels("groups", seurat),
         "character")
-    expect_equal(groups, meta.levels("groups", sce))
+    expect_equal(groups, metaLevels("groups", sce))
 })
 
 test_that("getGenes works for Seurat and SCE", {

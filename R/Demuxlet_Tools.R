@@ -207,7 +207,7 @@ importDemux2Seurat <- function(
         # Extract from given metadata
         lane.idents <- as.factor(
             as.character(meta(lane.meta, Seurat)))
-        auto_lane.names <- meta.levels(lane.meta, Seurat)
+        auto_lane.names <- metaLevels(lane.meta, Seurat)
     } else {
         if (grepl("-",cell.names[1])) {
             # Use the `#` of `-#` parts of cellnames (cellranger aggr notation)
@@ -312,10 +312,10 @@ importDemux2Seurat <- function(
     num_doublets <- sum(meta("demux.doublet.call",Seurat)=="DBL", na.rm = TRUE)
     num_ambig <- sum(meta("demux.doublet.call",Seurat)=="AMB", na.rm = TRUE)
     message("SUMMARY:\n",
-        length(meta.levels("Lane", Seurat)),
+        length(metaLevels("Lane", Seurat)),
         " lanes were identified and named:\n  ",
 
-        paste0(meta.levels("Lane", Seurat), collapse = ", "),
+        paste0(metaLevels("Lane", Seurat), collapse = ", "),
         "\nThe average number of SNPs per cell for all lanes was: ",
         round(mean(meta("demux.N.SNP", Seurat), na.rm = TRUE),1), "\n",
 

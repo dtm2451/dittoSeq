@@ -13,13 +13,13 @@ test_that("importDemux2Seurat can name lanes with 'lane.names'", {
     expect_s4_class(
         t <- importDemux2Seurat(
             seurat, lane.meta = "groups",
-            lane.names = meta.levels("groups", seurat),
+            lane.names = metaLevels("groups", seurat),
             Demuxlet.best = "mock_demux.best"
             ),
         "Seurat")
     expect_equal(
-        meta.levels("Lane",t),
-        meta.levels("groups", seurat)
+        metaLevels("Lane",t),
+        metaLevels("groups", seurat)
     )
 })
 
@@ -38,7 +38,7 @@ test_that("importDemux2Seurat reads lanes from -# names", {
         t <- importDemux2Seurat(
             seurat2, Demuxlet.best = "mock_demux_-num2Lanes.best"),
         "Seurat")
-    expect_equal(length(meta.levels("Lane",t)), 2)
+    expect_equal(length(metaLevels("Lane",t)), 2)
 })
 
 test_that("importDemux2Seurat can be verbose or not", {

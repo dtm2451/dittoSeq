@@ -238,7 +238,7 @@ dittoPlotVarsAcrossGroups <- function(
     #### Ensure that there are no ambiguities between group.by and color.by
     if (color.by != group.by) {
         error <- sum(!vapply(
-            meta.levels(group.by, object, cells.use),
+            metaLevels(group.by, object, cells.use),
             function (group) {
                 length(levels(as.factor(colors.data[groupings == group])))==1
             }, FUN.VALUE = logical(1))

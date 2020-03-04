@@ -24,7 +24,7 @@ meta("RNA_snn_res.1", object = pbmc)
 
 }
 \seealso{
-\code{\link{meta.levels}} for returning just the unique discrete identities that exist within a metadata slot
+\code{\link{metaLevels}} for returning just the unique discrete identities that exist within a metadata slot
 
 \code{\link{getMetas}} for returning all metadata slots of an \code{object}
 

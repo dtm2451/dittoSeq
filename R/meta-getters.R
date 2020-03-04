@@ -94,7 +94,7 @@ getMetas <- function(object, names.only = TRUE){
 #' @param object A target Seurat or SingleCellExperiment object
 #' @return Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
 #' @seealso
-#' \code{\link{meta.levels}} for returning just the unique discrete identities that exist within a metadata slot
+#' \code{\link{metaLevels}} for returning just the unique discrete identities that exist within a metadata slot
 #'
 #' \code{\link{getMetas}} for returning all metadata slots of an \code{object}
 #'
@@ -107,7 +107,11 @@ getMetas <- function(object, names.only = TRUE){
 #' @author Daniel Bunis
 #' @export
 
-meta <- function(meta, object){
+meta <- function(meta, object) {
+
+    if (!isMeta(meta, object)) {
+        stop(dQuote(meta)," is not a metadata of 'object'")
+    }
     if (meta=="ident" && !is(object,"SingleCellExperiment")) {
     # Retrieve clustering from Seurats
         if (is(object, "Seurat")) {
@@ -122,7 +126,6 @@ meta <- function(meta, object){
     meta
 }
 
-#### meta.levels: for obtaining the different classifications of a meta.data
 #' Gives the distinct values of a meta.data slot (or ident)
 #'
 #' @param meta quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.
@@ -142,14 +145,14 @@ meta <- function(meta, object){
 #'
 #' library(Seurat)
 #' pbmc <- pbmc_small
-#' meta.levels("RNA_snn_res.1", object = pbmc)
+#' metaLevels("RNA_snn_res.1", object = pbmc)
 #'
 #' @author Daniel Bunis
 #' @export
 
-meta.levels <- function(meta, object, cells.use = NULL){
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
+metaLevels <- function(meta, object, cells.use = NULL){
+    if (!isMeta(meta, object)) {
+        stop(dQuote(meta)," is not a metadata of 'object'")
     }
     meta.values <- as.character(meta(meta, object))
     if (!is.null(cells.use)) {

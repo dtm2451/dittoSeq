@@ -343,7 +343,7 @@ dittoDimPlot <- function(
 
     #Determine medians
     cluster.dat <- meta(clusters, object)
-    cluster.levels <- meta.levels(clusters, object)
+    cluster.levels <- metaLevels(clusters, object)
     data <- data.frame(
         cent.x = vapply(
             cluster.levels,

@@ -384,7 +384,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 }
                 p <- p + do.call(geom_jitter, jitter.args) +
                     scale_shape_manual(
-                        values = shape.panel[seq_along(meta.levels(
+                        values = shape.panel[seq_along(metaLevels(
                             shape.var, object, rownames(Target_data)))])
                 if (!is.na(jitter.shape.legend.size)){
                     p <- p + guides(shape = guide_legend(
