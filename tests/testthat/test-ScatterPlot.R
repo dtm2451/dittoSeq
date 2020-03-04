@@ -41,7 +41,7 @@ test_that("dittoScatterPlot can overlay shapes", {
         "ggplot")
 })
 
-test_that("dittoScatterPlot gene display can utilize different data.types (including for hover)", {
+test_that("dittoScatterPlot gene display can utilize different data.types (excluding for hover)", {
     expect_s3_class(
         dittoScatterPlot(
             gene, gene, gene, NULL, object = seurat,
@@ -49,13 +49,4 @@ test_that("dittoScatterPlot gene display can utilize different data.types (inclu
             adjustment.y = "z-score",
             adjustment.color = "relative.to.max"),
         "ggplot")
-    expect_s3_class(
-        dittoScatterPlot(
-            gene, gene, gene, NULL, object = seurat,
-            do.hover = TRUE, hover.data = "PF4",
-            slot.x = "counts",
-            adjustment.y = "z-score",
-            adjustment.color = "relative.to.max",
-            hover.slot = "scale.data"),
-        "plotly")
 })
