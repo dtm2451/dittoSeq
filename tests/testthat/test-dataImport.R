@@ -1,7 +1,6 @@
 # Tests for importDemux2Seurat function
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-dataImport.R")
 
-library(SingleCellExperiment)
 library(DESeq2)
 cnts <- matrix(rnbinom(n=1000, mu=100, size=1/0.5), ncol=10)
 cond <- factor(rep(1:2, each=5))
@@ -10,8 +9,8 @@ dds <- DESeq(dds)
 library(edgeR)
 dge <- DGEList(counts=cnts, group=rep(1:2,each=5))
 
-list <- list(counts = counts(pbmc.se),
-             logcounts = logcounts(pbmc.se))
+list <- list(counts = counts(sce),
+             logcounts = logcounts(sce))
 SE <- SummarizedExperiment(assays = list)
 
 test_that("importDittoBulk works for SummarizedExperiments", {
@@ -97,6 +96,6 @@ test_that("importDittoBulk with combine_metadata=FALSE ignores previously includ
 
 test_that("importDittoBulk output works in dittoDimPlot", {
     expect_s3_class(
-        dittoDimPlot("condition", imported.se),
+        dittoDimPlot(imported.se, "condition"),
         "ggplot")
 })

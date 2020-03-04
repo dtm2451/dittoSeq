@@ -2,9 +2,8 @@
 #' Outputs a stacked bar plot to show the percent composition of samples or other cell groupings
 #' @import ggplot2
 #'
+#' @param object A Seurat or SingleCellExperiment object.
 #' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}. REQUIRED.
-#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
-#' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param group.by String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -70,28 +69,23 @@
 #' library(Seurat)
 #' pbmc <- pbmc_small
 #'
-#' dittoBarPlot("RNA_snn_res.0.8", object = "pbmc", group.by = "ident")
-#' dittoBarPlot("RNA_snn_res.0.8", object = "pbmc", group.by = "ident",
+#' dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident")
+#' dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident",
 #'     scale = "count")
-#'
-#' # Note: if DEFAULT <- "pbmc" is run beforehand,
-#'   # the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' dittoBarPlot("RNA_snn_res.0.8", group.by = "ident")
 #'
 #' # Accessing underlying data:
 #' # as dataframe
-#' dittoBarPlot("RNA_snn_res.0.8", object = "pbmc", group.by = "ident",
+#' dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident",
 #'     data.out = TRUE)
 #' # through hovering the cursor over the relevant parts of the plot
-#' dittoBarPlot("RNA_snn_res.0.8", object = "pbmc", group.by = "ident",
+#' dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident",
 #'     do.hover = TRUE)
 #'
 #' @author Daniel Bunis
 #' @export
 
 dittoBarPlot <- function(
-    var, object = DEFAULT, group.by = "Sample", scale = c("percent", "count"),
+    object, var, group.by = "Sample", scale = c("percent", "count"),
     cells.use = NULL, data.out = FALSE, do.hover = FALSE,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     y.breaks = NA, min = 0, max = NULL,
@@ -100,10 +94,6 @@ dittoBarPlot <- function(
     theme = theme_classic(),
     xlab = group.by, ylab = "make", main = "make", sub = NULL,
     legend.show = TRUE, legend.title = NULL) {
-
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
 
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)

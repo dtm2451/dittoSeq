@@ -51,6 +51,7 @@
 #'
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
+#' @importClassesFrom edgeR DGEList
 #' @importFrom methods is as
 #' @importFrom SummarizedExperiment SummarizedExperiment "colData<-" colData rowData
 #' @importFrom utils packageVersion

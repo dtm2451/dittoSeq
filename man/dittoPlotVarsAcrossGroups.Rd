@@ -5,8 +5,8 @@
 \title{Generates a dittoPlot where datapoints are genes/metadata summarizes per groups instead of individual values per cells/samples.}
 \usage{
 dittoPlotVarsAcrossGroups(
+  object,
   vars,
-  object = DEFAULT,
   group.by,
   color.by = group.by,
   summary.fxn = mean,
@@ -50,11 +50,11 @@ dittoPlotVarsAcrossGroups(
 )
 }
 \arguments{
+\item{object}{A Seurat or SingleCellExperiment object}
+
 \item{vars}{String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to extract from the object, summarize across groups, and add to the plot}
 
-\item{object}{A Seurat or SingleCellExperiment object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.}
-
-\item{group.by}{String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.}
+\item{group.by}{String representing the name of a "metadata" to use for separating the cells/samples into discrete groups.}
 
 \item{color.by}{String representing the name of a "metadata" to use for setting color.
 Affects boxplot, vlnplot, and ridgeplot fills.
@@ -192,30 +192,30 @@ library(Seurat)
 pbmc <- Seurat::pbmc_small
 
 # Pick a set of genes
-genes <- getGenes("pbmc")[1:30]
+genes <- getGenes(pbmc)[1:30]
 
 dittoPlotVarsAcrossGroups(
-    genes, object = pbmc,
+    pbmc, genes,
     group.by = "RNA_snn_res.1")
 
 # Color can be controlled separately from grouping with 'color.by'
 #   Just note: all groupings must map to a single color.
 dittoPlotVarsAcrossGroups(
-    genes, object = pbmc,
+    pbmc, genes,
     group.by = "RNA_snn_res.1",
     color.by = "orig.ident")
 
 # To change it to have the violin plot in the back, a jitter on
 #  top of that, and a white boxplot with no fill in front:
 dittoPlotVarsAcrossGroups(
-    genes, object = "pbmc",
+    pbmc, genes,
     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
     plots = c("vlnplot","jitter","boxplot"),
     boxplot.color = "white", boxplot.fill = FALSE)
 
 # To investigate the identities of outlier genes, we can turn on hovering
 dittoPlotVarsAcrossGroups(
-    genes, object = "pbmc",
+    pbmc, genes,
     group.by = "RNA_snn_res.1",
     do.hover = TRUE)
 

@@ -5,35 +5,35 @@
 \title{Generates multiple dittoDimPlots arranged in a grid.}
 \usage{
 multi_dittoDimPlot(
+  object,
   vars,
-  object = DEFAULT,
   legend.show = FALSE,
   ncol = NULL,
   nrow = NULL,
   axes.labels.show = FALSE,
+  xlab = NA,
+  ylab = NA,
   OUT.List = FALSE,
   ...
 )
 }
 \arguments{
-\item{vars}{c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots}
+\item{object}{A Seurat or SingleCellExperiment object to work with}
 
-\item{object}{A Seurat or SingleCellExperiment object to work with = REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{vars}{c("var1","var2","var3",...). A list of vars from which to generate the separate plots}
 
-\item{legend.show}{Logical. Whether or not you would like a legend to be plotted.  Default = FALSE}
+\item{legend.show, xlab, ylab, ...}{other paramters passed to dittoDimPlot.}
 
-\item{ncol}{#. How many plots should be arranged per row.  Default = 3 unless \code{length(vars)} is shorter.}
+\item{ncol, nrow}{Integer/NULL. How many columns or rows the plots should be arranged into}
 
-\item{nrow}{#/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.}
+\item{axes.labels.show}{Logical. Whether a axis labels should be shown. Ignored if xlab or ylab are set manually.}
 
-\item{axes.labels.show}{Logical. Whether a axis labels should be added}
-
-\item{OUT.List}{Logical. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.}
-
-\item{...}{other paramters that can be given to DBDimPlot function used in exactly the same way.}
+\item{OUT.List}{Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.}
 }
 \value{
-Given multiple 'var' parameters, this function will output a DBDimPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each is 'var'.
+Given multiple 'var' parameters to \code{vars}, this function will output a dittoDimPlot for each one, arranged into a grid, with some slight tweaks to the defaults.
+If \code{OUT.list} was set to TRUE, the list of individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only parameter that can be adjusted between each is the \code{var}.
 }
 \description{
 Generates multiple dittoDimPlots arranged in a grid.
@@ -41,11 +41,9 @@ Generates multiple dittoDimPlots arranged in a grid.
 \examples{
 library(Seurat)
 pbmc <- Seurat::pbmc_small
+
 genes <- c("CD8A","CD3E","FCER1A","CD14","MS4A1")
-multi_dittoDimPlot(c(genes, "ident"), object = "pbmc")
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-DEFAULT <- "pbmc"
-multi_dittoDimPlot(c(genes, "ident"))
+multi_dittoDimPlot(pbmc, c(genes, "ident"))
 
 }
 \author{

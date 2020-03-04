@@ -5,11 +5,11 @@
 #' @import ggplot2
 #' @importFrom ggrepel geom_text_repel geom_label_repel
 #'
+#' @param object A Seurat or SingleCellExperiment object to work with
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 #' This is the data that will be displayed for each cell/sample.
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 #' Discrete or continuous data both work. REQUIRED.
-#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param reduction.use String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 #'
@@ -148,29 +148,26 @@
 #' @export
 #' @examples
 #' pbmc <- Seurat::pbmc_small
+#'
 #' # Display discrete data:
-#' dittoDimPlot("RNA_snn_res.1", object = "pbmc")
+#' dittoDimPlot(pbmc, "RNA_snn_res.1")
 #' # Display continuous data:
-#' dittoDimPlot("CD14", object = "pbmc")
+#' dittoDimPlot(pbmc, "CD14")
 #'
 #' # To show currently set clustering for seurat objects, you can use "ident".
 #' # To change the dimensional reduction type, use reduction.use.
 #'
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' dittoDimPlot("nFeature_RNA")
-#'
 #' # MANY addtional tweaks are possible.
 #' # Also, many extra features are easy to add as well:
-#' dittoDimPlot("ident", do.label = TRUE)
-#' dittoDimPlot("ident", do.label = TRUE, do.ellipse = TRUE)
-#' dittoDimPlot("CD3E", do.hover = TRUE,
+#' dittoDimPlot(pbmc, "ident", do.label = TRUE)
+#' dittoDimPlot(pbmc, "ident", do.label = TRUE, do.ellipse = TRUE)
+#' dittoDimPlot(pbmc, "CD3E", do.hover = TRUE,
 #'     hover.data = c("CD14", "RNA_snn_res.0.8", "groups"))
-#' dittoDimPlot("CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
+#' dittoDimPlot(pbmc, "CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
 #'     trajectory.cluster.meta = "ident")
 
 dittoDimPlot <- function(
-    var="ident", object = DEFAULT, reduction.use = NA, size=1, opacity = 1,
+    object, var="ident", reduction.use = NA, size=1, opacity = 1,
     dim.1 = 1, dim.2 = 2, cells.use = NULL, show.others=TRUE,
     show.axes.numbers = TRUE,
     color.panel = dittoColors(), colors = seq_along(color.panel),
@@ -192,9 +189,6 @@ dittoDimPlot <- function(
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
     trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE) {
 
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
     #Standardize cells.use to a list of names.
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)
@@ -232,7 +226,7 @@ dittoDimPlot <- function(
 
     # Make dataframes and plot
     p.df <- dittoScatterPlot(
-        xdat$embeddings, ydat$embeddings, var, shape.var, object, cells.use,
+        object, xdat$embeddings, ydat$embeddings, var, shape.var, cells.use,
         show.others, size, opacity, color.panel, colors,
         NULL, NULL, NULL, NULL, NULL, NULL, assay, slot, adjustment,
         do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
@@ -349,7 +343,7 @@ dittoDimPlot <- function(
 
     #Determine medians
     cluster.dat <- meta(clusters, object)
-    cluster.levels <- meta.levels(clusters, object)
+    cluster.levels <- metaLevels(clusters, object)
     data <- data.frame(
         cent.x = vapply(
             cluster.levels,
@@ -438,41 +432,43 @@ dittoDimPlot <- function(
 #### multi_dittoDimPlot : a function for quickly making multiple DBDimPlots arranged in a grid.
 #' Generates multiple dittoDimPlots arranged in a grid.
 #'
-#' @param vars               c("var1","var2","var3",...). REQUIRED. A list of vars from which to generate the separate plots
-#' @param object             A Seurat or SingleCellExperiment object to work with = REQUIRED, unless `DEFAULT <- "object"` has been run.
-#' @param legend.show        Logical. Whether or not you would like a legend to be plotted.  Default = FALSE
-#' @param ncol               #. How many plots should be arranged per row.  Default = 3 unless \code{length(vars)} is shorter.
-#' @param nrow               #/NULL. How many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.
-#' @param axes.labels.show   Logical. Whether a axis labels should be added
-#' @param OUT.List           Logical. (Default = FALSE) Whether the output should be a list of objects instead of the full plot.  Outputting as list allows manual input into gridArrange for moving plots around / adjusting sizes.  In the list, all plots will be named by the variable being shown.
-#' @param ...                other paramters that can be given to DBDimPlot function used in exactly the same way.
-#' @return Given multiple 'var' parameters, this function will output a DBDimPlot for each one, arranged into a grid.  All parameters that can be adjusted in DBDimPlot can be adjusted here, but the only parameter that can be adjusted between each is 'var'.
+#' @param object A Seurat or SingleCellExperiment object to work with
+#' @param vars c("var1","var2","var3",...). A list of vars from which to generate the separate plots
+#' @param ncol,nrow Integer/NULL. How many columns or rows the plots should be arranged into
+#' @param axes.labels.show Logical. Whether a axis labels should be shown. Ignored if xlab or ylab are set manually.
+#' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+#' @param legend.show,xlab,ylab,... other paramters passed to dittoDimPlot.
+#' @return Given multiple 'var' parameters to \code{vars}, this function will output a dittoDimPlot for each one, arranged into a grid, with some slight tweaks to the defaults.
+#' If \code{OUT.list} was set to TRUE, the list of individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+#' All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only parameter that can be adjusted between each is the \code{var}.
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
+#'
 #' genes <- c("CD8A","CD3E","FCER1A","CD14","MS4A1")
-#' multi_dittoDimPlot(c(genes, "ident"), object = "pbmc")
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' multi_dittoDimPlot(c(genes, "ident"))
+#' multi_dittoDimPlot(pbmc, c(genes, "ident"))
 #'
 #' @author Daniel Bunis
 #' @export
 
 multi_dittoDimPlot <- function(
-    vars, object = DEFAULT, legend.show = FALSE, ncol = NULL, nrow = NULL,
-    axes.labels.show = FALSE, OUT.List = FALSE, ...) {
+    object, vars, legend.show = FALSE, ncol = NULL, nrow = NULL,
+    axes.labels.show = FALSE, xlab = NA, ylab = NA, OUT.List = FALSE, ...) {
 
-    #Interpret axes.labels.show: If left as FALSE, set lab to NULL so they will be removed.
+    #Interpret axes.labels.show:
+    # If axes.labels.show left as FALSE, set lab to NULL, else "make".
+    # Then pass to xlab and ylab unless these were provided.
     lab <- if(!axes.labels.show) {
         NULL
     } else {
         "make"
     }
+    if (is.na(ylab)) {ylab <- lab}
+    if (is.na(xlab)) {xlab <- lab}
 
     plots <- lapply(vars, function(X) {
         dittoDimPlot(
-            X, object, xlab = lab, ylab = lab, ..., legend.show = legend.show)
+            object, X, xlab = xlab, ylab = ylab, legend.show = legend.show, ...)
     })
     if (OUT.List){
         names(plots) <- vars

@@ -4,17 +4,12 @@
 \alias{isGene}
 \title{Tests if input is the name of a gene in a target object.}
 \usage{
-isGene(
-  test,
-  object = DEFAULT,
-  assay = .default_assay(object),
-  return.values = FALSE
-)
+isGene(test, object, assay = .default_assay(object), return.values = FALSE)
 }
 \arguments{
 \item{test}{String or vector of strings, the "potential.gene.name"(s) to check for.}
 
-\item{object}{A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".}
+\item{object}{A target Seurat or SingleCellExperiment object}
 
 \item{assay}{single string or integer that sets which set of seq data inside the object to check.}
 
@@ -32,27 +27,22 @@ Tests if input is the name of a gene in a target object.
 
 pbmc <- Seurat::pbmc_small
 
-# To see all genes of an object of a particular assay
-getGenes(pbmc, assay = "RNA")
+# To see all genes of an object of a particular assay (remove `head()`)
+head(getGenes(pbmc, assay = "RNA"))
 
 # To see all genes of an object for the default assay that dittoSeq would use
-# leave out the assay input
-getGenes(pbmc)
+# leave out the assay input (again, remove `head()`)
+head(getGenes(pbmc))
 
 # To test if something is a gene in an object:
 isGene("CD14", object = "pbmc") # TRUE
 isGene("CD12345", pbmc) # FALSE
 
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped.
-DEFAULT <- "pbmc"
-isGene("CD14")
-  # TRUE
-
 # To test if many things are genes of an object
-isGene(c("CD14", "IL32", "CD3E", "CD12345"))
+isGene(c("CD14", "IL32", "CD3E", "CD12345"), pbmc)
 
 # return.values input is especially useful in these cases.
-isGene(c("CD14", "IL32", "CD3E", "CD12345"), return.values = TRUE)
+isGene(c("CD14", "IL32", "CD3E", "CD12345"), pbmc, return.values = TRUE)
 
 }
 \seealso{

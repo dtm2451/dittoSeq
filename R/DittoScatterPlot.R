@@ -1,6 +1,7 @@
 #' Show RNAseq data overlayed on a scatter plot
 #' @import ggplot2
 #'
+#' @param object A Seurat or SingleCellExperiment object
 #' @param x.var Single string or numeric vector which sets x-axis position of cells/samples.
 #' Note: must be continuous.
 #' Can be the name of a gene or metadata.
@@ -16,8 +17,6 @@
 #' Note: must be discrete.
 #' Can be the name of a metadata, or "ident" for clusters of a Seurat object.
 #' Alternatively, can be a string vector or a factor of length equal to the total number of cells/samples in object.
-#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
-#' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
@@ -102,29 +101,29 @@
 #' pbmc$percent.mito <- sample(c(runif(75,0,0.05),runif(5,0.05,0.2)))
 #'
 #' dittoScatterPlot(
-#'     x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc")
+#'     pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA")
 #'
 #' # Shapes or colors can be overlaid representing discrete metadata
 #' #   or (only colors) continuous metadata / expression data by providing
 #' #   metadata or gene names to 'color.var' and 'shape.var'
 #' dittoScatterPlot(
-#'     x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc",
+#'     pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
 #'     color.var = "RNA_snn_res.1",
 #'     shape.var = "RNA_snn_res.0.8")
 #' dittoScatterPlot(
-#'     x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc",
+#'     pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
 #'     color.var = "percent.mito",
 #'     shape.var = "RNA_snn_res.0.8")
 #' dittoScatterPlot(
-#'     x.var = "nCount_RNA", y.var = "nFeature_RNA", object = "pbmc",
+#'     pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
 #'     color.var = "CD14",
 #'     shape.var = "RNA_snn_res.0.8")
 #'
-#' # Note: scatterplots like this can be very useful for dataset QC, epecially
+#' # Note: scatterplots like this can be very useful for dataset QC, especially
 #' #   with percentage of reads coming from genes as the color overlay.
 dittoScatterPlot <- function(
-    x.var, y.var, color.var = NULL, shape.var = NULL,
-    object = DEFAULT, cells.use = NULL, show.others = FALSE,
+    object, x.var, y.var, color.var = NULL, shape.var = NULL,
+    cells.use = NULL, show.others = FALSE,
     size = 1, opacity = 1,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     assay.x = .default_assay(object), slot.x = .default_slot(object),
@@ -146,9 +145,6 @@ dittoScatterPlot <- function(
     legend.shape.title = shape.var, legend.shape.size = 5,
     data.out = FALSE) {
 
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
     # Standardize cells/samples vectors.
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)

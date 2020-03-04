@@ -5,7 +5,7 @@
 \title{Plots the number of SNPs sequenced per droplet}
 \usage{
 demux.SNP.summary(
-  object = DEFAULT,
+  object,
   group.by = "Lane",
   color.by = group.by,
   plots = c("jitter", "boxplot"),
@@ -16,7 +16,7 @@ demux.SNP.summary(
 )
 }
 \arguments{
-\item{object}{A Seurat or SingleCellExperiment object containing , or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.}
+\item{object}{A Seurat or SingleCellExperiment object}
 
 \item{group.by}{String "name" of a metadata to use for grouping values.
 Default is "Lane".}
@@ -63,7 +63,7 @@ pbmc$Lane <- sample(
     ncol(pbmc),
     replace = TRUE)
 
-demux.SNP.summary("pbmc")
+demux.SNP.summary(pbmc)
 
 }
 \seealso{

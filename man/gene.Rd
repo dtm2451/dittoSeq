@@ -6,7 +6,7 @@
 \usage{
 gene(
   gene,
-  object = DEFAULT,
+  object,
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL
@@ -15,7 +15,7 @@ gene(
 \arguments{
 \item{gene}{quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.}
 
-\item{object}{"name" of the Seurat or SingleCellExperiment object = REQUIRED, unless `DEFAULT <- "object"` has been run.}
+\item{object}{A target Seurat or SingleCellExperiment object}
 
 \item{assay, slot}{single strings or integer that set which data to use.
 Seurat and SingleCellExperiments deal with these differently, so be sure to check the documentation for whichever object you are using.
@@ -50,9 +50,11 @@ gene("gene1", object = myRNA, assay = "counts", adjustment = "z-score")
 # (For this object, the default assay is the logcounts assay)
 gene("gene1", myRNA)
 
-# Seurat
-# pbmc <- Seurat::pbmc_small
-# gene("CD14", object = pbmc, assay = "RNA", slot = "counts")
+# Seurat (raw counts)
+if (!requireNamespace("Seurat")) {
+    gene("CD14", object = Seurat::pbmc, assay = "RNA", slot = "counts")
+}
+
 }
 \author{
 Daniel Bunis

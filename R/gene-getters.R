@@ -2,7 +2,7 @@
 #' Tests if input is the name of a gene in a target object.
 #'
 #' @param test String or vector of strings, the "potential.gene.name"(s) to check for.
-#' @param object A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
+#' @param object A target Seurat or SingleCellExperiment object
 #' @param assay single string or integer that sets which set of seq data inside the object to check.
 #' @param return.values Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
@@ -17,37 +17,29 @@
 #'
 #' pbmc <- Seurat::pbmc_small
 #'
-#' # To see all genes of an object of a particular assay
-#' getGenes(pbmc, assay = "RNA")
+#' # To see all genes of an object of a particular assay (remove `head()`)
+#' head(getGenes(pbmc, assay = "RNA"))
 #'
 #' # To see all genes of an object for the default assay that dittoSeq would use
-#' # leave out the assay input
-#' getGenes(pbmc)
+#' # leave out the assay input (again, remove `head()`)
+#' head(getGenes(pbmc))
 #'
 #' # To test if something is a gene in an object:
 #' isGene("CD14", object = "pbmc") # TRUE
 #' isGene("CD12345", pbmc) # FALSE
 #'
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped.
-#' DEFAULT <- "pbmc"
-#' isGene("CD14")
-#'   # TRUE
-#'
 #' # To test if many things are genes of an object
-#' isGene(c("CD14", "IL32", "CD3E", "CD12345"))
+#' isGene(c("CD14", "IL32", "CD3E", "CD12345"), pbmc)
 #'
 #' # return.values input is especially useful in these cases.
-#' isGene(c("CD14", "IL32", "CD3E", "CD12345"), return.values = TRUE)
+#' isGene(c("CD14", "IL32", "CD3E", "CD12345"), pbmc, return.values = TRUE)
 #'
 #' @author Daniel Bunis
 #' @export
 
-isGene <- function(test, object=DEFAULT, assay = .default_assay(object),
+isGene <- function(test, object, assay = .default_assay(object),
     return.values = FALSE) {
 
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
     if (return.values) {
         return(test[isGene(test, object, assay, return.values=FALSE)])
     } else {
@@ -57,7 +49,7 @@ isGene <- function(test, object=DEFAULT, assay = .default_assay(object),
 
 #' Returns the names of all genes of a target object.
 #'
-#' @param object A target Seurat or SingleCellExperiment object, OR the name of the target object in "quotes".
+#' @param object A target Seurat or SingleCellExperiment object
 #' @param assay single string or integer that sets which set of seq data inside the object to check.
 #' @return A string vector, returns the names of all genes of the \code{object} for the requested \code{assay}.
 #' @seealso
@@ -81,10 +73,7 @@ isGene <- function(test, object=DEFAULT, assay = .default_assay(object),
 #' @author Daniel Bunis
 #' @export
 
-getGenes <- function(object=DEFAULT, assay = .default_assay(object)){
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
+getGenes <- function(object, assay = .default_assay(object)){
     rownames(.which_data(object=object,assay = assay))
 }
 
@@ -92,7 +81,7 @@ getGenes <- function(object=DEFAULT, assay = .default_assay(object)){
 #' Returns the expression values of a gene for all cells/samples
 #'
 #' @param gene quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.
-#' @param object "name" of the Seurat or SingleCellExperiment object = REQUIRED, unless `DEFAULT <- "object"` has been run.
+#' @param object A target Seurat or SingleCellExperiment object
 #' @param assay,slot single strings or integer that set which data to use.
 #' Seurat and SingleCellExperiments deal with these differently, so be sure to check the documentation for whichever object you are using.
 #' When not provided, these typical defaults for the provided \code{object} class are used:
@@ -119,21 +108,22 @@ getGenes <- function(object=DEFAULT, assay = .default_assay(object)){
 #' # (For this object, the default assay is the logcounts assay)
 #' gene("gene1", myRNA)
 #'
-#' # Seurat
-#' # pbmc <- Seurat::pbmc_small
-#' # gene("CD14", object = pbmc, assay = "RNA", slot = "counts")
+#' # Seurat (raw counts)
+#' if (!requireNamespace("Seurat")) {
+#'     gene("CD14", object = Seurat::pbmc, assay = "RNA", slot = "counts")
+#' }
+#'
 #' @author Daniel Bunis
 #' @export
 
 gene <- function(
-    gene, object=DEFAULT,
+    gene, object,
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL){
 
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
+    if (!isGene(gene, object)) {
+        stop(dQuote(gene)," is not a gene of 'object'")
     }
-
     # Recursive functions for adjustments
     if (!is.null(adjustment)) {
         if (adjustment=="z-score") {

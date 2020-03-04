@@ -4,10 +4,10 @@
 \alias{getMetas}
 \title{Returns the names of all meta.data slots of a target object.}
 \usage{
-getMetas(object = DEFAULT, names.only = TRUE)
+getMetas(object, names.only = TRUE)
 }
 \arguments{
-\item{object}{A target Seurat or SingleCellExperiment object, OR the name of the target object in "quotes".}
+\item{object}{A target Seurat or SingleCellExperiment object}
 
 \item{names.only}{Logical, \code{TRUE} by default, which sets whether just the names should be output versus the entire metadata dataframe.}
 }

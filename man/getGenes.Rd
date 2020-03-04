@@ -4,10 +4,10 @@
 \alias{getGenes}
 \title{Returns the names of all genes of a target object.}
 \usage{
-getGenes(object = DEFAULT, assay = .default_assay(object))
+getGenes(object, assay = .default_assay(object))
 }
 \arguments{
-\item{object}{A target Seurat or SingleCellExperiment object, OR the name of the target object in "quotes".}
+\item{object}{A target Seurat or SingleCellExperiment object}
 
 \item{assay}{single string or integer that sets which set of seq data inside the object to check.}
 }

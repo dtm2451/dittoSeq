@@ -102,8 +102,8 @@ BiocManager::install("dtm2451/dittoSeq")
 dittoSeq works directly with Seurat and SingleCellExperiment objects.  Nothing
 special is needed. Just load in your data if it isn't already loaded, then go!
 
-Here, we will need to do some prep as the dataset we will use is not
-normalized nor dimensionality reduced.
+Here, we will need to do some prep as the dataset we will use from
+@baron_single-cell_2016 is not normalized nor dimensionality reduced.
 
 ```{r}
 library(dittoSeq)
@@ -163,9 +163,9 @@ Now that we have a single-cell dataset loaded as both Seurat and SCE, we are
 ready to go.  All functions work for either the Seurat or SCE version.
 
 ```{r}
-dittoDimPlot("Sample", seurat)
-dittoPlot("ENO1", object = seurat, group.by = "celltype")
-dittoBarPlot("celltype", object = sce, group.by = "Sample")
+dittoDimPlot(seurat, "Sample")
+dittoPlot(seurat, "ENO1", group.by = "celltype")
+dittoBarPlot(sce, "celltype", group.by = "Sample")
 ```
 
 ## Bulk RNAseq data
@@ -218,10 +218,10 @@ myRNA <- addDimReduction(
     key = "PC")
 
 # Make Plots
-dittoDimPlot("sex", myRNA, size = 3, do.ellipse = TRUE)
-dittoBarPlot("sex", myRNA, group.by = "conditions")
-dittoBoxPlot("gene1", myRNA, group.by = "sex")
-dittoHeatmap(getGenes(myRNA)[1:10], object = myRNA,
+dittoDimPlot(myRNA, "sex", size = 3, do.ellipse = TRUE)
+dittoBarPlot(myRNA, "sex", group.by = "conditions")
+dittoBoxPlot(myRNA, "gene1", group.by = "sex")
+dittoHeatmap(myRNA, getGenes(myRNA)[1:10],
     annotation.metas = c("conditions", "sex"))
 ```
 
@@ -262,7 +262,7 @@ gene("ENO1", seurat)[1:10]
 # Retrieve metadata values:
 meta("celltype", seurat)[1:10]
 # Retrieve unique values of a metadata
-meta.levels("celltype", seurat)
+metaLevels("celltype", seurat)
 ```
 
 # Visualizations
@@ -280,20 +280,20 @@ of `dittoDimPlot()` being dimensionality reductions like tsne, pca, umap or
 similar.
 
 ```{r, results = "hold"}
-dittoDimPlot("celltype", seurat)
-dittoDimPlot("ENO1", sce)
+dittoDimPlot(seurat, "celltype")
+dittoDimPlot(sce, "ENO1")
 ```
 
 ```{r, results = "hold"}
 dittoScatterPlot(
+    object = sce,
     x.var = "ENO1", y.var = "INS",
     color.var = "celltype", shape.var = "Sample",
-    object = sce,
     size = 3)
 dittoScatterPlot(
+    object = seurat,
     x.var = "nCount_RNA", y.var = "nFeature_RNA",
     color.var = "percent.mt",
-    object = seurat,
     size = 3)
 ```
 
@@ -306,9 +306,9 @@ features will then start with the XXXX part that comes after `add.XXXX` or
 `do.XXXX`, as exemplified below.
 
 ```{r}
-dittoDimPlot("ident", seurat,
+dittoDimPlot(seurat, "ident",
              do.label = TRUE, labels.repel = FALSE)
-dittoDimPlot("ident", seurat,
+dittoDimPlot(seurat, "ident",
              add.trajectory.lineages = list(
                  c("3","4","11","8","2","10"),
                  c("3","9","6","12"),
@@ -333,10 +333,10 @@ the `plots` input from c("jitter", "vlnplot") to c("ridgeplot") or
 c("boxplot","jitter"), respectively.
 
 ```{r, results = "hold"}
-dittoPlot("ENO1", seurat, group.by = "celltype",
+dittoPlot(seurat, "ENO1", group.by = "celltype",
     plots = c("vlnplot", "jitter"))
-dittoRidgePlot("ENO1", sce, group.by = "celltype")
-dittoBoxPlot("ENO1", seurat, group.by = "celltype")
+dittoRidgePlot(sce, "ENO1", group.by = "celltype")
+dittoBoxPlot(seurat, "ENO1", group.by = "celltype")
 ```
 
 Tweaks to the individual data representation types can be made with discrete
@@ -344,7 +344,7 @@ inputs, all of which start with the representation types' name.  For
 example...
 
 ```{r}
-dittoPlot("ENO1", seurat, group.by = "celltype",
+dittoPlot(seurat, "ENO1", group.by = "celltype",
     plots = c("vlnplot", "jitter", "boxplot"),
     # change the color and size of jitter points
     jitter.color = "blue", jitter.size = 0.5,
@@ -364,8 +364,8 @@ can be represented as percentages or counts, and this is controlled by the
 `scale` input.
 
 ```{r, results = "hold"}
-dittoBarPlot("celltype", seurat, group.by = "Sample")
-dittoBarPlot("ident", seurat, group.by = "Sample",
+dittoBarPlot(seurat, "celltype", group.by = "Sample")
+dittoBarPlot(seurat, "ident", group.by = "Sample",
     scale = "count")
 ```
 
@@ -389,7 +389,7 @@ genes <- c("SST", "REG1A", "PPY", "INS", "CELA3A", "PRSS2", "CTRB1",
 # Ordering cells by some meaningful feature:
 #   Turning off cell clustering can be necessary for many-cell scRNAseq.
 #   Ordering can be a functional way of doing that.
-dittoHeatmap(genes, seurat,
+dittoHeatmap(seurat, genes,
     order.by = "celltype")
 ```
 
@@ -402,7 +402,7 @@ shown.
 
 ```{r}
 # Add annotations
-dittoHeatmap(genes, seurat,
+dittoHeatmap(seurat, genes,
     order.by = "celltype",
     annotation.metas = c("celltype", "Sample"),
     scaled.to.max = TRUE,
@@ -415,7 +415,7 @@ have names shown for just these genes.
 
 ```{r}
 # Highlight certain genes
-dittoHeatmap(genes, seurat,
+dittoHeatmap(seurat, genes,
     order.by = "celltype",
     annotation.metas = "celltype",
     highlight.genes = genes[1:3],
@@ -461,9 +461,9 @@ point instead represents the average expression, across each x-grouping, of a
 gene (or value of a metadata).
 
 ```{r}
-multi_dittoPlot(delta.genes[1:6], object = seurat, group.by = "celltype",
+multi_dittoPlot(seurat, delta.genes[1:6], group.by = "celltype",
     vlnplot.lineweight = 0.2, jitter.size = 0.3)
-dittoPlotVarsAcrossGroups(delta.genes, object = seurat, group.by = "celltype",
+dittoPlotVarsAcrossGroups(seurat, delta.genes, group.by = "celltype",
     main = "Delta-cell Markers")
 ```
 
@@ -480,10 +480,10 @@ checking/highlighting when a gene may be differentially expressed within
 multiple cell types or accross all samples
 
 ```{r, results = "hold"}
-multi_dittoDimPlot(delta.genes[1:6], object = seurat)
-multi_dittoDimPlotVaryCells(delta.genes[1], object = seurat,
+multi_dittoDimPlot(seurat, delta.genes[1:6])
+multi_dittoDimPlotVaryCells(seurat, delta.genes[1],
     vary.cells.meta = "celltype")
-multi_dittoDimPlotVaryCells("celltype", object = seurat,
+multi_dittoDimPlotVaryCells(seurat, "celltype",
     vary.cells.meta = "celltype")
 ```
 
@@ -503,14 +503,14 @@ be included.
 
 ```{r}
 # Original
-dittoBarPlot("celltype", seurat, group.by = "Sample", scale = "count")
+dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count")
 
 # String method, first 10 cells
-dittoBarPlot("celltype", seurat, group.by = "Sample", scale = "count",
+dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
     cells.use = colnames(seurat)[1:10])
 
 # Logical method, only acinar cells
-dittoBarPlot("celltype", seurat, group.by = "Sample", scale = "count",
+dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
     cells.use = meta("celltype", seurat) == "acinar")
 ```
 
@@ -520,7 +520,7 @@ Relevant inputs are generally `main`, `sub`, `xlab`, `ylab`, `x.labels`, and
 `legend.title`.
 
 ```{r}
-dittoBarPlot("celltype", seurat, group.by = "Sample",
+dittoBarPlot(seurat, "celltype", group.by = "Sample",
     main = "Encounters",
     sub = "By Type",
     xlab = NULL, # NULL = remove
@@ -540,20 +540,20 @@ nearby clusters appear too similar in tSNE/umap plots!
 
 ```{r, results="hold"}
 # original - discrete
-dittoDimPlot("celltype", seurat)
+dittoDimPlot(seurat, "celltype")
 # swapped colors
-dittoDimPlot("celltype", seurat,
+dittoDimPlot(seurat, "celltype",
     colors = 5:1)
 # different colors
-dittoDimPlot("celltype", seurat,
+dittoDimPlot(seurat, "celltype",
     color.panel = c("red", "orange", "purple", "yellow", "skyblue"))
 ```
 
 ```{r, results="hold"}
 # original - expression
-dittoDimPlot("INS", seurat)
+dittoDimPlot(seurat, "INS")
 # different colors
-dittoDimPlot("INS", seurat,
+dittoDimPlot(seurat, "INS",
     max.color = "red", min.color = "gray90")
 ```
 
@@ -563,7 +563,7 @@ Simply add  `data.out = TRUE` to any of the individual plotters and a
 representation of the underlying data will be output.
 
 ```{r}
-dittoBarPlot("celltype", seurat, group.by = "Sample",
+dittoBarPlot(seurat, "celltype", group.by = "Sample",
     data.out = TRUE)
 ```
 
@@ -573,7 +573,7 @@ expression matrix is represented before plotting, or even to use a different
 heatmap creator from pheatmap altogether.
 
 ```{r}
-dittoHeatmap(c("SST","CPE","GPX3"), seurat, cells.use = colnames(seurat)[1:5],
+dittoHeatmap(seurat, c("SST","CPE","GPX3"), cells.use = colnames(seurat)[1:5],
     data.out = TRUE)
 ```
 
@@ -591,10 +591,10 @@ displayed.
 
 ```{r, eval = FALSE}
 # These can be finicky to render in knitting, but still, example code:
-dittoDimPlot("INS", seurat,
+dittoDimPlot(seurat, "INS",
     do.hover = TRUE,
     hover.data = c("celltype", "Sample", "ENO1", "ident", "nCount_RNA"))
-dittoPlot("INS", seurat, group.by = "celltype", plots = c("vlnplot", "jitter"),
+dittoPlot(seurat, "INS", group.by = "celltype", plots = c("vlnplot", "jitter"),
     do.hover = TRUE,
     hover.data = c("celltype", "Sample", "ENO1", "ident", "nCount_RNA"))
 ```
@@ -605,9 +605,9 @@ dittoPlotVarsAcrossGroups), just `do.hover` is enough:
 
 ```{r, eval = FALSE}
 # These can be finicky to render in knitting, but still, example code:
-dittoBarPlot("celltype", seurat, group.by = "Sample",
+dittoBarPlot(seurat, "celltype", group.by = "Sample",
     do.hover = TRUE)
-dittoPlotVarsAcrossGroups(delta.genes, object = seurat, group.by = "celltype",
+dittoPlotVarsAcrossGroups(seurat, delta.genes, group.by = "celltype",
     do.hover = TRUE)
 ```
 

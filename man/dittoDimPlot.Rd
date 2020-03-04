@@ -5,8 +5,8 @@
 \title{Shows data overlayed on a tsne, pca, or similar type of plot}
 \usage{
 dittoDimPlot(
+  object,
   var = "ident",
-  object = DEFAULT,
   reduction.use = NA,
   size = 1,
   opacity = 1,
@@ -59,12 +59,12 @@ dittoDimPlot(
 )
 }
 \arguments{
+\item{object}{A Seurat or SingleCellExperiment object to work with}
+
 \item{var}{String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 This is the data that will be displayed for each cell/sample.
 Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
-Discrete or continuous data both work. REQUIRED.}
-
-\item{object}{A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".
+Discrete or continuous data both work. REQUIRED.
 REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
@@ -239,25 +239,22 @@ Arrow size is controlled with the \code{trajectory.arrow.size} input.
 }
 \examples{
 pbmc <- Seurat::pbmc_small
+
 # Display discrete data:
-dittoDimPlot("RNA_snn_res.1", object = "pbmc")
+dittoDimPlot(pbmc, "RNA_snn_res.1")
 # Display continuous data:
-dittoDimPlot("CD14", object = "pbmc")
+dittoDimPlot(pbmc, "CD14")
 
 # To show currently set clustering for seurat objects, you can use "ident".
 # To change the dimensional reduction type, use reduction.use.
 
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-DEFAULT <- "pbmc"
-dittoDimPlot("nFeature_RNA")
-
 # MANY addtional tweaks are possible.
 # Also, many extra features are easy to add as well:
-dittoDimPlot("ident", do.label = TRUE)
-dittoDimPlot("ident", do.label = TRUE, do.ellipse = TRUE)
-dittoDimPlot("CD3E", do.hover = TRUE,
+dittoDimPlot(pbmc, "ident", do.label = TRUE)
+dittoDimPlot(pbmc, "ident", do.label = TRUE, do.ellipse = TRUE)
+dittoDimPlot(pbmc, "CD3E", do.hover = TRUE,
     hover.data = c("CD14", "RNA_snn_res.0.8", "groups"))
-dittoDimPlot("CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
+dittoDimPlot(pbmc, "CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
     trajectory.cluster.meta = "ident")
 }
 \seealso{
