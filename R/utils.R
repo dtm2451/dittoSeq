@@ -244,13 +244,13 @@
 }
 
 .error_if_no_Seurat <- function() {
-    if (!requireNamespace("Seurat")) {
-        stop("Seurat installation required.")
+    if (!requireNamespace("Seurat", quietly = TRUE)) {
+        stop("Seurat installation required for working with Seurat objects")
     }
 }
 
 .error_if_no_plotly <- function() {
-    if (!requireNamespace("plotly")) {
+    if (!requireNamespace("plotly", quietly = TRUE)) {
         stop("plotly installation required for using hover")
     }
 }
