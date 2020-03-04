@@ -37,6 +37,7 @@
     adjustment = NULL) {
 
     OUT <- var
+    cells <- .all_cells(object)
     if (length(var)==1 && typeof(var)=="character") {
         if (isMeta(var, object)) {
             OUT <- meta(var, object)
@@ -45,7 +46,11 @@
             OUT <- gene(var, object, assay, slot, adjustment)
         }
     }
-    names(OUT) <- .all_cells(object)
+
+    if (length(OUT)!=length(cells)) {
+        stop("'var' is not a metadata or gene nor equal in length to ncol('object')")
+    }
+    names(OUT) <- cells
     OUT
 }
 
@@ -198,9 +203,15 @@
     }
     rename.args <- list(x = orig.data)
     if (!(is.null(reorder))) {
-        rename.args$levels <- levels(factor(rename.args$x))[reorder]
+        if (length(reorder)!=length(levels(factor(orig.data)))) {
+            stop("incorrect number of indices provided to 'reorder' input")
+        }
+        rename.args$levels <- levels(factor(orig.data))[reorder]
     }
     if (!(is.null(relabels))) {
+        if (length(relabels)!=length(levels(factor(orig.data)))) {
+            stop("incorrect number of labels provided to 'relabel' input")
+        }
         rename.args$labels <- relabels
     }
     do.call(factor, args = rename.args)

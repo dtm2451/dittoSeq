@@ -121,10 +121,9 @@ gene <- function(
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL){
 
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
+    if (!isGene(gene, object)) {
+        stop(dQuote(gene)," is not a gene of 'object'")
     }
-
     # Recursive functions for adjustments
     if (!is.null(adjustment)) {
         if (adjustment=="z-score") {

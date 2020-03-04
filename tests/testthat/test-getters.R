@@ -29,6 +29,13 @@ test_that("metaLevels works for Seurat and SCE", {
     expect_equal(groups, metaLevels("groups", sce))
 })
 
+test_that("meta and metaLevels give error when given a non-meta", {
+    expect_error(meta("a", seurat),
+        "\"a\" is not a metadata of 'object'", fixed = TRUE)
+    expect_error(metaLevels("a", seurat),
+        "\"a\" is not a metadata of 'object'", fixed = TRUE)
+})
+
 test_that("getGenes works for Seurat and SCE", {
     expect_type(genes <- getGenes(seurat),
         "character")
@@ -68,9 +75,29 @@ test_that("gene works for different data types for Seurat and SCE", {
         gene("gene1", seurat, adjustment = "relative.to.max")))
 })
 
+test_that("gene gives error when given a non-meta", {
+    expect_error(gene("a", seurat),
+        "\"a\" is not a gene of 'object'", fixed = TRUE)
+})
+
 test_that("getReductions works for Seurat and SCE", {
     expect_type(reductions <- getReductions(seurat),
         "character")
     expect_equal(reductions, getReductions(sce))
 })
+
+test_that(".var_or_get_meta_or_gene gets metas, genes, spits back var, or errors if wrong length", {
+    expect_equal(
+        .var_OR_get_meta_or_gene("groups", seurat),
+        meta("groups", seurat))
+    expect_equal(
+        .var_OR_get_meta_or_gene("gene1", seurat),
+        gene("gene1", seurat))
+    expect_equal(
+        length(.var_OR_get_meta_or_gene(seq_len(ncol(seurat)), seurat)),
+        ncol(seurat)) # just checks length because names are added by the function.
+    expect_error(.var_OR_get_meta_or_gene(1,sce),
+        "'var' is not a metadata or gene nor equal in length to ncol('object')", fixed = TRUE)
+})
+
 

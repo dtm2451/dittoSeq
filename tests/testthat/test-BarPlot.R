@@ -140,7 +140,7 @@ test_that("dittoBarPlot var-labels can be adjusted and reordered", {
     expect_s3_class(
         dittoBarPlot(
             seurat, grp2, group.by = grp3,
-            var.labels.reorder = 2:1),
+            var.labels.reorder = 4:1),
         "ggplot")
 })
 
