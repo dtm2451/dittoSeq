@@ -68,9 +68,14 @@ Simulate <- function(
 
     type <- match.arg(type)
 
-    color.p <- eval(expr = parse(text = paste0(
+    color.adj <- eval(expr = parse(text = paste0(
         "colorspace::",type,"(color.panel)")))
+    min.adj <- eval(expr = parse(text = paste0(
+        "colorspace::",type,"(min.color)")))
+    max.adj <- eval(expr = parse(text = paste0(
+        "colorspace::",type,"(max.color)")))
 
     #Make the plot!
-    plot.function(color.panel = color.p, ... )
+    plot.function(color.panel = color.adj, min.color = min.adj,
+                  max.color = max.adj, ... )
 }
