@@ -4,12 +4,12 @@
 \alias{meta}
 \title{Returns the values of a meta.data  for all cells/samples}
 \usage{
-meta(meta, object = DEFAULT)
+meta(meta, object)
 }
 \arguments{
 \item{meta}{String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.}
 
-\item{object}{A Seurat or SingleCellExperiment object to work with, OR the name of the object in "quotes".}
+\item{object}{A target Seurat or SingleCellExperiment object}
 }
 \value{
 Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
@@ -20,11 +20,7 @@ Returns the values of a meta.data  for all cells/samples
 \examples{
 
 pbmc <- Seurat::pbmc_small
-meta("RNA_snn_res.1", object = "pbmc")
-
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-DEFAULT <- "pbmc"
-meta("RNA_snn_res.1")
+meta("RNA_snn_res.1", object = pbmc)
 
 }
 \seealso{

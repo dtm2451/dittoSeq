@@ -54,9 +54,9 @@ Lighten <- function(colors, percent.change = 0.25, relative = TRUE) {
 #' @examples
 #' library(Seurat)
 #' pbmc <- Seurat::pbmc_small
-#' Simulate("deutan", dittoDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
-#' Simulate("protan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
-#' Simulate("tritan", dittoDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
+#' Simulate("deutan", dittoDimPlot, object=pbmc, var="RNA_snn_res.1", size = 2)
+#' Simulate("protan", dittoDimPlot, pbmc, "RNA_snn_res.1", size = 2)
+#' Simulate("tritan", dittoDimPlot, pbmc, "RNA_snn_res.1", size = 2)
 #'
 #' @author Daniel Bunis
 #' @importFrom colorspace deutan protan tritan

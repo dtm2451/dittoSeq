@@ -30,7 +30,7 @@
 #'     prcomp = calc)
 #'
 #' # Now we can visualize conditions metadata on a PCA plot
-#' dittoDimPlot("conditions", myRNA, reduction.use = "pca", size = 3)
+#' dittoDimPlot(myRNA, "conditions", reduction.use = "pca", size = 3)
 #' @author Daniel Bunis
 #' @export
 
@@ -73,7 +73,7 @@ addPrcomp <- function(object, prcomp, name = "pca", key = "PC") {
 #'     key = "PC")
 #'
 #' # Visualize conditions metadata on a PCA plot
-#' dittoDimPlot("conditions", myRNA, reduction.use = "pca", size = 3)
+#' dittoDimPlot(myRNA, "conditions", reduction.use = "pca", size = 3)
 #'
 #' @author Daniel Bunis
 #' @importFrom SingleCellExperiment reducedDim<-

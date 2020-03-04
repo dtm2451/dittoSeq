@@ -5,8 +5,8 @@
 \title{Generates multiple dittoDimPlots, each showing different cells, arranged into a grid.}
 \usage{
 multi_dittoDimPlotVaryCells(
+  object,
   var,
-  object = DEFAULT,
   vary.cells.meta,
   vary.cells.levels = meta.levels(vary.cells.meta, object),
   assay = .default_assay(object),
@@ -29,31 +29,24 @@ multi_dittoDimPlotVaryCells(
 )
 }
 \arguments{
+\item{object}{A Seurat or SingleCellExperiment object to work with}
+
 \item{var}{String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 This is the data that will be displayed for each cell/sample.
+
 Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 Discrete or continuous data both work. REQUIRED.}
-
-\item{object}{A Seurat or SingleCellExperiment object, or the name of the object in "quotes". REQUIRED, unless \code{DEFAULT <- "object"} has been run.}
 
 \item{vary.cells.meta}{String name of a metadata that should be used for selecting which cells to show in each "varycells" plot. REQUIRED.}
 
 \item{vary.cells.levels}{The values/groupings of the \code{vary.cells.meta} metadata that should get a plot.
 Defaults to all levels of the metadata.}
 
-\item{assay, slot}{single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.}
-
-\item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
-\itemize{
-\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
-\item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
-}}
-
-\item{min, max}{Numeric values which set the values associated with the minimum and maximum colors in the legend when data represented by \code{var} is numeric.}
-
-\item{color.panel}{a list of colors to be used for when plotting a discrete var.}
-
-\item{colors}{indexes / order of colors from color.panel to use. USAGE= changing the order of how colors are linked to specific groups}
+\item{color.panel, colors, min, max, assay, slot, adjustment, ...}{additional parameters passed todittoDimPlot.
+All parameters except for \code{cells.use}, \code{main}, and \code{legend.show} can be used.
+A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.
+\code{xlab} and \code{ylab} can be set to \code{NULL} to remove the axes labels and provide extra room for the data.
+\code{size} can be used to adjust the size of the dots.}
 
 \item{show.titles}{Logical which sets whether titles should be added to the individual varycells plots}
 
@@ -70,11 +63,6 @@ Defaults to all levels of the metadata.}
 \item{ncol, nrow}{Integers which set dimensions of the plot grid.}
 
 \item{OUT.List}{Logical which controls whether the list of plots should be returned as a list instead of as a single grid arrangement of the plots.}
-
-\item{...}{additional parameters passed todittoDimPlot.
-A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.
-\code{xlab} and \code{ylab} can be set to \code{NULL} to remove the axes labels and provide extra room for the data.
-\code{size} can be used to adjust the size of the dots.}
 }
 \value{
 multiple dittoDimPlot \code{\link[ggplot2]{ggplot}}s either arranged in a grid OR as a list
@@ -107,26 +95,24 @@ Either continuous or discrete \code{var} data can be displayed.
 \examples{
 pbmc <- Seurat::pbmc_small
 
-multi_dittoDimPlotVaryCells("CD14", object = "pbmc", vary.cells.meta = "ident")
-# Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-DEFAULT <- "pbmc"
+multi_dittoDimPlotVaryCells(pbmc, "CD14", vary.cells.meta = "ident")
 
 # This function can be used to quickly scan for differences in expression
 #   within or accross clusters/cell types by providing a gene to 'var'
-multi_dittoDimPlotVaryCells("CD14", vary.cells.meta = "ident")
+multi_dittoDimPlotVaryCells(pbmc, "CD14", vary.cells.meta = "ident")
 
 # This function is also great for generating separate plots of each individual
 #   element of a tsne/PCplot/umap. This can be useful to check for dispersion
 #   of groups that might otherwise be hidden behind other cells/samples.
 #   To do so, set 'var' and 'vary.cells.meta' the same.
-multi_dittoDimPlotVaryCells("ident", vary.cells.meta = "ident")
+multi_dittoDimPlotVaryCells(pbmc, "ident", vary.cells.meta = "ident")
 
 # The function can also be used to quickly visualize how separate clustering
 #   resolutions match up to each other, or perhaps how certain conditions of
 #   cells disperse accross clusters.
-multi_dittoDimPlotVaryCells("RNA_snn_res.0.8", vary.cells.meta = "ident")
+multi_dittoDimPlotVaryCells(pbmc, "RNA_snn_res.0.8", vary.cells.meta = "ident")
 
-# For an alternative method of viewing, and easily quantifying, how ceratin
+# For an alternative method of viewing, and easily quantifying, how discrete
 #   conditions of cells disperse accross clusters, see '?dittoBarPlot'
 
 }

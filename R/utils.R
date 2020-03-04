@@ -10,7 +10,7 @@
     cowplot::ggdraw(cowplot::get_legend(ggplot))
 }
 
-.all_cells <- function(object = DEFAULT) {
+.all_cells <- function(object) {
     if (is(object, "Seurat") || is(object,"SingleCellExperiment")) {
         # Seurat-v3, bulk or single-cell SCE
         return(colnames(object))
@@ -20,7 +20,7 @@
     }
 }
 
-.which_cells <- function(cells.use, object = DEFAULT) {
+.which_cells <- function(cells.use, object) {
     all.cells <- .all_cells(object)
     if (is.null(cells.use)) {
         return(all.cells)
@@ -32,7 +32,7 @@
     cells.use
 }
 
-.var_OR_get_meta_or_gene <- function(var, object = DEFAULT,
+.var_OR_get_meta_or_gene <- function(var, object,
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL) {
 

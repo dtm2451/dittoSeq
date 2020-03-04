@@ -40,7 +40,7 @@ myRNA <- addPrcomp(
     prcomp = calc)
 
 # Now we can visualize conditions metadata on a PCA plot
-dittoDimPlot("conditions", myRNA, reduction.use = "pca", size = 3)
+dittoDimPlot(myRNA, "conditions", reduction.use = "pca", size = 3)
 }
 \seealso{
 \code{\link{addDimReduction}} for adding other types of dimensionality reductions

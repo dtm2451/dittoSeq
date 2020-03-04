@@ -122,29 +122,30 @@
 #' @examples
 #' library(Seurat)
 #' pbmc <- pbmc_small
-#' dittoPlot("CD14", object = "pbmc", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
-#' # Note: if DEFAULT <- "pbmc" is run beforehand, the object input can be skipped completely.
-#' DEFAULT <- "pbmc"
-#' dittoPlot("CD14", group.by = "RNA_snn_res.1")
+#' dittoPlot(pbmc, "CD14", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
 #'
 #' # We can adjust the types of plots displayed with the plots input:
-#' dittoPlot("CD14", group.by = "RNA_snn_res.1",
+#' dittoPlot(pbmc, "CD14", group.by = "RNA_snn_res.1",
 #'     plots = c("vlnplot", "boxplot", "jitter"),
 #'     boxplot.fill = FALSE)
 #'
 #' # Quickly make a Ridgeplot
-#' dittoRidgePlot("CD14", group.by = "RNA_snn_res.1")
+#' dittoRidgePlot(pbmc, "CD14", group.by = "RNA_snn_res.1")
 #'
 #' # Quickly make a Boxplot
-#' dittoBoxPlot("CD14", group.by = "RNA_snn_res.1")
+#' dittoBoxPlot(pbmc, "CD14", group.by = "RNA_snn_res.1")
 #'
 #' # Any of these can be combined with 'hovering' to retrieve specific info
 #' #   about certain data points.  Just add 'do.hover = TRUE' and pick what
 #' #   extra data to display by provide set of gene or metadata names to
 #' #   'hover.data'.
 #' #     Note: ggplotly plots ignores certain dittoSeq plot tweaks.
-#' dittoBoxPlot("CD14", group.by = "RNA_snn_res.1",
-#'     do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
+#' #     Also note: requires the plotly package
+#' if (!requireNamespace("plotly")) {
+#'     dittoBoxPlot(pbmc, "CD14", group.by = "RNA_snn_res.1",
+#'         do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
+#' }
+#'
 #'
 #' @author Daniel Bunis
 #' @export
@@ -295,12 +296,12 @@ multi_dittoPlot <- function(
 
     plots <- lapply(vars, function(X) {
         args <- list(object, X, group.by, color.by,
-            ylab = ylabs, main = mains, legend.show = legend.show, ...)
-        if (!is.null(ylabs)) {
-            args$ylab <- ifelse(ylabs == "var", X, ylabs)
+            ylab = ylab, main = main, legend.show = legend.show, ...)
+        if (!is.null(ylab)) {
+            args$ylab <- ifelse(ylab == "var", X, ylab)
         }
-        if (!is.null(mains)) {
-            args$main <- ifelse(mains == "var", X, mains)
+        if (!is.null(main)) {
+            args$main <- ifelse(main == "var", X, main)
         }
         do.call(dittoPlot, args)
     })

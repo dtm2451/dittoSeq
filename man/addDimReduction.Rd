@@ -43,7 +43,7 @@ myRNA <- addDimReduction(
     key = "PC")
 
 # Visualize conditions metadata on a PCA plot
-dittoDimPlot("conditions", myRNA, reduction.use = "pca", size = 3)
+dittoDimPlot(myRNA, "conditions", reduction.use = "pca", size = 3)
 
 }
 \seealso{

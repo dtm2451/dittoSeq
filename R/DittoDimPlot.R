@@ -226,7 +226,7 @@ dittoDimPlot <- function(
 
     # Make dataframes and plot
     p.df <- dittoScatterPlot(
-        xdat$embeddings, ydat$embeddings, var, shape.var, object, cells.use,
+        object, xdat$embeddings, ydat$embeddings, var, shape.var, cells.use,
         show.others, size, opacity, color.panel, colors,
         NULL, NULL, NULL, NULL, NULL, NULL, assay, slot, adjustment,
         do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
@@ -446,7 +446,7 @@ dittoDimPlot <- function(
 #' pbmc <- Seurat::pbmc_small
 #'
 #' genes <- c("CD8A","CD3E","FCER1A","CD14","MS4A1")
-#' multi_dittoDimPlot(c(genes, "ident"), object = "pbmc")
+#' multi_dittoDimPlot(pbmc, c(genes, "ident"))
 #'
 #' @author Daniel Bunis
 #' @export
