@@ -244,7 +244,7 @@ dittoPlotVarsAcrossGroups <- function(
             }, FUN.VALUE = logical(1))
             )!=0
         if (error) {
-            stop("Unable to interpret color.by input. All 'group.by' groupings must map to the same 'color.by' data.")
+            stop("Unable to interpret 'color.by' input. 'group.by' sets must map within the same 'color.by' sets.")
         }
     }
 

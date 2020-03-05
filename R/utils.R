@@ -167,7 +167,7 @@
         logical(1))
     data.hover <- data.hover[fillable]
     if (is.null(data.hover)) {
-        stop("No genes or metadata names added to `hover.data`")
+        stop("No genes or metadata names added to 'hover.data'")
     }
 
     # Create dataframe to contain the hover.info

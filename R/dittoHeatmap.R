@@ -3,7 +3,8 @@
 #' @importFrom grDevices colorRampPalette
 #'
 #' @param object A Seurat or SingleCellExperiment object to work with
-#' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap. REQUIRED.
+#' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap.
+#' If not provided, defaults to all genes of the object / assay.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
@@ -144,9 +145,6 @@ dittoHeatmap <- function(
     data.out=FALSE, highlight.genes = NULL, show.colnames = TRUE,
     show.rownames = TRUE, ...) {
 
-    if (is.null(genes)) {
-        stop('This function is not set up to select which genes to use.\nPlease provide a set of genes.')
-    }
     # If cells.use given as logical, populate as names.
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)
@@ -160,9 +158,9 @@ dittoHeatmap <- function(
     if (sum(rowSums(data)==0)) {
         data <- data[rowSums(data)!=0,]
         if (nrow(data)==0) {
-            stop("No target genes are expressed in the cells.use subset.")
+            stop("No target genes are expressed in the 'cells.use' subset")
         }
-        warning("Gene(s) removed due to absence of expression within the cells.use subset")
+        warning("Gene(s) removed due to absence of expression within the 'cells.use' subset")
     }
     if (scaled.to.max) {
         maxs <- apply(data,1,max)

@@ -81,7 +81,7 @@ setMethod("importDittoBulk", "SummarizedExperiment", function(
             if (any(dups)) {
                 message(
                     paste(colnames(obj_metadata)[dups], collapse = ", "),
-                    " metadata originally within `x` was overwitten from provided `metadata`")
+                    " metadata originally within 'x' was overwitten from provided 'metadata'")
             }
             metadata <- cbind(obj_metadata[,!dups, drop = FALSE], metadata)
         }
@@ -91,10 +91,10 @@ setMethod("importDittoBulk", "SummarizedExperiment", function(
     # Add reductions
     if (!is.null(reductions)) {
         if (is.null(names(reductions))) {
-            stop("Elements of reductions must be named to be added.")
+            stop("Elements of 'reductions' must be named to be added.")
         }
         for (i in names(reductions)) {
-            if (i == "") stop("All elements of reductions must be named.")
+            if (i == "") stop("All elements of 'reductions' must be named.")
             SingleCellExperiment::reducedDim(object, i) <- reductions[[i]]
         }
     }
@@ -151,7 +151,7 @@ setMethod("importDittoBulk", "list", function(
         function (ind) {ncol(x[[ind]])==ncol1},
         FUN.VALUE = logical(1)))
     if (is.null(names(x)) || !ncol.same) {
-        stop("Elements of x should be named and should all have the same number of columns.")
+        stop("Elements of 'x' should be named and should all have the same number of columns.")
     }
 
     # Create SummarizedExperiment

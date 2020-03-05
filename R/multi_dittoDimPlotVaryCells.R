@@ -108,11 +108,10 @@ multi_dittoDimPlotVaryCells <- function(
         max = max, legend.show = show.legend.plots, assay = assay, slot = slot,
         adjustment = adjustment, color.panel = color.panel, ...)
     if (!is.null(plot.args$cells.use)) {
-        stop("Further subsetting with cells.use is incompatible with this function.")
+        stop("Further subsetting with 'cells.use' is incompatible with this function.")
     }
     if (!is.null(plot.args$main)) {
-        message("Universal title adjustment through `main` ignored.",
-                " Use `sub` instead.")
+        message("Universal title adjustment through 'main' ignored. Use 'sub' instead.")
     }
     plots <- .make_vary_cell_plots(
         object, var, vary.cells.meta, cells.meta, vary.cells.levels,
