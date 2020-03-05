@@ -398,7 +398,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                     jitter.args$mapping <- aes_string(text = "hover.string")
                 }
                 jitter.args$shape <- shape.panel[1]
-                p <- p + do.call(geom_jitter, jitter.args)
+                p <- p + suppressWarnings(do.call(geom_jitter, jitter.args))
             }
         }
     }
