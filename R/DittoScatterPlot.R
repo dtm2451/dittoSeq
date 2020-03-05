@@ -224,7 +224,11 @@ dittoScatterPlot <- function(
     if (!do.shape) {
         geom.args$shape <- shape.panel[1]
     }
-    p <- p + do.call(geom_point, geom.args)
+    if (do.hover) {
+        p <- p + suppressWarnings(do.call(geom_point, geom.args))
+    } else {
+        p <- p + do.call(geom_point, geom.args)
+    }
     if (!legend.show) {
         p <- .remove_legend(p)
     }

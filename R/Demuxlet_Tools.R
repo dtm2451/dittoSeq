@@ -137,21 +137,17 @@ importDemux2Seurat <- function(
     bypass.check = FALSE, verbose = TRUE) {
 
     .error_if_no_Seurat()
-    if (!verbose) {
-        return(suppressMessages(importDemux2Seurat(
-            Seurat,lane.meta,lane.names,Demuxlet.best,bypass.check)))
-    }
     cell.names <- .all_cells(Seurat)
 
-    .check_meta_overwrite(Seurat, bypass.check)
+    .check_meta_overwrite(Seurat, bypass.check, verbose)
 
-    message("Adding 'Lane' information as meta.data")
+    .msg_ifV(verbose,"Adding 'Lane' information as meta.data")
     Seurat <- .parse_and_add_lanes(Seurat, lane.meta, lane.names, cell.names)
 
-    message("Extracting the Demuxlet calls")
+    .msg_ifV(verbose,"Extracting the Demuxlet calls")
     Demuxlet.info <- .extract_and_parse_demux_calls(Demuxlet.best)
 
-    message("Matching barcodes")
+    .msg_ifV(verbose,"Matching barcodes")
     # Strip barcodes in cell.names from any of the extra info that may have been added by Seurat (normally "text_" at start of names)
     barcodes <- vapply(
         cell.names,
@@ -166,11 +162,11 @@ importDemux2Seurat <- function(
     trim.info <- rbind(trim.info, array(NA, dim = ncol(trim.info)))
     inds[is.na(inds)] <- nrow(trim.info)
 
-    message("Adding Demuxlet info as metadata")
+    .msg_ifV(verbose,"Adding Demuxlet info as metadata")
     Seurat <- .add_demux_metas_to_Seurat(Seurat, trim.info, inds)
 
-    message("Checking for barcode duplicates across lanes...")
-    Seurat <- .check_barcode_dups(Seurat, inds, NA.ind = nrow(trim.info))
+    .msg_ifV(verbose,"Checking for barcode duplicates across lanes...")
+    Seurat <- .check_barcode_dups(Seurat,inds, NA.ind=nrow(trim.info), verbose)
 
     if (verbose) {
         .print_demux_import_summary(Seurat, cell.names, barcodes, barcodes_in)
@@ -179,25 +175,25 @@ importDemux2Seurat <- function(
     Seurat
 }
 
-.check_meta_overwrite <- function(Seurat, bypass.check) {
+.check_meta_overwrite <- function(Seurat, bypass.check, verbose) {
     check.these <- c("Lane", "Sample", "demux.doublet.call", "demux.RD.TOTL",
         "demux.RD.PASS", "demux.RD.UNIQ", "demux.N.SNP", "demux.PRB.DBL",
         "demux.barcode.dup")
     if (sum(check.these %in% getMetas(Seurat))>0) {
         if(bypass.check) {
-            message(
+            .msg_ifV(verbose,
                 "Note: '",
                 paste0(
                     check.these[check.these %in% getMetas(Seurat)],
-                    collapse = "' and '"),
-                "' will be overwritten.\n")
+                    collapse = "', '"),
+                "' are being overwritten.\n")
         } else {
             stop(
-                "WARNING: metadata slots would be overwritten:\n",
+                "metadata slots would be overwritten:\n",
                 paste0(
                     check.these[check.these %in% getMetas(Seurat)],
                     collapse = " and "),
-                ".\n If this is okay, rerun with `bypass.check = TRUE`.")
+                "\n If this is okay, rerun with 'bypass.check = TRUE'.")
         }
     }
 }
@@ -238,7 +234,7 @@ importDemux2Seurat <- function(
 
 .location_.best_to_data.frame <- function(locations) {
     read.demux <- function(file){
-        message("    from \"", file, "\"")
+        .msg_ifV(verbose,"    from \"", file, "\"")
         read.table(
             file = file,
             header=TRUE,
@@ -289,18 +285,15 @@ importDemux2Seurat <- function(
     Seurat
 }
 
-.check_barcode_dups <- function(Seurat, inds, NA.ind) {
+.check_barcode_dups <- function(Seurat, inds, NA.ind, verbose) {
     demux.barcode.dup <-
         duplicated(inds, fromLast=FALSE) | duplicated(inds, fromLast=TRUE)
     demux.barcode.dup[inds==NA.ind] <- NA
     if (sum(demux.barcode.dup, na.rm = TRUE)>0) {
-        message("Warning: Cell barcodes were duplicated accross lanes of this",
-            " dataset and may have been therefore artificially called as ",
-            "doublets by demuxlet.")
-        message("Recommended: Modify how demuxlet was run to account for this.\n")
+        warning("Warning: Cell barcodes are duplicated accross lanes, possibly leading to artificial doublet calls.")
         Seurat@meta.data$demux.barcode.dup <- demux.barcode.dup
     } else {
-        message("  No barcode duplicates were found.\n")
+        .msg_ifV(verbose,"  No barcode duplicates were found.\n")
     }
     Seurat
 }
@@ -332,6 +325,12 @@ importDemux2Seurat <- function(
 
         sum(!(barcodes %in% barcodes_in)),
         " cells were not annotated in the demuxlet.best file.")
+}
+
+.msg_ifV <- function(verbose, ...){
+    if (verbose) {
+        message(...)
+    }
 }
 
 #' Plots the number of SNPs sequenced per droplet

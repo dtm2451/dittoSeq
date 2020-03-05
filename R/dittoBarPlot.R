@@ -161,7 +161,8 @@ dittoBarPlot <- function(
         }
         #Add the bars.
         if(do.hover){
-            p <- p + geom_col(aes_string(text = "hover.string"))
+            p <- p + suppressWarnings(geom_col(
+                aes_string(text = "hover.string")))
         } else {
             p <- p + geom_col()
         }

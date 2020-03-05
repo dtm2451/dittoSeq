@@ -289,7 +289,7 @@ dittoDimPlot <- function(
     # Use umap > tsne > pca, or whatever the first reduction slot is.
     opts <- getReductions(object)
     if (is.null(opts)) {
-        stop("No dimensionality reductions available.")
+        stop("No dimensionality reduction slots in 'object'")
     }
     use <- .preferred_or_first(opts, c("umap","tsne","pca"))
     use
