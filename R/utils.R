@@ -38,7 +38,7 @@
 
     OUT <- var
     cells <- .all_cells(object)
-    if (length(var)==1 && typeof(var)=="character") {
+    if (length(var)==1 && is.character(var)) {
         if (isMeta(var, object)) {
             OUT <- meta(var, object)
         }
