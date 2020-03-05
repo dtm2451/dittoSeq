@@ -47,7 +47,7 @@ test_that("VaryCells fxn errors as wanted when given 'cells.use'.", {
     expect_error(
         multi_dittoDimPlotVaryCells(cont, object=seurat, grp,
             cells.use = colnames(seurat)[1:5]),
-        "Further subsetting with cells.use is incompatible with this function.")
+        "Further subsetting with 'cells.use' is incompatible with this function.")
 })
 
 test_that("VaryCells fxn labels subsetting works", {

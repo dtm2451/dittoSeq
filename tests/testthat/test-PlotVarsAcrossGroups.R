@@ -65,7 +65,7 @@ test_that("dittoPlotVarsAcrossGroups colors can be distinct from group.by", {
             genes, object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
             color.by = clr2),
-        "Unable to interpret color.by input. All 'group.by' groupings must map to the same 'color.by' data.")
+        "Unable to interpret 'color.by' input. 'group.by' sets must map within the same 'color.by' sets.")
 })
 
 test_that("dittoPlotVarsAcrossGroups summary.fxn can be adjusted", {

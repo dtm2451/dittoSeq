@@ -145,7 +145,7 @@ importDemux2Seurat <- function(
     Seurat <- .parse_and_add_lanes(Seurat, lane.meta, lane.names, cell.names)
 
     .msg_ifV(verbose,"Extracting the Demuxlet calls")
-    Demuxlet.info <- .extract_and_parse_demux_calls(Demuxlet.best)
+    Demuxlet.info <- .extract_and_parse_demux_calls(Demuxlet.best, verbose)
 
     .msg_ifV(verbose,"Matching barcodes")
     # Strip barcodes in cell.names from any of the extra info that may have been added by Seurat (normally "text_" at start of names)
@@ -232,8 +232,8 @@ importDemux2Seurat <- function(
     Seurat
 }
 
-.location_.best_to_data.frame <- function(locations) {
-    read.demux <- function(file){
+.location_.best_to_data.frame <- function(locations, verbose) {
+    read.demux <- function(file, verbose){
         .msg_ifV(verbose,"    from \"", file, "\"")
         read.table(
             file = file,
@@ -241,7 +241,7 @@ importDemux2Seurat <- function(
             sep="\t",
             stringsAsFactors = FALSE)
     }
-    DF <- read.demux(locations[1])
+    DF <- read.demux(locations[1], verbose)
     if (length(locations) > 1) {
         for (i in 2:length(locations)) {
             DF.new <- read.demux(locations[i])
@@ -258,9 +258,9 @@ importDemux2Seurat <- function(
     DF
 }
 
-.extract_and_parse_demux_calls <- function(Demuxlet.best) {
+.extract_and_parse_demux_calls <- function(Demuxlet.best, verbose) {
     if (is.character(Demuxlet.best)) {
-        Demuxlet.best <- .location_.best_to_data.frame(Demuxlet.best)
+        Demuxlet.best <- .location_.best_to_data.frame(Demuxlet.best, verbose)
     }
     rownames(Demuxlet.best) <- Demuxlet.best$BARCODE
     Demuxlet.calls <- data.frame(t(

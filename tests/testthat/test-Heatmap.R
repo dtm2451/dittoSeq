@@ -52,13 +52,6 @@ test_that("Heatmap can hide rownames/colnames", {
 })
 
 test_that("Heatmap gives proper warnings when it should", {
-    # Function gives and error if no geens are provided.
-    expect_error(
-        dittoHeatmap(
-            c(),
-            object = seurat,
-            cells.use = meta("number", seurat)<10),
-        NULL)
     # Function throws a warning when any genes are not captured in the target cells.
     #   One of the genes are not expressed in the first 10 cells of seurat.
     expect_warning(
