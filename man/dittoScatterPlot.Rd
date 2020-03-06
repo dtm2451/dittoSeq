@@ -9,8 +9,8 @@ dittoScatterPlot(
   x.var,
   y.var,
   color.var = NULL,
-  shape.var = NULL,
-  split.var = NULL,
+  shape.by = NULL,
+  split.by = NULL,
   extra.vars = NULL,
   cells.use = NULL,
   show.others = FALSE,
@@ -52,7 +52,7 @@ dittoScatterPlot(
   legend.color.size = 5,
   legend.color.breaks = waiver(),
   legend.color.breaks.labels = waiver(),
-  legend.shape.title = shape.var,
+  legend.shape.title = shape.by,
   legend.shape.size = 5,
   data.out = FALSE
 )
@@ -69,11 +69,11 @@ Alternatively, can be a directly supplied numeric vector of length equal to the 
 
 Alternatively, can be a directly supplied numeric or string, vector or a factor of length equal to the total number of cells/samples in \code{object}.}
 
-\item{shape.var}{Single string giving a metadata (Note: must be discrete.) that will set the shape of cells/samples in the plot.
+\item{shape.by}{Single string giving a metadata (Note: must be discrete.) that will set the shape of cells/samples in the plot.
 
 Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
 
-\item{split.var}{Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+\item{split.by}{Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
 
 Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
 
@@ -109,8 +109,8 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 \item{hover.assay, hover.slot, hover.adjustment}{Similar to the x, y, and color versions, when showing expression data upon hover, these set what data will be shown.}
 
 \item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
-When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
-When nothing is supplied to \code{shape.var}, only the first value is used.
+When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes.
+When nothing is supplied to \code{shape.by}, only the first value is used.
 Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.
 
 Note: Unfortunately, shapes can be hard to see when points are on top of each other & they are more slowly processed by the brain.
@@ -131,7 +131,7 @@ For these reasons, even as a color blind person myself writing this code, I reco
 \item{xlab, ylab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
 
 \item{main}{String, sets the plot title.
-A default title is automatically generated if based on \code{color.var} and \code{shape.var} when either are provided.
+A default title is automatically generated if based on \code{color.var} and \code{shape.by} when either are provided.
 To remove, set to \code{NULL}.}
 
 \item{sub}{String, sets the plot subtitle.}
@@ -159,14 +159,14 @@ Show RNAseq data overlayed on a scatter plot
 }
 \details{
 This function creates a dataframe with the X and Y coordinates determined by \code{x.var} and \code{y.var}.
-It then adds data for how coloring should be set if a \code{color.var} is given & for how shapes should be set if a \code{shape.var} is given.
+It then adds data for how coloring should be set if a \code{color.var} is given & for how shapes should be set if a \code{shape.by} is given.
 The \code{assay}, \code{slot}, and \code{adjustment} inputs (\code{.x}, \code{.y}, and \code{.color}) can be used to change what expression data is used when the target data is gene expression data.
 
 Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
 
 Finally, a scatter plot is then created using these dataframes.
 Non-target cells will be displayed in gray if \code{show.others=TRUE},
-and target cell data is displayed on top, colored and shaped based on the \code{color.var}- and \code{shape.var}-associated data.
+and target cell data is displayed on top, colored and shaped based on the \code{color.var}- and \code{shape.by}-associated data.
 
 If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
 
@@ -195,25 +195,25 @@ dittoScatterPlot(
 
 # Shapes or colors can be overlaid representing discrete metadata
 #   or (only colors) continuous metadata / expression data by providing
-#   metadata or gene names to 'color.var' and 'shape.var'
+#   metadata or gene names to 'color.var' and 'shape.by'
 dittoScatterPlot(
     pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
     color.var = "RNA_snn_res.1",
-    shape.var = "RNA_snn_res.0.8")
+    shape.by = "RNA_snn_res.0.8")
 dittoScatterPlot(
     pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
     color.var = "percent.mito",
-    shape.var = "RNA_snn_res.0.8")
+    shape.by = "RNA_snn_res.0.8")
 dittoScatterPlot(
     pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
     color.var = "CD14",
-    shape.var = "RNA_snn_res.0.8")
+    shape.by = "RNA_snn_res.0.8")
 
 # Note: scatterplots like this can be very useful for dataset QC, especially
 #   with percentage of reads coming from genes as the color overlay.
 }
 \seealso{
-\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.var}, and \code{hover.data} options are.
+\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are.
 
 \code{\link{dittoDimPlot}} for making very similar data representations, but where dimensionality reduction (PCA, t-SNE, UMAP, etc.) dimensions are the scatterplot axes.
 }

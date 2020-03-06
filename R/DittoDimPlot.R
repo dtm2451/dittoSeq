@@ -24,19 +24,19 @@
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_bw()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
-#' @param shape.var Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
+#' @param shape.by Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
 #'
 #' Note: shapes can be harder to see, and to process mentally, than colors.
 #' Even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.
-#' @param split.var Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+#' @param split.by Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
 #'
 #' Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.
 #' @param extra.vars String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom alterations \emph{after} dittoSeq plot generation.
 #' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
-#' When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
-#' When nothing is supplied to \code{shape.var}, only the first value is used.
+#' When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes.
+#' When nothing is supplied to \code{shape.by}, only the first value is used.
 #' Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.
 #'
 #' Note: Unfortunately, shapes can be hard to see when points are on top of each other & they are more slowly processed by the brain.
@@ -46,7 +46,7 @@
 #' Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.
 #' @param legend.title String which sets the title for the main legend which includes the colors. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.
 #' @param shape.legend.size Number representing the size to increase the plotting of shapes legend shapes to.
-#' @param shape.legend.title String which sets the title of the shapes legend.  Default is the \code{shape.var}
+#' @param shape.legend.title String which sets the title of the shapes legend.  Default is the \code{shape.by}
 #' @param assay,slot single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.
 #' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
 #' \itemize{
@@ -71,7 +71,7 @@
 #' @param labels.repel Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
 #' TRUE by default.
 #' @param rename.var.groups String vector which sets new names for the identities of \code{var} groups.
-#' @param rename.shape.groups String vector which sets new names for the identities of \code{shape.var} groups.
+#' @param rename.shape.groups String vector which sets new names for the identities of \code{shape.by} groups.
 #' @param min.color color for lowest values of var/min.  Default = yellow
 #' @param max.color color for highest values of var/max.  Default = blue
 #' @param min Number which sets the value associated with the minimum color.
@@ -79,7 +79,7 @@
 #' @param legend.breaks Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.
 #' @param legend.breaks.labels String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.
 #' @param do.letter Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
-#' NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.var} is provided a metadata because
+#' NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
 #' lettering is incompatible with plotly and with changing the dots' to be different shapes.
 #' @param do.hover Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 #' \code{hover.data} argument is used to determine what data to use.
@@ -100,12 +100,12 @@
 #' The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that),
 #' plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
 #' The \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to change what expression data is used when displaying gene expression.
-#' If a metadata is given to \code{shape.var}, that is retrieved and added to the dataframe as well.
+#' If a metadata is given to \code{shape.by}, that is retrieved and added to the dataframe as well.
 #'
 #' Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
 #'
 #' Finally, a scatter plot is then created using these dataframes where non-target cells will be displayed in gray if \code{show.others=TRUE},
-#' and target cell data is displayed on top, colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.var}-associated data.
+#' and target cell data is displayed on top, colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.by}-associated data.
 #'
 #' If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
 #'
@@ -138,7 +138,7 @@
 #' }
 #'
 #' @seealso
-#' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.var}, and \code{hover.data} options are.
+#' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.by}, and \code{hover.data} options are.
 #'
 #' \code{\link{importDittoBulk}} for how to create a \code{\link{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
 #' \code{\link{addDimReduction}} for how to add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
@@ -174,7 +174,7 @@
 
 dittoDimPlot <- function(
     object, var="ident", reduction.use = NA, size=1, opacity = 1,
-    dim.1 = 1, dim.2 = 2, cells.use = NULL, shape.var = NULL, split.var = NULL,
+    dim.1 = 1, dim.2 = 2, cells.use = NULL, shape.by = NULL, split.by = NULL,
     extra.vars = NULL, show.others=TRUE, show.axes.numbers = TRUE,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     shape.panel=c(16,15,17,23,25,8),
@@ -183,7 +183,7 @@ dittoDimPlot <- function(
     main = "make", sub = NULL, xlab = "make", ylab = "make",
     theme = NA, legend.show = TRUE, legend.size = 5,
     legend.title = "make",
-    shape.legend.size = 5, shape.legend.title = shape.var,
+    shape.legend.size = 5, shape.legend.title = shape.by,
     do.ellipse = FALSE, do.label = FALSE,
     labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
     rename.var.groups = NULL, rename.shape.groups = NULL,
@@ -199,7 +199,7 @@ dittoDimPlot <- function(
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)
 
-    if (do.hover || !is.null(shape.var)) {
+    if (do.hover || !is.null(shape.by)) {
         do.letter <- FALSE
     }
 
@@ -212,7 +212,7 @@ dittoDimPlot <- function(
     xlab <- .leave_default_or_null(xlab, xdat$name)
     ylab <- .leave_default_or_null(ylab, ydat$name)
     main <- .leave_default_or_null(main, var, length(var)!=1)
-    legend.title <- .leave_default_or_null(legend.title, var, is.null(shape.var))
+    legend.title <- .leave_default_or_null(legend.title, var, is.null(shape.by))
 
     # Edit theme.
     if (is.na(theme[1])){
@@ -232,7 +232,7 @@ dittoDimPlot <- function(
 
     # Make dataframes and plot
     p.df <- dittoScatterPlot(
-        object, xdat$embeddings, ydat$embeddings, var, shape.var, split.var,
+        object, xdat$embeddings, ydat$embeddings, var, shape.by, split.by,
         extra.vars, cells.use,
         show.others, size, opacity, color.panel, colors,
         NA, NA, NA, NA, NA, NA,
