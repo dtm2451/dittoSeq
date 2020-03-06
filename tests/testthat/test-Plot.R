@@ -94,13 +94,13 @@ test_that("dittoPlot shapes can be a metadata and distinct from group.by", {
         dittoPlot(
             "number", object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape.var = grp),
+            shape.by = grp),
         "ggplot")
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape.var = clr2),
+            shape.by = clr2),
         "ggplot")
 })
 
@@ -117,21 +117,21 @@ test_that("dittoPlot shapes can be adjusted in many ways", {
         dittoPlot(
             "number", object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape.var = clr2, shape.panel = 16:19),
+            shape.by = clr2, shape.panel = 16:19),
         "ggplot")
     # Shapes should be enlarged in the legend
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape.var = clr2, jitter.shape.legend.size = 5),
+            shape.by = clr2, jitter.shape.legend.size = 5),
         "ggplot")
     # Shapes legend should be removed
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape.var = clr2, jitter.shape.legend.show = FALSE),
+            shape.by = clr2, jitter.shape.legend.show = FALSE),
         "ggplot")
 })
 
