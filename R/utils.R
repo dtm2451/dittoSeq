@@ -41,8 +41,7 @@
     if (length(var)==1 && is.character(var)) {
         if (isMeta(var, object)) {
             OUT <- meta(var, object)
-        }
-        if (isGene(var, object, assay)) {
+        } else if (isGene(var, object, assay)) {
             OUT <- gene(var, object, assay, slot, adjustment)
         }
     }
@@ -195,6 +194,38 @@
                 }, FUN.VALUE = character(1))
                 ),collapse = "\n")
         }, FUN.VALUE = character(1))
+}
+
+.add_by_cell <- function(dat, target, name, object,
+    assay = .default_assay(object), slot = .default_slot(object),
+    adjustment = NULL, reorder = NULL, relabels = NULL, mult = FALSE) {
+
+    # Extracts metadata or gene expression is target is length 1, then adds
+    # this data to the dat dataframe as a column named name. If target length
+    # = ncol(object), its values are used directly.
+    # For discrete (factor) data, reorder and relabel are used to do just that.
+    #
+    # *In mult = TRUE mode, vector targets and vactor name are dealt with as
+    # if there is 1 meta/gene and associated name per index of these vectors,
+    # and reorder/delabels are not used.
+
+    if (mult) {
+        for (i in seq_along(target)) {
+            dat <- .add_by_cell(dat, target[i], name[i], object, assay, slot,
+                adjustment, reorder = NULL, relabels = NULL, mult = FALSE)
+        }
+    } else if (!is.null(target)) {
+        # Obtain and reorder values
+        values <- .var_OR_get_meta_or_gene(
+            target, object, assay, slot, adjustment)
+        values <- .rename_and_or_reorder(values, reorder, relabels)
+        # Add
+        dat <- cbind(dat, values)
+        # Set the name
+        names(dat)[ncol(dat)] <- name
+    }
+
+    dat
 }
 
 .rename_and_or_reorder <- function(orig.data, reorder = NULL, relabels = NULL) {
