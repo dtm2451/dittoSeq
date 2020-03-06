@@ -28,6 +28,12 @@
 #'
 #' Note: shapes can be harder to see, and to process mentally, than colors.
 #' Even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.
+#' @param split.var Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+#'
+#' Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.
+#' @param extra.vars String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+#'
+#' Useful for making custom alterations \emph{after} dittoSeq plot generation.
 #' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 #' When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
 #' When nothing is supplied to \code{shape.var}, only the first value is used.
@@ -168,10 +174,10 @@
 
 dittoDimPlot <- function(
     object, var="ident", reduction.use = NA, size=1, opacity = 1,
-    dim.1 = 1, dim.2 = 2, cells.use = NULL, show.others=TRUE,
-    show.axes.numbers = TRUE,
+    dim.1 = 1, dim.2 = 2, cells.use = NULL, shape.var = NULL, split.var = NULL,
+    extra.vars = NULL, show.others=TRUE, show.axes.numbers = TRUE,
     color.panel = dittoColors(), colors = seq_along(color.panel),
-    shape.var = NULL, shape.panel=c(16,15,17,23,25,8),
+    shape.panel=c(16,15,17,23,25,8),
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL,
     main = "make", sub = NULL, xlab = "make", ylab = "make",
@@ -226,9 +232,11 @@ dittoDimPlot <- function(
 
     # Make dataframes and plot
     p.df <- dittoScatterPlot(
-        object, xdat$embeddings, ydat$embeddings, var, shape.var, cells.use,
+        object, xdat$embeddings, ydat$embeddings, var, shape.var, split.var,
+        extra.vars, cells.use,
         show.others, size, opacity, color.panel, colors,
-        NULL, NULL, NULL, NULL, NULL, NULL, assay, slot, adjustment,
+        NA, NA, NA, NA, NA, NA,
+        assay, slot, adjustment, assay, slot, adjustment,
         do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
         shape.panel, rename.var.groups, rename.shape.groups,
         min.color, max.color, min, max,

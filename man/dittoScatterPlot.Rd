@@ -10,6 +10,8 @@ dittoScatterPlot(
   y.var,
   color.var = NULL,
   shape.var = NULL,
+  split.var = NULL,
+  extra.vars = NULL,
   cells.use = NULL,
   show.others = FALSE,
   size = 1,
@@ -25,6 +27,9 @@ dittoScatterPlot(
   assay.color = .default_assay(object),
   slot.color = .default_slot(object),
   adjustment.color = NULL,
+  assay.extra = .default_assay(object),
+  slot.extra = .default_slot(object),
+  adjustment.extra = NULL,
   do.hover = FALSE,
   hover.data = NULL,
   hover.assay = .default_assay(object),
@@ -55,26 +60,29 @@ dittoScatterPlot(
 \arguments{
 \item{object}{A Seurat or SingleCellExperiment object}
 
-\item{x.var}{Single string or numeric vector which sets x-axis position of cells/samples.
+\item{x.var, y.var}{Single string giving a gene or metadata that will be used for the x- and y-axes of the scatterplot.
 Note: must be continuous.
-Can be the name of a gene or metadata.
-Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.}
 
-\item{y.var}{Single string or numeric vector which sets y-axis position of cells/samples.
-Note: must be continuous.
-Can be the name of a gene or metadata.
-Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.}
+Alternatively, can be a directly supplied numeric vector of length equal to the total number of cells/samples in \code{object}.}
 
-\item{color.var}{Single string or numeric vector which sets the color of cells/samples in the plot.
-Can be the name of a gene, metadata, or "ident" for clusters of a Seurat object.
-Alternatively, can be a numeric or string vector or a factor of length equal to the total number of cells/samples in object.}
+\item{color.var}{Single string giving a gene or metadata that will set the color of cells/samples in the plot.
 
-\item{shape.var}{Single string or numeric vector which sets the shape of cells/samples in the plot.
-Note: must be discrete.
-Can be the name of a metadata, or "ident" for clusters of a Seurat object.
-Alternatively, can be a string vector or a factor of length equal to the total number of cells/samples in object.}
+Alternatively, can be a directly supplied numeric or string, vector or a factor of length equal to the total number of cells/samples in \code{object}.}
+
+\item{shape.var}{Single string giving a metadata (Note: must be discrete.) that will set the shape of cells/samples in the plot.
+
+Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
+
+\item{split.var}{Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+
+Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
+
+\item{extra.vars}{String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+
+Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
+
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
 
@@ -91,7 +99,7 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
-\item{assay.x, assay.y, assay.color, slot.x, slot.y, slot.color, adjustment.x, adjustment.y, adjustment.color}{assay, slot, and adjustment set which data to use when the axes or coloring are based on expression data. See \code{\link{gene}} for additional information.}
+\item{assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes or coloring are based on expression data. See \code{\link{gene}} for additional information.}
 
 \item{do.hover}{Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 \code{hover.data} argument is used to determine what data to use.}

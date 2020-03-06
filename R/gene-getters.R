@@ -125,7 +125,7 @@ gene <- function(
         stop(dQuote(gene)," is not a gene of 'object'")
     }
     # Recursive functions for adjustments
-    if (!is.null(adjustment)) {
+    if (!is.null(adjustment) && !is.na(adjustment)) {
         if (adjustment=="z-score") {
             return(as.numeric(scale(gene(gene,object,assay,slot))))
         }

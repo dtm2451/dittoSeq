@@ -13,11 +13,13 @@ dittoDimPlot(
   dim.1 = 1,
   dim.2 = 2,
   cells.use = NULL,
+  shape.var = NULL,
+  split.var = NULL,
+  extra.vars = NULL,
   show.others = TRUE,
   show.axes.numbers = TRUE,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
-  shape.var = NULL,
   shape.panel = c(16, 15, 17, 23, 25, 8),
   assay = .default_assay(object),
   slot = .default_slot(object),
@@ -86,6 +88,19 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
 
+\item{shape.var}{Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
+
+Note: shapes can be harder to see, and to process mentally, than colors.
+Even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.}
+
+\item{split.var}{Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+
+Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
+
+\item{extra.vars}{String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+
+Useful for making custom alterations \emph{after} dittoSeq plot generation.}
+
 \item{show.others}{Logical. TRUE by default, whether other cells should be shown in the background in light gray.}
 
 \item{show.axes.numbers}{Logical which controls whether the axes values should be displayed.}
@@ -93,11 +108,6 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 \item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.}
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
-
-\item{shape.var}{Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
-
-Note: shapes can be harder to see, and to process mentally, than colors.
-Even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.}
 
 \item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes.
