@@ -9,7 +9,13 @@
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups. REQUIRED.
 #' @param color.by String representing the name of a metadata to use for setting color.
 #' Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so this input can be skipped if both are the same.
-#' @param shape.var Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.
+#' @param shape.by Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.
+#' @param split.by Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+#'
+#' Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.
+#' @param extra.vars String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+#'
+#' Useful for making custom alterations \emph{after} dittoSeq plot generation.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
@@ -29,8 +35,8 @@
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
 #' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
-#' When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes which will be used.
-#' When nothing is supplied to \code{shape.var}, only the first value is used.
+#' When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes which will be used.
+#' When nothing is supplied to \code{shape.by}, only the first value is used.
 #' Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.
 #' @param main String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.
 #' @param sub String, sets the plot subtitle
@@ -60,7 +66,7 @@
 #' @param jitter.color String which sets the color of the jitter shapes
 #' @param jitter.shape.legend.size Scalar which changes the size of the shape key in the legend.
 #' If set to \code{NA}, \code{jitter.size} is used.
-#' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown is \code{shape.var} when jitter shape is determined by a variable.
+#' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown is \code{shape.by} when jitter shape is determined by a variable.
 #' @param boxplot.width Scalar which sets the width/spread of the boxplot in the x direction
 #' @param boxplot.color String which sets the color of the lines of the boxplot
 #' @param boxplot.show.outliers Logical, whether outliers should by including in the boxplot.
@@ -106,7 +112,7 @@
 #' \item Each data representation has options which are controlled by variables that start with their associated string.
 #' For example, all jitter adjustments, like \code{jitter.size}, start with "\code{jitter.}".
 #' \item Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
-#' \item Shapes used in conjunction with \code{shape.var} can be adjusted with \code{shape.panel}.
+#' \item Shapes used in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
 #' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
 #' \item The legend can be hidden by setting \code{legend.show = TRUE}.
 #' \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
@@ -141,7 +147,7 @@
 #' #   'hover.data'.
 #' #     Note: ggplotly plots ignores certain dittoSeq plot tweaks.
 #' #     Also note: requires the plotly package
-#' if (!requireNamespace("plotly")) {
+#' if (requireNamespace("plotly")) {
 #'     dittoBoxPlot(pbmc, "CD14", group.by = "RNA_snn_res.1",
 #'         do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
 #' }
@@ -151,8 +157,8 @@
 #' @export
 
 dittoPlot <- function(
-    object, var, group.by, color.by = group.by,
-    shape.var = NULL,
+    object, var, group.by, color.by = group.by, split.by = NULL,
+    shape.by = NULL, extra.vars = NULL,
     cells.use = NULL, plots = c("jitter","vlnplot"),
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL,
@@ -188,17 +194,12 @@ dittoPlot <- function(
     main <- .leave_default_or_null(main, var,
         null.if = !(length(var)==1 && is.character(var)))
     legend.title <- .leave_default_or_null(legend.title, var,
-        null.if = is.null(shape.var))
+        null.if = is.null(shape.by))
 
     #Grab the data
-    if (!is.null(shape.var) && isMeta(shape.var, object)) {
-        extra.vars = shape.var
-    } else {
-        extra.vars = NULL
-    }
-    Target_data <- .dittoPlot_data_gather(
-        object, var, group.by, color.by, extra.vars, cells.use, assay, slot,
-        adjustment, do.hover, hover.data)$Target_data
+    Target_data <- .dittoPlot_data_gather(object, var, group.by, color.by,
+        split.by, c(shape.by,extra.vars), cells.use, assay, slot, adjustment,
+        do.hover, hover.data)$Target_data
     Target_data$grouping <-
         .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
 
@@ -209,7 +210,7 @@ dittoPlot <- function(
         ggtitle(main, sub)
     if(!("ridgeplot" %in% plots)) {
         p <- .dittoPlot_add_data_y_direction(
-            p, Target_data, plots, xlab, ylab, shape.var, jitter.size,
+            p, Target_data, plots, xlab, ylab, shape.by, jitter.size,
             jitter.width, jitter.color, shape.panel, jitter.shape.legend.size,
             jitter.shape.legend.show, boxplot.width, boxplot.color,
             boxplot.show.outliers, boxplot.fill, vlnplot.lineweight,
@@ -223,7 +224,10 @@ dittoPlot <- function(
             line.color, x.labels.rotate, do.hover, color.panel, colors,
             y.breaks, min, max)
     }
-    #Remove legend, if warrented
+    # Extra tweaks
+    if (!is.null(split.by)) {
+        p <- p + facet_wrap("split")
+    }
     if (!legend.show) {
         p <- .remove_legend(p)
     }
@@ -324,7 +328,7 @@ dittoRidgePlot <- function(..., plots = c("ridgeplot")){ dittoPlot(..., plots = 
 dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plots = plots) }
 
 .dittoPlot_add_data_y_direction <- function(
-    p, Target_data, plots, xlab, ylab, shape.var,
+    p, Target_data, plots, xlab, ylab, shape.by,
     jitter.size, jitter.width, jitter.color,shape.panel,
     jitter.shape.legend.size, jitter.shape.legend.show,
     boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
@@ -374,18 +378,18 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 width=jitter.width,
                 height = 0,
                 color = jitter.color)
-            #If shape.var metadata given, use it. Else, shapes[1] which = dots (16) by default
-            if (!is.null(shape.var) && isMeta(shape.var, object)) {
+            #If shape.by metadata given, use it. Else, shapes[1] which = dots (16) by default
+            if (!is.null(shape.by) && isMeta(shape.by, object)) {
                 #Make jitter with shapes
                 jitter.args$mapping <- if (do.hover) {
-                    aes_string(shape = shape.var, text = "hover.string")
+                    aes_string(shape = shape.by, text = "hover.string")
                 } else {
-                    aes_string(shape = shape.var)
+                    aes_string(shape = shape.by)
                 }
                 p <- p + do.call(geom_jitter, jitter.args) +
                     scale_shape_manual(
                         values = shape.panel[seq_along(metaLevels(
-                            shape.var, object, rownames(Target_data)))])
+                            shape.by, object, rownames(Target_data)))])
                 if (!is.na(jitter.shape.legend.size)){
                     p <- p + guides(shape = guide_legend(
                         override.aes = list(size=jitter.shape.legend.size)))
@@ -452,7 +456,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 
     # Add labels and, if requested, lines
     p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab) +
-        scale_y_discrete(expand = expand_scale(mult=c(0, 0.68)))
+        scale_y_discrete(expand = expansion(mult=c(0, 0.68)))
     if (!is.na(x.labels.rotate) && x.labels.rotate) {
         p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1, size=12))
     }
@@ -464,13 +468,10 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 }
 
 .dittoPlot_data_gather <- function(
-    object, main.var, group.by = "Sample", color.by = group.by,
+    object, main.var, group.by = "Sample", color.by = group.by, split.by = NULL,
     extra.vars = NULL, cells.use = NULL, assay, slot, adjustment,
     do.hover = FALSE, hover.data = c(main.var, extra.vars)) {
 
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
-    }
     # Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
     # Establish the full list of cell/sample names
@@ -482,23 +483,16 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
         grouping = meta(group.by, object),
         color = meta(color.by, object),
         row.names = all.cells)
-    names <- names(full_data)
-    # Add Extra data
-    if(length(extra.vars)>0){
-        for (i in seq_along(extra.vars)){
-            full_data <- cbind(full_data, .var_OR_get_meta_or_gene(
-                extra.vars, object, assay, slot, adjustment))
-        }
-        names <- c(names, extra.vars)
-    }
+    # Add split and extra data
+    full_data <- .add_by_cell(full_data, split.by, "split", object, assay,
+        slot, adjustment)
+    full_data <- .add_by_cell(full_data, extra.vars, extra.vars, object, assay,
+        slot, adjustment, mult = TRUE)
     # Add hover strings
     if (do.hover) {
         full_data$hover.string <- .make_hover_strings_from_vars(
             hover.data, object, assay, slot, adjustment)
-        names <- c(names, "hover.string")
     }
-    # Add column names
-    colnames(full_data) <- names
 
     return(list(Target_data = full_data[all.cells %in% cells.use,],
                 Others_data = full_data[!(all.cells %in% cells.use),]))

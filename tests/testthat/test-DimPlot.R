@@ -105,17 +105,17 @@ test_that("dittoDimPlot shapes can be a metadata and the same as or distinct fro
     expect_s3_class(
         dittoDimPlot(
             cont, object=seurat,
-            shape.var = disc),
+            shape.by = disc),
         "ggplot")
     expect_s3_class(
         dittoDimPlot(
             disc, object=seurat,
-            shape.var = disc),
+            shape.by = disc),
         "ggplot")
     expect_s3_class(
         dittoDimPlot(
             disc, object=seurat,
-            shape.var = disc2),
+            shape.by = disc2),
         "ggplot")
 })
 
@@ -124,19 +124,19 @@ test_that("dittoDimPlot shapes can be adjusted in many ways", {
     expect_s3_class(
         dittoDimPlot(
             cont, object=seurat,
-            shape.var = disc2, shape.panel= 17:19),
+            shape.by = disc2, shape.panel= 17:19),
         "ggplot")
     ### Manual check: Shapes should be enlarged even more in the legend
     expect_s3_class(
         dittoDimPlot(
             cont, object=seurat,
-            shape.var = disc2, shape.legend.size = 10),
+            shape.by = disc2, shape.legend.size = 10),
         "ggplot")
     ### Manual check: Shapes legend title should be removed
     expect_s3_class(
         dittoDimPlot(
             cont, object=seurat,
-            shape.var = disc2, shape.legend.title = NULL),
+            shape.by = disc2, shape.legend.title = NULL),
         "ggplot")
 })
 
@@ -224,7 +224,7 @@ test_that("dittoDimPlots discrete labels can be adjusted", {
     expect_s3_class(
         dittoDimPlot(
             disc, object=seurat,
-            shape.var = disc2, rename.shape.groups = 3:6),
+            shape.by = disc2, rename.shape.groups = 3:6),
         "ggplot")
 })
 

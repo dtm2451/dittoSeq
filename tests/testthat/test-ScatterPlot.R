@@ -41,6 +41,28 @@ test_that("dittoScatterPlot can overlay shapes", {
         "ggplot")
 })
 
+test_that("dittoScatterPlot (and dittoDimPlot) can add extra vars to dataframe", {
+    df1 <- dittoScatterPlot(
+            gene, cont, NULL, disc, object = seurat,
+            data.out = TRUE)[[2]]
+    expect_s3_class(
+        df2 <- dittoScatterPlot(
+            gene, cont, NULL, disc, object = seurat,
+            extra.vars = c(gene, disc2), data.out = TRUE)[[2]],
+        "data.frame")
+    expect_equal(ncol(df1), 3)
+    expect_equal(ncol(df2), 5)
+})
+
+test_that("dittoScatterPlot (and dittoDimPlot) can be facted with split.by", {
+    # MANUAL CHECK: FACETING
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, NULL, disc, object = seurat,
+            split.by = disc2),
+        "ggplot")
+})
+
 test_that("dittoScatterPlot gene display can utilize different data.types (excluding for hover)", {
     expect_s3_class(
         dittoScatterPlot(

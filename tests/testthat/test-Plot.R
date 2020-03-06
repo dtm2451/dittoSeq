@@ -94,13 +94,13 @@ test_that("dittoPlot shapes can be a metadata and distinct from group.by", {
         dittoPlot(
             "number", object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape.var = grp),
+            shape.by = grp),
         "ggplot")
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape.var = clr2),
+            shape.by = clr2),
         "ggplot")
 })
 
@@ -117,21 +117,21 @@ test_that("dittoPlot shapes can be adjusted in many ways", {
         dittoPlot(
             "number", object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape.var = clr2, shape.panel = 16:19),
+            shape.by = clr2, shape.panel = 16:19),
         "ggplot")
     # Shapes should be enlarged in the legend
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape.var = clr2, jitter.shape.legend.size = 5),
+            shape.by = clr2, jitter.shape.legend.size = 5),
         "ggplot")
     # Shapes legend should be removed
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot", "jitter"),
-            shape.var = clr2, jitter.shape.legend.show = FALSE),
+            shape.by = clr2, jitter.shape.legend.show = FALSE),
         "ggplot")
 })
 
@@ -301,5 +301,27 @@ test_that("dittoPlot violin plot adjustments work", {
         dittoPlot(
             "number", object=seurat, group.by = grp,
             vlnplot.scaling = "width"),
+        "ggplot")
+})
+
+test_that("dittoPlot can add extra vars to dataframe", {
+    df1 <- dittoPlot(
+            gene1, grp, grp, object = seurat,
+            data.out = TRUE)[[2]]
+    expect_s3_class(
+        df2 <- dittoPlot(
+            gene1, grp, grp, object = seurat,
+            extra.vars = c(clr, clr2), data.out = TRUE)[[2]],
+        "data.frame")
+    expect_equal(ncol(df1), 3)
+    expect_equal(ncol(df2), 5)
+})
+
+test_that("dittoPlot can be facted with split.by", {
+    # MANUAL CHECK: FACETING
+    expect_s3_class(
+        dittoPlot(
+            gene1, grp, grp, object = seurat,
+            split.by = clr),
         "ggplot")
 })
