@@ -317,7 +317,7 @@ test_that("dittoPlot can add extra vars to dataframe", {
     expect_equal(ncol(df2), 5)
 })
 
-test_that("dittoScatterPlot (and dittoDimPlot) can be facted with split.by", {
+test_that("dittoPlot can be facted with split.by", {
     # MANUAL CHECK: FACETING
     expect_s3_class(
         dittoPlot(
