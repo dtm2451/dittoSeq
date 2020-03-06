@@ -288,7 +288,7 @@ dittoDimPlot(sce, "ENO1")
 dittoScatterPlot(
     object = sce,
     x.var = "ENO1", y.var = "INS",
-    color.var = "celltype", shape.var = "Sample",
+    color.var = "celltype", shape.by = "Sample",
     size = 3)
 dittoScatterPlot(
     object = seurat,
