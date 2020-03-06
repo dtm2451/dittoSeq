@@ -11,7 +11,9 @@ dittoPlot(
   var,
   group.by,
   color.by = group.by,
-  shape.var = NULL,
+  split.by = NULL,
+  shape.by = NULL,
+  extra.vars = NULL,
   cells.use = NULL,
   plots = c("jitter", "vlnplot"),
   assay = .default_assay(object),
@@ -70,7 +72,15 @@ This is the data that will be displayed.}
 \item{color.by}{String representing the name of a metadata to use for setting color.
 Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so this input can be skipped if both are the same.}
 
-\item{shape.var}{Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.}
+\item{split.by}{Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+
+Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
+
+\item{shape.by}{Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.}
+
+\item{extra.vars}{String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+
+Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -99,8 +109,8 @@ Note: Currently, incompatible with RidgePlots as plotly does not support the geo
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
 \item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
-When discrete groupings are supplied by \code{shape.var}, this sets the panel of shapes which will be used.
-When nothing is supplied to \code{shape.var}, only the first value is used.
+When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes which will be used.
+When nothing is supplied to \code{shape.by}, only the first value is used.
 Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, solid, circle.}
 
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_classic()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.}
@@ -142,7 +152,7 @@ Values of x.reorder should be these indices, but in the order that you would lik
 \item{jitter.shape.legend.size}{Scalar which changes the size of the shape key in the legend.
 If set to \code{NA}, \code{jitter.size} is used.}
 
-\item{jitter.shape.legend.show}{Logical which sets whether the shapes legend will be shown is \code{shape.var} when jitter shape is determined by a variable.}
+\item{jitter.shape.legend.show}{Logical which sets whether the shapes legend will be shown is \code{shape.by} when jitter shape is determined by a variable.}
 
 \item{boxplot.width}{Scalar which sets the width/spread of the boxplot in the x direction}
 
@@ -213,7 +223,7 @@ Many characteristics of the plot can be adjusted using discrete inputs:
 \item Each data representation has options which are controlled by variables that start with their associated string.
 For example, all jitter adjustments, like \code{jitter.size}, start with "\code{jitter.}".
 \item Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
-\item Shapes used in conjunction with \code{shape.var} can be adjusted with \code{shape.panel}.
+\item Shapes used in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
 \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
 \item The legend can be hidden by setting \code{legend.show = TRUE}.
 \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
@@ -251,7 +261,7 @@ dittoBoxPlot(pbmc, "CD14", group.by = "RNA_snn_res.1")
 #   'hover.data'.
 #     Note: ggplotly plots ignores certain dittoSeq plot tweaks.
 #     Also note: requires the plotly package
-if (!requireNamespace("plotly")) {
+if (requireNamespace("plotly")) {
     dittoBoxPlot(pbmc, "CD14", group.by = "RNA_snn_res.1",
         do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
 }
