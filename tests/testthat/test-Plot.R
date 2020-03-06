@@ -306,12 +306,12 @@ test_that("dittoPlot violin plot adjustments work", {
 
 test_that("dittoPlot can add extra vars to dataframe", {
     df1 <- dittoPlot(
-            gene, disc, disc, object = seurat,
+            gene1, grp, grp, object = seurat,
             data.out = TRUE)[[2]]
     expect_s3_class(
         df2 <- dittoPlot(
-            gene, disc, disc, object = seurat,
-            extra.vars = c(gene, disc2), data.out = TRUE)[[2]],
+            gene1, grp, grp, object = seurat,
+            extra.vars = c(clr, clr2), data.out = TRUE)[[2]],
         "data.frame")
     expect_equal(ncol(df1), 3)
     expect_equal(ncol(df2), 5)
@@ -321,7 +321,7 @@ test_that("dittoPlot can be facted with split.by", {
     # MANUAL CHECK: FACETING
     expect_s3_class(
         dittoPlot(
-            gene, disc, disc, object = seurat,
-            split.by = disc2),
+            gene1, grp, grp, object = seurat,
+            split.by = clr),
         "ggplot")
 })
