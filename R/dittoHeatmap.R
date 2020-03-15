@@ -143,13 +143,13 @@
 dittoHeatmap <- function(
     object, genes=getGenes(object), cells.use = NULL,
     cluster_cols = .is_bulk(object),
+    annotation.metas = NULL,
     order.by = .default_order(object, annotation.metas),
     main = NA, cell.names.meta = NULL,
     assay = .default_assay(object), slot = .default_slot(object),
     heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
     scaled.to.max = FALSE,
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
-    annotation.metas = NULL,
     annotation.colors = c(rep(dittoColors(),9),dittoColors()[seq_len(7)]),
     annotation_col = NULL, annotation_colors = NULL,
     data.out=FALSE, highlight.genes = NULL, show_colnames = TRUE,
@@ -190,7 +190,8 @@ dittoHeatmap <- function(
     args <- list(
         mat = data, main = main, show_colnames = show_colnames,
         show_rownames = show_rownames, color = heatmap.colors,
-        cluster_cols = cluster_cols, border_color = border_color, ...)
+        cluster_cols = cluster_cols, border_color = border_color,
+        scale = scale, ...)
     # Add annotation_col / annotation_colors only if needed
     if (ncol(annotation_col)>0 || !is.null(args$annotation_row)) {
         if (ncol(annotation_col)>0) {
@@ -203,7 +204,7 @@ dittoHeatmap <- function(
     if (scaled.to.max) {
         maxs <- apply(args$mat,1,max)
         args$mat <- args$mat/maxs
-        args$heatmap.colors <- heatmap.colors.max.scaled
+        args$color <- heatmap.colors.max.scaled
         args$scale <- "none"
     }
     if (!is.null(order.by)) {
@@ -221,8 +222,8 @@ dittoHeatmap <- function(
 
     # Add cell/sample/row names unless provided separately by user
     if(is.null(args$labels_col) && !(is.null(cell.names.meta))) {
-        names <- as.character(meta(cell.names.meta, object)[all.cells %in% cells.use])
-        args$labels_col <- names[colnames(args$mat)]
+        names <- .var_OR_get_meta_or_gene(cell.names.meta, object)
+        args$labels_col <- as.character(names[colnames(args$mat)])
     }
 
     if (data.out) {
@@ -264,7 +265,7 @@ dittoHeatmap <- function(
 
     # Rows Second (if there)
     if (!is.null(args$annotation_row)) {
-        make.these <- !(colnames(args$annotation_col) %in% user.provided)
+        make.these <- !(colnames(args$annotation_row) %in% user.provided)
         dfcolors_out <- .pick_colors_for_df(
             args$annotation_row[,make.these, drop = FALSE],
             next.color.index.discrete, next.color.index.numeric,
@@ -327,7 +328,7 @@ dittoHeatmap <- function(
 }
 
 .default_order <- function(object, annotation.metas) {
-    if (is.null(annotation.metas)) {
+    if (!is.null(annotation.metas) && !.is_bulk(object)) {
         return(annotation.metas[1])
     } else {
         return(NULL)
