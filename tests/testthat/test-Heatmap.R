@@ -51,22 +51,24 @@ test_that("Heatmap can hide rownames/colnames", {
         "pheatmap")
 })
 
+# Set genes1:5 to have all zeros in logcounts in a new object
+sce2 <- sce
+assay(sce2,"logcounts")[1:5,] <- 0
 test_that("Heatmap gives proper warnings when it should", {
     # Function throws a warning when any genes are not captured in the target cells.
-    #   One of the genes are not expressed in the first 10 cells of seurat.
     expect_warning(
         dittoHeatmap(
             genes,
-            object = seurat,
+            object = sce2,
             cells.use = meta("number", seurat)<5),
-        NULL)
+        "Gene(s) removed due to absence of expression within the 'cells.use' subset", fixed = TRUE)
     # Function throws an error when no genes provided are captured in the target cells.
     expect_error(
         dittoHeatmap(
-            c("MS4A1","CD14","FCER1A"),
-            object = seurat,
+            genes = genes[1:5],
+            object = sce2,
             cells.use = meta("number", seurat)<10),
-        NULL)
+        "No target genes are expressed in the 'cells.use' subset", fixed = TRUE)
 })
 
 test_that("Heatmap sample renaming by metadata works", {
@@ -119,7 +121,7 @@ test_that("Heatmap annotations can be given through metadata provision", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "ident"),
+            annotation.metas = "clusters"),
         "pheatmap")
 })
 
@@ -142,7 +144,7 @@ test_that("Heatmap can be subset to certain cells", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "ident",
+            annotation.metas = "clusters",
             cells.use = colnames(seurat)[meta("number", seurat)<60]),
         "pheatmap")
 })
@@ -152,7 +154,7 @@ test_that("Heatmap annotation colors can be adjusted", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = c("number","ident"),
+            annotation.metas = c("number","clusters"),
             annotation.colors = c("red", "yellow", "blue", "purple", "green3")),
         "pheatmap")
 })
@@ -164,7 +166,7 @@ test_that("Coloring works for discrete column and row annotations", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "ident",
+            annotation.metas = "clusters",
             scaled.to.max = TRUE,
             annotation_row = data.frame(
                 genes,
