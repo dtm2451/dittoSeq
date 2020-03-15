@@ -8,7 +8,8 @@ dittoHeatmap(
   object,
   genes = getGenes(object),
   cells.use = NULL,
-  order.by = NULL,
+  cluster_cols = .is_bulk(object),
+  order.by = .default_order(object, annotation.metas),
   main = NA,
   cell.names.meta = NULL,
   assay = .default_assay(object),
@@ -18,10 +19,14 @@ dittoHeatmap(
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
   annotation.metas = NULL,
   annotation.colors = c(rep(dittoColors(), 9), dittoColors()[seq_len(7)]),
+  annotation_col = NULL,
+  annotation_colors = NULL,
   data.out = FALSE,
   highlight.genes = NULL,
-  show.colnames = TRUE,
-  show.rownames = TRUE,
+  show_colnames = TRUE,
+  show_rownames = TRUE,
+  scale = "row",
+  border_color = NA,
   ...
 )
 }
@@ -34,6 +39,8 @@ If not provided, defaults to all genes of the object / assay.}
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
+
+\item{cluster_cols, border_color, ...}{other arguments passed to \code{pheatmap}.}
 
 \item{order.by}{Single string or numeric vector which sets the ordering of cells/samples.
 Can be the name of a gene, or metadata slot.
@@ -64,10 +71,15 @@ and a String showing how \code{pheatmap} would have been called.}
 
 \item{highlight.genes}{String vector of genes whose names you would like to show. Only these genes will be named in the resulting heatmap.}
 
-\item{show.rownames, show.colnames}{Logical which sets whether rownames or colnames will be shown.
-Note: if gene names are provided to \code{highlight.genes}, the \code{show.colnames} parameter is ignored.}
-
-\item{...}{other arguments passed to \code{pheatmap}.}
+\item{show_colnames, show_rownames, scale, annotation_col, annotation_colors}{arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
+\itemize{
+\item show_colnames (& labels_col) : if \code{cell.names.meta} is provided, pheatmaps's \code{labels_col} is utilized to show these names and \code{show_colnames} parameter is set to \code{TRUE}.
+\item show_rownames (& labels_row) : if feature names are provided to \code{highlight.genes}, pheatmap's \code{labels_row} is utilized to show just these features' names and \code{show_rownames} parameter is set to \code{TRUE}.
+\item scale : when parameter \code{scaled.to.max} is set to true, pheatmap's \code{scale} is set to \code{"none"} and the max scaling is performed prior to the pheatmap call.
+\item annotation_col : when metadata names are provided \code{annotation.metas}, these are added either a barren annotation_col data.frame, or one provided by the user.
+\item annotation_colors : dittoHeatmap fills this complicated-to-produce input in automatically by pulling from the colors given to \code{annotation.colors},
+but it is possible to set all or some manually. dittoSeq will just fill in for any left out annotations. Format is a named (annotation_col & annotation_row colnames) list where individual values can also be named as well.
+}}
 }
 \value{
 A \code{pheatmap} object.
@@ -104,7 +116,7 @@ Many additional characteristics of the plot can be adjusted using discrete input
 \item The cells can be ordered by in a set way using the \code{order.by} input.
 Note: It can take a long time to cluster thousands of samples or cells, so adding \code{order.by = 'useful-method'} can be quite useful.
 \item A plot title can be added with \code{main}.
-\item Gene or cell/sample annotations can be turned off with \code{show.rownames} and \code{show.colnames}, respectively, or...
+\item Gene or cell/sample annotations can be turned off with \code{show_rownames} and \code{show_colnames}, respectively, or...
 \itemize{
 \item Particular genes can also be selected for labeling using the \code{highlight.genes} input.
 \item Names of all cells/samples replaced with the contents of a metadata slot using the \code{cell.names.meta} input.
@@ -120,51 +132,51 @@ Note: cluster_cols will always be over-written to be \code{FALSE} when the input
 }
 }
 \examples{
-library(Seurat)
-pbmc <- Seurat::pbmc_small
-dittoHeatmap(pbmc,
-    genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-    "FCGR3A","LYZ","PPBP","CD8A"),
-    annotation.metas = "ident")
+# dittoSeq handles bulk and single-cell data quit similarly.
+# The SingleCellExperiment object structure is used for both,
+# but all functions can be used similarly directly on Seurat
+# objects as well.
+
+example(importDittoBulk, echo = FALSE)
+myRNA
+
+# Pick a set of genes
+genes <- getGenes(myRNA)[1:30]
+
+# Make a heatmap with cells/samples annotated by their clusters
+dittoHeatmap(myRNA, genes,
+    annotation.metas = "clustering")
+
+# For single-cell data, you will typically have more cells than can be
+# clustered quickly. Thus, cell clustering is turned off by default for
+# single-cell data.
 
 # Using the 'order.by' input:
-#   For real single cell data, you will typically have more cells than in
-#   this truncated dataset, so turning off cell clustering off and instead
-#   ordering by a useful metadata or gene can help speed the process a lot!
-dittoHeatmap(pbmc,
-    genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-    "FCGR3A","LYZ","PPBP","CD8A"),
-    annotation.metas = "ident",
-    order.by = "ident")
+#   ordering by a useful metadata or gene is generally more helpful
+#   For single-cell data, order.by defaults to the first element given to
+#     annotation.metas.
+#   For bulk data, order.by must be set separately.
+dittoHeatmap(myRNA, genes,
+    annotation.metas = "clustering",
+    order.by = "clustering")
 
 # When there are many cells, showing names becomes less useful.
-#   Names can be turned off with the show.colnames parameter.
-dittoHeatmap(pbmc,
-    genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-    "FCGR3A","LYZ","PPBP","CD8A"),
-    annotation.metas = "ident",
-    order.by = "ident",
-    show.colnames = FALSE)
+#   Names can be turned off with the show_colnames parameter.
+dittoHeatmap(myRNA, genes,
+    annotation.metas = "groups",
+    order.by = "groups",
+    show_colnames = FALSE)
 
 # Additionally, it is recommended for single-cell data that the parameter
-#   scaled.to.max be set to TRUE, or scaling be turned off altogether,
+#   scaled.to.max be set to TRUE, or scale be "none" and turned off altogether,
 #   because these data are generally enriched for zeros that otherwise get
 #   scaled to a negative value.
-dittoHeatmap(pbmc,
-    genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-    "FCGR3A","LYZ","PPBP","CD8A"),
-    annotation.metas = "ident",
-    order.by = "ident",
-    show.colnames = FALSE,
+dittoHeatmap(myRNA, genes, annotation.metas = "groups",
+    order.by = "groups", show_colnames = FALSE,
     scaled.to.max = TRUE)
-dittoHeatmap(pbmc,
-    genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-    "FCGR3A","LYZ","PPBP","CD8A"),
-    annotation.metas = "ident",
-    order.by = "ident",
-    show.colnames = FALSE,
+dittoHeatmap(myRNA, genes, annotation.metas = "groups",
+    order.by = "groups", show_colnames = FALSE,
     scaled.to.max = FALSE,
-    scale = "none",
     heatmap.colors = colorRampPalette(c("white", "red"))(25))
 
 }

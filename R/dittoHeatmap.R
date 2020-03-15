@@ -22,13 +22,20 @@
 #' @param cell.names.meta quoted "name" of a meta.data slot to use for naming the columns instead of using the raw cell/sample names.
 #' @param annotation.metas String name of a metadata slot containing how the cells/samples should be annotated.
 #' @param annotation.colors String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.
-#' @param show.rownames,show.colnames Logical which sets whether rownames or colnames will be shown.
-#' Note: if gene names are provided to \code{highlight.genes}, the \code{show.colnames} parameter is ignored.
 #' @param data.out Logical that changes the output of the function.
 #' If set to \code{TRUE}, the output will be a list containing the data that would have been used for generating the heatmap,
 #' and a String showing how \code{pheatmap} would have been called.
 #' @param highlight.genes String vector of genes whose names you would like to show. Only these genes will be named in the resulting heatmap.
-#' @param ... other arguments passed to \code{pheatmap}.
+#' @param cluster_cols,border_color,... other arguments passed to \code{pheatmap}.
+#' @param show_colnames,show_rownames,scale,annotation_col,annotation_colors arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
+#' \itemize{
+#' \item show_colnames (& labels_col) : if \code{cell.names.meta} is provided, pheatmaps's \code{labels_col} is utilized to show these names and \code{show_colnames} parameter is set to \code{TRUE}.
+#' \item show_rownames (& labels_row) : if feature names are provided to \code{highlight.genes}, pheatmap's \code{labels_row} is utilized to show just these features' names and \code{show_rownames} parameter is set to \code{TRUE}.
+#' \item scale : when parameter \code{scaled.to.max} is set to true, pheatmap's \code{scale} is set to \code{"none"} and the max scaling is performed prior to the pheatmap call.
+#' \item annotation_col : when metadata names are provided \code{annotation.metas}, these are added either a barren annotation_col data.frame, or one provided by the user.
+#' \item annotation_colors : dittoHeatmap fills this complicated-to-produce input in automatically by pulling from the colors given to \code{annotation.colors},
+#' but it is possible to set all or some manually. dittoSeq will just fill in for any left out annotations. Format is a named (annotation_col & annotation_row colnames) list where individual values can also be named as well.
+#' }
 #' @description Given a set of genes, cells/samples, and metadata names for column annotations, it will retrieve the expression data for those genes and cells, and the annotation data for those cells.
 #' It will then utilize these data to make a heatmap using the \code{\link[pheatmap]{pheatmap}} function of the \code{pheatmap} package.
 #'
@@ -62,7 +69,7 @@
 #' \item The cells can be ordered by in a set way using the \code{order.by} input.
 #' Note: It can take a long time to cluster thousands of samples or cells, so adding \code{order.by = 'useful-method'} can be quite useful.
 #' \item A plot title can be added with \code{main}.
-#' \item Gene or cell/sample annotations can be turned off with \code{show.rownames} and \code{show.colnames}, respectively, or...
+#' \item Gene or cell/sample annotations can be turned off with \code{show_rownames} and \code{show_colnames}, respectively, or...
 #' \itemize{
 #' \item Particular genes can also be selected for labeling using the \code{highlight.genes} input.
 #' \item Names of all cells/samples replaced with the contents of a metadata slot using the \code{cell.names.meta} input.
@@ -81,51 +88,51 @@
 #' \code{\link[pheatmap]{pheatmap}}, for how to add additional heatmap tweaks.
 #'
 #' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' dittoHeatmap(pbmc,
-#'     genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-#'     "FCGR3A","LYZ","PPBP","CD8A"),
-#'     annotation.metas = "ident")
+#' # dittoSeq handles bulk and single-cell data quit similarly.
+#' # The SingleCellExperiment object structure is used for both,
+#' # but all functions can be used similarly directly on Seurat
+#' # objects as well.
+#'
+#' example(importDittoBulk, echo = FALSE)
+#' myRNA
+#'
+#' # Pick a set of genes
+#' genes <- getGenes(myRNA)[1:30]
+#'
+#' # Make a heatmap with cells/samples annotated by their clusters
+#' dittoHeatmap(myRNA, genes,
+#'     annotation.metas = "clustering")
+#'
+#' # For single-cell data, you will typically have more cells than can be
+#' # clustered quickly. Thus, cell clustering is turned off by default for
+#' # single-cell data.
 #'
 #' # Using the 'order.by' input:
-#' #   For real single cell data, you will typically have more cells than in
-#' #   this truncated dataset, so turning off cell clustering off and instead
-#' #   ordering by a useful metadata or gene can help speed the process a lot!
-#' dittoHeatmap(pbmc,
-#'     genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-#'     "FCGR3A","LYZ","PPBP","CD8A"),
-#'     annotation.metas = "ident",
-#'     order.by = "ident")
+#' #   ordering by a useful metadata or gene is generally more helpful
+#' #   For single-cell data, order.by defaults to the first element given to
+#' #     annotation.metas.
+#' #   For bulk data, order.by must be set separately.
+#' dittoHeatmap(myRNA, genes,
+#'     annotation.metas = "clustering",
+#'     order.by = "clustering")
 #'
 #' # When there are many cells, showing names becomes less useful.
-#' #   Names can be turned off with the show.colnames parameter.
-#' dittoHeatmap(pbmc,
-#'     genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-#'     "FCGR3A","LYZ","PPBP","CD8A"),
-#'     annotation.metas = "ident",
-#'     order.by = "ident",
-#'     show.colnames = FALSE)
+#' #   Names can be turned off with the show_colnames parameter.
+#' dittoHeatmap(myRNA, genes,
+#'     annotation.metas = "groups",
+#'     order.by = "groups",
+#'     show_colnames = FALSE)
 #'
 #' # Additionally, it is recommended for single-cell data that the parameter
-#' #   scaled.to.max be set to TRUE, or scaling be turned off altogether,
+#' #   scaled.to.max be set to TRUE, or scale be "none" and turned off altogether,
 #' #   because these data are generally enriched for zeros that otherwise get
 #' #   scaled to a negative value.
-#' dittoHeatmap(pbmc,
-#'     genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-#'     "FCGR3A","LYZ","PPBP","CD8A"),
-#'     annotation.metas = "ident",
-#'     order.by = "ident",
-#'     show.colnames = FALSE,
+#' dittoHeatmap(myRNA, genes, annotation.metas = "groups",
+#'     order.by = "groups", show_colnames = FALSE,
 #'     scaled.to.max = TRUE)
-#' dittoHeatmap(pbmc,
-#'     genes = c("MS4A1","GNLY","CD3E","CD14","FCER1A",
-#'     "FCGR3A","LYZ","PPBP","CD8A"),
-#'     annotation.metas = "ident",
-#'     order.by = "ident",
-#'     show.colnames = FALSE,
+#' dittoHeatmap(myRNA, genes, annotation.metas = "groups",
+#'     order.by = "groups", show_colnames = FALSE,
 #'     scaled.to.max = FALSE,
-#'     scale = "none",
 #'     heatmap.colors = colorRampPalette(c("white", "red"))(25))
 #'
 #' @author Daniel Bunis
@@ -134,7 +141,9 @@
 #' @export
 
 dittoHeatmap <- function(
-    object, genes=getGenes(object), cells.use = NULL, order.by = NULL,
+    object, genes=getGenes(object), cells.use = NULL,
+    cluster_cols = .is_bulk(object),
+    order.by = .default_order(object, annotation.metas),
     main = NA, cell.names.meta = NULL,
     assay = .default_assay(object), slot = .default_slot(object),
     heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
@@ -142,55 +151,66 @@ dittoHeatmap <- function(
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
     annotation.metas = NULL,
     annotation.colors = c(rep(dittoColors(),9),dittoColors()[seq_len(7)]),
-    data.out=FALSE, highlight.genes = NULL, show.colnames = TRUE,
-    show.rownames = TRUE, ...) {
+    annotation_col = NULL, annotation_colors = NULL,
+    data.out=FALSE, highlight.genes = NULL, show_colnames = TRUE,
+    show_rownames = TRUE, scale = "row", border_color = NA, ...) {
 
     # If cells.use given as logical, populate as names.
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)
 
+    # Adjust title (off = NA in pheatmap)
     if (is.null(main)) {
         main <- NA
     }
 
     # Make the data matrix
     data <- as.matrix(.which_data(assay,slot,object)[genes,cells.use])
-    if (sum(rowSums(data)==0)) {
+    if (sum(rowSums(data)==0)>0) {
         data <- data[rowSums(data)!=0,]
         if (nrow(data)==0) {
             stop("No target genes are expressed in the 'cells.use' subset")
         }
         warning("Gene(s) removed due to absence of expression within the 'cells.use' subset")
     }
-    if (scaled.to.max) {
-        maxs <- apply(data,1,max)
-        data <- data/maxs
-        heatmap.colors <- heatmap.colors.max.scaled
+
+    # Make the columns annotations data for colored annotation bars
+    if (is.null(annotation_col)) {
+        annotation_col <- data.frame(row.names = cells.use)
+    } else if (!all(cells.use %in% rownames(annotation_col))) {
+        stop("rows of 'annotation_col' must be cell/sample names of all cells/samples being displayed")
+    }
+    if (!is.null(annotation.metas)) {
+        annotation_col <- rbind(
+            as.data.frame(getMetas(object, names.only = FALSE)[cells.use, annotation.metas, drop = FALSE]),
+            annotation_col[cells.use, , drop=FALSE])
     }
 
     # Create the base pheatmap inputs
     args <- list(
-        mat = data, main = main, show_colnames = show.colnames,
-        show_rownames = show.rownames, color = heatmap.colors,
-        ...)
+        mat = data, main = main, show_colnames = show_colnames,
+        show_rownames = show_rownames, color = heatmap.colors,
+        cluster_cols = cluster_cols, border_color = border_color, ...)
+    # Add annotation_col / annotation_colors only if needed
+    if (ncol(annotation_col)>0 || !is.null(args$annotation_row)) {
+        if (ncol(annotation_col)>0) {
+            args$annotation_col <- annotation_col
+        }
+        args$annotation_colors <- annotation_colors
+        args <- .make_heatmap_annotation_colors(args, annotation.colors)
+    }
+
+    if (scaled.to.max) {
+        maxs <- apply(args$mat,1,max)
+        args$mat <- args$mat/maxs
+        args$heatmap.colors <- heatmap.colors.max.scaled
+        args$scale <- "none"
+    }
     if (!is.null(order.by)) {
         order_data <- .var_OR_get_meta_or_gene(order.by, object, assay, slot)
         args$mat <- args$mat[,order(order_data[all.cells %in% cells.use])]
-        args$cluster_cols <- FALSE
     }
-    if (is.null(args$scale)) {
-        args$scale <- ifelse(scaled.to.max, "none", "row")
-    }
-    if (is.null(args$border_color)) {
-        args$border_color <- NA
-    }
-
-    # Add cell/sample/row names unless provided separately by user
-    if(is.null(args$labels_col) && !(is.null(cell.names.meta))) {
-        args$labels_col <- as.character(meta(cell.names.meta, object)[all.cells %in% cells.use])
-    }
-
-    # Make a labels_row input for displaying only certain genes if genes were given to highlight.genes input
+    # Make a labels_row input for displaying only certain genes if genes were given to 'highlight.genes'
     if (!(is.null(highlight.genes)) && sum(highlight.genes %in% rownames(data))>0) {
         highlight.genes <- highlight.genes[highlight.genes %in% rownames(data)]
         args$labels_row <- rownames(data)
@@ -199,19 +219,10 @@ dittoHeatmap <- function(
         args$show_rownames <- TRUE
     }
 
-    # Make the columns annotations data for colored annotation bars
-    if (!is.null(annotation.metas)) {
-        args$annotation_col <- data.frame(row.names = cells.use)
-        for (i in seq_along(annotation.metas)) {
-            args$annotation_col[,i] <-
-                meta(annotation.metas[i], object)[all.cells %in% cells.use]
-        }
-        names(args$annotation_col) <- annotation.metas
-    }
-
-    #Make the annotation colors
-    if (is.null(args$annotation_colors)) {
-        args <- .make_heatmap_annotation_colors(args, annotation.colors)
+    # Add cell/sample/row names unless provided separately by user
+    if(is.null(args$labels_col) && !(is.null(cell.names.meta))) {
+        names <- as.character(meta(cell.names.meta, object)[all.cells %in% cells.use])
+        args$labels_col <- names[colnames(args$mat)]
     }
 
     if (data.out) {
@@ -237,11 +248,13 @@ dittoHeatmap <- function(
     next.color.index.numeric <- 1
     col_colors <- NULL
     row_colors <- NULL
+    user.provided <- names(args$annotation_colors)
 
     # Columns First (if there)
-    if (!is.null(args$annotation_col)) {
+    if (!is.null(args$annotation_col) && ncol(args$annotation_col)>0) {
+        make.these <- !(colnames(args$annotation_col) %in% user.provided)
         dfcolors_out <- .pick_colors_for_df(
-            args$annotation_col,
+            args$annotation_col[,make.these, drop = FALSE],
             next.color.index.discrete, next.color.index.numeric,
             annotation.colors.d, annotation.colors.n)
         col_colors <- dfcolors_out$df_colors
@@ -251,14 +264,18 @@ dittoHeatmap <- function(
 
     # Rows Second (if there)
     if (!is.null(args$annotation_row)) {
+        make.these <- !(colnames(args$annotation_col) %in% user.provided)
         dfcolors_out <- .pick_colors_for_df(
-            args$annotation_row,
+            args$annotation_row[,make.these, drop = FALSE],
             next.color.index.discrete, next.color.index.numeric,
             annotation.colors.d, annotation.colors.n)
         row_colors <- dfcolors_out$df_colors
     }
 
-    args$annotation_colors <- c(col_colors, row_colors)
+    # Combine new with user.provided
+    args$annotation_colors <- c(
+        args$annotation_colors, col_colors, row_colors)
+
     args
 }
 
@@ -269,10 +286,11 @@ dittoHeatmap <- function(
     next.color.index.discrete, next.color.index.numeric,
     annotation.colors.d, annotation.colors.n
     ) {
+
     df_colors <- NULL
     for (i in seq_len(ncol(annotation_df))){
 
-        # Determine the distinct contents of the first annotation
+        # Determine the distinct contents of the annotation
         in.this.annot <- levels(as.factor(annotation_df[,i]))
 
         # Make new colors
@@ -307,3 +325,12 @@ dittoHeatmap <- function(
         next.color.index.discrete = next.color.index.discrete,
         next.color.index.numeric = next.color.index.numeric)
 }
+
+.default_order <- function(object, annotation.metas) {
+    if (is.null(annotation.metas)) {
+        return(annotation.metas[1])
+    } else {
+        return(NULL)
+    }
+}
+
