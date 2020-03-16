@@ -54,16 +54,10 @@ The defaults:
 }
 }
 \examples{
-pbmc <- Seurat::pbmc_small
+example(importDemux, echo = FALSE)
+demux.SNP.summary(myRNA)
 
-# Generate some mock lane, sample, and doublet.call metadata
-pbmc$demux.N.SNP <- rnorm(ncol(pbmc),75, 5)
-pbmc$Lane <- sample(
-    c("Lane1", "Lane2", "Lane3", "Lane4"),
-    ncol(pbmc),
-    replace = TRUE)
-
-demux.SNP.summary(pbmc)
+#Function wraps dittoPlot. See dittoPlot docs for more examples
 
 }
 \seealso{
@@ -72,7 +66,7 @@ This is the other Demuxlet-associated QC visualization included with dittoSeq.
 
 \code{\link{dittoPlot}}, as \code{demux.SNP.summary} is essentially just a \code{dittoPlot} wrapper.
 
-\code{\link{importDemux2Seurat}}, for how to import relevant demuxlet information as metadata.
+\code{\link{importDemux}}, for how to import relevant demuxlet information as metadata.
 
 Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
 }

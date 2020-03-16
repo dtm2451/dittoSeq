@@ -111,14 +111,14 @@
 #'     demuxlet.best = demux)
 #'
 #' # Note, importDemux can also take in the location of the .best file.
-#' #   pbmc <- importDemux(
-#' #       object = pbmc,
+#' #   myRNA <- importDemux(
+#' #       object = myRNA,
 #' #       lane.meta = "groups",
 #' #       demuxlet.best = "Location/filename.best")
 #'
 #' # demux.SNP.summary() and demux.calls.summary() can now be used.
-#' demux.SNP.summary(pbmc)
-#' demux.calls.summary(pbmc)
+#' demux.SNP.summary(myRNA)
+#' demux.calls.summary(myRNA)
 #'
 #' ###
 #' ### Method 2: cellranger aggr combined data (denoted with "-#" in barcodes)
@@ -131,8 +131,8 @@
 #' #   that lanes were provided to cellranger aggr* this function will then
 #' #   adjust the "-#" within the .best BARCODEs automatically before matching
 #' #
-#' # pbmc <- importDemux(
-#' #     object = pbmc,
+#' # myRNA <- importDemux(
+#' #     object = myRNA,
 #' #     demuxlet.best = c(
 #' #         "Location/filename1.best",
 #' #         "Location/filename2.best"),
@@ -174,6 +174,9 @@ importDemux <- function(
 
     # Remove any cells from the Demux output that are not in this object
     barcodes_in <- barcodes[barcodes %in% rownames(Demuxlet.info)]
+    if (length(barcodes_in)<1) {
+        stop("No barcodes match between 'object' and 'demuxlet.best'")
+    }
     trim.info <- Demuxlet.info[barcodes_in,]
 
     inds <- match(barcodes,barcodes_in)
@@ -393,16 +396,10 @@ importDemux <- function(
 #'
 #' Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
 #' @examples
-#' pbmc <- Seurat::pbmc_small
+#' example(importDemux, echo = FALSE)
+#' demux.SNP.summary(myRNA)
 #'
-#' # Generate some mock lane, sample, and doublet.call metadata
-#' pbmc$demux.N.SNP <- rnorm(ncol(pbmc),75, 5)
-#' pbmc$Lane <- sample(
-#'     c("Lane1", "Lane2", "Lane3", "Lane4"),
-#'     ncol(pbmc),
-#'     replace = TRUE)
-#'
-#' demux.SNP.summary(pbmc)
+#' #Function wraps dittoPlot. See dittoPlot docs for more examples
 #'
 #' @author Daniel Bunis
 #' @export
@@ -439,22 +436,16 @@ demux.SNP.summary <- function(
 #'
 #' Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
 #' @examples
-#' pbmc <- Seurat::pbmc_small
+#' example(importDemux, echo = FALSE)
 #'
-#' # Generate some mock lane, sample, and doublet.call metadata
-#' pbmc$Lane <- sample(
-#'     c("Lane1", "Lane2", "Lane3", "Lane4"),
-#'     ncol(pbmc),
-#'     replace = TRUE)
-#' pbmc$Sample <- sample(
-#'     c("Sample-1", "Sample-2", "Sample-3", "Sample-4", "Sample-5"),
-#'     ncol(pbmc),
-#'     replace = TRUE)
-#' pbmc$demux.doublet.call <- "SNG"
+#' demux.calls.summary(myRNA)
 #'
-#' demux.calls.summary(pbmc)
+#' # Exclude doublets by setting 'singlets only = TRUE'
+#' demux.calls.summary(myRNA,
+#'     singlets.only = TRUE)
 #'
-#' demux.calls.summary(pbmc, data.out = TRUE)
+#' # To return the underlying data.frame
+#' demux.calls.summary(myRNA, data.out = TRUE)
 #'
 #' @author Daniel Bunis
 #' @export
