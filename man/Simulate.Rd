@@ -25,17 +25,16 @@ Simulate(
 \value{
 Outputs a dittoSeq plot with the color.panel / min.color & max.color updated as it might look to a colorblind individual.
 
-Note: Does not currently work for dittoHeatmap.
+Note: Does not currently adjust dittoHeatmap.
 }
 \description{
 Essentially a wrapper function for colorspace's deutan(), protan(), and tritan() functions. This function will output any dittoSeq plot as it might look to an individual with one of the common forms of colorblindness: deutanopia/deutanomaly, the most common, is when the cones mainly responsible for red vision are defective. Protanopia/protanomaly is when the cones mainly responsible for green vision are defective. In tritanopia/tritanomaly, the defective cones are responsible for blue vision. Note: there are more severe color deficiencies that are even more rare. Unfortunately, for these types of color vision deficiency, only non-color methods, like lettering or shapes, will do much to help.
 }
 \examples{
-library(Seurat)
-pbmc <- Seurat::pbmc_small
-Simulate("deutan", dittoDimPlot, object=pbmc, var="RNA_snn_res.1", size = 2)
-Simulate("protan", dittoDimPlot, pbmc, "RNA_snn_res.1", size = 2)
-Simulate("tritan", dittoDimPlot, pbmc, "RNA_snn_res.1", size = 2)
+example(importDittoBulk, echo = FALSE)
+Simulate("deutan", dittoDimPlot, object=myRNA, var="clustering", size = 2)
+Simulate("protan", dittoDimPlot, myRNA, "clustering", size = 2)
+Simulate("tritan", dittoDimPlot, myRNA, "clustering", size = 2)
 
 }
 \author{

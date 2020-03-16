@@ -28,10 +28,10 @@
 #' isGene("CD12345", myRNA) # FALSE
 #'
 #' # To test if many things are genes of an object
-#' isGene(c("CD14", "IL32", "CD3E", "CD12345"), myRNA)
+#' isGene(c("gene1", "gene2", "not-a-gene", "CD12345"), myRNA)
 #'
 #' # 'return.values' input is especially useful in these cases.
-#' isGene(c("CD14", "IL32", "CD3E", "CD12345"), myRNA,
+#' isGene(c("gene1", "gene2", "not-a-gene", "CD12345"), myRNA,
 #'     return.values = TRUE)
 #'
 #' @author Daniel Bunis
