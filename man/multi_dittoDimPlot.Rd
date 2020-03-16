@@ -39,11 +39,16 @@ All parameters that can be adjusted in dittoDimPlot can be adjusted here, but th
 Generates multiple dittoDimPlots arranged in a grid.
 }
 \examples{
-library(Seurat)
-pbmc <- Seurat::pbmc_small
+# dittoSeq handles bulk and single-cell data quit similarly.
+# The SingleCellExperiment object structure is used for both,
+# but all functions can be used similarly directly on Seurat
+# objects as well.
 
-genes <- c("CD8A","CD3E","FCER1A","CD14","MS4A1")
-multi_dittoDimPlot(pbmc, c(genes, "ident"))
+example(importDittoBulk, echo = FALSE)
+myRNA
+
+genes <- getGenes(myRNA)[1:5]
+multi_dittoDimPlot(myRNA, c(genes, "clustering"))
 
 }
 \author{

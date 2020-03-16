@@ -45,29 +45,23 @@ For a given Seurat object, summarizes how many cells in each lane were anotated 
 Plots the number of annotations per sample, per lane
 }
 \examples{
-pbmc <- Seurat::pbmc_small
+example(importDemux, echo = FALSE)
 
-# Generate some mock lane, sample, and doublet.call metadata
-pbmc$Lane <- sample(
-    c("Lane1", "Lane2", "Lane3", "Lane4"),
-    ncol(pbmc),
-    replace = TRUE)
-pbmc$Sample <- sample(
-    c("Sample-1", "Sample-2", "Sample-3", "Sample-4", "Sample-5"),
-    ncol(pbmc),
-    replace = TRUE)
-pbmc$demux.doublet.call <- "SNG"
+demux.calls.summary(myRNA)
 
-demux.calls.summary(pbmc)
+# Exclude doublets by setting 'singlets only = TRUE'
+demux.calls.summary(myRNA,
+    singlets.only = TRUE)
 
-demux.calls.summary(pbmc, data.out = TRUE)
+# To return the underlying data.frame
+demux.calls.summary(myRNA, data.out = TRUE)
 
 }
 \seealso{
 \code{\link{demux.SNP.summary}} for plotting the number of SNPs measured per cell.
 This is the other Demuxlet-associated QC visualization included with dittoSeq.
 
-\code{\link{importDemux2Seurat}}, for how to import relevant demuxlet information as metadata.
+\code{\link{importDemux}}, for how to import relevant demuxlet information as metadata.
 
 Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
 }

@@ -12,15 +12,16 @@ meta(meta, object)
 \item{object}{A target Seurat or SingleCellExperiment object}
 }
 \value{
-Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
+A named vector. Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
+Names of values will be the cell/sample names.
 }
 \description{
 Returns the values of a meta.data  for all cells/samples
 }
 \examples{
 
-pbmc <- Seurat::pbmc_small
-meta("RNA_snn_res.1", object = pbmc)
+example(importDittoBulk, echo = FALSE)
+meta("groups", object = myRNA)
 
 }
 \seealso{

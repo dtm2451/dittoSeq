@@ -21,30 +21,86 @@
 #' dittoSeq defaults to grabbing expression data from an assay named logcounts > normcounts > counts
 #'
 #' @examples
+#' ## Bulk data is stored as a SingleCellExperiment
 #' library(SingleCellExperiment)
-#' nsamples <- 20
-#' conditions <- factor(rep(1:4, each=5))
-#' exp <- matrix(rpois(20000, 5), ncol=nsamples)
+#'
+#' # Generate some random data
+#' nsamples <- 60
+#' exp <- matrix(rpois(1000*nsamples, 20), ncol=nsamples)
 #' colnames(exp) <- paste0("sample", seq_len(ncol(exp)))
 #' rownames(exp) <- paste0("gene", seq_len(nrow(exp)))
 #' logexp <- log2(exp + 1)
 #'
-#' # Make this into a SummarizedExperiment
-#' se <- SummarizedExperiment(
-#'     list(counts = exp, logcounts = logexp),
-#'     colData = data.frame(conditions))
+#' # Dimensionality Reductions
+#' pca <- matrix(runif(nsamples*5,-2,2), nsamples)
+#' tsne <- matrix(rnorm(nsamples*2), nsamples)
 #'
-#' # import
-#' myRNA <- importDittoBulk(se)
+#' # Some Metadata
+#' conds <- factor(rep(c("condition1", "condition2"), each=nsamples/2))
+#' timept <- rep(c("d0", "d3", "d6", "d9"), each = 15)
+#' genome <- rep(c(rep(TRUE,7),rep(FALSE,8)), 4)
+#' grps <- sample(c("A","B","C","D"), nsamples, TRUE)
+#' clusts <- as.character(1*(tsne[,1]>0&tsne[,2]>0) +
+#'                        2*(tsne[,1]<0&tsne[,2]>0) +
+#'                        3*(tsne[,1]>0&tsne[,2]<0) +
+#'                        4*(tsne[,1]<0&tsne[,2]<0))
+#'
+#' ### We can import the counts directly, or as a SummarizedExperiment
+#' myRNA <- importDittoBulk(
+#'     x = list(counts = exp,
+#'          logcounts = logexp))
+#'
+#' ### Adding metadata & PCA or other dimensionality reductions
+#' # We can add these directly during import, or after.
+#' myRNA <- importDittoBulk(
+#'     x = list(counts = exp,
+#'         logcounts = logexp),
+#'     metadata = data.frame(
+#'         conditions = conds,
+#'         timepoint = timept,
+#'         SNP = genome,
+#'         groups = grps),
+#'     reductions = list(
+#'         pca = pca))
+#'
+#' myRNA$clustering <- clusts
+#'
+#' myRNA <- addDimReduction(
+#'     myRNA,
+#'     embeddings = tsne,
+#'     name = "tsne")
+#'
+#' # (other packages SCE manipulations can also be used)
+#'
+#' ### When we import from SummarizedExperiment, all metadata is retained.
+#' # The object is just 'upgraded' to hold extra slots.
+#' # The input is the same, aside from a message when metadata are replaced.
+#' se <- SummarizedExperiment(
+#'     list(counts = exp, logcounts = logexp))
+#' myRNA <- importDittoBulk(
+#'     x = se,
+#'     metadata = data.frame(
+#'         conditions = conds,
+#'         timepoint = timept,
+#'         SNP = genome,
+#'         groups = grps,
+#'         clustering = clusts),
+#'     reductions = list(
+#'         pca = pca,
+#'         tsne = tsne))
+#' myRNA
 #'
 #' ### For DESeq2, how we might have made this:
+#' # DESeqDataSets are SummarizedExperiments, and behave similarly
 #' # library(DESeq2)
 #' # dds <- DESeqDataSetFromMatrix(
 #' #     exp, data.frame(conditions), ~ conditions)
 #' # dds <- DESeq(dds)
 #' # dds_ditto <- importDittoBulk(dds)
 #'
-#' ### For edgeR
+#' ### For edgeR, DGELists are a separate beast.
+#' # dittoSeq imports what I know to commonly be inside them, but please submit
+#' # an issue on the github (dtm2451/dittoSeq) if more should be retained.
 #' # library(edgeR)
 #' # dgelist <- DGEList(counts=exp, group=conditions)
 #' # dge_ditto <- importDittoBulk(dgelist)
@@ -95,7 +151,7 @@ setMethod("importDittoBulk", "SummarizedExperiment", function(
         }
         for (i in names(reductions)) {
             if (i == "") stop("All elements of 'reductions' must be named.")
-            SingleCellExperiment::reducedDim(object, i) <- reductions[[i]]
+            object <- addDimReduction(object,reductions[[i]],i)
         }
     }
     object

@@ -25,21 +25,21 @@ For Seurat objects, also returns TRUE for the input \code{"ident"} because, for 
 }
 \examples{
 
-pbmc <- Seurat::pbmc_small
-
-# To see all metadata slots of an object
-getMetas(pbmc)
+example(importDittoBulk, echo = FALSE)
 
 # To check if something is a metadata slot
-isMeta("age", object = pbmc) # False
-isMeta("nCount_RNA", object = pbmc) # True
+isMeta("timepoint", object = myRNA) # FTRUE
+isMeta("nCount_RNA", object = myRNA) # FALSE
 
-# works for multiple test metas
-isMeta(c("age","nCount_RNA"), pbmc)
+# To test if many things are metadata of an object
+isMeta(c("age","groups"), myRNA) # FALSE, TRUE
 
-# and with return.values = TRUE, returns all elements that are indeed slots
-isMeta(c("age","nCount_RNA", "RNA_snn_res.0.8"), pbmc,
+# 'return.values' input is especially useful in these cases.
+isMeta(c("age","groups"), myRNA,
     return.values = TRUE)
+
+# Alternatively, to see all metadata slots of an object, use getMetas
+getMetas(myRNA)
 
 }
 \seealso{

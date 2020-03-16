@@ -93,27 +93,39 @@ Either continuous or discrete \code{var} data can be displayed.
 }
 }
 \examples{
-pbmc <- Seurat::pbmc_small
+# dittoSeq handles bulk and single-cell data quit similarly.
+# The SingleCellExperiment object structure is used for both,
+# but all functions can be used similarly directly on Seurat
+# objects as well.
 
-multi_dittoDimPlotVaryCells(pbmc, "CD14", vary.cells.meta = "ident")
+example(importDittoBulk, echo = FALSE)
+myRNA
+
+multi_dittoDimPlotVaryCells(myRNA, "gene1", vary.cells.meta = "clustering")
 
 # This function can be used to quickly scan for differences in expression
 #   within or accross clusters/cell types by providing a gene to 'var'
-multi_dittoDimPlotVaryCells(pbmc, "CD14", vary.cells.meta = "ident")
+multi_dittoDimPlotVaryCells(myRNA, "gene1", vary.cells.meta = "clustering")
 
 # This function is also great for generating separate plots of each individual
 #   element of a tsne/PCplot/umap. This can be useful to check for dispersion
 #   of groups that might otherwise be hidden behind other cells/samples.
 #   To do so, set 'var' and 'vary.cells.meta' the same.
-multi_dittoDimPlotVaryCells(pbmc, "ident", vary.cells.meta = "ident")
+multi_dittoDimPlotVaryCells(myRNA, "clustering", vary.cells.meta = "clustering")
 
 # The function can also be used to quickly visualize how separate clustering
 #   resolutions match up to each other, or perhaps how certain conditions of
 #   cells disperse accross clusters.
-multi_dittoDimPlotVaryCells(pbmc, "RNA_snn_res.0.8", vary.cells.meta = "ident")
+multi_dittoDimPlotVaryCells(myRNA, "groups", vary.cells.meta = "clustering")
+
 
 # For an alternative method of viewing, and easily quantifying, how discrete
 #   conditions of cells disperse accross clusters, see '?dittoBarPlot'
+
+
+# Note, for displaying expression or scoring of distinct genes or metadata,
+#   use 'multi_dittoDimPlot'.  Its split.by variable can then be used to add
+#   a varyCells-like effect.
 
 }
 \seealso{

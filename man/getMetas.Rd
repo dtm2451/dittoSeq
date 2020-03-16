@@ -19,13 +19,13 @@ Returns the names of all meta.data slots of a target object.
 }
 \examples{
 
-pbmc <- Seurat::pbmc_small
+example(importDittoBulk, echo = FALSE)
 
 # To see all metadata slots of an object
-getMetas(pbmc)
+getMetas(myRNA)
 
 # To retrieve the entire metadata matrix
-getMetas(pbmc, names.only = FALSE)
+getMetas(myRNA, names.only = FALSE)
 
 }
 \seealso{

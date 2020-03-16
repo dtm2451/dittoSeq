@@ -4,7 +4,7 @@
 \alias{metaLevels}
 \title{Gives the distinct values of a meta.data slot (or ident)}
 \usage{
-metaLevels(meta, object, cells.use = NULL)
+metaLevels(meta, object, cells.use = NULL, used.only = TRUE)
 }
 \arguments{
 \item{meta}{quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.}
@@ -14,9 +14,11 @@ metaLevels(meta, object, cells.use = NULL)
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
+
+\item{used.only}{TRUE by default, whether unused levels of already}
 }
 \value{
-Returns the distinct values of a metadata slot given to all cells/samples or for a subset of cells/samples.
+Returns the distinct values of a metadata slot (factor or not) among to all cells/samples, or for a subset of cells/samples.
 (Alternatively, returns the distinct values of clustering if \code{meta = "ident"} and the object is a \code{Seurat} object).
 }
 \description{
@@ -24,9 +26,20 @@ Gives the distinct values of a meta.data slot (or ident)
 }
 \examples{
 
-library(Seurat)
-pbmc <- pbmc_small
-metaLevels("RNA_snn_res.1", object = pbmc)
+# dittoSeq handles bulk and single-cell data quit similarly.
+# The SingleCellExperiment object structure is used for both,
+# but all functions can be used similarly directly on Seurat
+# objects as well.
+
+example(importDittoBulk, echo = FALSE)
+
+metaLevels("clustering", object = myRNA)
+
+# Note: Set 'used.only' (default = TRUE) to FALSE to show unused levels
+#  of metadata that are already factors.  By default, only the in use options
+#  of a metadata are shown.
+metaLevels("clustering", myRNA,
+    used.only = FALSE)
 
 }
 \seealso{

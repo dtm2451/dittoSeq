@@ -50,13 +50,12 @@ Lighten <- function(colors, percent.change = 0.25, relative = TRUE) {
 #' @param color.panel,min.color,max.color The set of colors to be used.
 #' @return Outputs a dittoSeq plot with the color.panel / min.color & max.color updated as it might look to a colorblind individual.
 #'
-#' Note: Does not currently work for dittoHeatmap.
+#' Note: Does not currently adjust dittoHeatmap.
 #' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' Simulate("deutan", dittoDimPlot, object=pbmc, var="RNA_snn_res.1", size = 2)
-#' Simulate("protan", dittoDimPlot, pbmc, "RNA_snn_res.1", size = 2)
-#' Simulate("tritan", dittoDimPlot, pbmc, "RNA_snn_res.1", size = 2)
+#' example(importDittoBulk, echo = FALSE)
+#' Simulate("deutan", dittoDimPlot, object=myRNA, var="clustering", size = 2)
+#' Simulate("protan", dittoDimPlot, myRNA, "clustering", size = 2)
+#' Simulate("tritan", dittoDimPlot, myRNA, "clustering", size = 2)
 #'
 #' @author Daniel Bunis
 #' @importFrom colorspace deutan protan tritan

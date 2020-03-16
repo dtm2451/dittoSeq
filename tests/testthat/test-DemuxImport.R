@@ -1,61 +1,95 @@
-# Tests for importDemux2Seurat function
+# Tests for importDemux function
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-DemuxImport.R")
 
-test_that("importDemux2Seurat works when all barcodes are there", {
+sce.noDash <- sce
+colnames(sce.noDash) <- sapply(colnames(sce.noDash), function(X) strsplit(X, "-")[[1]][1])
+seurat.noDash <- suppressWarnings(Seurat::as.Seurat(sce.noDash))
+
+sce2 <- sce.noDash
+colnames(sce2) <- paste(colnames(sce2), rep(1:2, each = 40)[seq_len(ncells)], sep = "-")
+seurat2 <- suppressWarnings(Seurat::as.Seurat(sce2))
+
+test_that("importDemux works when all barcodes are there (Seurat and SCE)", {
     expect_s4_class(
-        importDemux2Seurat(
-            seurat, lane.meta = "groups",
-            Demuxlet.best = "mock_demux.best"),
+        importDemux(
+            object = seurat.noDash, lane.meta = "groups",
+            demuxlet.best = "mock_demux.best"),
         "Seurat")
+    expect_s4_class(
+        importDemux(
+            object = sce.noDash, lane.meta = "groups",
+            demuxlet.best = "mock_demux.best"),
+        "SingleCellExperiment")
 })
 
-test_that("importDemux2Seurat can name lanes with 'lane.names'", {
+test_that("importDemux can name lanes with 'lane.names' (Seurat and SCE)", {
     expect_s4_class(
-        t <- importDemux2Seurat(
-            seurat, lane.meta = "groups",
+        t <- importDemux(
+            seurat.noDash, lane.meta = "groups",
             lane.names = metaLevels("groups", seurat),
-            Demuxlet.best = "mock_demux.best"
+            demuxlet.best = "mock_demux.best"
             ),
         "Seurat")
     expect_equal(
         metaLevels("Lane",t),
         metaLevels("groups", seurat)
     )
+    expect_s4_class(
+        t <- importDemux(
+            sce.noDash, lane.meta = "groups",
+            lane.names = metaLevels("groups", seurat),
+            demuxlet.best = "mock_demux.best"
+            ),
+        "SingleCellExperiment")
 })
 
-test_that("importDemux2Seurat works when some barcodes are not there", {
+test_that("importDemux works when some barcodes are not there (Seurat and SCE)", {
     expect_s4_class(
-        importDemux2Seurat(
-            seurat, lane.meta = "groups", Demuxlet.best = "mock_demux_missing10.best"),
+        importDemux(
+            seurat.noDash, lane.meta = "groups", demuxlet.best = "mock_demux_missing10.best"),
         "Seurat")
+    expect_s4_class(
+        importDemux(
+            sce.noDash, lane.meta = "groups", demuxlet.best = "mock_demux_missing10.best"),
+        "SingleCellExperiment")
 })
 
-seurat2 <- seurat
-colnames(seurat2@assays$RNA@data) <-
-    paste(colnames(seurat2), rep(1:2, each = 40)[seq_len(ncells)], sep = "-")
-test_that("importDemux2Seurat reads lanes from -# names", {
+test_that("importDemux reads lanes from -# names", {
     expect_s4_class(
-        t <- importDemux2Seurat(
-            seurat2, Demuxlet.best = "mock_demux_-num2Lanes.best"),
+        t <- importDemux(
+            seurat2, demuxlet.best = "mock_demux_-num2Lanes.best"),
         "Seurat")
+    expect_equal(length(metaLevels("Lane",t)), 2)
+    expect_s4_class(
+        t <- importDemux(
+            sce2, demuxlet.best = "mock_demux_-num2Lanes.best"),
+        "SingleCellExperiment")
     expect_equal(length(metaLevels("Lane",t)), 2)
 })
 
-test_that("importDemux2Seurat can be verbose or not", {
+test_that("importDemux can be verbose or not", {
     expect_message(
-        importDemux2Seurat(
-            seurat, Demuxlet.best = "mock_demux.best",
+        importDemux(
+            seurat.noDash, demuxlet.best = "mock_demux.best",
             verbose = TRUE))
     expect_message(
-        importDemux2Seurat(
-            seurat, Demuxlet.best = "mock_demux.best",
+        importDemux(
+            seurat.noDash, demuxlet.best = "mock_demux.best",
             verbose = FALSE),
         NA)
 })
 
-seurat.demux <- importDemux2Seurat(
-    seurat, lane.meta = "groups",
-    Demuxlet.best = "mock_demux.best",
+test_that("importDemux gives error when no barcodes match", {
+    expect_error(
+        importDemux(
+            seurat, demuxlet.best = "mock_demux.best",
+            verbose = FALSE),
+        "No barcodes match between 'object' and 'demuxlet.best'", fixed = TRUE)
+})
+
+seurat.demux <- importDemux(
+    seurat.noDash, lane.meta = "groups",
+    demuxlet.best = "mock_demux.best",
     verbose = FALSE)
 
 test_that("demux.SNP.summary version of dittoPlot works", {

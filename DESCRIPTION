@@ -1,7 +1,7 @@
 Package: dittoSeq
 Type: Package
 Title: User Friendly Single-Cell and Bulk RNA Sequencing Visualization
-Version: 0.99.11
+Version: 0.99.12
 Author: Daniel Bunis
 Maintainer: Daniel Bunis <daniel.bunis@ucsf.edu>
 Description: A set of functions for generating publication-ready (sc)RNAseq
@@ -12,7 +12,7 @@ Description: A set of functions for generating publication-ready (sc)RNAseq
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Depends: ggplot2
 Imports: methods,
     colorspace (>= 1.4),
