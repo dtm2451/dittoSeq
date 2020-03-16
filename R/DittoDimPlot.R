@@ -153,24 +153,56 @@
 #' @importFrom stats median
 #' @export
 #' @examples
-#' pbmc <- Seurat::pbmc_small
+#' # dittoSeq handles bulk and single-cell data quit similarly.
+#' # The SingleCellExperiment object structure is used for both,
+#' # but all functions can be used similarly directly on Seurat
+#' # objects as well.
+#'
+#' example(importDittoBulk, echo = FALSE)
+#' myRNA
 #'
 #' # Display discrete data:
-#' dittoDimPlot(pbmc, "RNA_snn_res.1")
+#' dittoDimPlot(myRNA, "clustering")
 #' # Display continuous data:
-#' dittoDimPlot(pbmc, "CD14")
+#' dittoDimPlot(myRNA, "gene1")
 #'
 #' # To show currently set clustering for seurat objects, you can use "ident".
-#' # To change the dimensional reduction type, use reduction.use.
+#' # To change the dimensional reduction type, use 'reduction.use'.
+#' dittoDimPlot(myRNA, "clustering",
+#'     reduction.use = "pca",
+#'     dim.1 = 3,
+#'     dim.2 = 4)
+#'
+#' # Subset to certain cells with cells.use
+#' dittoDimPlot(myRNA, "clustering",
+#'     cells.us = !myRNA$SNP)
+#'
+#' # Data can also be split in other ways with 'shape.by' or 'split.by'
+#' dittoDimPlot(myRNA, "gene1",
+#'     shape.by = "clustering",
+#'     split.by = "timepoint")
+#'
+#' # Modify the look with intuitive inputs
+#' dittoDimPlot(myRNA, "clustering",
+#'     size = 2, opacity = 0.7, show.axes.numbers = FALSE,
+#'     ylab = NULL, xlab = "tSNE",
+#'     main = "Plot Title",
+#'     sub = "subtitle",
+#'     legend.title = "clustering")
 #'
 #' # MANY addtional tweaks are possible.
 #' # Also, many extra features are easy to add as well:
-#' dittoDimPlot(pbmc, "ident", do.label = TRUE)
-#' dittoDimPlot(pbmc, "ident", do.label = TRUE, do.ellipse = TRUE)
-#' dittoDimPlot(pbmc, "CD3E", do.hover = TRUE,
-#'     hover.data = c("CD14", "RNA_snn_res.0.8", "groups"))
-#' dittoDimPlot(pbmc, "CD3E", add.trajectory.lineages = list(c(0:2), c(0,2)),
-#'     trajectory.cluster.meta = "ident")
+#' dittoDimPlot(myRNA, "clustering",
+#'     do.label = TRUE, do.ellipse = TRUE)
+#' dittoDimPlot(myRNA, "clustering",
+#'     do.label = TRUE, labels.highlight = FALSE, labels.size = 8)
+#' if (requireNamespace("plotly", quietly = TRUE)) {
+#'     dittoDimPlot(myRNA, "gene1", do.hover = TRUE,
+#'         hover.data = c("gene2", "clustering", "timepoint"))
+#' }
+#' dittoDimPlot(myRNA, "gene1", add.trajectory.lineages = list(c(1,2,4), c(1,3)),
+#'     trajectory.cluster.meta = "clustering",
+#'     sub = "Pseudotime Trajectories")
 
 dittoDimPlot <- function(
     object, var="ident", reduction.use = NA, size=1, opacity = 1,
@@ -450,11 +482,16 @@ dittoDimPlot <- function(
 #' If \code{OUT.list} was set to TRUE, the list of individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
 #' All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only parameter that can be adjusted between each is the \code{var}.
 #' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
+#' # dittoSeq handles bulk and single-cell data quit similarly.
+#' # The SingleCellExperiment object structure is used for both,
+#' # but all functions can be used similarly directly on Seurat
+#' # objects as well.
 #'
-#' genes <- c("CD8A","CD3E","FCER1A","CD14","MS4A1")
-#' multi_dittoDimPlot(pbmc, c(genes, "ident"))
+#' example(importDittoBulk, echo = FALSE)
+#' myRNA
+#'
+#' genes <- getGenes(myRNA)[1:5]
+#' multi_dittoDimPlot(myRNA, c(genes, "clustering"))
 #'
 #' @author Daniel Bunis
 #' @export

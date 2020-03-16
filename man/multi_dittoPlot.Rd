@@ -53,27 +53,32 @@ All parameters that can be adjusted in dittoPlot can be adjusted here.
 Generates multiple dittoPlots arranged into a grid.
 }
 \examples{
-library(Seurat)
-pbmc <- Seurat::pbmc_small
+# dittoSeq handles bulk and single-cell data quit similarly.
+# The SingleCellExperiment object structure is used for both,
+# but all functions can be used similarly directly on Seurat
+# objects as well.
 
-genes <- c("CD8A","CD3E","FCER1A","CD14")
-multi_dittoPlot(pbmc, genes,
-    group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
+example(importDittoBulk, echo = FALSE)
+myRNA
+
+genes <- getGenes(myRNA)[1:4]
+multi_dittoPlot(myRNA, genes, group.by = "clustering")
+
+# violin-plots in front is often better for large single-cell datasets,
+# but we cn change the order with 'plots'
+multi_dittoPlot(myRNA, genes, "clustering",
+    plots = c("vlnplot","boxplot","jitter"))
 
 #To make it output a grid that is 2x2, to add y-axis labels
 # instead of titles, and to show legends...
-multi_dittoPlot(pbmc, genes,
-    group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
-    nrow = 2, ncol = 2,           #Make grid 2x2
-    main = FALSE, ylab = "make",  #Add y axis labels instead of titles
+multi_dittoPlot(myRNA, genes, "clustering",
+    nrow = 2, ncol = 2,           #Make grid 2x2 (only one of these needed)
+    main = NULL, ylab = "make",   #Add y axis labels instead of titles
     legend.show = TRUE)           #Show legends
 
-# To eliminate the "expression", change ylab = "var"
-multi_dittoPlot(pbmc, genes,
-    group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
-    nrow = 2, ncol = 2,         #Make grid 2x2
-    main = FALSE, ylab = "var", #Add y axis labels without "expression"
-    legend.show = TRUE)         #Show legends
+# We can also facet with 'split.by'
+multi_dittoPlot(myRNA, genes, "clustering",
+    split.by = "SNP")
 
 }
 \seealso{

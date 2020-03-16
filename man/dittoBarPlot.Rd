@@ -124,20 +124,27 @@ Many characteristics of the plot can be adjusted using discrete inputs:
 }
 }
 \examples{
-library(Seurat)
-pbmc <- pbmc_small
+# dittoSeq handles bulk and single-cell data quit similarly.
+# The SingleCellExperiment object structure is used for both,
+# but all functions can be used similarly directly on Seurat
+# objects as well.
 
-dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident")
-dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident",
+example(importDittoBulk, echo = FALSE)
+myRNA
+
+dittoBarPlot(myRNA, "clustering", group.by = "groups")
+dittoBarPlot(myRNA, "clustering", group.by = "groups",
     scale = "count")
 
-# Accessing underlying data:
+### Accessing underlying data:
 # as dataframe
-dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident",
+dittoBarPlot(myRNA, "clustering", group.by = "groups",
     data.out = TRUE)
 # through hovering the cursor over the relevant parts of the plot
-dittoBarPlot(pbmc, "RNA_snn_res.0.8", group.by = "ident",
-    do.hover = TRUE)
+if (requireNamespace("plotly", quietly = TRUE)) {
+    dittoBarPlot(myRNA, "clustering", group.by = "groups",
+        do.hover = TRUE)
+    }
 
 }
 \author{

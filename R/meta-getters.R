@@ -16,21 +16,21 @@
 #'
 #' @examples
 #'
-#' pbmc <- Seurat::pbmc_small
-#'
-#' # To see all metadata slots of an object
-#' getMetas(pbmc)
+#' example(importDittoBulk, echo = FALSE)
 #'
 #' # To check if something is a metadata slot
-#' isMeta("age", object = pbmc) # False
-#' isMeta("nCount_RNA", object = pbmc) # True
+#' isMeta("timepoint", object = myRNA) # FTRUE
+#' isMeta("nCount_RNA", object = myRNA) # FALSE
 #'
-#' # works for multiple test metas
-#' isMeta(c("age","nCount_RNA"), pbmc)
+#' # To test if many things are metadata of an object
+#' isMeta(c("age","groups"), myRNA) # FALSE, TRUE
 #'
-#' # and with return.values = TRUE, returns all elements that are indeed slots
-#' isMeta(c("age","nCount_RNA", "RNA_snn_res.0.8"), pbmc,
+#' # 'return.values' input is especially useful in these cases.
+#' isMeta(c("age","groups"), myRNA,
 #'     return.values = TRUE)
+#'
+#' # Alternatively, to see all metadata slots of an object, use getMetas
+#' getMetas(myRNA)
 #'
 #' @author Daniel Bunis
 #' @export
@@ -62,13 +62,13 @@ isMeta <- function(test, object, return.values=FALSE){
 #'
 #' @examples
 #'
-#' pbmc <- Seurat::pbmc_small
+#' example(importDittoBulk, echo = FALSE)
 #'
 #' # To see all metadata slots of an object
-#' getMetas(pbmc)
+#' getMetas(myRNA)
 #'
 #' # To retrieve the entire metadata matrix
-#' getMetas(pbmc, names.only = FALSE)
+#' getMetas(myRNA, names.only = FALSE)
 #'
 #' @author Daniel Bunis
 #' @export
@@ -92,7 +92,8 @@ getMetas <- function(object, names.only = TRUE){
 #'
 #' @param meta String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.
 #' @param object A target Seurat or SingleCellExperiment object
-#' @return Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
+#' @return A named vector. Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
+#' Names of values will be the cell/sample names.
 #' @seealso
 #' \code{\link{metaLevels}} for returning just the unique discrete identities that exist within a metadata slot
 #'
@@ -101,8 +102,8 @@ getMetas <- function(object, names.only = TRUE){
 #' \code{\link{isMeta}} for testing whether something is the name of a metadata slot
 #' @examples
 #'
-#' pbmc <- Seurat::pbmc_small
-#' meta("RNA_snn_res.1", object = pbmc)
+#' example(importDittoBulk, echo = FALSE)
+#' meta("groups", object = myRNA)
 #'
 #' @author Daniel Bunis
 #' @export

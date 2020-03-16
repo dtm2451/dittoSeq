@@ -184,30 +184,46 @@ Many characteristics of the plot can be adjusted using discrete inputs:
 }
 }
 \examples{
+# dittoSeq handles bulk and single-cell data quit similarly.
+# The SingleCellExperiment object structure is used for both,
+# but all functions can be used similarly directly on Seurat
+# objects as well.
 
-library(Seurat)
-pbmc <- Seurat::pbmc_small
-# Mock up some percent.mito metadata
-pbmc$percent.mito <- sample(c(runif(75,0,0.05),runif(5,0.05,0.2)))
+example(importDittoBulk, echo = FALSE)
+myRNA
+
+# Mock up some nCount_RNA and nFeature_RNA metadata
+#  == the default way to extract
+myRNA$nCount_RNA <- runif(60,200,1000)
+myRNA$nFeature_RNA <- myRNA$nCount_RNA*runif(60,0.95,1.05)
+# and also percent.mito metadata
+myRNA$percent.mito <- sample(c(runif(50,0,0.05),runif(10,0.05,0.2)))
 
 dittoScatterPlot(
-    pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA")
+    myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA")
 
 # Shapes or colors can be overlaid representing discrete metadata
 #   or (only colors) continuous metadata / expression data by providing
 #   metadata or gene names to 'color.var' and 'shape.by'
 dittoScatterPlot(
-    pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
-    color.var = "RNA_snn_res.1",
-    shape.by = "RNA_snn_res.0.8")
+    myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
+    color.var = "percent.mito")
 dittoScatterPlot(
-    pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
-    color.var = "percent.mito",
-    shape.by = "RNA_snn_res.0.8")
+    myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
+    color.var = "groups",
+    shape.by = "SNP")
 dittoScatterPlot(
-    pbmc, x.var = "nCount_RNA", y.var = "nFeature_RNA",
-    color.var = "CD14",
-    shape.by = "RNA_snn_res.0.8")
+    myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
+    color.var = "gene1")
+
+# Data can be "split" or faceted by a discrete variable as well.
+dittoDimPlot(myRNA, "gene1",
+    shape.by = "clustering",
+    split.by = "timepoint")
+# OR with 'extra.vars' plus manually faceting for added control
+dittoDimPlot(myRNA, "gene1",
+    extra.vars = c("clustering","timepoint")) +
+    facet_grid(rows = vars(clustering), cols = vars(timepoint))
 
 # Note: scatterplots like this can be very useful for dataset QC, especially
 #   with percentage of reads coming from genes as the color overlay.

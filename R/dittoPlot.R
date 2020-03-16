@@ -125,33 +125,53 @@
 #'
 #' \code{\link{dittoPlotVarsAcrossGroups}} to create dittoPlots that show summarized the expression (or value for metadatas), accross groups, of multiple \code{vars} in a single plot.
 #'
-#' @examples
-#' library(Seurat)
-#' pbmc <- pbmc_small
-#' dittoPlot(pbmc, "CD14", group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
+#' \code{\link{dittoRidgePlot}}, \code{\link{dittoRidgeJitter}}, and \code{\link{dittoBoxPlot}} for shortcuts to a few 'plots' input shortcuts
 #'
-#' # We can adjust the types of plots displayed with the plots input:
-#' dittoPlot(pbmc, "CD14", group.by = "RNA_snn_res.1",
+#' @examples
+#' # dittoSeq handles bulk and single-cell data quit similarly.
+#' # The SingleCellExperiment object structure is used for both,
+#' # but all functions can be used similarly directly on Seurat
+#' # objects as well.
+#'
+#' example(importDittoBulk, echo = FALSE)
+#' myRNA
+#'
+#' # Basic dittoplot, with jitter behind a vlnplot (looks better with more cells)
+#' dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint")
+#'
+#' # Color distinctly from the grouping variable using 'color.by'
+#' dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint",
+#'     color.by = "conditions")
+#'
+#' # Update the 'plots' input to change / reorder the data representations
+#' dittoPlot(myRNA, "gene1", "timepoint",
+#'     plots = c("vlnplot", "boxplot", "jitter"))
+#'
+#' # Modify the look with intuitive inputs
+#' dittoPlot(myRNA, "gene1", "timepoint",
 #'     plots = c("vlnplot", "boxplot", "jitter"),
-#'     boxplot.fill = FALSE)
+#'     boxplot.color = "white",
+#'     main = "CD3E",
+#'     legend.show = FALSE)
+#'
+#' # Data can also be split in other ways with 'shape.by' or 'split.by'
+#' dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint",
+#'     plots = c("vlnplot", "boxplot", "jitter"),
+#'     shape.by = "clustering",
+#'     split.by = "SNP")
+#'
+#' # For faceting, instead of using 'split.by', the target data can alternatively
+#' # be given to 'extra.var' to have it added in the underlying dataframe, then
+#' # faceting can be added manually for extra flexibility
+#' dittoPlot(myRNA, "gene1", "clustering",
+#'     plots = c("vlnplot", "boxplot", "jitter"),
+#'     extra.var = "SNP") + facet_wrap("SNP", dir = "v", strip.position = "left")
 #'
 #' # Quickly make a Ridgeplot
-#' dittoRidgePlot(pbmc, "CD14", group.by = "RNA_snn_res.1")
+#' dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
 #'
 #' # Quickly make a Boxplot
-#' dittoBoxPlot(pbmc, "CD14", group.by = "RNA_snn_res.1")
-#'
-#' # Any of these can be combined with 'hovering' to retrieve specific info
-#' #   about certain data points.  Just add 'do.hover = TRUE' and pick what
-#' #   extra data to display by provide set of gene or metadata names to
-#' #   'hover.data'.
-#' #     Note: ggplotly plots ignores certain dittoSeq plot tweaks.
-#' #     Also note: requires the plotly package
-#' if (requireNamespace("plotly")) {
-#'     dittoBoxPlot(pbmc, "CD14", group.by = "RNA_snn_res.1",
-#'         do.hover = TRUE, hover.data = c("MS4A1","RNA_snn_res.0.8","ident"))
-#' }
-#'
+#' dittoBoxPlot(myRNA, "gene1", group.by = "timepoint")
 #'
 #' @author Daniel Bunis
 #' @export
@@ -267,27 +287,32 @@ dittoPlot <- function(
 #' @seealso
 #' \code{\link{dittoPlot}} for the single plot version of this function
 #' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
+#' # dittoSeq handles bulk and single-cell data quit similarly.
+#' # The SingleCellExperiment object structure is used for both,
+#' # but all functions can be used similarly directly on Seurat
+#' # objects as well.
 #'
-#' genes <- c("CD8A","CD3E","FCER1A","CD14")
-#' multi_dittoPlot(pbmc, genes,
-#'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1")
+#' example(importDittoBulk, echo = FALSE)
+#' myRNA
+#'
+#' genes <- getGenes(myRNA)[1:4]
+#' multi_dittoPlot(myRNA, genes, group.by = "clustering")
+#'
+#' # violin-plots in front is often better for large single-cell datasets,
+#' # but we cn change the order with 'plots'
+#' multi_dittoPlot(myRNA, genes, "clustering",
+#'     plots = c("vlnplot","boxplot","jitter"))
 #'
 #' #To make it output a grid that is 2x2, to add y-axis labels
 #' # instead of titles, and to show legends...
-#' multi_dittoPlot(pbmc, genes,
-#'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
-#'     nrow = 2, ncol = 2,           #Make grid 2x2
-#'     main = FALSE, ylab = "make",  #Add y axis labels instead of titles
+#' multi_dittoPlot(myRNA, genes, "clustering",
+#'     nrow = 2, ncol = 2,           #Make grid 2x2 (only one of these needed)
+#'     main = NULL, ylab = "make",   #Add y axis labels instead of titles
 #'     legend.show = TRUE)           #Show legends
 #'
-#' # To eliminate the "expression", change ylab = "var"
-#' multi_dittoPlot(pbmc, genes,
-#'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
-#'     nrow = 2, ncol = 2,         #Make grid 2x2
-#'     main = FALSE, ylab = "var", #Add y axis labels without "expression"
-#'     legend.show = TRUE)         #Show legends
+#' # We can also facet with 'split.by'
+#' multi_dittoPlot(myRNA, genes, "clustering",
+#'     split.by = "SNP")
 #'
 #' @author Daniel Bunis
 #' @importFrom ggridges geom_density_ridges2
@@ -319,9 +344,12 @@ multi_dittoPlot <- function(
     }
 }
 
-#' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings horizontally in a desnsity representation
+#' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings horizontally in a density representation
 #' @export
 dittoRidgePlot <- function(..., plots = c("ridgeplot")){ dittoPlot(..., plots = plots) }
+
+#' @describeIn dittoPlot dittoRidgePlot, but with jitter overlaid
+dittoRidgeJitter <- function(..., plots = c("ridgeplot", "jitter")){ dittoPlot(..., plots = plots) }
 
 #' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings in boxplot form
 #' @export

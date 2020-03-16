@@ -97,36 +97,40 @@
 #' \code{\link{dittoPlot}} and \code{\link{multi_dittoPlot}} for plotting of expression and metadata on per cell/sample basis.
 #'
 #' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
+#' # dittoSeq handles bulk and single-cell data quit similarly.
+#' # The SingleCellExperiment object structure is used for both,
+#' # but all functions can be used similarly directly on Seurat
+#' # objects as well.
+#'
+#' example(importDittoBulk, echo = FALSE)
+#' myRNA
 #'
 #' # Pick a set of genes
-#' genes <- getGenes(pbmc)[1:30]
+#' genes <- getGenes(myRNA)[1:30]
 #'
 #' dittoPlotVarsAcrossGroups(
-#'     pbmc, genes,
-#'     group.by = "RNA_snn_res.1")
+#'     myRNA, genes, group.by = "timepoint")
 #'
 #' # Color can be controlled separately from grouping with 'color.by'
 #' #   Just note: all groupings must map to a single color.
 #' dittoPlotVarsAcrossGroups(
-#'     pbmc, genes,
-#'     group.by = "RNA_snn_res.1",
-#'     color.by = "orig.ident")
+#'     myRNA, genes, "timepoint",
+#'     color.by = "conditions")
 #'
 #' # To change it to have the violin plot in the back, a jitter on
 #' #  top of that, and a white boxplot with no fill in front:
 #' dittoPlotVarsAcrossGroups(
-#'     pbmc, genes,
-#'     group.by = "RNA_snn_res.1", color.by = "RNA_snn_res.1",
+#'     myRNA, genes, "timepoint", "conditions",
 #'     plots = c("vlnplot","jitter","boxplot"),
 #'     boxplot.color = "white", boxplot.fill = FALSE)
 #'
 #' # To investigate the identities of outlier genes, we can turn on hovering
-#' dittoPlotVarsAcrossGroups(
-#'     pbmc, genes,
-#'     group.by = "RNA_snn_res.1",
-#'     do.hover = TRUE)
+#' # (if the plotly package is available)
+#' if (requireNamespace("plotly", quietly = TRUE)) {
+#'     dittoPlotVarsAcrossGroups(
+#'         myRNA, genes, "timepoint", "conditions",
+#'         do.hover = TRUE)
+#' }
 #'
 #' @author Daniel Bunis
 #' @export

@@ -14,25 +14,25 @@
 #' \code{\link{gene}} for obtaining the expression data of genes
 #'
 #' @examples
+#' example(importDittoBulk, echo = FALSE)
 #'
-#' pbmc <- Seurat::pbmc_small
-#'
-#' # To see all genes of an object of a particular assay (remove `head()`)
-#' head(getGenes(pbmc, assay = "RNA"))
+#' # To see the first 10 genes of an object of a particular assay
+#' getGenes(myRNA, assay = "counts")[1:10]
 #'
 #' # To see all genes of an object for the default assay that dittoSeq would use
 #' # leave out the assay input (again, remove `head()`)
-#' head(getGenes(pbmc))
+#' head(getGenes(myRNA))
 #'
 #' # To test if something is a gene in an object:
-#' isGene("CD14", object = "pbmc") # TRUE
-#' isGene("CD12345", pbmc) # FALSE
+#' isGene("gene1", object = myRNA) # TRUE
+#' isGene("CD12345", myRNA) # FALSE
 #'
 #' # To test if many things are genes of an object
-#' isGene(c("CD14", "IL32", "CD3E", "CD12345"), pbmc)
+#' isGene(c("CD14", "IL32", "CD3E", "CD12345"), myRNA)
 #'
-#' # return.values input is especially useful in these cases.
-#' isGene(c("CD14", "IL32", "CD3E", "CD12345"), pbmc, return.values = TRUE)
+#' # 'return.values' input is especially useful in these cases.
+#' isGene(c("CD14", "IL32", "CD3E", "CD12345"), myRNA,
+#'     return.values = TRUE)
 #'
 #' @author Daniel Bunis
 #' @export
