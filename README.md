@@ -17,6 +17,17 @@ dittoSeq also makes collection of underlying data easy, for submitting to journa
 
 ![Overview](vignettes/dittoSeq.gif)
 
+## News: dittoSeq has been accepted into Bioconductor!
+
+- Version 1.0 will release with the next Bioconductor release cycle in April.
+- Changes have been made but there is still a bit more to do before release, thus I have maintained the 0.3 version throughout the submission process.
+- Changes in 0.3 -> 1.0:
+  - Helper function names changed from `get.X` and `is.X` to `getX` and `isX`
+  - bulk RNAseq data now utilized by conversion into the `SingleCellExperiment` data structure.
+  - Expression data access with Seurat & SCE native `assay` (and `slot`) instead of with `data.type` to provide full compatibility with all typical data of the objects.
+  - DEFAULT'ing removed. This was not congruent with best practices for packages.
+  - `object` input was made to come first in all visualization functions to align with other packages' norms & to allow for potential future S4 compatibility.
+
 ## Color Blindness Compatibility:
 
 The default colors of this package are meant to be color blind friendly.  To make it so, I used the suggested colors from this source: [Wong B, "Points of view: Color blindness." Nature Methods, 2011](https://www.nature.com/articles/nmeth.1618) and adapted them slightly by appending darker and lighter versions to create a 24 color vector. All plotting functions use these colors, stored in `dittoColors()`, by default. Also included is a Simulate() function that allows you to see what your function might look like to a colorblind individual. For more info on that, see the [Color blindness Friendliness section below](#color-blindness-friendliness)
@@ -28,36 +39,36 @@ Included in this package are a set of functions to facilitate Mux-seq applicatio
 ## Installataion:
 
 ```
-# Stable pre bioconductor-submission version:
-devtools::install_github("dtm2451/dittoSeq@v0.3")
+# Install the most current Bioconductor build with
+BiocManager::install("dittoSeq")
 ```
 
+If you get a warning that you need R version 4.0, you can get around this by installing from this repository. (Note that I will remove this note once R-4.0 is actually released.)
+
 ```
-# For Bioconductor-submitted version:
+# Install from this repository
 devtools::install_github("dtm2451/dittoSeq")
+```
 
-# For older versions:
-#   Old DB plotter version
+For older versions, use this code, and check out the READMEs on the associated branches of the repo
+
+```
+# For pre-Bioconductor-submission version (still maintained currently): 
+devtools::install_github("dtm2451/dittoSeq@v0.3")
+
+# For even older versions
+# (Note: These are nolonger maintained, and only offered for compatibility with old code.):
+#   Old 'DB' plotter version
 # devtools::install_github("dtm2451/dittoSeq@v0.2")
-#   Old DB plotter version plus some early ditto plotters
+#   Old 'DB' plotter version plus some early ditto plotters
 # devtools::install_github("dtm2451/dittoSeq@v0.2.20")
 ```
-
-## News: dittoSeq is being submitted to Bioconductor!
-
-- Version 0.3.0 has been up'd to 0.99 for that purpose.
-- Changes are expected, so I will maintain the current 0.3 version throughout.
-- Changes in 0.3 -> 0.99:
-  - Helper function names changed from `get.X` and `is.X` to `getX` and `isX`
-  - bulk RNAseq data now utilized by conversion into the `SingleCellExperiment` data structure.
-  - Expression data access with Seurat & SCE native `assay` (and `slot`) instead of with `data.type` to provide full compatibility with all typical data of the objects.
-  - DEFAULT'ing removed. This was not congruent with best practices.
-  - `object` input was made to come first in all visualization functions to align with other packages' norms & to allow for potential future S4 compatibility. (In helper functions, however, `meta`/`gene`/`test` are still first.)
 
 # Quick Start Guide:
 
 ```
-# Install
+# Install with either of these methods (just run one!)
+BiocManager::install("dittoSeq")
 devtools::install_github("dtm2451/dittoSeq")
 # (Be sure to restart after a re-install!)
 ```
@@ -88,8 +99,8 @@ dittoBarPlot(sce, "ident", group.by = "RNA_snn_res.0.8")
 # myRNA <- importDittoBulk(dgelist) # edgeR
 # Then add dimensionality reductions
 # myRNA <- addDimReduction(myRNA, embeddings, "pca")
-#   ^^^ embeddings = the dim-reduction matrix
-myRNA <- example("addDimReduction")
+#   above, embeddings = the dim-reduction matrix
+myRNA <- example("importDittoBulk")
 
 # You're ready!
 dittoDimPlot("gene1", myRNA, size = 3)
@@ -282,38 +293,37 @@ Included in this package are a set of functions to facilitate Mux-seq applicatio
 
 ## Demux Import Function:
 
-**`importDemux2Seurat()`** - imports Demuxlet info into a pre-made Seurat object.
+**`importDemux()`** - imports Demuxlet info into a pre-made Seurat or SingleCellExperiment object.
 
-Note: this function is not currently Seurat-specific, thus the name, but it will be extended to SCEs in the future.
-
-To get started, point it to the target Seurat object, the location of your Demuxlet .best output, and pick between these two methods:
+To get started, point it to the target Seurat/SCE object, the location of your Demuxlet .best output, and pick between these two methods:
 
 ### Option1: Use this if your data was generated by 10X and lanes have been merged together using `cellranger aggr`
 
 This option makes use of the "-1", "-2", "-3", ..., that cellranger aggr adds to the end of your cell barcodes in order to keep the lanes separate.
 
-I recommend running demuxlet for each lane separately as these "-#"s are not updated within the BAM files.
+(Note: Run demuxlet separately and do not merge BAMs because these "-#"s are not updated within the BAM files.
+importDemux can handle the incrementation internally.)
 
-`importDemux2Seurat()` can take in multiple demuxlet.best file locations, and will then modify the unchanged "-1" in demuxlet's barcodes to the aggr-consistent "-#" based on the order in which they are supplied.
+`importDemux()` can take in multiple demuxlet.best file locations, and will then modify the unchanged "-1" in demuxlet's barcodes to the aggr-consistent "-#" based on the order in which they are supplied.
 
 ```
 library(Seurat)
-library(DittoSeq)
-# Make a Seurat from your 10X Data
+library(dittoSeq)
+# Make a Seurat or SingleCellExperiment object from your 10X Data
 # seurat.object <- CreateSeuratObject(Read10X("Location.of.cellranger.outs"))
 # Here, we will instead use Seurat's pbmc_small data
-seurat.object <- pbmc_small
+object <- pbmc_small
 
 #Run the import
   #Note: You can leave Lane.names blank, but if you choose to use custom names, make
   #      sure to provied the same number of Lane.names as you had separate 10X lanes.
-seurat.object <- importDemux2Seurat(seurat.object,
-                             Lane.names = c("name1","name2","name3"),
-                             Demuxlet.best = c(
-                                 "Location/Demuxlet1.best",
-                                 "Location/Demuxlet2.best",
-                                 "Location/Demuxlet3.best"),
-                             verbose = TRUE)
+object <- importDemux(object,
+    Lane.names = c("name1","name2","name3"),
+    demuxlet.best = c(
+        "Location/Demuxlet1.best",
+        "Location/Demuxlet2.best",
+        "Location/Demuxlet3.best"),
+    verbose = TRUE)
 ```
 
 ### Option2: Use this if your multiple lane data was not generated by `cellranger` or not merged with `cellranger aggr`
@@ -322,23 +332,23 @@ For this option, you need to have pre-made a meta.data slot that includes info o
 
 ```
 library(Seurat)
-library(DittoSeq)
+library(dittoSeq)
 # Make a Seurat from your 10X Data
 # seurat.object <- CreateSeuratObject(Read10X("Location.of.cellranger.outs"))
 # Here, we will instead use Seurat's pbmc_small data
-seurat.object <- pbmc_small
+object <- pbmc_small
 
 #Make a lane info meta.data
-seurat.object$LANE.INFO <- LANE.INFO
+object$LANE.INFO <- LANE.INFO
 
 #Run the import
   #Note: You can leave Lane.names blank, but if you choose to use custom names, make
   #      sure to provied the same number of Lane.names as you had separate 10X lanes.
-seurat.object <- importDemux2Seurat(seurat.object,
-                             Lane.info.meta = "LANE.INFO"
-                             Lane.names = c("name1","name2","name3"),
-                             Demuxlet.best = "Location/Demuxlet.best",
-                             verbose = TRUE)
+object <- importDemux(object,
+    Lane.info.meta = "LANE.INFO"
+    Lane.names = c("name1","name2","name3"),
+    demuxlet.best = "Location/Demuxlet.best",
+    verbose = TRUE)
 ```
 
 ### Summary output:
@@ -382,11 +392,11 @@ demux.barcode.dup | (Only generated when TRUEs will exist, indicative of a techn
 -	**`demux.calls.summary()`** - Makes a plot of how many calls were made per sample, separated by the separate lanes.  This is very useful for checking the potential accuracy of sample calls when only certain samples went into certain lanes/pools/sequencing runs/etc.  (Note: the default setting is to only show Singlet calls.  Use `singlets.only = FALSE` to include *one of the sample calls* for any doublets.
 
 ```
-demux.calls.summary(seurat.object)
+demux.calls.summary(object)
 ```
 
--	**`demux.SNP.summary()`** - Useful for checking if you have a lot of cells with very few SNPs. Creates a plot of the number of SNPs per cell that is grouped by individual lane by default.  This function is a simple wrapper for DBPlot() function with var="demux.N.SNP" and with a number of input defaults adjusted (such as group.by and color.by = "Lane" so that the grouping is done according to 'Lane' metadata.)
+-	**`demux.SNP.summary()`** - Useful for checking if you have a lot of cells with very few SNPs. Creates a plot of the number of SNPs per cell that is grouped by individual lane by default.  This function is a simple wrapper for dittoPlot() function with var="demux.N.SNP" and with a number of input defaults adjusted (such as group.by and color.by = "Lane" so that the grouping is done according to 'Lane' metadata.)
 
 ```
-demux.SNP.summary(seurat.object)
+demux.SNP.summary(object)
 ```
