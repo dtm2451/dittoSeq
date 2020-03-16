@@ -1,4 +1,4 @@
-#' Extracts Demuxlet information into a pre-made Seurat object
+#' Extracts Demuxlet information into a pre-made SingleCellExperiment or Seurat object
 #' @importFrom utils read.table
 #'
 #' @param object A pre-made Seurat(v3+) or SingleCellExperiment object to add demuxlet information to.
@@ -14,9 +14,9 @@
 #' @param trim.before_ Logical which sets whether extra info in from of an "_" should
 #' @param verbose whether to print messages about the stage of this process that is currently being run.
 #' @param bypass.check for running this function anyway even when meta.data slots already around would be over-written.
-#' @return A Seurat object with sample calls and relevant statistics added as metadata.
+#' @return The Seurat or SingleCellExperiment object with metadata added for "Sample" calls and other relevant statistics.
 #' @details
-#' The function takes in a previously generated Seurat object.
+#' The function takes in a previously generated Seurat or SingleCellExperiment object.
 #' It also takes in demuxlet information either in the form of
 #' 1: the location of a single demuxlet.best out file,
 #' 2: the locations of multiple demuxlet.best output files,
@@ -26,7 +26,30 @@
 #' Alternatively, if \code{lane.meta} is left as \code{NULL}, separate lanes are assumed to be marked by distinct values of "-#", as is the typical output of the 10X cellranger count & aggr pipeline.
 #' In these situations, the \code{lane.names} input can be used to set specific names for each lane. "Lane1", "Lane2", "Lane3", etc, are used b y default.
 #'
-#' Barcodes (minus any "***_" often added by Seurat when objects are merged) are then matched between the \code{Seurat} and the \code{demuxlet.best} dataframes.
+#' The \code{colnames(object)} are used by default, but if these have been modified from what would have been given to demuxlet, outside of "-#" at the end or "***_" as can be added in common merge functions,
+#' you can alternatively provide \code{raw.cell.names}.
+#'
+#' Barcodes in the demuxlet data are matched to barcodes in the \code{object} and then singlet/doublet/ambiguous calls and identities are parsed and carried into metadata.
+#' (When demuxlet information is provided as a set of separate files (recommended for use with cellranger aggr),
+#' the "-#" at the ends of barcodes in these files are incremented on read-in so that they can match the incrementation applied by cellranger aggr.
+#' See note on multi-well 10X data below for more.)
+#'
+#' Finally, a summary of the results including mean number of SNPs and percentages of singlets and doublets is output unless \code{verbose} is set to \code{FALSE}.
+#'
+#' Lane information and demuxlet calls and statistics are imported into the \code{object} as these metadata:
+#' \itemize{
+#' \item Lane = guided by \code{lane.meta} import input or "-#"s in barcodes, represents the separate droplet-generation lanes.
+#' \item Sample = The sample call, parsed from the BEST column
+#' \item demux.doublet.call = whether the sample was a singlet (SNG), doublet (DBL), or ambiguious (AMB), parsed from the BEST column
+#' \item demux.RD.TOTL = RD.TOTL column
+#' \item demux.RD.PASS = RD.PASS column
+#' \item demux.RD.UNIQ = RD.UNIQ column
+#' \item demux.N.SNP = N.SNP column
+#' \item demux.PRB.DBL = PRB.DBL column
+#' \item demux.barcode.dup = (Only generated when TRUEs will exist) whether a cell's barcode in the demuxlet.best refered to only 1 cell in the \code{object}.
+#' (When TRUE, indicates that cells from distinct lanes were interpretted together by demuxlet.
+#' These will often be mistakenly called as doublets.)
+#' }
 #'
 #' Note: "-#" information added by cellranger functions is not removed.
 #' Doing so would cause cells, from separate 10X wells, which ended up with similar barcodes to become indistinguishable.
@@ -35,23 +58,6 @@
 #' For this reason, \code{importDemux} checks for whether such artificial duplicates likely happened.
 #' See the recommended cellranger/demuxlet pipeline below for specific suggestions for how to use this function with multi-well 10X data.
 #'
-#' Lane information and demuxlet calls and statistics are then imported into the \code{Seurat} as metadata:
-#' \itemize{
-#' \item Lane = guided by \code{lane.meta} import input, represents of separate droblet-generation lane, pool, sequencing lane, etc.
-#' \item Sample = The sample call, parsed from the BEST column
-#' \item demux.doublet.call = whether the sample was a singlet (SNG), doublet (DBL), or ambiguious (AMB), parsed from the BEST column
-#' \item demux.RD.TOTL = RD.TOTL column
-#' \item demux.RD.PASS = RD.PASS column
-#' \item demux.RD.UNIQ = RD.UNIQ column
-#' \item demux.N.SNP = N.SNP column
-#' \item demux.PRB.DBL = PRB.DBL column
-#' \item demux.barcode.dup = (Only generated when TRUEs will exist) whether a cell's barcode in the demuxlet.best refered to only 1 cell in the Seurat object.
-#' (When TRUE, indicates that cells from distinct lanes were interpretted together by demuxlet.
-#' These will often be mistakenly called as doublets.)
-#' }
-#'
-#' Finally, a summary of the results including mean number of SNPs and percentages of singlets and doublets is output unless \code{verbose} is set to \code{FALSE}.
-#'
 #' @section For multi-well 10X data:
 #' 10X recommends running cellranger counts individually for each well/lane.
 #' This leads to creation of separate genes x cells counts matrices for each lane.
@@ -59,24 +65,25 @@
 #' Afterwards, there are many common methods of importing/merging such multi-well 10X data into a single object in R.
 #' Technical differences: All options will alter the cell barcode names in a way that makes them unique across lanes, but how they do can be different.
 #' Technical issue: Neither method adjusts the bacode names that are embedded within the BAM files which a user must supply to Demuxlet,
-#' so that data needs to be modified in a proper way in order to make the Seurat cellnames and demuxlet BARCODEs match.
+#' so that data needs to be modified in a proper way in order to make the \code{object} cellnames and demuxlet BARCODEs match.
 #'
 #' \code{importDemux} is built for work with directly with the cellranger aggr barcodes output, or with ###############.
 #' \itemize{
 #' \item Option 1: merging matrices of all lanes with cellranger aggr before R import.
 #' Barcode uniquification method: A "-1", "-2", "-3", ... "-#" is appended to the end of all barcode names.
 #' The number is incremented for each succesive lane. (Note: lane-numbers depend on the order in which they were supplied to cellranger aggr.)
-#' \item Option 2: Importing into Seurat, then merging Seurat objects.
-#' Barcode uniquifiction method: user-defined strings are appended to the start of the barcodes, followed by an "_", within Seurat.
+#' \item Option 2: Importing into Seurat or SingleCellExperiment, then merging these objects.
+#' Barcode uniquifiction method: user-defined strings are appended to the start of the barcodes, followed by an "_", for Seurat merge, and importDemux will ignore these.
+#' Alternatively, consistent barcodes can be supplied separately to the \code{raw.cell.names} input.
 #' }
 #'
-#' Technical fix:
-#' \code{importDemux} ignores all information before a "_" in Seurat cellnames, but utilizes the "-#" information at the ends of Seurat cellnames.
+#' The fix:
+#' \code{importDemux} ignores all information before a "_" in cellnames when \code{trim.before_} is left as TRUE,
+#' but utilizes the "-#" information at the ends of Seurat cellnames.
 #' \itemize{
 #' \item Option 1: \code{importDemux} can adjust the "-#" in the Demuxlet BARCODEs automatically for users before performing the matching step.
 #' In order to take advantage of the automatic barcodes adjustment, just supply a vector containing the locations of the sepearate .best outputs for each lane, in the same order that lanes were combined in cellranger aggr.
-#' \item Option 2: \code{importDemux} ignores the user-adjustable lane information added by Seurat within cellnames.
-#' To use with this method, run \code{importDemux} on each lane's Seruat object separately & provide a unique name for each lane to the \code{lane.names} input, BEFORE merging into a single Seurat object.
+#' \item Option 2: To use with this method, it's easiest to run \code{importDemux} on each lane's Seurat or SingleCellExperiment object separately & provide a unique name for each lane to the \code{lane.names} input, BEFORE merging into a single Seurat object.
 #' }
 #'
 #' Run in these ways, demuxlet information can be matched to proper cells, and lane assignments can be properly reported in the "Lane" metadata slot.
