@@ -87,6 +87,9 @@
 #' @seealso
 #' \code{\link[pheatmap]{pheatmap}}, for how to add additional heatmap tweaks.
 #'
+#' \code{\link{metaLevels}} for helping to create manual annotation_colors inputs.
+#' This function universally checks the options/levels of a string, factor (filled only by default), or numerical metadata.
+#'
 #' @examples
 #' # dittoSeq handles bulk and single-cell data quit similarly.
 #' # The SingleCellExperiment object structure is used for both,

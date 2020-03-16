@@ -9,6 +9,7 @@ dittoHeatmap(
   genes = getGenes(object),
   cells.use = NULL,
   cluster_cols = .is_bulk(object),
+  annotation.metas = NULL,
   order.by = .default_order(object, annotation.metas),
   main = NA,
   cell.names.meta = NULL,
@@ -17,7 +18,6 @@ dittoHeatmap(
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
-  annotation.metas = NULL,
   annotation.colors = c(rep(dittoColors(), 9), dittoColors()[seq_len(7)]),
   annotation_col = NULL,
   annotation_colors = NULL,
@@ -42,6 +42,8 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 
 \item{cluster_cols, border_color, ...}{other arguments passed to \code{pheatmap}.}
 
+\item{annotation.metas}{String name of a metadata slot containing how the cells/samples should be annotated.}
+
 \item{order.by}{Single string or numeric vector which sets the ordering of cells/samples.
 Can be the name of a gene, or metadata slot.
 Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.}
@@ -60,8 +62,6 @@ This is recommended for single-cell datasets as they are generally enriched in 0
 
 \item{heatmap.colors.max.scaled}{the colors to use within the heatmap when \code{scaled.to.max} is set to \code{TRUE}.
 Default is a ramp from white to red with 25 slices.}
-
-\item{annotation.metas}{String name of a metadata slot containing how the cells/samples should be annotated.}
 
 \item{annotation.colors}{String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.}
 
@@ -182,6 +182,9 @@ dittoHeatmap(myRNA, genes, annotation.metas = "groups",
 }
 \seealso{
 \code{\link[pheatmap]{pheatmap}}, for how to add additional heatmap tweaks.
+
+\code{\link{metaLevels}} for helping to create manual annotation_colors inputs.
+This function universally checks the options/levels of a string, factor (filled only by default), or numerical metadata.
 }
 \author{
 Daniel Bunis

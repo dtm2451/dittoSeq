@@ -130,10 +130,11 @@ meta <- function(meta, object) {
 #'
 #' @param meta quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.
 #' @param object A target Seurat or SingleCellExperiment object
+#' @param used.only TRUE by default, whether unused levels of already
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
-#' @return Returns the distinct values of a metadata slot given to all cells/samples or for a subset of cells/samples.
+#' @return Returns the distinct values of a metadata slot (factor or not) among to all cells/samples, or for a subset of cells/samples.
 #' (Alternatively, returns the distinct values of clustering if \code{meta = "ident"} and the object is a \code{Seurat} object).
 #' @seealso
 #' \code{\link{meta}} for returning an entire metadata slots of an \code{object}, not just the potential levels
@@ -143,18 +144,33 @@ meta <- function(meta, object) {
 #' \code{\link{isMeta}} for testing whether something is the name of a metadata slot
 #' @examples
 #'
-#' library(Seurat)
-#' pbmc <- pbmc_small
-#' metaLevels("RNA_snn_res.1", object = pbmc)
+#' # dittoSeq handles bulk and single-cell data quit similarly.
+#' # The SingleCellExperiment object structure is used for both,
+#' # but all functions can be used similarly directly on Seurat
+#' # objects as well.
+#'
+#' example(importDittoBulk, echo = FALSE)
+#'
+#' metaLevels("clustering", object = myRNA)
+#'
+#' # Note: Set 'used.only' (default = TRUE) to FALSE to show unused levels
+#' #  of metadata that are already factors.  By default, only the in use options
+#' #  of a metadata are shown.
+#' metaLevels("clustering", myRNA,
+#'     used.only = FALSE)
 #'
 #' @author Daniel Bunis
 #' @export
 
-metaLevels <- function(meta, object, cells.use = NULL){
+metaLevels <- function(meta, object, cells.use = NULL, used.only = TRUE){
     if (!isMeta(meta, object)) {
         stop(dQuote(meta)," is not a metadata of 'object'")
     }
-    meta.values <- as.character(meta(meta, object))
+    if (used.only) {
+        meta.values <- as.character(meta(meta, object))
+    } else {
+        meta.values <- meta(meta, object)
+    }
     if (!is.null(cells.use)) {
         all.cells <- .all_cells(object)
         cells.use <- .which_cells(cells.use, object)
