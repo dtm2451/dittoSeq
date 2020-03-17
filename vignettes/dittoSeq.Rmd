@@ -73,26 +73,15 @@ creating values required for providing visualization examples.
 
 # Installation:
 
-Currently, dittoSeq is only available via github, but is submitted to
-Bioconductor. Currently, major changes are being implemented in the master
-branch as part of meeting Bioconductor standards.
-
-NOTE: For anyone hoping to analyze data with dittoSeq currently, I recommend
-using the stable v0.3 branch, and the separate vignette associated with that.
-
-Here, I detail how to install & utilize the Bioconductor devel version of
-dittoSeq.
+dittoSeq is available through Bioconductor.
 
 ```{r, eval=FALSE}
 # Install BiocManager if needed
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-# The following initializes usage of Bioc devel
-BiocManager::install(version='devel')
-
-# Install dittoSeq (from github)
-BiocManager::install("dtm2451/dittoSeq")
+# Install dittoSeq
+BiocManager::install("dittoSeq")
 ```
 
 # Getting started

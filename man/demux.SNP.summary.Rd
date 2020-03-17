@@ -38,14 +38,17 @@ Default = 50, a high confidence minimum number of SNPs per cell for highly accur
 }
 \value{
 A ggplot, made with \code{\link{dittoPlot}} showing a summary of how many SNPs were available to Demuxlet for each cell of a dataset.
-Alternatively, a plotly object if \code{data.hover = TRUE} is provided, or list containing a ggplot and a dataframe if \code{data.out = TRUE} is provided.
+
+Alternatively, a plotly object if \code{data.hover = TRUE} is provided.
+
+Alternatively, list containing a ggplot and the underlying data as a dataframe if \code{data.out = TRUE} is provided.
 }
 \description{
 Plots the number of SNPs sequenced per droplet
 }
 \details{
 This function is a wrapper that essentially runs \code{\link{dittoPlot}}\code{("demux.N.SNP")} with a few modified defaults.
-The defaults:
+The altered defaults:
 \itemize{
 \item Data is grouped and colored by the "Lane" metadata (unless \code{group.by} or \code{color.by} are adjusted otherwise).
 \item Data is displayed as boxplots with gray lines on top of dots for individual cells (unless \code{plots} or \code{boxplot.color} are adjusted otherwise).
@@ -68,7 +71,7 @@ This is the other Demuxlet-associated QC visualization included with dittoSeq.
 
 \code{\link{importDemux}}, for how to import relevant demuxlet information as metadata.
 
-Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
+Kang et al. Nature Biotechnology, 2018 \url{https://www.nature.com/articles/nbt.4042} for more information about the demuxlet cell-sample deconvolution method.
 }
 \author{
 Daniel Bunis

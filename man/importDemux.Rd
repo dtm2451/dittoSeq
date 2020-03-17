@@ -19,22 +19,22 @@ importDemux(
 \item{object}{A pre-made Seurat(v3+) or SingleCellExperiment object to add demuxlet information to.}
 
 \item{raw.cell.names}{A string vector consisting of the raw cell barcodes of the object as they would have been output by cellranger aggr.
-Format per cell.name = NNN...NNN-# where NNN...NNN are the cell barcode nucleotides, and # is the lane number
-Useful when additional information has been added directly into the cell names. If they are already in this format, the input is not required.}
+Format per cell.name = NNN...NNN-# where NNN...NNN are the cell barcode nucleotides, and # is the lane number.
+This input should be used when additional information has been added directly into the cell names outside of Seurat's standard merge prefix: "user-text_".}
 
-\item{lane.meta}{A meta.data}
+\item{lane.meta}{A string which names a metadata slot that contains which cells came from which droplet-generation wells.}
 
-\item{lane.names}{how the lanes should be named (if you want to give them something different from the default = Lane1, Lane2, Lane3...)}
+\item{lane.names}{String vector which sets how the lanes should be named (if you want to give them something different from the default = Lane1, Lane2, Lane3...)}
 
-\item{demuxlet.best}{String pointing to the location of the .best output file from running of demuxlet OR a data.frame representing already imported .best matrix.
+\item{demuxlet.best}{String or String vector pointing to the location(s) of the .best output file from running of demuxlet.
 
-Alternatively, can be a String vector representing the .best output locations of separate demuxlet runs which each correspond to 10X lanes that were combined together with cellranger aggr.  See the cellranger note below.}
+Alternatively, a data.frame representing an already imported .best matrix.}
 
-\item{trim.before_}{Logical which sets whether extra info in from of an "_" should}
+\item{trim.before_}{Logical which sets whether any characters in front of an "_" should be deleted from the \code{raw.cell.names} before matching with demuxlet barcodes.}
 
-\item{bypass.check}{for running this function anyway even when meta.data slots already around would be over-written.}
+\item{bypass.check}{Logical which sets whether the function should run even when meta.data slots would be over-written.}
 
-\item{verbose}{whether to print messages about the stage of this process that is currently being run.}
+\item{verbose}{whether to print messages about the stage of this process that is currently being run & also the summary at the end.}
 }
 \value{
 The Seurat or SingleCellExperiment object with metadata added for "Sample" calls and other relevant statistics.
@@ -45,8 +45,11 @@ Extracts Demuxlet information into a pre-made SingleCellExperiment or Seurat obj
 \details{
 The function takes in a previously generated Seurat or SingleCellExperiment object.
 It also takes in demuxlet information either in the form of
+
 1: the location of a single demuxlet.best out file,
+
 2: the locations of multiple demuxlet.best output files,
+
 or 3: a user-constructed data.frame created by reading in a demuxlet.best file.
 
 If a metadata slot name is provided to \code{lane.meta}, information in that metadata slot is copied into a metadata slot called "Lane".
@@ -95,7 +98,7 @@ Technical differences: All options will alter the cell barcode names in a way th
 Technical issue: Neither method adjusts the bacode names that are embedded within the BAM files which a user must supply to Demuxlet,
 so that data needs to be modified in a proper way in order to make the \code{object} cellnames and demuxlet BARCODEs match.
 
-\code{importDemux} is built for work with directly with the cellranger aggr barcodes output, or with ###############.
+\code{importDemux} is built for working with the cellranger aggr barcodes output, but can be used for demuxlet datasets processed differently as well.
 \itemize{
 \item Option 1: merging matrices of all lanes with cellranger aggr before R import.
 Barcode uniquification method: A "-1", "-2", "-3", ... "-#" is appended to the end of all barcode names.
@@ -174,7 +177,7 @@ Included QC visualizations:
 
 \code{\link{demux.SNP.summary}} for plotting the number of SNPs measured per cell.
 
-Or, see Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
+Or, see Kang et al. Nature Biotechnology, 2018 \url{https://www.nature.com/articles/nbt.4042} for more information about the demuxlet cell-sample deconvolution method.
 }
 \author{
 Daniel Bunis
