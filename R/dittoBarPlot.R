@@ -1,57 +1,61 @@
-########## dittoBarPlot: Builds a stacked bar plot to show the composition of samples / ages / 'group.by' ##########
-#' Outputs a stacked bar plot to show the percent composition of samples or other cell groupings
+#' Outputs a stacked bar plot to show the percent composition of samples, groups, clusters, or other groupings
 #' @import ggplot2
 #'
 #' @param object A Seurat or SingleCellExperiment object.
-#' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}. REQUIRED.
-#' @param group.by String representing the name of a "metadata" to use for separating the cells/samples into discrete groups. REQUIRED.
+#' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}.
+#' @param group.by String name of a metadata to use for separating the cells/samples into discrete groups.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
+#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.
 #'
-#' NOTE: When \code{cells.use} is combined with \code{scale = "percent"} left out cells are not considered in calculating percentages. Percents will always total to 1.
+#' Note: When \code{cells.use} is combined with \code{scale = "percent"}, left out cells are not considered in calculating percentages. Percents will always total to 1.
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default.
-#' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
+#' @param colors Integer vector, which sets the indexes / order, of colors from color.panel to actually use.
+#' (Provides an alternative to directly modifying \code{color.panel}.)
 #' @param scale "count" or "percent". Sets whether data should be shown as raw counts or scaled to 1 and shown as a percentage.
 #' @param do.hover Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.
-#' @param theme A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_classic()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.
-#' @param xlab String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
+#' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
+#' Default = \code{theme_classic()}.
+#' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
+#' @param xlab String which sets the x-axis title.
 #' Default is \code{group.by} so it defaults to the name of the grouping information.
 #' Set to \code{NULL} to remove.
-#' @param ylab String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
-#' @param x.labels String vector which will replaceme the x-axis grouping labels.
-#' The first component of \code{x.labels} sets the name for the first x-axis grouping.
-#' @param x.labels.rotate Logical which sets whether the x-axis grouping labels should be rotated.  Default = FALSE = vertical labels.
+#' @param ylab String which sets the y-axis title.
+#' @param x.labels String vector which will replaceme the x-axis groupings' labels.
+#' Regardless of \code{x.reorder}, the first component of \code{x.labels} sets the name for the left-most x-axis grouping.
+#' @param x.labels.rotate Logical which sets whether the x-axis grouping labels should be rotated.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
 #'
 #' Method: Make a first plot without this input.
 #' Then, treating the leftmost grouping as index 1, and the rightmost as index n.
 #' Values of \code{x.reorder} should be these indices, but in the order that you would like them rearranged to be.
-#' @param y.breaks Numeric vector which indicates the plots major gridlines. c(break1,break2,break3,etc.)
+#' @param y.breaks Numeric vector which sets the plot's tick marks / major gridlines. c(break1,break2,break3,etc.)
 #' @param min,max Scalars which control the zoom of the plot.
 #' These inputs set the minimum / maximum values of the y-axis.
 #' Default = set based on the limits of the data, 0 to 1 for \code{scale = "percent"}, or 0 to maximum count for 0 to 1 for \code{scale = "count"}.
 #' @param main String, sets the plot title
 #' @param sub String, sets the plot subtitle
-#' @param var.labels.rename String vector which renames for the identities of \code{var} groupings.
-#' @param var.labels.reorder Integer vector. A sequence of numbers, from 1 to the number of distinct var labels, for rearranging the order of labels' groupings within the plot.
+#' @param var.labels.rename String vector for renaming the distinct identities of \code{var} values.
+#' @param var.labels.reorder Integer vector. A sequence of numbers, from 1 to the number of distinct \code{var} value idententities, for rearranging the order of labels' groupings within the plot.
 #'
 #' Method: Make a first plot without this input.
 #' Then, treating the top-most grouping as index 1, and the bottom-most as index n.
 #' Values of \code{var.labels.reorder} should be these indices, but in the order that you would like them rearranged to be.
-#' @param legend.show Logical which sets whether the legend should be displayed. Default = TRUE.
+#' @param legend.show Logical which sets whether the legend should be displayed.
 #' @param legend.title String which adds a title to the legend.
-#' @param data.out Logical which sets whether to output a dataframe containing the underlying data instead of outputing the plot itself.
+#' @param data.out Logical which sets whether to output the dataframe containing the underlying data in addition to outputing the plot itself.
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
-#' Alternatively, if \code{data.out = TRUE} is added, outputs the underlying data for such a plot.
-#' Alternatively, if \code{do.hover = TRUE} is added, outputs a plotly conversion of such a ggplot in which underlying data can be retrieved upon hovering the cursor over the plot.
+#'
+#' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
+#'
+#' Alternatively, if \code{do.hover = TRUE}, a plotly conversion of the ggplot output in which underlying data can be retrieved upon hovering the cursor over the plot.
 #' @details
 #' The function creates a dataframe containing counts and percent makeup of \code{var} identities for each x-axis grouping (determined by the \code{group.by} input).
 #' If a set of cells/samples to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
 #' Then, a vertical bar plot is generated (\code{ggplot2::geom_col()}) showing either percent makeup if
 #' \code{scale = "percent"}, which is the default, or raw counts if \code{scale = "count"}.
 #'
-#' If \code{data.out} is set to \code{TRUE}, just the dataframe will be returned, and not the plot.
+#' If \code{data.out} is set to \code{TRUE}, a list containing the plot ("p") and the underlying dataframe ("data") will be returned.
 #'
 #' If \code{do.hover} is set to \code{TRUE}, the ggplot will be converted to a plotly object and underlying data will be displayed upon hover.
 #'
@@ -78,6 +82,10 @@
 #' dittoBarPlot(myRNA, "clustering", group.by = "groups",
 #'     scale = "count")
 #'
+#' # Reordering the x-axis groupings to have "C" (#3) come first
+#' dittoBarPlot(myRNA, "clustering", group.by = "groups",
+#'     x.reorder = c(3,1,2,4))
+#'
 #' ### Accessing underlying data:
 #' # as dataframe
 #' dittoBarPlot(myRNA, "clustering", group.by = "groups",
@@ -92,7 +100,7 @@
 #' @export
 
 dittoBarPlot <- function(
-    object, var, group.by = "Sample", scale = c("percent", "count"),
+    object, var, group.by, scale = c("percent", "count"),
     cells.use = NULL, data.out = FALSE, do.hover = FALSE,
     color.panel = dittoColors(), colors = seq_along(color.panel),
     y.breaks = NA, min = 0, max = NULL,
@@ -190,7 +198,7 @@ dittoBarPlot <- function(
     }
     #DONE. Return the plot
     if (data.out) {
-        return(data)
+        return(list(p = p, data = data))
     } else {
         if (do.hover) {
             .error_if_no_plotly()

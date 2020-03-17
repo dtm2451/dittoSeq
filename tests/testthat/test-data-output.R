@@ -26,12 +26,11 @@ test_that("Data outputing works for DimPlot", {
 })
 
 test_that("Data outputing works for BarPlot", {
-    expect_s3_class(
+    expect_type(
         dittoBarPlot(
             "clusters", object = seurat,
-            group.by = "age", data.out = TRUE,
-            do.hover = TRUE),
-        "data.frame")
+            group.by = "age", data.out = TRUE),
+        "list")
 })
 
 test_that("Data outputing works for Plot", {
