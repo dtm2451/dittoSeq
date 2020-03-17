@@ -2,6 +2,10 @@
 
 **A set of functions built to enable analysis and visualization of single-cell and bulk RNA-sequencing data by novice, experienced, and color blind coders**
 
+### This v0.3 branch contains a soon to be obsolete version of the package as dittoSeq is accepted into Bioconductor
+
+#### NOTE: dittoSeq-v0.3 will nolonger be maintained after the end of 2020, but the code will be retained to ensure older code can still be run in the interim while early adopters switch over.**
+
 dittoSeq includes universal plotting and helper functions for working with (sc)RNAseq data processed in these packages:
 
 - Seurat (versions 2 & 3, single-cell RNAseq)
@@ -19,35 +23,6 @@ dittoSeq also makes collection of underlying data easy, for submitting to journa
 
 Additionally, contains import functions for [Demuxlet](https://github.com/statgen/demuxlet) cell annotations as Mux-seq datasets often consist of side-by-side bulk and single-cell RNAseq.  (If you would like a pipeline for extraction of genotypes from bulk RNAseq to enable Demuxlet-calling of single-cell RNAseq, shoot me an email.)
 
-## Installataion:
-
-```
-devtools::install_github("dtm2451/dittoSeq")
-
-# For older versions:
-#   Old DB plotter version
-# devtools::install_github("dtm2451/dittoSeq@v0.2")
-#   Old DB plotter version plus some early ditto plotters
-# devtools::install_github("dtm2451/dittoSeq@v0.2.20")
-```
-
-## News: version 0.3.0 is LIVE
-
-**Includes lots of new features!**
-
-  - Compatibility with bulk RNAseq data that was processed with edgeR & limma-voom.
-  - `dittoScatterPlot()` which allows plotting of gene x gene / metadata x metadata / gene x metadata.  Great for examining raw droplet data QC, or potential marker gene RNA or CITE-seq expression.
-  - `dittoDimPlot` now supports overlay of pseudotime-analysis trajectory paths.
-  - Retrieval of underlying data as a dataframe or matrix.  Just add `data.out = TRUE` to the call.
-  - Many more!
-
-**Other updates since version 0.2:**
-
-- Documentation overhaul for most functions with plenty of example code added.
-- The package is now camelCase, **d**ittoSeq, to go along with typical conventions.
-- Visualization names all start with `ditto...` and `multi_ditto...` instead of `DB...` and `multiDB...` Example: `dittoDimPlot` and `multi_dittoDimPlot`.
-- Color Storage: The colors are now retrievable with a simple, empty, function call, `dittoColors()`.  For use outside of dittoSeq, simply use `dittoColors()`.  Example within dittoSeq: `dittoDimPlot("ident", seurat, color.panel = dittoColors() )`.
-
 ## Color blindness friendliness:
 
 The default colors of this package are meant to be color blind friendly.  To make it so, I used the suggested colors from this source: [Wong B, "Points of view: Color blindness." Nature Methods, 2011](https://www.nature.com/articles/nmeth.1618) and adapted them slightly by appending darker and lighter versions to create a 24 color vector. All plotting functions use these colors, stored in `dittoColors()`, by default. Also included is a Simulate() function that allows you to see what your function might look like to a colorblind individual. For more info on that, see my [Colorblindness Compatibility Page](ColorblindCompatibility)
@@ -55,17 +30,9 @@ The default colors of this package are meant to be color blind friendly.  To mak
 # Quick Start Guide:
 
 ```
-# Install
-devtools::install_github("dtm2451/dittoSeq")
+# Install of this version
+devtools::install_github("dtm2451/dittoSeq@v0.3")
 # (Be sure to restart after a re-install!)
-```
-
-```
-# For older versions:
-#   Old DB plotter version
-# devtools::install_github("dtm2451/dittoSeq@v0.2")
-#   Old DB plotter version plus some early ditto plotters
-# devtools::install_github("dtm2451/dittoSeq@v0.2.20")
 ```
 
 Load in your data, then go!:
