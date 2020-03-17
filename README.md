@@ -318,7 +318,7 @@ object <- pbmc_small
   #Note: You can leave Lane.names blank, but if you choose to use custom names, make
   #      sure to provied the same number of Lane.names as you had separate 10X lanes.
 object <- importDemux(object,
-    Lane.names = c("name1","name2","name3"),
+    lane.names = c("name1","name2","name3"),
     demuxlet.best = c(
         "Location/Demuxlet1.best",
         "Location/Demuxlet2.best",
@@ -339,14 +339,14 @@ library(dittoSeq)
 object <- pbmc_small
 
 #Make a lane info meta.data
-object$LANE.INFO <- LANE.INFO
+object$lane.info <- lane.data
 
 #Run the import
   #Note: You can leave Lane.names blank, but if you choose to use custom names, make
   #      sure to provied the same number of Lane.names as you had separate 10X lanes.
 object <- importDemux(object,
-    Lane.info.meta = "LANE.INFO"
-    Lane.names = c("name1","name2","name3"),
+    lane.meta = "lane.info"
+    lane.names = c("name1","name2","name3"),
     demuxlet.best = "Location/Demuxlet.best",
     verbose = TRUE)
 ```
