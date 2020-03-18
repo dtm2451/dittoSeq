@@ -13,7 +13,7 @@
 #' @param split.by Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
 #'
 #' Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.
-#' @param extra.vars String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+#' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
 #' @param cells.use String vector of cells'/samples' names which should be included.

@@ -81,7 +81,7 @@ Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so 
 
 Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
 
-\item{extra.vars}{String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+\item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 
 Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.}
 

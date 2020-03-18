@@ -60,7 +60,7 @@ dittoScatterPlot(
 \arguments{
 \item{object}{A Seurat or SingleCellExperiment object}
 
-\item{x.var, y.var}{Single string giving a gene or metadata that will be used for the x- and y-axes of the scatterplot.
+\item{x.var, y.var}{Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
 Note: must be continuous.
 
 Alternatively, can be a directly supplied numeric vector of length equal to the total number of cells/samples in \code{object}.}
@@ -77,7 +77,7 @@ Alternatively, can be a directly supplied string vector or a factor of length eq
 
 Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
 
-\item{extra.vars}{String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+\item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 
 Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
@@ -99,14 +99,14 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
-\item{assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes or coloring are based on expression data. See \code{\link{gene}} for additional information.}
+\item{assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
 
 \item{do.hover}{Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 \code{hover.data} argument is used to determine what data to use.}
 
 \item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.}
 
-\item{hover.assay, hover.slot, hover.adjustment}{Similar to the x, y, and color versions, when showing expression data upon hover, these set what data will be shown.}
+\item{hover.assay, hover.slot, hover.adjustment}{Similar to the x, y, color, and extra versions, when showing expression data upon hover, these set what data will be shown.}
 
 \item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes.
@@ -116,17 +116,13 @@ Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, sol
 Note: Unfortunately, shapes can be hard to see when points are on top of each other & they are more slowly processed by the brain.
 For these reasons, even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.}
 
-\item{rename.color.groups}{String vector containing new names for the identities of the color overlay groups.}
-
-\item{rename.shape.groups}{String vector containing new names for the identities of the shape overlay groups.}
+\item{rename.color.groups, rename.shape.groups}{String vector containing new names for the identities of the color or shape overlay groups.}
 
 \item{min.color}{color for lowest values of var/min.  Default = yellow}
 
 \item{max.color}{color for highest values of var/max.  Default = blue}
 
-\item{min}{Number which sets the value associated with the minimum color.}
-
-\item{max}{Number which sets the value associated with the maximum color.}
+\item{min, max}{Numbers which set the values associated with the minimum and maximum colors.}
 
 \item{xlab, ylab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
 
@@ -136,13 +132,15 @@ To remove, set to \code{NULL}.}
 
 \item{sub}{String, sets the plot subtitle.}
 
-\item{theme}{A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_bw()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.}
+\item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
+Default = \code{theme_bw()}.
+See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.}
 
 \item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
 
-\item{legend.color.title, legend.shape.title}{Strings which sets the title for the color or shape legends. Default = \code{NULL} OR \code{color.var} when a shape legend will also be shown.}
+\item{legend.color.title, legend.shape.title}{Strings which set the title for the color or shape legends.}
 
-\item{legend.color.size, legend.shape.size}{Numbers representing the size to increase the plotting of color or shape legend icons to (for discrete variable plotting).
+\item{legend.color.size, legend.shape.size}{Numbers representing the size at which shapes should be plotted in the color and shape legends (for discrete variable plotting).
 Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.}
 
 \item{legend.color.breaks}{Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.}
@@ -156,37 +154,40 @@ and a data.frame containing the underlying data for non-target cells ("Others_da
 Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.}
 }
 \value{
-Makes a scatterplot from (sc)RNAseq data where colored dots and/or shapes represent individual cells/samples.  X and Y can be gene expression (or any numeric metadata) of those cells/samples.
+a ggplot scatterplot where colored dots and/or shapes represent individual cells/samples. X and Y axes can be gene expression, numeric metadata, or manually supplied values.
+
+Alternatively, if \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
+
+Alternatively, if \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly &
+cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed upon hovering the cursor over the plot.
 }
 \description{
 Show RNAseq data overlayed on a scatter plot
 }
 \details{
-This function creates a dataframe with the X and Y coordinates determined by \code{x.var} and \code{y.var}.
-It then adds data for how coloring should be set if a \code{color.var} is given & for how shapes should be set if a \code{shape.by} is given.
-The \code{assay}, \code{slot}, and \code{adjustment} inputs (\code{.x}, \code{.y}, and \code{.color}) can be used to change what expression data is used when the target data is gene expression data.
+This function creates a dataframe with X, Y, color, shape, and faceting data determined by \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.var}, and \code{split.by}.
+Any extra gene or metadata requested with \code{extra.var} is added as well.
+For expression/counts data, \code{assay}, \code{slot}, and \code{adjustment} inputs (\code{.x}, \code{.y}, and \code{.color}) can be used to change which data is used, and if it should be adjusted in some way.
 
 Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
 
-Finally, a scatter plot is then created using these dataframes.
-Non-target cells will be displayed in gray if \code{show.others=TRUE},
+Finally, a scatter plot is created using these dataframes.
+Non-target cells are colored in gray if \code{show.others=TRUE},
 and target cell data is displayed on top, colored and shaped based on the \code{color.var}- and \code{shape.by}-associated data.
+If \code{split.by} was used, the plot will be split into a matrix of panels based on the associated groupings.
+}
+\section{Many characteristics of the plot can be adjusted using discrete inputs}{
 
-If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
-
-If \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly & cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
-upon hovering the cursor over the plot.
-
-Many characteristics of the plot can be adjusted using discrete inputs:
 \itemize{
 \item \code{size} and \code{opacity} can be used to adjust the size and transparency of the data points.
-\item Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
-\item Shapes can be adjusted with \code{shape.panel}.
+\item Colors used can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
+\item Shapes used can be adjusted with \code{shape.panel}.
 \item Color and shape labels can be changed using \code{rename.color.groups} and \code{rename.shape.groups}.
 \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
-\item Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab-completion lookup.
+\item Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab completion lookup.
 }
 }
+
 \examples{
 # dittoSeq handles bulk and single-cell data quit similarly.
 # The SingleCellExperiment object structure is used for both,

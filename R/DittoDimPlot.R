@@ -37,7 +37,7 @@
 #' @param split.by Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
 #'
 #' Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.
-#' @param extra.vars String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+#' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
 #' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
@@ -117,13 +117,14 @@
 #' @details
 #' The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that),
 #' plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
-#' The \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to change what expression data is used when displaying gene expression / feature counts.
-#' If a metadata is given to \code{shape.by}, that associated metadata is retrieved and added to the dataframe as well.
+#' Any extra data requested with \code{shape.by}, \code{split.by} or \code{extra.var} is added as well.
+#' For expression/counts data, \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to change which data is used, and if it should be adjusted in some way.
 #'
 #' Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
 #'
 #' Finally, a scatter plot is then created using these dataframes where non-target cells will be displayed in gray if \code{show.others=TRUE},
 #' and target cell data is displayed on top, colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.by}-associated data.
+#' If \code{split.by} was used, the plot will be split into a matrix of panels based on the associated groupings.
 #'
 #' @section Many characteristics of the plot can be adjusted using discrete inputs:
 #' \itemize{
