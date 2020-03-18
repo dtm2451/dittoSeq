@@ -10,9 +10,13 @@
 #' @param color.by String representing the name of a metadata to use for setting fills. (Defaults to \code{group.by})
 #' Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so this input can be skipped if both are the same.
 #' @param shape.by Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.
-#' @param split.by Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+#' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #'
-#' Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.
+#' When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+#'
+#' When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
+#'
+#' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
@@ -170,14 +174,17 @@
 #' dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint",
 #'     plots = c("vlnplot", "boxplot", "jitter"),
 #'     shape.by = "clustering",
-#'     split.by = "SNP")
+#'     split.by = "SNP") # single split.by element
+#' dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint",
+#'     plots = c("vlnplot", "boxplot", "jitter"),
+#'     split.by = c("groups","SNP")) # row and col split.by elements
 #'
 #' # For faceting, instead of using 'split.by', the target data can alternatively
 #' # be given to 'extra.var' to have it added in the underlying dataframe, then
 #' # faceting can be added manually for extra flexibility
 #' dittoPlot(myRNA, "gene1", "clustering",
 #'     plots = c("vlnplot", "boxplot", "jitter"),
-#'     extra.var = "SNP") + facet_wrap("SNP", dir = "v", strip.position = "left")
+#'     extra.var = "SNP") + facet_wrap("SNP", ncol = 1, strip.position = "left")
 #'
 #' # Quickly make a Ridgeplot
 #' dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
@@ -200,6 +207,7 @@ dittoPlot <- function(
     theme = theme_classic(), main = "make", sub = NULL,
     ylab = "make", y.breaks = NULL, min = NULL, max = NULL,
     xlab = group.by, x.labels = NULL, x.labels.rotate = NA, x.reorder = NULL,
+    split.nrow = NULL, split.ncol = NULL,
     jitter.size=1, jitter.width=0.2, jitter.color = "black",
     jitter.shape.legend.size = NA,
     jitter.shape.legend.show = TRUE,
@@ -230,7 +238,7 @@ dittoPlot <- function(
 
     #Grab the data
     Target_data <- .dittoPlot_data_gather(object, var, group.by, color.by,
-        split.by, c(shape.by,extra.vars), cells.use, assay, slot, adjustment,
+        c(shape.by,split.by,extra.vars), cells.use, assay, slot, adjustment,
         do.hover, hover.data)$Target_data
     Target_data$grouping <-
         .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
@@ -258,7 +266,8 @@ dittoPlot <- function(
     }
     # Extra tweaks
     if (!is.null(split.by)) {
-        p <- p + facet_wrap("split")
+        p <- .add_splitting(
+            p, split.by, split.nrow, split.ncol, object, cells.use)
     }
     if (!legend.show) {
         p <- .remove_legend(p)
@@ -510,8 +519,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 }
 
 .dittoPlot_data_gather <- function(
-    object, main.var, group.by = "Sample", color.by = group.by, split.by = NULL,
-    extra.vars = NULL, cells.use = NULL, assay, slot, adjustment,
+    object, main.var, group.by = "Sample", color.by = group.by, extra.vars = NULL, cells.use = NULL, assay, slot, adjustment,
     do.hover = FALSE, hover.data = c(main.var, extra.vars)) {
 
     # Populate cells.use with a list of names if it was given anything else.
@@ -526,8 +534,6 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
         color = meta(color.by, object),
         row.names = all.cells)
     # Add split and extra data
-    full_data <- .add_by_cell(full_data, split.by, "split", object, assay,
-        slot, adjustment)
     full_data <- .add_by_cell(full_data, extra.vars, extra.vars, object, assay,
         slot, adjustment, mult = TRUE)
     # Add hover strings

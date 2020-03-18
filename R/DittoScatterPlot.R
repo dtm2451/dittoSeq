@@ -12,9 +12,13 @@
 #' @param shape.by Single string giving a metadata (Note: must be discrete.) that will set the shape of cells/samples in the plot.
 #'
 #' Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.
-#' @param split.by Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+#' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #'
-#' Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.
+#' When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+#'
+#' When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
+#'
+#' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom alterations \emph{after} dittoSeq plot generation.
@@ -138,13 +142,18 @@
 #'     color.var = "gene1")
 #'
 #' # Data can be "split" or faceted by a discrete variable as well.
-#' dittoDimPlot(myRNA, "gene1",
-#'     shape.by = "clustering",
-#'     split.by = "timepoint")
+#' dittoScatterPlot(
+#'     myRNA, x.var = "nCount_RNA",
+#'     y.var = "nFeature_RNA",
+#'     split.by = "timepoint") # single split.by element
+#' dittoScatterPlot(
+#'     myRNA, x.var = "nCount_RNA",
+#'     y.var = "nFeature_RNA",
+#'     split.by = c("groups","SNP")) # row and col split.by elements
 #' # OR with 'extra.vars' plus manually faceting for added control
 #' dittoDimPlot(myRNA, "gene1",
-#'     extra.vars = c("clustering","timepoint")) +
-#'     facet_grid(rows = vars(clustering), cols = vars(timepoint))
+#'     extra.vars = c("SNP")) +
+#'     facet_wrap("SNP", ncol = 1, strip.position = "left")
 #'
 #' # Note: scatterplots like this can be very useful for dataset QC, especially
 #' #   with percentage of reads coming from genes as the color overlay.
@@ -154,6 +163,7 @@ dittoScatterPlot <- function(
     cells.use = NULL, show.others = FALSE,
     size = 1, opacity = 1,
     color.panel = dittoColors(), colors = seq_along(color.panel),
+    split.nrow = NULL, split.ncol = NULL,
     assay.x = .default_assay(object), slot.x = .default_slot(object),
     adjustment.x = NULL,
     assay.y = .default_assay(object), slot.y = .default_slot(object),
@@ -180,20 +190,23 @@ dittoScatterPlot <- function(
     all.cells <- .all_cells(object)
 
     # Make dataframe
-    vars <- list(x.var, y.var, color.var, shape.by, split.by)
-    names <- c("X", "Y", "color", "shape", "split")
-    assays <- c(assay.x, assay.y, assay.color, NA, NA)
-    slots <- c(slot.x, slot.y, slot.color, NA, NA)
-    adjustments <- c(adjustment.x, adjustment.y, adjustment.color, NA, NA)
-    relabels <- list(NULL, NULL, rename.color.groups, rename.shape.groups,
-                  NULL, NULL)
+    # Base
+    vars <- list(x.var, y.var, color.var, shape.by)
+    names <- c("X", "Y", "color", "shape")
+    assays <- c(assay.x, assay.y, assay.color, NA)
+    slots <- c(slot.x, slot.y, slot.color, NA)
+    adjustments <- c(adjustment.x, adjustment.y, adjustment.color, NA)
+    relabels <- list(NULL, NULL, rename.color.groups, rename.shape.groups)
     dat <- data.frame(row.names = all.cells)
     for (i in seq_along(vars)) {
         dat <- .add_by_cell(dat, unlist(vars[i]), names[i], object, assays[i],
             slots[i], adjustments[i], NULL, unlist(relabels[i]))
     }
+    # Extra
+    extra.vars <- c(split.by, extra.vars)
     dat <- .add_by_cell(dat, extra.vars, extra.vars, object, assay.extra,
         slot.extra, adjustment.extra, mult = TRUE)
+    # Trim
     Target_data <- dat[cells.use,]
     Others_data <- dat[!(all.cells %in% cells.use),]
 
@@ -263,7 +276,8 @@ dittoScatterPlot <- function(
         p <- .remove_legend(p)
     }
     if (!is.null(split.by)) {
-        p <- p + facet_wrap("split")
+        p <- .add_splitting(
+            p, split.by, split.nrow, split.ncol,object, cells.use)
     }
 
     ### RETURN the PLOT ###

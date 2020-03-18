@@ -18,6 +18,8 @@ dittoScatterPlot(
   opacity = 1,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
+  split.nrow = NULL,
+  split.ncol = NULL,
   assay.x = .default_assay(object),
   slot.x = .default_slot(object),
   adjustment.x = NULL,
@@ -73,9 +75,11 @@ Alternatively, can be a directly supplied numeric or string, vector or a factor 
 
 Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
 
-\item{split.by}{Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+\item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 
-Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
+When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+
+When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
 
 \item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 
@@ -98,6 +102,8 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 \item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.}
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
+
+\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
 
@@ -222,13 +228,18 @@ dittoScatterPlot(
     color.var = "gene1")
 
 # Data can be "split" or faceted by a discrete variable as well.
-dittoDimPlot(myRNA, "gene1",
-    shape.by = "clustering",
-    split.by = "timepoint")
+dittoScatterPlot(
+    myRNA, x.var = "nCount_RNA",
+    y.var = "nFeature_RNA",
+    split.by = "timepoint") # single split.by element
+dittoScatterPlot(
+    myRNA, x.var = "nCount_RNA",
+    y.var = "nFeature_RNA",
+    split.by = c("groups","SNP")) # row and col split.by elements
 # OR with 'extra.vars' plus manually faceting for added control
 dittoDimPlot(myRNA, "gene1",
-    extra.vars = c("clustering","timepoint")) +
-    facet_grid(rows = vars(clustering), cols = vars(timepoint))
+    extra.vars = c("SNP")) +
+    facet_wrap("SNP", ncol = 1, strip.position = "left")
 
 # Note: scatterplots like this can be very useful for dataset QC, especially
 #   with percentage of reads coming from genes as the color overlay.

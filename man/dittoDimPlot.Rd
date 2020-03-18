@@ -16,6 +16,8 @@ dittoDimPlot(
   shape.by = NULL,
   split.by = NULL,
   extra.vars = NULL,
+  split.nrow = NULL,
+  split.ncol = NULL,
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -93,13 +95,17 @@ For the typically easier logical method, provide \code{USE} in \code{colnames(ob
 Note: shapes can be harder to see, and to process mentally, than colors.
 Even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.}
 
-\item{split.by}{Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+\item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 
-Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
+When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+
+When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
 
 \item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 
 Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.}
+
+\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{assay, slot}{single strings or integer that set which data to use when plotting gene expression.
 See \code{\link{gene}} for more information.}
@@ -295,7 +301,9 @@ dittoDimPlot(myRNA, "clustering",
 # Data can also be split in other ways with 'shape.by' or 'split.by'
 dittoDimPlot(myRNA, "gene1",
     shape.by = "clustering",
-    split.by = "timepoint")
+    split.by = "SNP") # single split.by element
+dittoDimPlot(myRNA, "gene1",
+    split.by = c("groups","SNP")) # row and col split.by elements
 
 # Modify the look with intuitive inputs
 dittoDimPlot(myRNA, "clustering",

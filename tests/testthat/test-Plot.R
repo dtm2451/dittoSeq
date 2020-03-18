@@ -317,11 +317,38 @@ test_that("dittoPlot can add extra vars to dataframe", {
     expect_equal(ncol(df2), 5)
 })
 
-test_that("dittoPlot can be facted with split.by", {
+test_that("dittoPlot can be facted with split.by (1 or 2 vars)", {
     # MANUAL CHECK: FACETING
     expect_s3_class(
         dittoPlot(
             gene1, grp, grp, object = seurat,
-            split.by = clr),
+            split.by = grp),
+        "ggplot")
+    # horizontal
+    expect_s3_class(
+        dittoPlot(
+            gene1, grp, grp, object = seurat,
+            split.by = grp,
+            split.nrow = 1),
+        "ggplot")
+    # vertical
+    expect_s3_class(
+        dittoPlot(
+            gene1, grp, grp, object = seurat,
+            split.by = grp,
+            split.ncol = 1),
+        "ggplot")
+    # Grid with rows=age, cols=groups
+    expect_s3_class(
+        dittoPlot(
+            gene1, grp, grp, object = seurat,
+            split.by = c(grp,clr)),
+        "ggplot")
+    # Works with cells.use (should have grey cells)
+    expect_s3_class(
+        dittoPlot(
+            gene1, grp, grp, object = seurat,
+            split.by = c(grp,clr),
+            cells.use = cells.logical),
         "ggplot")
 })
