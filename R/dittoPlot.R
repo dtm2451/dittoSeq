@@ -36,7 +36,7 @@
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' Default = \code{dittoColors()}.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
-#' Useful for quickly swapping the colors of nearby clusters.
+#' (Provides an alternative to directly modifying \code{color.panel}.)
 #' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 #' When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes which will be used.
 #' When nothing is supplied to \code{shape.by}, only the first value is used.
@@ -91,12 +91,14 @@
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
 #' @param legend.title String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
 #' This input is set to \code{NULL} by default.
-#' @param data.out Logical which sets whether just the plot should be output, or a list containing the plot (\code{p}) and data (\code{data}).  Note: plotly output is turned off in this setting, but hover.data is still calculated.
+#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
+#'
+#' Note: plotly output is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.
 #' @param ... arguments passed to dittoPlot by dittoRidgePlot, dittoRidgeJitter, and dittoBoxPlot wrappers.
 #' Options are all the ones above.
 #' @return a ggplot or plotly where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
-#' Alternatively when \code{data.out=TRUE}, a list containing the plot (p) and the underlying data as a dataframe (data).
+#' Alternatively when \code{data.out=TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
 #'
 #' Alternatively when \code{do.hover = TRUE}, a plotly converted version of the plot where additional data will be displayed when the cursor is hovered over jitter points.
 #' @details
@@ -115,12 +117,7 @@
 #' that simply change the default for the \code{plots} input to be \code{"ridgeplot"}, \code{c("ridgeplot","jitter")}, or \code{c("boxplot","jitter")},
 #' to make such plots even easier to produce.
 #'
-#' If \code{data.out=TRUE}, a list containing the plot (\code{p}) and a the dataframe containing the underlying data (\code{data}) are returned.
-#'
-#' If \code{do.hover=TRUE}, cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed
-#' upon hovering the cursor over a jitter point.
-#'
-#' Many characteristics of the plot can be adjusted using discrete inputs:
+#' @section Many characteristics of the plot can be adjusted using discrete inputs:
 #' \itemize{
 #' \item Each data representation has options which are controlled by variables that start with their associated string.
 #' For example, all jitter adjustments, like \code{jitter.size}, start with "\code{jitter.}".

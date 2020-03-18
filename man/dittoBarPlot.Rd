@@ -46,7 +46,9 @@ For the typically easier logical method, provide \code{USE} in \code{colnames(ob
 
 Note: When \code{cells.use} is combined with \code{scale = "percent"}, left out cells are not considered in calculating percentages. Percents will always total to 1.}
 
-\item{data.out}{Logical which sets whether to output the dataframe containing the underlying data in addition to outputing the plot itself.}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.
+
+Note: plotly output is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.}
 
 \item{do.hover}{Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.}
 
@@ -113,12 +115,9 @@ The function creates a dataframe containing counts and percent makeup of \code{v
 If a set of cells/samples to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
 Then, a vertical bar plot is generated (\code{ggplot2::geom_col()}) showing either percent makeup if
 \code{scale = "percent"}, which is the default, or raw counts if \code{scale = "count"}.
+}
+\section{Many characteristics of the plot can be adjusted using discrete inputs}{
 
-If \code{data.out} is set to \code{TRUE}, a list containing the plot ("p") and the underlying dataframe ("data") will be returned.
-
-If \code{do.hover} is set to \code{TRUE}, the ggplot will be converted to a plotly object and underlying data will be displayed upon hover.
-
-Many characteristics of the plot can be adjusted using discrete inputs:
 \itemize{
 \item Colors can be adjusted with \code{color.panel} and/or \code{colors}.
 \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
@@ -128,6 +127,7 @@ Many characteristics of the plot can be adjusted using discrete inputs:
 \item y-axis \code{var}-group labels and their order can be changed / reordered using \code{var.labels} and \code{var.labels.reorder}.
 }
 }
+
 \examples{
 # dittoSeq handles bulk and single-cell data quit similarly.
 # The SingleCellExperiment object structure is used for both,

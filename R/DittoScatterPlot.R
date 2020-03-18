@@ -60,7 +60,11 @@
 #' @param sub String, sets the plot subtitle.
 #' @param xlab,ylab Strings which set the labels for the axes. To remove, set to \code{NULL}.
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_bw()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.
-#' @param data.out Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
+#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
+#' a data.frame containing the underlying data for target cells ("Target_data"),
+#' and a data.frame containing the underlying data for non-target cells ("Others_data").
+#'
+#' Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.
 #' @return Makes a scatterplot from (sc)RNAseq data where colored dots and/or shapes represent individual cells/samples.  X and Y can be gene expression (or any numeric metadata) of those cells/samples.
 #' @details
 #' This function creates a dataframe with the X and Y coordinates determined by \code{x.var} and \code{y.var}.

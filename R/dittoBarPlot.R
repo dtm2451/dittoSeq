@@ -43,7 +43,9 @@
 #' Values of \code{var.labels.reorder} should be these indices, but in the order that you would like them rearranged to be.
 #' @param legend.show Logical which sets whether the legend should be displayed.
 #' @param legend.title String which adds a title to the legend.
-#' @param data.out Logical which sets whether to output the dataframe containing the underlying data in addition to outputing the plot itself.
+#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.
+#'
+#' Note: plotly output is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
 #'
 #' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
@@ -55,11 +57,7 @@
 #' Then, a vertical bar plot is generated (\code{ggplot2::geom_col()}) showing either percent makeup if
 #' \code{scale = "percent"}, which is the default, or raw counts if \code{scale = "count"}.
 #'
-#' If \code{data.out} is set to \code{TRUE}, a list containing the plot ("p") and the underlying dataframe ("data") will be returned.
-#'
-#' If \code{do.hover} is set to \code{TRUE}, the ggplot will be converted to a plotly object and underlying data will be displayed upon hover.
-#'
-#' Many characteristics of the plot can be adjusted using discrete inputs:
+#' @section Many characteristics of the plot can be adjusted using discrete inputs:
 #' \itemize{
 #' \item Colors can be adjusted with \code{color.panel} and/or \code{colors}.
 #' \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
