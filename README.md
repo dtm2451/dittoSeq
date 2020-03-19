@@ -39,15 +39,9 @@ Included in this package are a set of functions to facilitate Mux-seq applicatio
 ## Installataion:
 
 ```
-# Install the most current Bioconductor build with
-BiocManager::install("dittoSeq")
-```
-
-If you get a warning that you need R version 4.0, you can get around this by installing from this repository. (Note that I will remove this note once R-4.0 is actually released.)
-
-```
-# Install from this repository
-devtools::install_github("dtm2451/dittoSeq")
+# Currently, dittoSeq is not quite into the Bioconductor build system
+# Install with:
+BiocManager::install("dtm2451/dittoSeq")
 ```
 
 For older versions, use this code, and check out the READMEs on the associated branches of the repo
