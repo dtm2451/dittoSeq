@@ -372,6 +372,7 @@ multi_dittoPlot <- function(
 dittoRidgePlot <- function(..., plots = c("ridgeplot")){ dittoPlot(..., plots = plots) }
 
 #' @describeIn dittoPlot dittoRidgePlot, but with jitter overlaid
+#' @export
 dittoRidgeJitter <- function(..., plots = c("ridgeplot", "jitter")){ dittoPlot(..., plots = plots) }
 
 #' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings in boxplot form
@@ -408,13 +409,16 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
             p <- p + geom_violin(
                 size = vlnplot.lineweight,
                 width = vlnplot.width,
-                scale = vlnplot.scaling)
+                scale = vlnplot.scaling,
+                na.rm = TRUE)
         }
+
         if (plots[i] == "boxplot") {
             boxplot.args <- list(
-                width=boxplot.width,
+                width = boxplot.width,
                 color = boxplot.color,
-                alpha = ifelse(boxplot.fill, 1, 0))
+                alpha = ifelse(boxplot.fill, 1, 0),
+                na.rm = TRUE)
             if (is.na(boxplot.show.outliers)) {
                 boxplot.show.outliers <- ifelse("jitter" %in% plots, FALSE, TRUE)
             }
@@ -423,6 +427,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
             }
             p <- p + do.call(geom_boxplot, boxplot.args)
         }
+
         if (plots[i] == "jitter") {
             jitter.args <- list(
                 size=jitter.size,
