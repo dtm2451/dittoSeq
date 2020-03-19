@@ -478,6 +478,15 @@ demux.calls.summary <- function(
     }
     all.cells <- .all_cells(object)
 
+    # Grab the data
+    dat <- as.data.frame.matrix(
+        table(
+            as.character(meta("Sample", object)[all.cells %in% cells.use]),
+            meta("Lane", object)[all.cells %in% cells.use]))
+    dat$Sample <- row.names(dat)
+    dat.m <- reshape2::melt(dat, "Sample")
+    colnames(dat.m) <- c("Sample", "Lane", "Counts")
+
     if(is.null(theme)){
         x.args <- list(size=12)
         if (rotate.labels) {
@@ -491,15 +500,6 @@ demux.calls.summary <- function(
                 panel.border = element_blank(),
                 axis.text.x= do.call(element_text, x.args))
     }
-
-    # Grab the data
-    dat <- as.data.frame.matrix(
-        table(
-            as.character(meta("Sample", object)[cells.use %in% all.cells]),
-            meta("Lane", object)[cells.use %in% all.cells]))
-    dat$Sample <- row.names(dat)
-    dat.m <- reshape2::melt(dat, "Sample")
-    colnames(dat.m) <- c("Sample", "Lane", "Counts")
 
     if (data.out) {
         return(dat.m)
