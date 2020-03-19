@@ -42,5 +42,6 @@ biocViews:
     RNASeq,
     SingleCell,
     GeneExpression, 
-    Transcriptomics
+    Transcriptomics,
+    DataImport
 VignetteBuilder: knitr
