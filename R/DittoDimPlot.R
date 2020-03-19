@@ -341,16 +341,6 @@ dittoDimPlot <- function(
     }
 }
 
-.default_reduction <- function(object) {
-    # Use umap > tsne > pca, or whatever the first reduction slot is.
-    opts <- getReductions(object)
-    if (is.null(opts)) {
-        stop("No dimensionality reduction slots in 'object'")
-    }
-    use <- .preferred_or_first(opts, c("umap","tsne","pca"))
-    use
-}
-
 .add_labels <- function(p, Target_data, col.use = "color", labels.highlight, labels.size, labels.repel) {
     #Make a text plot at the median x and y values for each cluster
 
