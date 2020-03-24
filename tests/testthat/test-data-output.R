@@ -26,12 +26,11 @@ test_that("Data outputing works for DimPlot", {
 })
 
 test_that("Data outputing works for BarPlot", {
-    expect_s3_class(
+    expect_type(
         dittoBarPlot(
             "clusters", object = seurat,
-            group.by = "age", data.out = TRUE,
-            do.hover = TRUE),
-        "data.frame")
+            group.by = "age", data.out = TRUE),
+        "list")
 })
 
 test_that("Data outputing works for Plot", {
@@ -93,7 +92,7 @@ test_that("Data outputing works for Heatmap", {
         hm <- dittoHeatmap(c("gene1", "gene2"), object = seurat,
             data.out = TRUE),
         "list")
-    expect_true(length(hm) == 2)
-    expect_true("mat" %in% names(hm[[1]]))
+    expect_true(length(hm) == 10)
+    expect_true("mat" %in% names(hm))
 })
 

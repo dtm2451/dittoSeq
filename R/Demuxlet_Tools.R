@@ -3,23 +3,25 @@
 #'
 #' @param object A pre-made Seurat(v3+) or SingleCellExperiment object to add demuxlet information to.
 #' @param raw.cell.names A string vector consisting of the raw cell barcodes of the object as they would have been output by cellranger aggr.
-#' Format per cell.name = NNN...NNN-# where NNN...NNN are the cell barcode nucleotides, and # is the lane number
-#' Useful when additional information has been added directly into the cell names. If they are already in this format, the input is not required.
+#' Format per cell.name = NNN...NNN-# where NNN...NNN are the cell barcode nucleotides, and # is the lane number.
+#' This input should be used when additional information has been added directly into the cell names outside of Seurat's standard merge prefix: "user-text_".
+#' @param lane.meta A string which names a metadata slot that contains which cells came from which droplet-generation wells.
+#' @param lane.names String vector which sets how the lanes should be named (if you want to give them something different from the default = Lane1, Lane2, Lane3...)
+#' @param demuxlet.best String or String vector pointing to the location(s) of the .best output file from running of demuxlet.
 #'
-#' @param lane.meta A meta.data
-#' @param lane.names how the lanes should be named (if you want to give them something different from the default = Lane1, Lane2, Lane3...)
-#' @param demuxlet.best String pointing to the location of the .best output file from running of demuxlet OR a data.frame representing already imported .best matrix.
-#'
-#' Alternatively, can be a String vector representing the .best output locations of separate demuxlet runs which each correspond to 10X lanes that were combined together with cellranger aggr.  See the cellranger note below.
-#' @param trim.before_ Logical which sets whether extra info in from of an "_" should
-#' @param verbose whether to print messages about the stage of this process that is currently being run.
-#' @param bypass.check for running this function anyway even when meta.data slots already around would be over-written.
+#' Alternatively, a data.frame representing an already imported .best matrix.
+#' @param trim.before_ Logical which sets whether any characters in front of an "_" should be deleted from the \code{raw.cell.names} before matching with demuxlet barcodes.
+#' @param verbose whether to print messages about the stage of this process that is currently being run & also the summary at the end.
+#' @param bypass.check Logical which sets whether the function should run even when meta.data slots would be over-written.
 #' @return The Seurat or SingleCellExperiment object with metadata added for "Sample" calls and other relevant statistics.
 #' @details
 #' The function takes in a previously generated Seurat or SingleCellExperiment object.
 #' It also takes in demuxlet information either in the form of
+#'
 #' 1: the location of a single demuxlet.best out file,
+#'
 #' 2: the locations of multiple demuxlet.best output files,
+#'
 #' or 3: a user-constructed data.frame created by reading in a demuxlet.best file.
 #'
 #' If a metadata slot name is provided to \code{lane.meta}, information in that metadata slot is copied into a metadata slot called "Lane".
@@ -67,7 +69,7 @@
 #' Technical issue: Neither method adjusts the bacode names that are embedded within the BAM files which a user must supply to Demuxlet,
 #' so that data needs to be modified in a proper way in order to make the \code{object} cellnames and demuxlet BARCODEs match.
 #'
-#' \code{importDemux} is built for work with directly with the cellranger aggr barcodes output, or with ###############.
+#' \code{importDemux} is built for working with the cellranger aggr barcodes output, but can be used for demuxlet datasets processed differently as well.
 #' \itemize{
 #' \item Option 1: merging matrices of all lanes with cellranger aggr before R import.
 #' Barcode uniquification method: A "-1", "-2", "-3", ... "-#" is appended to the end of all barcode names.
@@ -95,7 +97,7 @@
 #'
 #' \code{\link{demux.SNP.summary}} for plotting the number of SNPs measured per cell.
 #'
-#' Or, see Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
+#' Or, see Kang et al. Nature Biotechnology, 2018 \url{https://www.nature.com/articles/nbt.4042} for more information about the demuxlet cell-sample deconvolution method.
 #' @examples
 #'
 #' #Prep: loading in an example dataset and sample demuxlet data
@@ -383,10 +385,13 @@ importDemux <- function(
 #' Default = 50, a high confidence minimum number of SNPs per cell for highly accurate demuxlet sample deconvolution.
 #' @param ... extra arguments passed to \code{\link{dittoPlot}}
 #' @return A ggplot, made with \code{\link{dittoPlot}} showing a summary of how many SNPs were available to Demuxlet for each cell of a dataset.
-#' Alternatively, a plotly object if \code{data.hover = TRUE} is provided, or list containing a ggplot and a dataframe if \code{data.out = TRUE} is provided.
+#'
+#' Alternatively, a plotly object if \code{data.hover = TRUE} is provided.
+#'
+#' Alternatively, list containing a ggplot and the underlying data as a dataframe if \code{data.out = TRUE} is provided.
 #' @details
 #' This function is a wrapper that essentially runs \code{\link{dittoPlot}}\code{("demux.N.SNP")} with a few modified defaults.
-#' The defaults:
+#' The altered defaults:
 #' \itemize{
 #' \item Data is grouped and colored by the "Lane" metadata (unless \code{group.by} or \code{color.by} are adjusted otherwise).
 #' \item Data is displayed as boxplots with gray lines on top of dots for individual cells (unless \code{plots} or \code{boxplot.color} are adjusted otherwise).
@@ -401,7 +406,7 @@ importDemux <- function(
 #'
 #' \code{\link{importDemux}}, for how to import relevant demuxlet information as metadata.
 #'
-#' Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
+#' Kang et al. Nature Biotechnology, 2018 \url{https://www.nature.com/articles/nbt.4042} for more information about the demuxlet cell-sample deconvolution method.
 #' @examples
 #' example(importDemux, echo = FALSE)
 #' demux.SNP.summary(myRNA)
@@ -434,14 +439,17 @@ demux.SNP.summary <- function(
 #' @param theme A complete ggplot theme. Default is a slightly modified theme_bw().
 #' @param rotate.labels whether sample names / x-axis labels should be rotated or not. Default is TRUE.
 #' @param data.out Logical, whether underlying data for the plot should be output instead of the plot itself.
-#' @return For a given Seurat object, summarizes how many cells in each lane were anotated to each sample.  Assumes that the Sample calls of each cells, and which lane each cell belonged to, are stored in 'Sample' and 'Lane' metadata slots, respectively, as would be the case if the Seurat object was created with the Import10XDemux function.
+#' @return A faceted ggplot summarizing how many cells in each lane were anotated to each sample.
+#' Assumes that the Sample calls of each cell, and which lane each cell belonged to, are stored in 'Sample' and 'Lane' metadata slots, respectively, as would be the case if demuxlet information was imported with \code{\link{importDemux}}.
+#'
+#' Alternatively, value will be a data.frame containing the underlying data if \code{data.out = TRUE} is provided.
 #' @seealso
 #' \code{\link{demux.SNP.summary}} for plotting the number of SNPs measured per cell.
 #' This is the other Demuxlet-associated QC visualization included with dittoSeq.
 #'
 #' \code{\link{importDemux}}, for how to import relevant demuxlet information as metadata.
 #'
-#' Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
+#' Kang et al. Nature Biotechnology, 2018 \url{https://www.nature.com/articles/nbt.4042} for more information about the demuxlet cell-sample deconvolution method.
 #' @examples
 #' example(importDemux, echo = FALSE)
 #'
@@ -470,6 +478,15 @@ demux.calls.summary <- function(
     }
     all.cells <- .all_cells(object)
 
+    # Grab the data
+    dat <- as.data.frame.matrix(
+        table(
+            as.character(meta("Sample", object)[all.cells %in% cells.use]),
+            meta("Lane", object)[all.cells %in% cells.use]))
+    dat$Sample <- row.names(dat)
+    dat.m <- reshape2::melt(dat, "Sample")
+    colnames(dat.m) <- c("Sample", "Lane", "Counts")
+
     if(is.null(theme)){
         x.args <- list(size=12)
         if (rotate.labels) {
@@ -483,15 +500,6 @@ demux.calls.summary <- function(
                 panel.border = element_blank(),
                 axis.text.x= do.call(element_text, x.args))
     }
-
-    # Grab the data
-    dat <- as.data.frame.matrix(
-        table(
-            as.character(meta("Sample", object)[cells.use %in% all.cells]),
-            meta("Lane", object)[cells.use %in% all.cells]))
-    dat$Sample <- row.names(dat)
-    dat.m <- reshape2::melt(dat, "Sample")
-    colnames(dat.m) <- c("Sample", "Lane", "Counts")
 
     if (data.out) {
         return(dat.m)

@@ -22,20 +22,21 @@ multi_dittoPlot(
 \arguments{
 \item{object}{the Seurat or SingleCellExperiment object to draw from}
 
-\item{vars}{c("var1","var2","var3",...). A list of vars from which to generate the separate plots}
+\item{vars}{c("var1","var2","var3",...). A vector of gene or metadata names from which to generate the separate plots}
 
-\item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups. REQUIRED.}
+\item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
-\item{color.by}{String representing the name of a metadata to use for setting color.}
+\item{color.by}{String representing the name of a metadata to use for setting color. Default = \code{group.by}.}
 
-\item{ncol}{Integer which sets how many plots will be arranged per row.  Default = 3.}
+\item{ncol, nrow}{Integers which set how many plots will be arranged per column or per row.
+Default = 3 columns aand however many rows are required.
 
-\item{nrow}{Integer which sets how many rows to arrange the plots into.  Default = NULL(/blank) --> becomes however many rows are needed to show all the data.}
+Set both to NULL to have the grid.arrange function figure out what might be most "square" on its own.}
 
 \item{main, ylab}{String which sets whether / how plot titles or y-axis labels should be added to each individual plot
 \itemize{
 \item When set to \code{"var"}, the \code{vars} names alone will be used.
-\item When set to \code{"make"}, the default dittoPlot behavior will be observed: For y-axis labels, gene vars will become "'var' expression" or similar.
+\item When set to \code{"make"}, the default dittoPlot behavior will be observed: Equivalent to "make" for \code{main}, but for y-axis labels, gene vars will become "'var' expression".
 \item When set as any other string, that string will be used as the title / y-axis label for every plot.
 \item When set to \code{NULL}, titles / axes labels will not be added.
 }}
@@ -45,8 +46,8 @@ multi_dittoPlot(
 \item{OUT.List}{Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.}
 }
 \value{
-Given multiple 'var' parameters, this function will output a dittoPlot for each one, arranged into a grid, with some slight tweaks to the defaults.
-If \code{OUT.list} was set to TRUE, the list of individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+Given multiple 'var' parameters, this function will output a dittoPlot for each one, arranged into a grid, just with some slight tweaks to the defaults.
+If \code{OUT.list} was set to TRUE, the list of individual plots is output instead of the combined multi-plot.
 All parameters that can be adjusted in dittoPlot can be adjusted here.
 }
 \description{

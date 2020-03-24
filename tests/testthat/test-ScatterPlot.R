@@ -41,7 +41,7 @@ test_that("dittoScatterPlot can overlay shapes", {
         "ggplot")
 })
 
-test_that("dittoScatterPlot (and dittoDimPlot) can add extra vars to dataframe", {
+test_that("dittoScatterPlot can add extra vars to dataframe", {
     df1 <- dittoScatterPlot(
             gene, cont, NULL, disc, object = seurat,
             data.out = TRUE)[[2]]
@@ -54,12 +54,39 @@ test_that("dittoScatterPlot (and dittoDimPlot) can add extra vars to dataframe",
     expect_equal(ncol(df2), 5)
 })
 
-test_that("dittoScatterPlot (and dittoDimPlot) can be facted with split.by", {
+test_that("dittoScatterPlot can be faceted with split.by (1 or 2 vars)", {
     # MANUAL CHECK: FACETING
     expect_s3_class(
         dittoScatterPlot(
             gene, cont, NULL, disc, object = seurat,
             split.by = disc2),
+        "ggplot")
+    # horizontal
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, NULL, disc, object = seurat,
+            split.by = disc2,
+            split.nrow = 1),
+        "ggplot")
+    # vertical
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, NULL, disc, object = seurat,
+            split.by = disc2,
+            split.ncol = 1),
+        "ggplot")
+    # Grid with rows=age, cols=groups
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, NULL, disc, object = seurat,
+            split.by = c(disc2,disc)),
+        "ggplot")
+    # Works with cells.use (should have grey cells)
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, NULL, disc, object = seurat,
+            split.by = c(disc2,disc),
+            cells.use = cells.logical),
         "ggplot")
 })
 

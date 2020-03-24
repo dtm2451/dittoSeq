@@ -1,0 +1,64 @@
+.make_hover_strings_from_vars <- function(
+    data.hover, object, assay, slot, adjustment) {
+
+    # Overall: if do.hover=TRUE and data.hover has a list of genes / metas called
+    #   c(var1, var2, var3, ...), then for all cells, make a string:
+    #   "var1: var1-value\nvar2: var2-value\nvar3: var3-value\n..."
+    #   vars that are not genes or metadata are ignored.
+    fillable <- vapply(
+        seq_along(data.hover),
+        function(i)
+            (isMeta(data.hover[i],object) ||
+                isGene(data.hover[i],object, assay)),
+        logical(1))
+    data.hover <- data.hover[fillable]
+    if (is.null(data.hover)) {
+        stop("No genes or metadata names added to 'hover.data'")
+    }
+
+    # Create dataframe to contain the hover.info
+    features.info <- data.frame(row.names = .all_cells(object))
+    features.info <- vapply(
+        data.hover,
+        function(this.data)
+            as.character(.var_OR_get_meta_or_gene(
+                this.data,object, assay, slot, adjustment)),
+        character(nrow(features.info)))
+    names(features.info) <- data.hover[fillable]
+
+    # Convert each row of dataframe to 'colname1: data1\ncolname2: data2\n...'
+    hover.strings <- .make_hover_strings_from_df(features.info)
+}
+
+.make_hover_strings_from_df <- function(df){
+    vapply(
+        seq_len(nrow(df)),
+        function(row){
+            paste(as.character(vapply(
+                seq_len(ncol(df)),
+                function(col){
+                    paste0(names(df)[col],": ",df[row,col])
+                }, FUN.VALUE = character(1))
+                ),collapse = "\n")
+        }, FUN.VALUE = character(1))
+}
+
+.rename_and_or_reorder <- function(orig.data, reorder = NULL, relabels = NULL) {
+    if (is.numeric(orig.data)) {
+        return(orig.data)
+    }
+    rename.args <- list(x = orig.data)
+    if (!(is.null(reorder))) {
+        if (length(reorder)!=length(levels(factor(orig.data)))) {
+            stop("incorrect number of indices provided to 'reorder' input")
+        }
+        rename.args$levels <- levels(factor(orig.data))[reorder]
+    }
+    if (!(is.null(relabels))) {
+        if (length(relabels)!=length(levels(factor(orig.data)))) {
+            stop("incorrect number of labels provided to 'relabel' input")
+        }
+        rename.args$labels <- relabels
+    }
+    do.call(factor, args = rename.args)
+}

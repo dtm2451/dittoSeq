@@ -6,11 +6,10 @@
 \usage{
 dittoHeatmap(
   object,
-  genes = getGenes(object),
+  genes = getGenes(object, assay),
   cells.use = NULL,
-  cluster_cols = .is_bulk(object),
-  annotation.metas = NULL,
-  order.by = .default_order(object, annotation.metas),
+  annot.by = NULL,
+  order.by = .default_order(object, annot.by),
   main = NA,
   cell.names.meta = NULL,
   assay = .default_assay(object),
@@ -18,7 +17,7 @@ dittoHeatmap(
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
-  annotation.colors = c(rep(dittoColors(), 9), dittoColors()[seq_len(7)]),
+  annot.colors = c(rep(dittoColors(), 9), dittoColors()[seq_len(7)]),
   annotation_col = NULL,
   annotation_colors = NULL,
   data.out = FALSE,
@@ -26,7 +25,10 @@ dittoHeatmap(
   show_colnames = TRUE,
   show_rownames = TRUE,
   scale = "row",
+  cluster_cols = .is_bulk(object),
   border_color = NA,
+  legend_breaks = NA,
+  breaks = NA,
   ...
 )
 }
@@ -37,12 +39,12 @@ dittoHeatmap(
 If not provided, defaults to all genes of the object / assay.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
+
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
 
-\item{cluster_cols, border_color, ...}{other arguments passed to \code{pheatmap}.}
+For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.}
 
-\item{annotation.metas}{String name of a metadata slot containing how the cells/samples should be annotated.}
+\item{annot.by}{String name of any metadata slots containing how the cells/samples should be annotated.}
 
 \item{order.by}{Single string or numeric vector which sets the ordering of cells/samples.
 Can be the name of a gene, or metadata slot.
@@ -54,72 +56,66 @@ Alternatively, can be a numeric vector of length equal to the total number of ce
 
 \item{assay, slot}{single strings or integer that set which expression data to use. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
 
-\item{heatmap.colors}{the colors to use within the heatmap.
+\item{heatmap.colors}{the colors to use within the heatmap when (default setting) \code{scaled.to.max} is set to \code{FALSE}.
 Default is a ramp from navy to white to red with 50 slices.}
 
-\item{scaled.to.max}{Logical which sets whether expression shoud be scaled between [0, 1].
+\item{scaled.to.max}{Logical, \code{FALSE} by default, which sets whether expression shoud be scaled between [0, 1].
 This is recommended for single-cell datasets as they are generally enriched in 0s.}
 
 \item{heatmap.colors.max.scaled}{the colors to use within the heatmap when \code{scaled.to.max} is set to \code{TRUE}.
 Default is a ramp from white to red with 25 slices.}
 
-\item{annotation.colors}{String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.}
+\item{annot.colors}{String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.}
 
-\item{data.out}{Logical that changes the output of the function.
-If set to \code{TRUE}, the output will be a list containing the data that would have been used for generating the heatmap,
-and a String showing how \code{pheatmap} would have been called.}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output from the heatmat itself, to a list containing all arguments that would have be passed to \code{\link{pheatmap}} for heatmap generation.
+(Can be useful for troubleshooting or customization.)}
 
 \item{highlight.genes}{String vector of genes whose names you would like to show. Only these genes will be named in the resulting heatmap.}
 
 \item{show_colnames, show_rownames, scale, annotation_col, annotation_colors}{arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
 \itemize{
-\item show_colnames (& labels_col) : if \code{cell.names.meta} is provided, pheatmaps's \code{labels_col} is utilized to show these names and \code{show_colnames} parameter is set to \code{TRUE}.
-\item show_rownames (& labels_row) : if feature names are provided to \code{highlight.genes}, pheatmap's \code{labels_row} is utilized to show just these features' names and \code{show_rownames} parameter is set to \code{TRUE}.
-\item scale : when parameter \code{scaled.to.max} is set to true, pheatmap's \code{scale} is set to \code{"none"} and the max scaling is performed prior to the pheatmap call.
-\item annotation_col : when metadata names are provided \code{annotation.metas}, these are added either a barren annotation_col data.frame, or one provided by the user.
-\item annotation_colors : dittoHeatmap fills this complicated-to-produce input in automatically by pulling from the colors given to \code{annotation.colors},
-but it is possible to set all or some manually. dittoSeq will just fill in for any left out annotations. Format is a named (annotation_col & annotation_row colnames) list where individual values can also be named as well.
+\item show_colnames (& labels_col): if \code{cell.names.meta} is provided, pheatmaps's \code{labels_col} is utilized to show these names and \code{show_colnames} parameter is set to \code{TRUE}.
+\item show_rownames (& labels_row): if feature names are provided to \code{highlight.genes}, pheatmap's \code{labels_row} is utilized to show just these features' names and \code{show_rownames} parameter is set to \code{TRUE}.
+\item scale: when parameter \code{scaled.to.max} is set to true, pheatmap's \code{scale} is set to \code{"none"} and the max scaling is performed prior to the pheatmap call.
+\item annotation_col: Can be provided as normal by the user and any metadata given to \code{annot.by} will then be appended.
+\item annotation_colors: dittoHeatmap fills this complicated-to-produce input in automatically by pulling from the colors given to \code{annot.colors},
+but it is possible to set all or some manually. dittoSeq will just fill any left out annotations. Format is a named (annotation_col & annotation_row colnames) character vector list where individual color values can also be named.
 }}
+
+\item{cluster_cols, border_color, legend_breaks, breaks, ...}{other arguments passed to \code{\link{pheatmap}} directly.}
 }
 \value{
 A \code{pheatmap} object.
-Alternatively, if \code{data.out} was set to \code{TRUE}, a list containing
-\code{args}, a list of arguments passed to \code{pheatmap}, and
-and \code{call}, a string showing how \code{pheatmap} would have been called.
+
+Alternatively, if \code{data.out} was set to \code{TRUE}, a list containing all arguments that would have be passed to pheatmap to generate such a heatmap.
 }
 \description{
-Given a set of genes, cells/samples, and metadata names for column annotations, it will retrieve the expression data for those genes and cells, and the annotation data for those cells.
+Given a set of genes, cells/samples, and metadata names for column annotations, this function will retrieve the expression data for those genes and cells, and the annotation data for those cells.
 It will then utilize these data to make a heatmap using the \code{\link[pheatmap]{pheatmap}} function of the \code{pheatmap} package.
 }
 \details{
-This function serves as a wrapper for creating pheatmap heatmaps from bulk or single-cell RNAseq data,
+This function serves as a wrapper for creating heatmaps from bulk or single-cell RNAseq data with \code{\link{pheatmap}},
 by essentially automating the data extraction and annotation building steps.
-In order to use this function, you will need to have it installed.
 
-Provided with a set of \code{genes}, and an optional set of cells / samples to use (with the \code{cells.use} input),
-the function will extract the expression matrix for each of those genes for each of those cells / samples.
-This matrix is either left as is, default (for scaling within the ultimate call to pheatmap), or scaled by dividing each row by its maximum value (\code{scaled.to.max = TRUE}).
+The function will extract the expression matrix for a set of \code{genes} and/or an optional subset of cells / samples to use via \code{cells.use},
+This matrix is either left as is, default (for scaling within the ultimate call to pheatmap), or if \code{scaled.to.max = TRUE}, is scaled by dividing each row by its maximum value.
 
-When provided with a set of metadata slot names to use for building annotations (with the \code{annotation.metas} input),
-the relevant metadata is retrieved from the \code{object} and \code{pheatmap}-ready \code{annotation_col} input is generated.
-The input \code{annotation.colors} is used to establish the set of colors that should be used for building a \code{pheatmap}-ready \code{annotation_colors} input as well,
-unless such an input has been provided by the user.
-Note: Users can also provide an \code{annotation_row} dataframe for adding gene-annotations (See \code{\link[pheatmap]{pheatmap}} for details).
-Colors for row annotations will still come from the \code{annotation.colors} input unless a \code{pheatmap}-ready \code{annotation_colors} input is provided by the user.
+When provided with a set of metadata slot names to use for building annotations (with the \code{annot.by} input),
+the relevant metadata is retrieved from the \code{object} and compiled into a \code{pheatmap}-ready \code{annotation_col} input.
+The input \code{annot.colors} is used to establish the set of colors that should be used for building a \code{pheatmap}-ready \code{annotation_colors} input as well,
+unless such an input has been provided by the user. See below for further details.
+}
+\section{Many additional characteristics of the plot can be adjusted using discrete inputs}{
 
-When \code{data.out} is set to \code{TRUE}, a list is output instead of running pheatmap and providing the heatmap plot as output.
-This list will contain a slot named \code{args} which includes the data matrix and all other arguments that would have been provided to the pheatmap call,
-as well as a slot named \code{call} which shows how pheatmap would have been called.
-
-Many additional characteristics of the plot can be adjusted using discrete inputs:
 \itemize{
-\item The cells can be ordered by in a set way using the \code{order.by} input.
-Note: It can take a long time to cluster thousands of samples or cells, so adding \code{order.by = 'useful-method'} can be quite useful.
-\item A plot title can be added with \code{main}.
-\item Gene or cell/sample annotations can be turned off with \code{show_rownames} and \code{show_colnames}, respectively, or...
+\item The cells can be ordered in a set way using the \strong{\code{order.by}} input.
+
+Such ordering happens by default for single-cell RNAseq data when any metadata are provided to \code{annot.by} as it is often unfeasible to cluster thousands of cells.
+\item A plot title can be added with \strong{\code{main}}.
+\item \strong{Gene or cell/sample names} can be hidden with \code{show_rownames} and \code{show_colnames}, respectively, or...
 \itemize{
 \item Particular genes can also be selected for labeling using the \code{highlight.genes} input.
-\item Names of all cells/samples replaced with the contents of a metadata slot using the \code{cell.names.meta} input.
+\item Names of all cells/samples can be replaced with the contents of a metadata slot using the \code{cell.names.meta} input.
 }
 \item Additional tweaks are possible through use of \code{\link[pheatmap]{pheatmap}} inputs which will be directly passed through.
 Some examples of useful \code{pheatmap} parameters are:
@@ -131,6 +127,33 @@ Note: cluster_cols will always be over-written to be \code{FALSE} when the input
 }
 }
 }
+
+\section{Customized annotations}{
+
+In typical operation, dittoHeatmap pulls metadata annotations given to \code{annot.by} to build a pheatmap-\code{annotation_col} input,
+then it uses the colors provided to \code{annot.colors} to create the pheatmap-\code{annotation_colors} input which sets the annotation coloring.
+Specifically...
+\itemize{
+\item colors for the values of \strong{discrete} metadata are pulled from the \emph{start} of the \code{annot.colors} vector, in the order that they are given to \code{annot.by}
+\item colors for the values of \strong{continuous} metadata are pulled from the \emph{end} of the \code{annot.colors} vector, in the order that they are given to \code{annot.by}
+}
+
+To customize colors or add additional column or row annotations, users can also provide \code{annotation_colors}, \code{annotation_col}, or \code{annotation_row} pheatmap-inputs directly.
+General structure is described below, but see \code{\link[pheatmap]{pheatmap}} for additional details and examples.
+\itemize{
+\item \code{annotation_col} = a data.frame with rownames of the barcodes/names of all cells/samples in the dataset & columns representing annotations.
+Names of columns are used as the annotation titles. *dittoSeq will append any \code{annot.by} annotations to this dataframe.
+\item \code{annotation_row} = a data.frame with rownames of the genes/feature of the dataset & columns representing annotations.
+Names of columns are used as the annotation titles.
+\item \code{annotation_colors} = a named list of string (color) vectors.
+Vectors must be named by the row or column annotation title that they are associated with.
+Optionally, individual colors can be named with the values that they should be associated with.
+
+Partial \code{annotation_colors} lists (containing vectors for only certain annotations) will have colors for left out annotations filled in automatically.
+For such filling, \code{annot.colors} are pulled for column annotations first, then for row annotations.
+}
+}
+
 \examples{
 # dittoSeq handles bulk and single-cell data quit similarly.
 # The SingleCellExperiment object structure is used for both,
@@ -145,7 +168,7 @@ genes <- getGenes(myRNA)[1:30]
 
 # Make a heatmap with cells/samples annotated by their clusters
 dittoHeatmap(myRNA, genes,
-    annotation.metas = "clustering")
+    annot.by = "clustering")
 
 # For single-cell data, you will typically have more cells than can be
 # clustered quickly. Thus, cell clustering is turned off by default for
@@ -154,16 +177,16 @@ dittoHeatmap(myRNA, genes,
 # Using the 'order.by' input:
 #   ordering by a useful metadata or gene is generally more helpful
 #   For single-cell data, order.by defaults to the first element given to
-#     annotation.metas.
+#     annot.by.
 #   For bulk data, order.by must be set separately.
 dittoHeatmap(myRNA, genes,
-    annotation.metas = "clustering",
+    annot.by = "clustering",
     order.by = "clustering")
 
 # When there are many cells, showing names becomes less useful.
 #   Names can be turned off with the show_colnames parameter.
 dittoHeatmap(myRNA, genes,
-    annotation.metas = "groups",
+    annot.by = "groups",
     order.by = "groups",
     show_colnames = FALSE)
 
@@ -171,10 +194,10 @@ dittoHeatmap(myRNA, genes,
 #   scaled.to.max be set to TRUE, or scale be "none" and turned off altogether,
 #   because these data are generally enriched for zeros that otherwise get
 #   scaled to a negative value.
-dittoHeatmap(myRNA, genes, annotation.metas = "groups",
+dittoHeatmap(myRNA, genes, annot.by = "groups",
     order.by = "groups", show_colnames = FALSE,
     scaled.to.max = TRUE)
-dittoHeatmap(myRNA, genes, annotation.metas = "groups",
+dittoHeatmap(myRNA, genes, annot.by = "groups",
     order.by = "groups", show_colnames = FALSE,
     scaled.to.max = FALSE,
     heatmap.colors = colorRampPalette(c("white", "red"))(25))

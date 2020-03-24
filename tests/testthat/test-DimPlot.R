@@ -322,3 +322,52 @@ test_that("dittoDimPlot can remove axes numbers", {
             disc, object=seurat, show.axes.numbers = FALSE),
         "ggplot")
 })
+
+test_that("dittoDimPlot can add extra vars to dataframe", {
+    df1 <- dittoDimPlot(
+            disc, object=seurat,
+            data.out = TRUE)[[2]]
+    expect_s3_class(
+        df2 <- dittoDimPlot(
+            disc, object=seurat,
+            extra.vars = c(gene, disc2), data.out = TRUE)[[2]],
+        "data.frame")
+    expect_equal(ncol(df1), 3)
+    expect_equal(ncol(df2), 5)
+})
+
+test_that("dittoDimPlot can be faceted with split.by (1 or 2 vars)", {
+    # MANUAL CHECK: FACETING
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2),
+        "ggplot")
+    # horizontal
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2,
+            split.nrow = 1),
+        "ggplot")
+    # vertical
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2,
+            split.ncol = 1),
+        "ggplot")
+    # Grid with rows=age, cols=groups
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc)),
+        "ggplot")
+    # Works with cells.use (should have grey cells)
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc),
+            cells.use = cells.logical),
+        "ggplot")
+})

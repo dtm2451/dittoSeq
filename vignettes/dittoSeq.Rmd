@@ -73,26 +73,15 @@ creating values required for providing visualization examples.
 
 # Installation:
 
-Currently, dittoSeq is only available via github, but is submitted to
-Bioconductor. Currently, major changes are being implemented in the master
-branch as part of meeting Bioconductor standards.
-
-NOTE: For anyone hoping to analyze data with dittoSeq currently, I recommend
-using the stable v0.3 branch, and the separate vignette associated with that.
-
-Here, I detail how to install & utilize the Bioconductor devel version of
-dittoSeq.
+dittoSeq is available through Bioconductor.
 
 ```{r, eval=FALSE}
 # Install BiocManager if needed
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-# The following initializes usage of Bioc devel
-BiocManager::install(version='devel')
-
-# Install dittoSeq (from github)
-BiocManager::install("dtm2451/dittoSeq")
+# Install dittoSeq
+BiocManager::install("dittoSeq")
 ```
 
 # Getting started
@@ -222,7 +211,7 @@ dittoDimPlot(myRNA, "sex", size = 3, do.ellipse = TRUE)
 dittoBarPlot(myRNA, "sex", group.by = "conditions")
 dittoBoxPlot(myRNA, "gene1", group.by = "sex")
 dittoHeatmap(myRNA, getGenes(myRNA)[1:10],
-    annotation.metas = c("conditions", "sex"))
+    annot.by = c("conditions", "sex"))
 ```
 
 By default, provided metadata is added to (or replaces) any metadata already
@@ -393,7 +382,7 @@ dittoHeatmap(seurat, genes,
     order.by = "celltype")
 ```
 
-Annotation bars can be added using the `annotation.metas` input. The function
+Annotation bars can be added using the `annot.by` input. The function
 will then extract and properly format metadata for adding them as column
 annotation bars. `scaled.to.max = TRUE` will normalize all expression data
 between [0,1], which is often useful for zero-enriched single-cell expression
@@ -404,7 +393,7 @@ shown.
 # Add annotations
 dittoHeatmap(seurat, genes,
     order.by = "celltype",
-    annotation.metas = c("celltype", "Sample"),
+    annot.by = c("celltype", "Sample"),
     scaled.to.max = TRUE,
     show.colnames = FALSE,
     show.rownames = FALSE)
@@ -417,7 +406,7 @@ have names shown for just these genes.
 # Highlight certain genes
 dittoHeatmap(seurat, genes,
     order.by = "celltype",
-    annotation.metas = "celltype",
+    annot.by = "celltype",
     highlight.genes = genes[1:3],
     show.colnames = FALSE,
     show.rownames = FALSE)

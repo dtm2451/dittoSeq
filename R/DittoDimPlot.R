@@ -7,13 +7,12 @@
 #'
 #' @param object A Seurat or SingleCellExperiment object to work with
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
-#' This is the data that will be displayed for each cell/sample.
+#' This is the data that will be displayed for each cell/sample. Discrete or continuous data both work.
+#'
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
-#' Discrete or continuous data both work. REQUIRED.
-#' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @param reduction.use String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 #'
-#' Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", or the first dimensionality reduction slot if nonw of those exist.
+#' Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", or the first dimensionality reduction slot if none of those exist.
 #' @param size Number which sets the size of data points. Default = 1.
 #' @param opacity Number between 0 and 1.
 #' Great for when you have MANY overlapping points, this sets how solid the points should be:
@@ -21,19 +20,30 @@
 #' (In terms of typical ggplot variables, = alpha)
 #' @param dim.1 The component number to use on the x-axis.  Default = 1
 #' @param dim.2 The component number to use on the y-axis.  Default = 2
-#' @param theme A ggplot theme which will be applied before dittoSeq adjustments. Default = \code{theme_bw()}. See \code{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options.
+#' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
+#' Default = \code{theme_bw()}.
+#' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
+#' @param show.grid.lines Logical which sets whether gridlines of the plot should be shown.
+#' They are removed when set to FALSE.
+#' Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.
-#' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
+#' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
+#'
+#' Useful for quickly swapping the colors of nearby clusters.
 #' @param shape.by Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
 #'
 #' Note: shapes can be harder to see, and to process mentally, than colors.
 #' Even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.
-#' @param split.by Single string giving a metadata (Note: must be discrete.) that will set the groups used to split the cells/samples into multiple plots with \code{ggplot + facet_wrap}.
+#' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #'
-#' Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.
-#' @param extra.vars String vector providing any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+#' When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
 #'
-#' Useful for making custom alterations \emph{after} dittoSeq plot generation.
+#' When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
+#'
+#' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
+#' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+#'
+#' Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
 #' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 #' When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes.
 #' When nothing is supplied to \code{shape.by}, only the first value is used.
@@ -42,12 +52,13 @@
 #' Note: Unfortunately, shapes can be hard to see when points are on top of each other & they are more slowly processed by the brain.
 #' For these reasons, even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
-#' @param legend.size Number representing the size to increase the plotting of color legend shapes to (for discrete variable plotting).
+#' @param legend.size Number representing the size at which color legend shapes should be plotted (for discrete variable plotting) in the color legend.
 #' Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.
-#' @param legend.title String which sets the title for the main legend which includes the colors. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.
-#' @param shape.legend.size Number representing the size to increase the plotting of shapes legend shapes to.
-#' @param shape.legend.title String which sets the title of the shapes legend.  Default is the \code{shape.by}
-#' @param assay,slot single strings or integer that set which data to use when plotting gene expression. See \code{\link{gene}} for more information.
+#' @param legend.title String which sets the title for the color legend. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.
+#' @param shape.legend.size Number representing the size at which shapes should be plotted in the shape legend.
+#' @param shape.legend.title String which sets the title of the shapes legend.  Default is \code{shape.by}
+#' @param assay,slot single strings or integer that set which data to use when plotting gene expression.
+#' See \code{\link{gene}} for more information.
 #' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
 #' \itemize{
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
@@ -62,18 +73,18 @@
 #' @param show.axes.numbers Logical which controls whether the axes values should be displayed.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
-#' @param show.others Logical. TRUE by default, whether other cells should be shown in the background in light gray.
-#' @param do.ellipse Logical. Whether the groups should be surrounded by an ellipse.
-#' @param do.label  Logical. Whether to add text labels at the center (median) of clusters for grouping vars
+#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.
+#' @param show.others Logical. Whether other cells should be shown in the background in light gray. Default = TRUE.
+#' @param do.ellipse Logical. Whether the groups should be surrounded by median-centered ellipses.
+#' @param do.label  Logical. Whether to add text labels near the center (median) of clusters for grouping vars.
 #' @param labels.size Size of the the labels text
 #' @param labels.highlight Logical. Whether the labels should have a box behind them
 #' @param labels.repel Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
 #' TRUE by default.
 #' @param rename.var.groups String vector which sets new names for the identities of \code{var} groups.
 #' @param rename.shape.groups String vector which sets new names for the identities of \code{shape.by} groups.
-#' @param min.color color for lowest values of var/min.  Default = yellow
-#' @param max.color color for highest values of var/max.  Default = blue
+#' @param min.color color for lowest values of \code{var}/\code{min}.  Default = yellow
+#' @param max.color color for highest values of \code{var}/\code{max}.  Default = blue
 #' @param min Number which sets the value associated with the minimum color.
 #' @param max Number which sets the value associated with the maximum color.
 #' @param legend.breaks Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.
@@ -81,38 +92,45 @@
 #' @param do.letter Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
 #' NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
 #' lettering is incompatible with plotly and with changing the dots' to be different shapes.
-#' @param do.hover Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
+#' @param do.hover Logical which controls whether the output will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 #' \code{hover.data} argument is used to determine what data to use.
-#' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
-#' @param hover.assay,hover.slot,hover.adjustment Similar to the non-hover versions, when showing expression data upon hover, these set what data will be shown.
-#' @param add.trajectory.lineages List of vectors representing trajectory paths from start-cluster to end-cluster where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
+#' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
+#' @param hover.assay,hover.slot,hover.adjustment Similar to the non-hover versions of these inputs, when showing expression data upon hover, these set what data will be shown.
+#' @param add.trajectory.lineages List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 #'
 #' If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
-#' @param add.trajectory.curves List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns are x (\code{dim.1}) and y (\code{dim.2}).
+#' @param add.trajectory.curves List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x (\code{dim.1}) and y (\code{dim.2}) coordinates of the paths.
 #'
-#' Alternatively, a list of lists(/princurve objects) can be provided where the target matrices are named as "s" within the list. Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}
+#' Alternatively, a list of lists(/princurve objects) can be provided.
+#' Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
+#' you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}
 #' @param trajectory.cluster.meta String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.
 #' @param trajectory.arrow.size Number representing the size of trajectory arrows, in inches.  Default = 0.15.
-#' @param data.out Whether just the plot should be output, or a list with the plot and Target_data and Others_data dataframes.  Note: plotly output is turned off in this setting, but hover.data is still calculated.
+#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
+#' a data.frame containing the underlying data for target cells ("Target_data"),
+#' and a data.frame containing the underlying data for non-target cells ("Others_data").
+#'
+#' Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.
 #' @return A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
-#' Alternatively, a list contatining the ggplot plus the data.frame(s) that went into building it.
+#'
+#' Alternatively, if \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
+#'
+#' Alternatively, if \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly &
+#' cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed upon hovering the cursor over the plot.
+#'
 #' @details
 #' The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided directly, it just uses that),
 #' plus X and Y coordinates data determined by the \code{reduction.use} and \code{dim.1} (x-axis) and \code{dim.2} (y-axis) inputs.
-#' The \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to change what expression data is used when displaying gene expression.
-#' If a metadata is given to \code{shape.by}, that is retrieved and added to the dataframe as well.
+#' Any extra data requested with \code{shape.by}, \code{split.by} or \code{extra.var} is added as well.
+#' For expression/counts data, \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to change which data is used, and if it should be adjusted in some way.
 #'
 #' Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{Target_data} and \code{Others_data} based on subsetting by the target cells/samples.
 #'
 #' Finally, a scatter plot is then created using these dataframes where non-target cells will be displayed in gray if \code{show.others=TRUE},
 #' and target cell data is displayed on top, colored based on the \code{var}-associated data, and with shapes determined by the \code{shape.by}-associated data.
+#' If \code{split.by} was used, the plot will be split into a matrix of panels based on the associated groupings.
 #'
-#' If \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
-#'
-#' If \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly &
-#' cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed upon hovering the cursor over the plot.
-#'
-#' Many characteristics of the plot can be adjusted using discrete inputs:
+#' @section Many characteristics of the plot can be adjusted using discrete inputs:
 #' \itemize{
 #' \item \code{size} and \code{opacity} can be used to adjust the size and transparency of the data points.
 #' \item Color can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
@@ -122,14 +140,15 @@
 #' \item Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab-completion lookup.
 #' }
 #'
-#' Additional Features: Many other tweaks and features can be added as well.
-#' Each is accessible through autocompletion starting with "\code{do.}"\code{---} or "\code{add.}"\code{---},
+#' @section Additional Features:
+#' Many other tweaks and features can be added as well.
+#' Each is accessible through 'tab' autocompletion starting with "\code{do.}"\code{---} or "\code{add.}"\code{---},
 #' and if additional inputs are involved in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
 #' \itemize{
 #' \item If \code{do.label} is set to \code{TRUE}, labels will be added based on median centers of the discrete \code{var}-data groupings.
 #' The size of the text in the labels can be adjusted using the \code{labels.size} input.
 #' By default labels will repel eachother and the bounds of the plot, and labels will be highlighted with a white background.
-#' Either of these can be turned off by setting \code{labels.repel=FALSE} or \code{labels.highlight=FALSE},
+#' Either of these can be turned off by setting \code{labels.repel = FALSE} or \code{labels.highlight = FALSE},
 #' \item If \code{do.ellipse} is set to \code{TRUE}, ellipses will be added to highlight distinct \code{var}-data groups' positions based on median positions of their cell/sample components.
 #' \item If \code{add.trajectory.lineages} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectory.cluster.meta},
 #' then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
@@ -138,10 +157,10 @@
 #' }
 #'
 #' @seealso
-#' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.by}, and \code{hover.data} options are.
+#' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.by}, etc. options are.
 #'
 #' \code{\link{importDittoBulk}} for how to create a \code{\link{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
-#' \code{\link{addDimReduction}} for how to add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
+#' \code{\link{addDimReduction}} for how to specifically add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 #'
 #' \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are wanted as the axes.
 #'
@@ -180,7 +199,9 @@
 #' # Data can also be split in other ways with 'shape.by' or 'split.by'
 #' dittoDimPlot(myRNA, "gene1",
 #'     shape.by = "clustering",
-#'     split.by = "timepoint")
+#'     split.by = "SNP") # single split.by element
+#' dittoDimPlot(myRNA, "gene1",
+#'     split.by = c("groups","SNP")) # row and col split.by elements
 #'
 #' # Modify the look with intuitive inputs
 #' dittoDimPlot(myRNA, "clustering",
@@ -205,16 +226,19 @@
 #'     sub = "Pseudotime Trajectories")
 
 dittoDimPlot <- function(
-    object, var="ident", reduction.use = NA, size=1, opacity = 1,
-    dim.1 = 1, dim.2 = 2, cells.use = NULL, shape.by = NULL, split.by = NULL,
-    extra.vars = NULL, show.others=TRUE, show.axes.numbers = TRUE,
-    color.panel = dittoColors(), colors = seq_along(color.panel),
-    shape.panel=c(16,15,17,23,25,8),
+    object, var, reduction.use = .default_reduction(object), size=1,
+    opacity = 1, dim.1 = 1, dim.2 = 2, cells.use = NULL,
+    shape.by = NULL, split.by = NULL, extra.vars = NULL,
+    split.nrow = NULL, split.ncol = NULL,
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL,
+    color.panel = dittoColors(), colors = seq_along(color.panel),
+    shape.panel = c(16,15,17,23,25,8),
+    show.others = TRUE, show.axes.numbers = TRUE,
+    show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
     main = "make", sub = NULL, xlab = "make", ylab = "make",
-    theme = NA, legend.show = TRUE, legend.size = 5,
-    legend.title = "make",
+    theme = theme_bw(),
+    legend.show = TRUE, legend.size = 5, legend.title = "make",
     shape.legend.size = 5, shape.legend.title = shape.by,
     do.ellipse = FALSE, do.label = FALSE,
     labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
@@ -236,9 +260,6 @@ dittoDimPlot <- function(
     }
 
     # Generate the x/y dimensional reduction data and plot titles.
-    if (is.na(reduction.use)) {
-        reduction.use <- .default_reduction(object)
-    }
     xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
     ydat <- .extract_Reduced_Dim(reduction.use, dim.2, object)
     xlab <- .leave_default_or_null(xlab, xdat$name)
@@ -247,19 +268,14 @@ dittoDimPlot <- function(
     legend.title <- .leave_default_or_null(legend.title, var, is.null(shape.by))
 
     # Edit theme.
-    if (is.na(theme[1])){
-        theme <- theme_bw()
-        if (grepl("tsne|umap", tolower(reduction.use))) {
-            # Remove grid lines
-            theme <- theme +
-                theme(
-                    panel.grid.major = element_blank(),
-                    panel.grid.minor = element_blank())
-        }
+    if (!show.grid.lines) {
+        theme <- theme + theme(
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank())
     }
     if (!show.axes.numbers) {
         theme <- theme +
-            theme(axis.text.x=element_blank(),axis.text.y=element_blank())
+            theme(axis.text.x=element_blank(), axis.text.y=element_blank())
     }
 
     # Make dataframes and plot
@@ -267,7 +283,7 @@ dittoDimPlot <- function(
         object, xdat$embeddings, ydat$embeddings, var, shape.by, split.by,
         extra.vars, cells.use,
         show.others, size, opacity, color.panel, colors,
-        NA, NA, NA, NA, NA, NA,
+        split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay, slot, adjustment,
         do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
         shape.panel, rename.var.groups, rename.shape.groups,
@@ -323,16 +339,6 @@ dittoDimPlot <- function(
             return(p)
         }
     }
-}
-
-.default_reduction <- function(object) {
-    # Use umap > tsne > pca, or whatever the first reduction slot is.
-    opts <- getReductions(object)
-    if (is.null(opts)) {
-        stop("No dimensionality reduction slots in 'object'")
-    }
-    use <- .preferred_or_first(opts, c("umap","tsne","pca"))
-    use
 }
 
 .add_labels <- function(p, Target_data, col.use = "color", labels.highlight, labels.size, labels.repel) {

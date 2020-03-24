@@ -39,7 +39,10 @@ demux.calls.summary(
 \item{data.out}{Logical, whether underlying data for the plot should be output instead of the plot itself.}
 }
 \value{
-For a given Seurat object, summarizes how many cells in each lane were anotated to each sample.  Assumes that the Sample calls of each cells, and which lane each cell belonged to, are stored in 'Sample' and 'Lane' metadata slots, respectively, as would be the case if the Seurat object was created with the Import10XDemux function.
+A faceted ggplot summarizing how many cells in each lane were anotated to each sample.
+Assumes that the Sample calls of each cell, and which lane each cell belonged to, are stored in 'Sample' and 'Lane' metadata slots, respectively, as would be the case if demuxlet information was imported with \code{\link{importDemux}}.
+
+Alternatively, value will be a data.frame containing the underlying data if \code{data.out = TRUE} is provided.
 }
 \description{
 Plots the number of annotations per sample, per lane
@@ -63,7 +66,7 @@ This is the other Demuxlet-associated QC visualization included with dittoSeq.
 
 \code{\link{importDemux}}, for how to import relevant demuxlet information as metadata.
 
-Kang et al. Nature Biotechnology, 2018. \url{https://www.nature.com/articles/nbt.4042}. For more information about the demuxlet cell-sample deconvolution method.
+Kang et al. Nature Biotechnology, 2018 \url{https://www.nature.com/articles/nbt.4042} for more information about the demuxlet cell-sample deconvolution method.
 }
 \author{
 Daniel Bunis
