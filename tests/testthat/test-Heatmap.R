@@ -52,7 +52,7 @@ test_that("Heatmap gives proper warnings when it should", {
 ########################
 
 test_that("Heatmap title can be adjusted", {
-    # Title chould be "Hello there!"
+    ### Title chould be "Hello there!"
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -62,7 +62,7 @@ test_that("Heatmap title can be adjusted", {
 })
 
 test_that("Heatmap sample renaming by metadata works", {
-    ## Names should be numbers
+    ### Names should be numbers
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -72,14 +72,14 @@ test_that("Heatmap sample renaming by metadata works", {
 })
 
 test_that("Heatmap can hide rownames/colnames", {
-    # No colnames
+    ### No colnames
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
             show_colnames = FALSE),
         "pheatmap")
-    # No rownames
+    ### No rownames
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -89,7 +89,7 @@ test_that("Heatmap can hide rownames/colnames", {
 })
 
 test_that("Heatmap highlight genes works", {
-    # Only 1 label, gene1
+    ### Only 1 label, gene1
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -101,7 +101,7 @@ test_that("Heatmap highlight genes works", {
 })
 
 test_that("Heatmap can be scaled to max", {
-    # Color bar should go from 0 to 1 and white to red
+    ### Color bar should go from 0 to 1 and white to red
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -111,14 +111,14 @@ test_that("Heatmap can be scaled to max", {
 })
 
 test_that("Heatmap colors can be adjusted", {
-    # yellow to black to red
+    ### yellow to black to red
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
             heatmap.colors = colorRampPalette(c("yellow", "black", "red"))(50)),
         "pheatmap")
-    # black to yellow, 0:1
+    ### black to yellow, 0:1
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -129,14 +129,14 @@ test_that("Heatmap colors can be adjusted", {
 })
 
 test_that("Heatmap annotations can be given & heatmaps can be ordered by metadata, expression, or user-input vector", {
-    # Works for expression
+    ### Works for expression
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
             order.by = "gene1"),
         "pheatmap")
-    # Works for metadata
+    ### Works for metadata
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -144,19 +144,19 @@ test_that("Heatmap annotations can be given & heatmaps can be ordered by metadat
             order.by = "groups",
             annotation.metas = "groups"),
         "pheatmap")
-    # Works with vectors provided
+    ### Works with vectors provided
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "number",
+            annotation.metas = "number2",
             order.by = seq_along(colnames(seurat))),
         "pheatmap")
 })
 
 test_that("Heatmap annotations can be given & ordering can be adjusted and follows defaults", {
     # Annotation bar = clusters
-    # Cells should also be ordered by this (single-cell)
+    ### Cells should also be ordered by this (single-cell)
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -164,6 +164,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
             annotation.metas = "clusters"),
         "pheatmap")
     # Samples should not be ordered by this (bulk)
+    ### CLustered
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -171,6 +172,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
             annotation.metas = "clusters"),
         "pheatmap")
     # Clusters even though an order.by would be given
+    ### Clustered!
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -179,6 +181,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
             cluster_cols = TRUE),
         "pheatmap")
     # Ordering, but distinct from the first annotation
+    ### ordered by groups.
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -189,7 +192,8 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
 })
 
 test_that("Heatmap can be ordered when also subset to certain cells", {
-    # Works for expression (ordered by gene1)
+    # Works for expression
+    ### Ordered by gene1
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -198,6 +202,7 @@ test_that("Heatmap can be ordered when also subset to certain cells", {
             cells.use = meta("number", seurat)<20),
         "pheatmap")
     # Works for metadata
+    ### ordered by groups metadata
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -206,33 +211,35 @@ test_that("Heatmap can be ordered when also subset to certain cells", {
             cells.use = colnames(seurat)[meta("number", seurat)<20]),
         "pheatmap")
     # Works with vectors provided
+    ### ordered in REVERSE of the number annotations
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "number",
+            annotation.metas = "number2",
             order.by = seq_along(colnames(seurat)),
             cells.use = colnames(seurat)[meta("number", seurat)<20]),
         "pheatmap")
 })
 
 test_that("Heatmap can be subset to certain cells", {
-    # "Coloring works for discrete column and row annotations"
-        # If: annotations are all discrete.
-    # Few cells
+    # By logical
+    ### Few cells
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
             cells.use = meta("number", seurat)<10), # Logical method
         "pheatmap")
+    # By names
+    ### Same few cells
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
             cells.use = colnames(seurat)[meta("number", seurat)<10]), # names method
         "pheatmap")
-    # Annotations still work (and ordering).
+    ### Annotations still work (and ordering).
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -244,8 +251,8 @@ test_that("Heatmap can be subset to certain cells", {
 
 test_that("Heatmap annotation colors can be adjusted", {
     # (via adjustment of the color pool)
-    # green numeric (in order)
-    # red, yellow, blue, purple for clusters
+    ### red, yellow, blue, purple for clusters
+    ### green numeric (in order)
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -259,6 +266,8 @@ test_that("Heatmap annotation colors can be adjusted", {
                                     '3' = "blue",
                                     '4' = "purple"))
     # Number color should change, but clusters should still be the same custom set!
+    ### red, yellow, blue, purple for clusters
+    ### dittoBlue for number
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -269,7 +278,7 @@ test_that("Heatmap annotation colors can be adjusted", {
 })
 
 test_that("Coloring works for discrete column and row annotations", {
-    # column and row annotations, all discrete.
+    ### column and row annotations, all discrete & all dittoColors
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -283,7 +292,7 @@ test_that("Coloring works for discrete column and row annotations", {
 })
 
 test_that("Coloring works for continuous column and row annotations", {
-    # column and row annotations, all numeric.
+    ### column and row annotations, all numeric.
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -296,8 +305,8 @@ test_that("Coloring works for continuous column and row annotations", {
             cluster_rows = FALSE,
             cluster_cols = FALSE),
         "pheatmap")
-    # column and row annotations, all numeric.
-    # but column annotation bar flips, while legend stays the same.
+    ### column and row annotations, all numeric.
+    ### but column annotation bar flips, while legend stays the same.
     expect_s3_class(
         dittoHeatmap(
             genes,

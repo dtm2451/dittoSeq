@@ -92,7 +92,7 @@ test_that("Data outputing works for Heatmap", {
         hm <- dittoHeatmap(c("gene1", "gene2"), object = seurat,
             data.out = TRUE),
         "list")
-    expect_true(length(hm) == 2)
-    expect_true("mat" %in% names(hm[[1]]))
+    expect_true(length(hm) == 10)
+    expect_true("mat" %in% names(hm))
 })
 

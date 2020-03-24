@@ -52,6 +52,14 @@
     }
 }
 
+.default_order <- function(object, annotation.metas) {
+    if (!is.null(annotation.metas) && !.is_bulk(object)) {
+        return(annotation.metas[1])
+    } else {
+        return(NULL)
+    }
+}
+
 .default_reduction <- function(object) {
     # Use umap > tsne > pca, or whatever the first reduction slot is.
     opts <- getReductions(object)
