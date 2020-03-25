@@ -3,17 +3,19 @@
 #'
 #' @param object A Seurat or SingleCellExperiment object
 #' @param vars String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to extract from the object, summarize across groups, and add to the plot
-#' @param group.by String representing the name of a "metadata" to use for separating the cells/samples into discrete groups.
-#' @param color.by String representing the name of a "metadata" to use for setting color.
+#' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
+#' @param color.by String representing the name of a metadata to use for setting fills.
+#' Great for highlighting subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
 #' Affects boxplot, vlnplot, and ridgeplot fills.
-#' Note: For \code{color.by} to be utilized, all \code{group.by} groupings must match to a single \code{color.by} grouping.
 #' @param summary.fxn A function which sets how variables' data will be summarized accross the groups.
 #' Default is \code{\link{mean}}, which will take the average value, but any function can be used as long as it takes in a numeric vector and returns a single numeric value.
-#' Alternative examles: \code{\link{median}}, \code{\link{max}}.
+#' Alternative examles: \code{\link{median}}, \code{\link{max}}, \code{function (x) sum(x!=0)/length(x)}.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
-#' @param plots String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot". See details section for more info.
+#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.
+#' @param plots String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
+#' Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
+#' See details section for more info.
 #' @param assay,slot single strings or integer that set which data to use when plotting expressin data. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.
 #' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly or should it be adjusted to be
 #' \itemize{
@@ -26,11 +28,15 @@
 #' The hover data works best for jitter data representations, so it is recommended to have \code{"jitter"} as the last value of the \code{plots} input when running using hover.
 #'
 #' Note: Currently, incompatible with RidgePlots as plotly does not support the geom.
-#' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default.
-#' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
+#' @param color.panel String vector which sets the colors to draw from for plot fills.
+#' Default = \code{dittoColors()}.
+#' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
+#' (Provides an alternative to directly modifying \code{color.panel}.)
 #' @param main String which sets the plot title.
 #' @param sub String which sets the plot subtitle.
-#' @param theme ggplot theme. Allows setting of a base theme. Default = \code{theme_classic()} when nothing is provided. \code{theme_bw()} is another great option.
+#' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
+#' Default = \code{theme_classic()}.
+#' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
 #' @param ylab String which sets the y axis label.
 #' Default = a combination of then name of the summary function + \code{adjustment} + "expression".
 #' Set to \code{NULL} to remove.
@@ -38,7 +44,9 @@
 #' @param min,max Scalars which control the zoom of the plot.
 #' These inputs set the minimum / maximum values of the data to show.
 #' Default = set based on the limits of the data in var.
-#' @param xlab String which sets the x axis label, default is \code{group.by}.
+#' @param xlab String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
+#' Default is \code{group.by} so it defaults to the name of the grouping information.
+#' Set to \code{NULL} to remove.
 #' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.  NOTE: you need to give at least as many labels as there are discrete values in the group.by data.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
 #'
@@ -47,17 +55,19 @@
 #' Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.
 #' @param x.labels.rotate Logical which sets whether the labels should be rotated.
 #' Default: \code{TRUE} for violin and box plots, but \code{FALSE} for ridgeplots.
-#' @param add.line numeric value(s) where a dashed horizontal line should go
-#' @param line.linetype String which sets the type of line.  Any ggplot linetype should work.  Defaults to "dashed"
-#' @param line.color String that sets the color(s) of the horizontal line(s)
+#' @param add.line numeric value(s) where one or multiple line should be added
+#' @param line.linetype String which sets the type of line for \code{add.line}.
+#' Defaults to "dashed", but any ggplot linetype will work.
+#' @param line.color String that sets the color(s) of the \code{add.line} line(s)
 #' @param jitter.size Scalar which sets the size of the jitter shapes.
 #' @param jitter.width Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.
-#' @param jitter.color String which sets the color of the jitter shapes.
+#' @param jitter.color String which sets the color of the jitter shapes
 #' @param boxplot.width Scalar which sets the width/spread of the boxplot in the x direction
 #' @param boxplot.color String which sets the color of the lines of the boxplot
 #' @param boxplot.show.outliers Logical, whether outliers should by including in the boxplot.
 #' Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is no jitter.
 #' @param boxplot.fill Logical, whether the boxplot should be filled in or not.
+#' Known bug: when boxplot fill is turned off, outliers do not render.
 #' @param vlnplot.lineweight Scalar which sets the thickness of the line that outlines the violin plots.
 #' @param vlnplot.width Scalar which sets the width/spread of the jitter in the x direction
 #' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to eachother.
@@ -68,33 +78,49 @@
 #' A value of 1 means the tallest density curve just touches the baseline of the next higher one.
 #' Higher numbers lead to greater overlap.  Default = 1.25
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
-#' @param legend.title String or \code{NULL}, sets the title for the main legend. It is set to \code{NULL} (off) by default.
-#' @param data.out Logical which sets whether just the plot should be output, or a list containing the plot (\code{p}) and data (\code{data}).  Note: plotly output is turned off in this setting, but hover.data is still calculated.
-#' @return A ggplot, plotly, or list containing the plot and underlying data as a data.table.
-#' Generally, This function will output a dittoPlot, grouped by sample, age, cluster, etc., where each data point represents the summary (typically \code{mean}), accross each group, of individual variables.  Variables can be genes or metadata.
+#' @param legend.title String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
+#' This input is set to \code{NULL} by default.
+#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
+#'
+#' Note: plotly conversion is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.
+#' @return a ggplot or plotly where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
+#'
+#' Alternatively when \code{data.out=TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
+#'
+#' Alternatively when \code{do.hover = TRUE}, a plotly converted version of the plot where additional data will be displayed when the cursor is hovered over jitter points.
 #' @details
-#' The data for each variable (a.k.a. each element of \code{vars}) is obtained.
-#' If elements are gene names, \code{assay} and \code{slot} are utilized to determine which expression data to use.
-#' and \code{adjustment} determines if and how the expression data might be adjusted. By default, a z-score adjustment is applied.
-#' x-axis groupings are then determined using \code{group.by}.
-#' For all cells/samples in each grouping, the data for each variable is summarized using the \code{summary.fxn}.
-#' Finally, data is plotted with data representations types based on the contents of \code{plots}.
+#' Generally, this function will output a dittoPlot, grouped by sample, age, cluster, etc., where each data point represents the summary (typically \code{mean}), accross each group, of individual variable's expression, but variables can be genes or metadata.
 #'
-#' If \code{do.hover=TRUE}, underlying data is stored and displayed upon hovering the cursor over a jitter point.
+#' The data for each element of \code{vars} is obtained.
+#' When elements are genes/features, \code{assay} and \code{slot} are utilized to determine which expression data to use,
+#' and \code{adjustment} determines if and how the expression data might be adjusted.
 #'
-#' If \code{data.out=TRUE}, a list is returned that contains two elements: the plot (\code{$p}), and data.table (\code{$data}) containing the underlying data for each variable summary for each grouping.
+#' By default, a z-score adjustment is applied to all gene/feature \code{vars}. Note that this adjustment is applied \emph{before} cells/samples subsetting.
 #'
+#' x-axis groupings are then determined using \code{group.by}, and data for each variable is summarized using the \code{summary.fxn}.
+#'
+#' Finally, data is plotted with the data representation types in \code{plots}.
+#'
+#' @section Plot Customization:
 #' The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
 #' Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
 #' Each plot type has specific associated options which are controlled by variables that start with their associated string, ex: \code{jitter.size}.
 #'
 #' Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
 #'
-#' If \code{add.line}, is provided a single or multiple value(s), horizontal (or vertical, for ridgeplots) lines will be added at the values provided.
+#' \itemize{
+#' \item Colors can be adjusted with \code{color.panel}.
+#' \item Shapes used in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
+#' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+#' \item The legend can be hidden by setting \code{legend.show = TRUE}.
+#' \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
+#' \item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
+#' \item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
 #' Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
+#' }
 #'
 #' @seealso
-#' \code{\link{dittoPlot}} and \code{\link{multi_dittoPlot}} for plotting of expression and metadata on per cell/sample basis.
+#' \code{\link{dittoPlot}} and \code{\link{multi_dittoPlot}} for plotting of single or mutliple expression and metadata vars, each as separate plots, on a per cell/sample basis.
 #'
 #' @examples
 #' # dittoSeq handles bulk and single-cell data quit similarly.
@@ -102,33 +128,63 @@
 #' # but all functions can be used similarly directly on Seurat
 #' # objects as well.
 #'
-#' example(importDittoBulk, echo = FALSE)
-#' myRNA
+#' ##########
+#' ### Generate some random data
+#' ##########
+#' # Zero-inflated Expression
+#' nsamples <- 60
+#' exp <- rpois(1000*nsamples, 20)
+#' exp[sample(c(TRUE,TRUE,FALSE),1000*nsamples, TRUE)] <- 0
+#' exp <- matrix(exp, ncol=nsamples)
+#' colnames(exp) <- paste0("sample", seq_len(ncol(exp)))
+#' rownames(exp) <- paste0("gene", seq_len(nrow(exp)))
+#' logexp <- log2(exp + 1)
+#'
+#' # Metadata
+#' conds <- factor(rep(c("condition1", "condition2"), each=nsamples/2))
+#' timept <- rep(c("d0", "d3", "d6", "d9"), each = 15)
+#' genome <- rep(c(rep(TRUE,7),rep(FALSE,8)), 4)
+#' grps <- sample(c("A","B","C","D"), nsamples, TRUE)
+#'
+#' # We can add these directly during import, or after.
+#' myscRNA <- importDittoBulk(x = list(counts = exp, logcounts = logexp),
+#'     metadata = data.frame(conditions = conds, timepoint = timept,
+#'         SNP = genome, groups = grps))
 #'
 #' # Pick a set of genes
-#' genes <- getGenes(myRNA)[1:30]
+#' genes <- getGenes(myscRNA)[1:30]
 #'
 #' dittoPlotVarsAcrossGroups(
-#'     myRNA, genes, group.by = "timepoint")
+#'     myscRNA, genes, group.by = "timepoint")
 #'
 #' # Color can be controlled separately from grouping with 'color.by'
 #' #   Just note: all groupings must map to a single color.
-#' dittoPlotVarsAcrossGroups(
-#'     myRNA, genes, "timepoint",
+#' dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint",
 #'     color.by = "conditions")
 #'
 #' # To change it to have the violin plot in the back, a jitter on
 #' #  top of that, and a white boxplot with no fill in front:
-#' dittoPlotVarsAcrossGroups(
-#'     myRNA, genes, "timepoint", "conditions",
+#' dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint", "conditions",
 #'     plots = c("vlnplot","jitter","boxplot"),
 #'     boxplot.color = "white", boxplot.fill = FALSE)
+#'
+#' ## Data can be summaryized in other ways by changing the summary.fxn input.
+#' #  Often, it makes sense to turn off the z-score adjustment in such cases.
+#' #  median
+#' dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint", "conditions",
+#'     summary.fxn = median,
+#'     adjustment = NULL)
+#' #  Percent non-zero expression
+#' percent <- function(x) {sum(x!=0)/length(x)}
+#' dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint", "conditions",
+#'     summary.fxn = percent,
+#'     adjustment = NULL)
 #'
 #' # To investigate the identities of outlier genes, we can turn on hovering
 #' # (if the plotly package is available)
 #' if (requireNamespace("plotly", quietly = TRUE)) {
 #'     dittoPlotVarsAcrossGroups(
-#'         myRNA, genes, "timepoint", "conditions",
+#'         myscRNA, genes, "timepoint", "conditions",
 #'         do.hover = TRUE)
 #' }
 #'

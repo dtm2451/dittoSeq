@@ -367,7 +367,9 @@ metadata integrations common to other dittoSeq functions.
 For large, many cell, single-cell datasets, it can be necessary to turn off
 clustering by cells in generating the heatmap because the process is very
 memory intensive. As an alternative, dittoHeatmap offers the ability to order
-columns in alternative functional ways using the `order.by` input.
+columns in functional ways using the `order.by` input. This input will default
+to the first annotation provided to `annot.by` for single cell datasets, but
+can also be controlled separately.
 
 ```{r, results = "hold"}
 # Pick Genes
@@ -375,28 +377,29 @@ genes <- c("SST", "REG1A", "PPY", "INS", "CELA3A", "PRSS2", "CTRB1",
     "CPA1", "CTRB2" , "REG3A", "REG1B", "PRSS1", "GCG", "CPB1",
     "SPINK1", "CELA3B", "CLPS", "OLFM4", "ACTG1", "FTL")
 
-# Ordering cells by some meaningful feature:
+# Annotating and ordering cells by some meaningful feature:
 #   Turning off cell clustering can be necessary for many-cell scRNAseq.
 #   Ordering can be a functional way of doing that.
 dittoHeatmap(seurat, genes,
-    order.by = "celltype")
+    annot.by = c("celltype", "Sample"))
+dittoHeatmap(seurat, genes,
+    annot.by = c("celltype", "Sample"),
+    order.by = "Sample")
 ```
 
-Annotation bars can be added using the `annot.by` input. The function
-will then extract and properly format metadata for adding them as column
-annotation bars. `scaled.to.max = TRUE` will normalize all expression data
-between [0,1], which is often useful for zero-enriched single-cell expression
-data. `show.colnames`/`show.rownames` controls whether cell/gene names will be
-shown.
+`scaled.to.max = TRUE` will normalize all expression data to the max expression
+of each gene [0,1], which is often useful for zero-enriched single-cell data.
+
+`show_colnames`/`show_rownames` control whether cell/gene names will be
+shown. (`show.colnames` default is TRUE for bulk, and FALSE for single-cell.)
 
 ```{r}
 # Add annotations
 dittoHeatmap(seurat, genes,
-    order.by = "celltype",
     annot.by = c("celltype", "Sample"),
     scaled.to.max = TRUE,
-    show.colnames = FALSE,
-    show.rownames = FALSE)
+    show_colnames = FALSE,
+    show_rownames = FALSE)
 ```
 
 A subset of the supplied genes can be given to the `highlight.genes` input to
@@ -405,18 +408,12 @@ have names shown for just these genes.
 ```{r}
 # Highlight certain genes
 dittoHeatmap(seurat, genes,
-    order.by = "celltype",
-    annot.by = "celltype",
-    highlight.genes = genes[1:3],
-    show.colnames = FALSE,
-    show.rownames = FALSE)
+    annot.by = c("celltype", "Sample"),
+    highlight.genes = genes[1:3])
 ```
 
-Additional tweaks can be added by providing additional inputs to pheatmap (see
-`?pheatmap`) which will be passed through to the pheatmap call.  One important
-example is the `cluster_cols` input. It can be good to set this to FALSE, at
-least initially, for single-cell datasets as clustering of thousands of cells
-tends to be memory intensive.
+Additional tweaks can be added through other built in inputs or by providing
+additional inputs that get passed along to pheatmap (see `?pheatmap`).
 
 ## Multi-Plotters
 
@@ -466,7 +463,12 @@ metadata, but where distinct cells are highlighted in each plot. The
 `vary.cells.meta` input sets the discrete metadata to be used for breaking up
 cells/samples over distinct plots. This can be useful for
 checking/highlighting when a gene may be differentially expressed within
-multiple cell types or accross all samples
+multiple cell types or accross all samples.
+
+- The output of `multi_dittoDimPlotVaryCells()` is similar to that of
+faceting using dittoDimPlot's `split.by` input, but with added capability of
+showing an "AllCells" plot as well, or of outputing the individual plots for
+making manually customized plot arrangements when `data.out = TRUE`.
 
 ```{r, results = "hold"}
 multi_dittoDimPlot(seurat, delta.genes[1:6])
@@ -476,7 +478,7 @@ multi_dittoDimPlotVaryCells(seurat, "celltype",
     vary.cells.meta = "celltype")
 ```
 
-# Common Addtional Inputs 
+# Customization via Simple Inputs 
 
 **Many adjustments can be made with simple additional inputs**.  Here, we go
 through a few that are consistent across most dittoSeq functions, but there
@@ -523,9 +525,9 @@ dittoBarPlot(seurat, "celltype", group.by = "Sample",
 ## Colors can be adjusted easily.
 
 Colors are normally set with `color.panel` or `max.color` and `min.color`.
-When color.panel is used, an additional input called `colors` sets the order
-in which those are actually used to make swapping around colors easy when
-nearby clusters appear too similar in tSNE/umap plots!
+When color.panel is used (discrete data), an additional input called `colors`
+sets the order in which those are actually used to make swapping around colors
+easy when nearby clusters appear too similar in tSNE/umap plots!
 
 ```{r, results="hold"}
 # original - discrete
