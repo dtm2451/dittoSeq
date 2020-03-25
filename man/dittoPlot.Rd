@@ -74,8 +74,9 @@ This is the data that will be displayed.}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
-\item{color.by}{String representing the name of a metadata to use for setting fills. (Defaults to \code{group.by})
-Affects boxplot, vlnplot, and ridgeplot fills.  Default's to \code{group.by} so this input can be skipped if both are the same.}
+\item{color.by}{String representing the name of a metadata to use for setting fills.
+Great for highlighting subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
+Affects boxplot, vlnplot, and ridgeplot fills.}
 
 \item{shape.by}{Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.}
 
@@ -206,7 +207,7 @@ This input is set to \code{NULL} by default.}
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
 
-Note: plotly output is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.}
+Note: plotly conversion is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.}
 
 \item{...}{arguments passed to dittoPlot by dittoRidgePlot, dittoRidgeJitter, and dittoBoxPlot wrappers.
 Options are all the ones above.}
@@ -257,7 +258,7 @@ For example, all jitter adjustments, like \code{jitter.size}, start with "\code{
 \item The legend can be hidden by setting \code{legend.show = TRUE}.
 \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
 \item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
-\item Single or multiple value(s) can be provided to \code{add.line} to add horizontal (or vertical, for ridgeplots) lines at the values provided.
+\item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
 Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 \item Single or multiple additional per-cell features can be retrieved and stashed within the underlying data using \code{extra.vars}.
 This can be very useful for making manual additional alterations \emph{after} dittoSeq plot generation.
