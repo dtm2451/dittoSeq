@@ -9,7 +9,7 @@
 #' Affects boxplot, vlnplot, and ridgeplot fills.
 #' @param summary.fxn A function which sets how variables' data will be summarized accross the groups.
 #' Default is \code{\link{mean}}, which will take the average value, but any function can be used as long as it takes in a numeric vector and returns a single numeric value.
-#' Alternative examles: \code{\link{median}}, \code{\link{max}, \code{function (x) sum(x!=0)}.
+#' Alternative examles: \code{\link{median}}, \code{\link{max}}, \code{function (x) sum(x!=0)/length(x)}.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.
@@ -145,10 +145,6 @@
 #' timept <- rep(c("d0", "d3", "d6", "d9"), each = 15)
 #' genome <- rep(c(rep(TRUE,7),rep(FALSE,8)), 4)
 #' grps <- sample(c("A","B","C","D"), nsamples, TRUE)
-#' clusts <- as.character(1*(tsne[,1]>0&tsne[,2]>0) +
-#'                        2*(tsne[,1]<0&tsne[,2]>0) +
-#'                        3*(tsne[,1]>0&tsne[,2]<0) +
-#'                        4*(tsne[,1]<0&tsne[,2]<0))
 #'
 #' # We can add these directly during import, or after.
 #' myscRNA <- importDittoBulk(x = list(counts = exp, logcounts = logexp),
