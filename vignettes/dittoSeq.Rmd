@@ -237,21 +237,22 @@ options for plotting with helper functions:
 getMetas(seurat)
 # Query for the presence of a metadata slot
 isMeta("nCount_RNA", seurat)
-
-# Retrieve all gene names
-getGenes(seurat)[1:10]
-# Query for the presence of a gene
-isGene("CD3E", seurat)
-
-# Retrieve all dimensionality reductions
-getReductions(seurat)
-
-# Retrieve gene expression values:
-gene("ENO1", seurat)[1:10]
 # Retrieve metadata values:
 meta("celltype", seurat)[1:10]
 # Retrieve unique values of a metadata
 metaLevels("celltype", seurat)
+
+# Retrieve all gene names
+getGenes(seurat)[1:10]
+# Query for the presence of a gene(s)
+isGene("CD3E", seurat)
+isGene(c("CD3E","ENO1","INS"), seurat, return.values = TRUE)
+# Retrieve gene expression values:
+gene("ENO1", seurat)[1:10]
+
+# Retrieve all dimensionality reductions
+getReductions(seurat)
+
 ```
 
 # Visualizations
