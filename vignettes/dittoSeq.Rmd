@@ -81,7 +81,7 @@ a suggestion of the proper methods for performing such steps. dittoSeq is a
 visualization tool, and my focus while developing this vignette has been simply
 creating values required for providing visualization examples.
 
-# Installation:
+# Installation
 
 dittoSeq is available through Bioconductor.
 
@@ -94,12 +94,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("dittoSeq")
 ```
 
-# Getting started
-
-## Single-cell RNAseq data
-
-dittoSeq works directly with Seurat and SingleCellExperiment objects.  Nothing
-special is needed. Just load in your data if it isn't already loaded, then go!
+## Some setup for this vignette that can be ignored
 
 Here, we will need to do some prep as the dataset we will use from
 @baron_single-cell_2016 is not normalized nor dimensionality reduced.
@@ -158,8 +153,17 @@ sce$celltype <- seurat$celltype
 sce$Sample <- seurat$Sample
 ```
 
-Now that we have a single-cell dataset loaded as both Seurat and SCE, we are
-ready to go.  All functions work for either the Seurat or SCE version.
+Now that we have a single-cell dataset loaded and analyzed in Seurat, let's
+convert it to an SCE for examples purposes.
+
+All functions will work the same for either the Seurat or SCE version.
+
+# Getting started
+
+## Single-cell RNAseq data
+
+dittoSeq works directly with Seurat and SingleCellExperiment objects.  Nothing
+special is needed. Just load in your data if it isn't already loaded, then go!
 
 ```{r}
 dittoDimPlot(seurat, "Sample")
@@ -204,25 +208,20 @@ myRNA <- importDittoBulk(
     #   For adding dimensionality reductions
     reductions = list(pca = matrix(rnorm(20000), nrow=20)))
 
-# Add metadata (metadata can also be added in this way)
+# Add metadata (metadata can alternatively be added in this way)
 myRNA$conditions <- conditions
 myRNA$sex <- sex
 
-# Add dimensionality reductions (can also be done this way)
+# Add dimensionality reductions (can alternatively be added this way)
 # (We aren't actually calculating PCA here.)
 myRNA <- addDimReduction(
     object = myRNA,
     embeddings = matrix(rnorm(20000), nrow=20),
     name = "pca",
     key = "PC")
-
-# Make Plots
-dittoDimPlot(myRNA, "sex", size = 3, do.ellipse = TRUE)
-dittoBarPlot(myRNA, "sex", group.by = "conditions")
-dittoBoxPlot(myRNA, "gene1", group.by = "sex")
-dittoHeatmap(myRNA, getGenes(myRNA)[1:10],
-    annot.by = c("conditions", "sex"))
 ```
+
+Additional details:
 
 By default, provided metadata is added to (or replaces) any metadata already
 inside of x, but the `combine_metadata` input can additionally be used to
@@ -236,6 +235,15 @@ DGEList note: The import function attempts to pull in all information stored in
 common DGEList slots (\$counts, \$samples, \$genes, \$AveLogCPM,
 \$common.dispersion, \$trended.dispersion, \$tagwise.dispersion, and \$offset),
 but any other slots are ignored.
+
+```{r}
+# Now making plots operates the exact same way as for single-cell data
+dittoDimPlot(myRNA, "sex", size = 3, do.ellipse = TRUE)
+dittoBarPlot(myRNA, "sex", group.by = "conditions")
+dittoBoxPlot(myRNA, "gene1", group.by = "sex")
+dittoHeatmap(myRNA, getGenes(myRNA)[1:10],
+    annot.by = c("conditions", "sex"))
+```
 
 # Helper Functions
 
@@ -262,7 +270,7 @@ metaLevels("celltype", seurat)
 getGenes(seurat)[1:10]
 # Query for the presence of a gene(s)
 isGene("CD3E", seurat)
-isGene(c("CD3E","ENO1","INS"), seurat, return.values = TRUE)
+isGene(c("CD3E","ENO1","INS","non-gene"), seurat, return.values = TRUE)
 # Retrieve gene expression values:
 gene("ENO1", seurat)[1:10]
 ```
@@ -274,11 +282,13 @@ gene("ENO1", seurat)[1:10]
 getReductions(seurat)
 ```
 
+These are what can be provided to `reduction.use` for `dittoDimPlot()`.
+
 ## Bulk versus single-cell
 
 Because dittoSeq utilizes the SingleCellExperiment structure to handle bulk
-RNAseq data, a getter and setter for the internal metadata which tells dittoSeq
-which type of data an SCE holds.
+RNAseq data, there is a getter and setter for the internal metadata which tells
+dittoSeq functions which resolution of data a target SCE holds.
 
 ```{r}
 # Getter
@@ -289,6 +299,8 @@ isBulk(myRNA)
 mock_bulk <- setBulk(sce) # to bulk
 mock_sc <- setBulk(myRNA, set = FALSE) # to single-cell
 ```
+
+NOTE: for any non-SCE objects, `isBulk()` will always return FALSE
 
 # Visualizations
 
