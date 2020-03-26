@@ -125,7 +125,7 @@ dittoBarPlot <- function(
             ylab <- paste0(
                 ylab.start,
                 ifelse(
-                    .is_bulk(object),
+                    isBulk(object),
                     "samples", "cells"))
         }
     }

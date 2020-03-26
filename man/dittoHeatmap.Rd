@@ -22,10 +22,10 @@ dittoHeatmap(
   annotation_colors = NULL,
   data.out = FALSE,
   highlight.genes = NULL,
-  show_colnames = .is_bulk(object),
+  show_colnames = isBulk(object),
   show_rownames = TRUE,
   scale = "row",
-  cluster_cols = .is_bulk(object),
+  cluster_cols = isBulk(object),
   border_color = NA,
   legend_breaks = NA,
   breaks = NA,
@@ -155,7 +155,6 @@ For such filling, \code{annot.colors} are pulled for column annotations first, t
 }
 
 \examples{
-
 # dittoSeq handles bulk and single-cell data quit similarly.
 # The SingleCellExperiment object structure is used for both,
 # but all functions can be used similarly directly on Seurat

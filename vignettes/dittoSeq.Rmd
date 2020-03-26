@@ -51,7 +51,7 @@ Bulk:
 - DGEList (edgeR package output)
 
 For bulk data, or if your data is currently not analyzed, or simply not in one
-of these structures, you can still pull it in as a SingleCellExperiment
+of these structures, you can still pull it in to the SingleCellExperiment
 structure that dittoSeq works with using the `importDittoBulk` function.
 
 ## Color blindness friendliness:
@@ -60,9 +60,19 @@ The default colors of this package are red-green color blindness friendly. To
 make it so, I used the suggested colors from [@wong_points_2011] and adapted
 them slightly by appending darker and lighter versions to create a 24 color
 vector. All plotting functions use these colors, stored in `dittoColors()`, by
-default. Additionally, shapes displayed in the legends are generally enlarged
-as this can be almost as helpful as the actual color choice for colorblind
-individuals (like me)!
+default.
+
+Additionally:
+
+- Shapes displayed in the legends are generally enlarged as this can be almost
+as helpful as the actual color choice for colorblind individuals.
+- When sensible, dittoSeq funcitons have a shape.by input for having groups
+displayed through shapes rather than color. (But note: even as a red-green
+color impaired individual myself writing this vignette, I recommend using color
+and I generally only use shapes for showing additional groupings.)
+- dittoDimPlots can be generated with letters overlaid (set do.letter = TRUE)
+- The `Simulate` function allows a cone-typical individual to see what their
+dittoSeq plots might look like to a colorblind individual.
 
 ## Disclaimer
 
@@ -161,7 +171,7 @@ dittoBarPlot(sce, "celltype", group.by = "Sample")
 
 Bulk RNAseq data is handled by dittoSeq using the SingleCellExperiment
 structure (as of version 0.99). This structure is essentially very similar
-to the Bioconductor standard SUmmarizedExperiment, just with room added for
+to the Bioconductor standard SummarizedExperiment, just with room added for
 storing calculated dimensionality reductions.
 
 ```{r}
@@ -218,8 +228,8 @@ By default, provided metadata is added to (or replaces) any metadata already
 inside of x, but the `combine_metadata` input can additionally be used to
 turn retention of previous metadata slots off.
 
-Raw data note: can be provided as a list containing a single or multiple
-matrices. It is recommended that matrices containing raw feature counts data
+When providing expression data as a list of a single or multiple
+matrices, it is recommended that matrices containing raw feature counts data
 be named `counts`, and log-normalized counts data be named `logcounts`.
 
 DGEList note: The import function attempts to pull in all information stored in
@@ -229,8 +239,10 @@ but any other slots are ignored.
 
 # Helper Functions
 
-dittoSeq's helper functions make it easy to determine the metadata and gene
-options for plotting with helper functions:
+dittoSeq's helper functions make it easy to determine the metadata, gene, and
+dimensionality reduction options for plotting.
+
+## Metadata
 
 ```{r}
 # Retrieve all metadata slot names
@@ -241,7 +253,11 @@ isMeta("nCount_RNA", seurat)
 meta("celltype", seurat)[1:10]
 # Retrieve unique values of a metadata
 metaLevels("celltype", seurat)
+```
 
+## Genes/Features
+
+```{r}
 # Retrieve all gene names
 getGenes(seurat)[1:10]
 # Query for the presence of a gene(s)
@@ -249,18 +265,37 @@ isGene("CD3E", seurat)
 isGene(c("CD3E","ENO1","INS"), seurat, return.values = TRUE)
 # Retrieve gene expression values:
 gene("ENO1", seurat)[1:10]
+```
 
+## Reductions
+
+```{r}
 # Retrieve all dimensionality reductions
 getReductions(seurat)
+```
 
+## Bulk versus single-cell
+
+Because dittoSeq utilizes the SingleCellExperiment structure to handle bulk
+RNAseq data, a getter and setter for the internal metadata which tells dittoSeq
+which type of data an SCE holds.
+
+```{r}
+# Getter
+isBulk(sce)
+isBulk(myRNA)
+
+# Setter
+mock_bulk <- setBulk(sce) # to bulk
+mock_sc <- setBulk(myRNA, set = FALSE) # to single-cell
 ```
 
 # Visualizations
 
 There are many different types of dittoSeq visualizations. Each has intuitive
-defaults which generally allow creation of immediately useable plots. Each
-also have many additional tweaks that can help ensure you can create
-publication-ready plots out-of-the-box.
+defaults which allow creation of immediately useable plots. Each also has many
+additional tweaks avaiolable through discrete input that can help ensure you
+can create publication-quality plots out-of-the-box.
 
 ## dittoDimPlot & dittoScatterPlot
 
@@ -378,9 +413,7 @@ genes <- c("SST", "REG1A", "PPY", "INS", "CELA3A", "PRSS2", "CTRB1",
     "CPA1", "CTRB2" , "REG3A", "REG1B", "PRSS1", "GCG", "CPB1",
     "SPINK1", "CELA3B", "CLPS", "OLFM4", "ACTG1", "FTL")
 
-# Annotating and ordering cells by some meaningful feature:
-#   Turning off cell clustering can be necessary for many-cell scRNAseq.
-#   Ordering can be a functional way of doing that.
+# Annotating and ordering cells by some meaningful feature(s):
 dittoHeatmap(seurat, genes,
     annot.by = c("celltype", "Sample"))
 dittoHeatmap(seurat, genes,
@@ -506,6 +539,16 @@ dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
     cells.use = meta("celltype", seurat) == "acinar")
 ```
 
+## Faceting with split.by
+
+dittoPlot, dittoDimPlot, and dittoScatterPlots can be split into separate
+plots for distinct groups of cells with the `split.by` input.
+
+```{r}
+dittoDimPlot(seurat, "celltype", split.by = "Sample")
+dittoDimPlot(seurat, "ENO1", split.by = c("Sample", "celltype"))
+```
+
 ## All titles are adjustable.
 
 Relevant inputs are generally `main`, `sub`, `xlab`, `ylab`, `x.labels`, and
@@ -522,6 +565,8 @@ dittoBarPlot(seurat, "celltype", group.by = "Sample",
     var.labels.rename = c("Fire", "Water", "Grass", "Electric", "Psychic"),
     x.labels.rotate = FALSE)
 ```
+
+As exemplified above, in some functions, the displayed data can be renamed too.
 
 ## Colors can be adjusted easily.
 

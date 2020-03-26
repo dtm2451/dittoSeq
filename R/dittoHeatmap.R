@@ -171,8 +171,8 @@ dittoHeatmap <- function(
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
     annot.colors = c(rep(dittoColors(),9),dittoColors()[seq_len(7)]),
     annotation_col = NULL, annotation_colors = NULL,
-    data.out=FALSE, highlight.genes = NULL, show_colnames = .is_bulk(object),
-    show_rownames = TRUE, scale = "row", cluster_cols = .is_bulk(object),
+    data.out=FALSE, highlight.genes = NULL, show_colnames = isBulk(object),
+    show_rownames = TRUE, scale = "row", cluster_cols = isBulk(object),
     border_color = NA, legend_breaks = NA, breaks = NA, ...) {
 
     # If cells.use given as logical, populate as names.

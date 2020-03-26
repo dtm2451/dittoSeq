@@ -130,15 +130,3 @@
     }
     key
 }
-
-.is_bulk <- function(object) {
-    OUT <- FALSE
-    if (is(object,"SingleCellExperiment")) {
-        if (!is.null(SingleCellExperiment::int_metadata(object)$bulk)) {
-            if (SingleCellExperiment::int_metadata(object)$bulk) {
-                OUT <- TRUE
-            }
-        }
-    }
-    OUT
-}

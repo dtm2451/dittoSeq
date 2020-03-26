@@ -100,4 +100,16 @@ test_that(".var_or_get_meta_or_gene gets metas, genes, spits back var, or errors
         "'var' is not a metadata or gene nor equal in length to ncol('object')", fixed = TRUE)
 })
 
+test_that("isBulk works properly", {
+    expect_true(isBulk(bulk))
+    expect_false(isBulk(sce))
+    expect_false(isBulk(seurat))
+})
+
+test_that("setBulk works properly", {
+    expect_true(isBulk(setBulk(bulk)))
+    expect_false(isBulk(setBulk(bulk, FALSE)))
+    expect_true(isBulk(setBulk(sce)))
+})
+
 

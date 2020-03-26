@@ -53,7 +53,7 @@
 }
 
 .default_order <- function(object, annotation.metas) {
-    if (!is.null(annotation.metas) && !.is_bulk(object)) {
+    if (!is.null(annotation.metas) && !isBulk(object)) {
         return(annotation.metas[1])
     } else {
         return(NULL)
