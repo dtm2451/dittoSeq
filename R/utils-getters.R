@@ -104,6 +104,10 @@
     if (is(object,"SingleCellExperiment")) {
         embeds <- SingleCellExperiment::reducedDim(
             object, type = reduction.use, withDimnames=TRUE)
+        if (is.null(colnames(embeds))) {
+            colnames(embeds) <-
+                paste0(.gen_key(reduction.use), seq_len(ncol(embeds)))
+        }
     }
     OUT <- list(embeds[,dim])
     OUT[2] <- colnames(embeds)[dim]
