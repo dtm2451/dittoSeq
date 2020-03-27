@@ -1,7 +1,3 @@
-#' @importFrom SingleCellExperiment reducedDim int_metadata
-#' @importFrom SummarizedExperiment assay assays
-#' @importFrom cowplot ggdraw get_legend
-
 .error_if_no_Seurat <- function() {
     if (!requireNamespace("Seurat", quietly = TRUE)) {
         stop("Seurat installation required for working with Seurat objects")

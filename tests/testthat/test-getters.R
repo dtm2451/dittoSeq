@@ -112,4 +112,10 @@ test_that("setBulk works properly", {
     expect_true(isBulk(setBulk(sce)))
 })
 
+test_that(".which_cells errors when logical 'cells.use' is the wrong length", {
+    expect_error(.which_cells(TRUE, bulk),
+        "'cells.use' length must equal the number of cells/samples in 'object' when given in logical form",
+        fixed = TRUE)
+})
+
 

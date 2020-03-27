@@ -1,4 +1,5 @@
 .all_cells <- function(object) {
+    # Retrieves all cell/sample names / barcodes from a dataset
     if (is(object, "Seurat") || is(object,"SingleCellExperiment")) {
         # Seurat-v3, bulk or single-cell SCE
         return(colnames(object))
@@ -9,19 +10,27 @@
 }
 
 .which_cells <- function(cells.use, object) {
+    # converts a 'cells.use' given as either string or logical vector
+    # into the string vector format expected internally by dittoSeq functions
     all.cells <- .all_cells(object)
     if (is.null(cells.use)) {
+        # Returns all cells when 'cells.use' is NULL
         return(all.cells)
     }
     if (is.logical(cells.use)) {
+        if (length(cells.use)!=length(all.cells)) {
+            stop("'cells.use' length must equal the number of cells/samples in 'object' when given in logical form")
+        }
         return(all.cells[cells.use])
     }
     # If here, not a logical or NULL, thus should already be a list of names
     cells.use
 }
 
+#' @importFrom SummarizedExperiment assay
 .which_data <- function(
     assay = .default_assay(object), slot = .default_slot(object), object) {
+    # Retrieves the required counts data from 'object'
 
     if (is(object,"SingleCellExperiment")) {
         return(SummarizedExperiment::assay(object, assay))
@@ -39,6 +48,8 @@
 .var_OR_get_meta_or_gene <- function(var, object,
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL) {
+    # Turns 'var' strings refering to genes or metadata into their associated data
+    # Otherwise, returns 'var' with cellname names added.
 
     OUT <- var
     cells <- .all_cells(object)
@@ -90,7 +101,9 @@
 }
 
 .extract_Reduced_Dim <- function(reduction.use, dim=1, object) {
-    # If object is a Seurat object
+    # Extracts loadings ("embeddings") and suggested plotting label ("name")
+    # for an individual dimensionality reduction dimension.
+
     if (is(object,"seurat")) {
         embeds <- eval(expr = parse(text = paste0(
             "object@dr$",reduction.use,"@cell.embeddings")))
@@ -116,20 +129,23 @@
 }
 
 .gen_key <- function (reduction.use){
+    # Generates labels for plotting axes titles when use of 'reduction.use'
+    # itself would not be ideal
+
     key <- reduction.use
-    if (grepl("pca|PCA", reduction.use)) {
+    if (grepl("pca", tolower(reduction.use))) {
         key <- "PC"
     }
-    if (grepl("cca|CCA", reduction.use)) {
+    if (grepl("cca", tolower(reduction.use))) {
         key <- "CC"
     }
-    if (grepl("cca.aligned", reduction.use)) {
+    if (grepl("cca.aligned", tolower(reduction.use))) {
         key <- "aligned.CC"
     }
-    if (grepl("ica|ICA", reduction.use)) {
+    if (grepl("ica", tolower(reduction.use))) {
         key <- "IC"
     }
-    if (grepl("tsne|tSNE|TSNE", reduction.use)) {
+    if (grepl("tsne", tolower(reduction.use))) {
         key <- "tSNE_"
     }
     key

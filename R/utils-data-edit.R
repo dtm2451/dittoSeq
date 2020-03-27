@@ -31,6 +31,9 @@
 }
 
 .make_hover_strings_from_df <- function(df){
+    # Creates a single character vector where each element is the hoverstring
+    # for a given row of the provided 'df' with structure
+    # "col1name: col1-value\ncol2name: var2-value\ncol3name: var3-value\n..."
     vapply(
         seq_len(nrow(df)),
         function(row){
@@ -44,6 +47,11 @@
 }
 
 .rename_and_or_reorder <- function(orig.data, reorder = NULL, relabels = NULL) {
+    # Takes in string vector or factor 'orig.data', integer vector 'reorder',
+    # and string vector 'relabels'.
+    # Turns character vectors into factors
+    # Reorders the level of the factor based on indices provided to 'reorder'
+    # Re-labels the levels of the factor based on lebels provided to 'relabels'
     if (is.numeric(orig.data)) {
         return(orig.data)
     }

@@ -1,11 +1,12 @@
 .preferred_or_first <- function(opts, prefs) {
-    # Given a String vectors options and prefs,
+    # Given string vectors opts and prefs,
     # with prefs being a set of targets in decreasing preferrence order and all
-    # lower case, outputs the first element of options that is found to be an
-    # element of prefs.
-    # tolower is used to allow upper/lower case to be ignored
-    # If no options contain an element of prefs, outputs the first option.
+    # lower case,
+    # outputs the element of opts that contains the earliest element of prefs.
+    # If no options contain an element of prefs, outputs the first opts.
+
     out <- opts[1]
+    # tolower is used to allow upper/lower case to be ignored
     preferred <- match(prefs, tolower(opts))
     if (any(!is.na(preferred))) {
         out <- (opts[preferred[!is.na(preferred)]])[1]
@@ -15,6 +16,11 @@
 
 .leave_default_or_null <- function(
     target, default, null.if = FALSE, default.when = "make") {
+    # Handles much of dittoSeq's titles defaulting process
+    # Takes in 'target' and outputs:
+    #  - 'default' string when 'target' == 'default.when'
+    #  - NULL when logical provided to 'null.if' is TRUE.
+    #  - 'target' otherwise
     if (!is.null(target)) {
         if (target==default.when) {
             if (null.if) {
@@ -27,41 +33,52 @@
     target
 }
 
+#' @importFrom SummarizedExperiment assays
 .default_assay <- function(object) {
-    #Decide which assy should be used
+    # Decides which assay should be default on prefs or defaults
     if (is(object, "SingleCellExperiment")) {
+        # prefer logcounts > normcounts > counts > first assay
         return(.preferred_or_first(
             names(SummarizedExperiment::assays(object)),
             c("logcounts","normcounts","counts")))
     }
     if (is(object, "seurat")) {
+        # no assays for Seurat-v2
         return(NA)
     }
     if (is(object, "Seurat")) {
+        # use default assay
         .error_if_no_Seurat()
         return(Seurat::DefaultAssay(object))
     }
 }
 
 .default_slot <- function(object) {
-    #Decide which assy should be used
+    # Decides what slot should be by default
     if (is(object, "SingleCellExperiment")) {
+        # no slots for SCEs
         return(NA)
     } else {
+        # default to the normalized data for Seurats
         return("data")
     }
 }
 
-.default_order <- function(object, annotation.metas) {
-    if (!is.null(annotation.metas) && !isBulk(object)) {
-        return(annotation.metas[1])
+.default_order <- function(object, annot.by) {
+    # Sets the default for dittoHeatmap's 'order.by' to either NULL (no
+    # ordering), or the first element of 'annot.by' if the object is an SCE and
+    # annot.by has values.
+    if (!is.null(annot.by) && !isBulk(object)) {
+        return(annot.by[1])
     } else {
         return(NULL)
     }
 }
 
+#' @importFrom SingleCellExperiment reducedDim
 .default_reduction <- function(object) {
-    # Use umap > tsne > pca, or whatever the first reduction slot is.
+    # Sets the default for dittoDimPlot's 'reduction.use' input
+    # Capitalization-ignored, prefers umap > tsne > pca > the first reduciton.
     opts <- getReductions(object)
     if (is.null(opts)) {
         stop("No dimensionality reduction slots in 'object'")
