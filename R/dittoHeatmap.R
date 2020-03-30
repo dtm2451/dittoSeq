@@ -290,23 +290,27 @@ dittoHeatmap <- function(
     # Columns First (if there)
     if (!is.null(args$annotation_col) && ncol(args$annotation_col)>0) {
         make.these <- !(colnames(args$annotation_col) %in% user.provided)
-        dfcolors_out <- .pick_colors_for_df(
-            args$annotation_col[,make.these, drop = FALSE],
-            next.color.index.discrete, next.color.index.numeric,
-            annot.colors.d, annot.colors.n)
-        col_colors <- dfcolors_out$df_colors
-        next.color.index.discrete <- dfcolors_out$next.color.index.discrete
-        next.color.index.numeric <- dfcolors_out$next.color.index.numeric
+        if (any(make.these)) {
+            dfcolors_out <- .pick_colors_for_df(
+                args$annotation_col[,make.these, drop = FALSE],
+                next.color.index.discrete, next.color.index.numeric,
+                annot.colors.d, annot.colors.n)
+            col_colors <- dfcolors_out$df_colors
+            next.color.index.discrete <- dfcolors_out$next.color.index.discrete
+            next.color.index.numeric <- dfcolors_out$next.color.index.numeric
+        }
     }
 
     # Rows Second (if there)
     if (!is.null(args$annotation_row)) {
         make.these <- !(colnames(args$annotation_row) %in% user.provided)
-        dfcolors_out <- .pick_colors_for_df(
-            args$annotation_row[,make.these, drop = FALSE],
-            next.color.index.discrete, next.color.index.numeric,
-            annot.colors.d, annot.colors.n)
-        row_colors <- dfcolors_out$df_colors
+        if (any(make.these)) {
+            dfcolors_out <- .pick_colors_for_df(
+                args$annotation_row[,make.these, drop = FALSE],
+                next.color.index.discrete, next.color.index.numeric,
+                annot.colors.d, annot.colors.n)
+            row_colors <- dfcolors_out$df_colors
+        }
     }
 
     # Combine new with user.provided

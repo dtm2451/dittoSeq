@@ -142,14 +142,14 @@ test_that("Heatmap annotations can be given & heatmaps can be ordered by metadat
             genes,
             object = seurat,
             order.by = "groups",
-            annotation.metas = "groups"),
+            annot.by = "groups"),
         "pheatmap")
     ### Works with vectors provided
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "number2",
+            annot.by = "number2",
             order.by = seq_along(colnames(seurat))),
         "pheatmap")
 })
@@ -161,7 +161,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "clusters"),
+            annot.by = "clusters"),
         "pheatmap")
     # Samples should not be ordered by this (bulk)
     ### CLustered
@@ -169,7 +169,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
         dittoHeatmap(
             genes,
             object = bulk,
-            annotation.metas = "clusters"),
+            annot.by = "clusters"),
         "pheatmap")
     # Clusters even though an order.by would be given
     ### Clustered!
@@ -177,7 +177,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "clusters",
+            annot.by = "clusters",
             cluster_cols = TRUE),
         "pheatmap")
     # Ordering, but distinct from the first annotation
@@ -186,7 +186,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = c("clusters", "groups"),
+            annot.by = c("clusters", "groups"),
             order.by = "groups"),
         "pheatmap")
 })
@@ -207,7 +207,7 @@ test_that("Heatmap can be ordered when also subset to certain cells", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "groups",
+            annot.by = "groups",
             cells.use = colnames(seurat)[meta("number", seurat)<20]),
         "pheatmap")
     # Works with vectors provided
@@ -216,7 +216,7 @@ test_that("Heatmap can be ordered when also subset to certain cells", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "number2",
+            annot.by = "number2",
             order.by = seq_along(colnames(seurat)),
             cells.use = colnames(seurat)[meta("number", seurat)<20]),
         "pheatmap")
@@ -244,12 +244,12 @@ test_that("Heatmap can be subset to certain cells", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "clusters",
+            annot.by = "clusters",
             cells.use = colnames(seurat)[meta("number", seurat)<10]),
         "pheatmap")
 })
 
-test_that("Heatmap annotation colors can be adjusted", {
+test_that("Heatmap annotation colors can be adjusted via annotation.colors", {
     # (via adjustment of the color pool)
     ### red, yellow, blue, purple for clusters
     ### green numeric (in order)
@@ -257,22 +257,36 @@ test_that("Heatmap annotation colors can be adjusted", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = c("number","clusters"),
+            annot.by = c("number","clusters"),
             annotation.colors = c("red", "yellow", "blue", "purple", "green3")),
         "pheatmap")
-    # By annotation_colors (partial list!)
+})
+
+test_that("Heatmap annotation colors can be adjusted via annotation_colors", {
     color_list <- list(clusters = c('1' = "red",
                                     '2' = "yellow",
                                     '3' = "blue",
                                     '4' = "purple"))
-    # Number color should change, but clusters should still be the same custom set!
+    # Number color should change, but clusters should still be the same custom set as above.
     ### red, yellow, blue, purple for clusters
     ### dittoBlue for number
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = c("number","clusters"),
+            annot.by = c("number","clusters"),
+            annotation_colors = color_list),
+        "pheatmap")
+    ### When annotation_colors provides all colors for annotation_col.
+    color_list <- list(clusters = c('1' = "red",
+                                    '2' = "yellow",
+                                    '3' = "blue",
+                                    '4' = "purple"))
+    expect_s3_class(
+        dittoHeatmap(
+            genes,
+            object = seurat,
+            annot.by = c("clusters"),
             annotation_colors = color_list),
         "pheatmap")
 })
@@ -283,7 +297,7 @@ test_that("Coloring works for discrete column and row annotations", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = c("clusters", "groups"),
+            annot.by = c("clusters", "groups"),
             scaled.to.max = TRUE,
             annotation_row = data.frame(
                 genes,
@@ -297,7 +311,7 @@ test_that("Coloring works for continuous column and row annotations", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "number",
+            annot.by = "number",
             scaled.to.max = TRUE,
             annotation_row = data.frame(
                 lab = seq_len(9),
@@ -311,7 +325,7 @@ test_that("Coloring works for continuous column and row annotations", {
         dittoHeatmap(
             genes,
             object = seurat,
-            annotation.metas = "number2",
+            annot.by = "number2",
             order.by = "number",
             scaled.to.max = TRUE,
             annotation_row = data.frame(
