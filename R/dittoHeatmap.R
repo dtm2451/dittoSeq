@@ -169,7 +169,7 @@ dittoHeatmap <- function(
     heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
     scaled.to.max = FALSE,
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
-    annot.colors = c(rep(dittoColors(),9),dittoColors()[seq_len(7)]),
+    annot.colors = c(dittoColors(),dittoColors(1)[seq_len(7)]),
     annotation_col = NULL, annotation_colors = NULL,
     data.out=FALSE, highlight.genes = NULL, show_colnames = isBulk(object),
     show_rownames = TRUE, scale = "row", cluster_cols = isBulk(object),
@@ -242,6 +242,7 @@ dittoHeatmap <- function(
     if(is.null(args$labels_col) && !(is.null(cell.names.meta))) {
         names <- .var_OR_get_meta_or_gene(cell.names.meta, object)
         args$labels_col <- as.character(names[colnames(args$mat)])
+        args$show_colnames <- TRUE
     }
 
     if (data.out) {

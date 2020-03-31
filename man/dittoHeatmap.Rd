@@ -17,7 +17,7 @@ dittoHeatmap(
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
-  annot.colors = c(rep(dittoColors(), 9), dittoColors()[seq_len(7)]),
+  annot.colors = c(dittoColors(), dittoColors(1)[seq_len(7)]),
   annotation_col = NULL,
   annotation_colors = NULL,
   data.out = FALSE,
