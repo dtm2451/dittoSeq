@@ -112,9 +112,9 @@ isGene("CD3E", myRNA)
 getReductions(sce)
 
 # View them with these:
-gene("CD3E", seurat, data.type = "raw")
+gene("CD3E", seurat, assay = "RNA", slot = "counts")
 meta("groups", seurat)
-meta.levels("groups", seurat)
+metaLevels("groups", seurat)
 ```
 
 ### There are many dittoSeq Plot Types
@@ -152,11 +152,17 @@ dittoPlot(seurat, "CD3E", group.by = "ident",
 ```
 # dittoHeatmap
 dittoHeatmap(seurat, genes = getGenes(seurat)[1:20])
-dittoHeatmap(seurat,genes = getGenes(seurat)[1:20],
-    annotation.metas = c("groups", "ident"),
+dittoHeatmap(seurat, genes = getGenes(seurat)[1:20],
+    annot.by = c("groups", "nFeature_RNA"),
     scaled.to.max = TRUE,
-    show.colnames = FALSE)
-# Turning off cell clustering can be necessary for many cell scRNAseq
+    treeheight_row = 10)
+# Turning off cell clustering can be necessary for large scRNAseq data
+# Thus, clustering is turned off by default for single-cell data, but not for
+# bulk RNAseq data.
+# To control ordering/clustering separately, use 'order.by' or 'cluster_cols'
+## (Not shown) ##
+dittoHeatmap(seurat, genes = getGenes(seurat)[1:20],
+    order.by = "groups")
 dittoHeatmap(seurat, genes = getGenes(seurat)[1:20],
     cluster_cols = FALSE)
 ```
@@ -168,12 +174,12 @@ dittoHeatmap(seurat, genes = getGenes(seurat)[1:20],
 dittoScatterPlot(
     object = seurat,
     x.var = "CD3E", y.var = "nCount_RNA",
-    color.var = "ident", shape.var = "RNA_snn_res.0.8",
+    color.var = "ident", shape.by = "RNA_snn_res.0.8",
     size = 3)
 dittoScatterPlot(
-    object = sce,
+    object = seurat,
     x.var = "nCount_RNA", y.var = "nFeature_RNA",
-    color.var = "percent.mt",
+    color.var = "CD3E",
     size = 1.5)
 ```
 
@@ -214,10 +220,10 @@ dittoBarPlot(seurat, "ident", group.by = "RNA_snn_res.0.8",
 
 # Subset cells / samples
 dittoBarPlot(seurat, "ident", group.by = "RNA_snn_res.0.8",
-    cells.use = meta("ident")!=1)
+    cells.use = meta("ident", seurat)!=1)
 
 # Adjust colors
-dittoBarPlot(seurat "ident", group.by = "RNA_snn_res.0.8",
+dittoBarPlot(seurat, "ident", group.by = "RNA_snn_res.0.8",
     colors = c(3,1,2)) #Just changes the color order, probably most useful for dittoDimPlots
 dittoBarPlot(seurat, "ident", group.by = "RNA_snn_res.0.8",
     color.panel = c("red", "orange", "purple"))
