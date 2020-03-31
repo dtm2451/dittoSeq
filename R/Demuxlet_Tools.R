@@ -287,7 +287,7 @@ importDemux <- function(
                 function (barcode)
                     paste0(strsplit(barcode, split = "-1$")[[1]][1], "-", i),
                 FUN.VALUE = character(1))
-            DF <- cbind(DF, DF.new)
+            DF <- rbind(DF, DF.new)
         }
     }
 
