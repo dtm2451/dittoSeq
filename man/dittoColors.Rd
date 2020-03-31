@@ -4,19 +4,24 @@
 \alias{dittoColors}
 \title{Extracts the dittoSeq default colors}
 \usage{
-dittoColors(get.names = FALSE)
+dittoColors(reps = 100, get.names = FALSE)
 }
 \arguments{
+\item{reps}{Integer which sets how many times the original set of colors should be repeated}
+
 \item{get.names}{Logical, whether only the names of the default dittoSeq color panel should be returned instead}
 }
 \value{
 A string vector with length = 24.
 }
 \description{
-Creates a string vector of 24 colors in hexadecimal form.
-Or, if \code{get.names} is set to \code{TRUE}, outputs the names of the colors which can be helpful to see when adjusting how colors get used.
+Creates a string vector of 40 unique colors, in hexadecimal form, repeated 100 times.
+Or, if \code{get.names} is set to \code{TRUE}, outputs the names of the colors which can be helpful as reference when adjusting how colors get used.
 
-Colors are a modification of the protanope and deuteranope friendly colors from Wong, B. Nature Methods, 2011.
+These colors are a modification of the protanope and deuteranope friendly colors from Wong, B. Nature Methods, 2011.
+
+Truly, only the first 1-7 are maximally (red-green) color-blindness friendly, but the lightened and darkened versions (plus grey) in slots 8-40 still work releatively well at extending their utility further.
+Note that past 40, the colors simply repeat in order to most easily allow dittoSeq visualizations to handle situations requiring even more colors.
 
 The colors are:
 
@@ -36,6 +41,10 @@ The colors are:
 9-16 = 25\% darker versions of colors 1-8
 
 17-24 = 25\% lighter versions of colors 1-8
+
+25-32 = 40\% lighter versions of colors 1-8
+
+33-40 = 40\% darker versions of colors 1-8
 }
 \examples{
 dittoColors()

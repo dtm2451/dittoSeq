@@ -16,7 +16,7 @@ dittoHeatmap(
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
   annotation.metas = NULL,
-  annotation.colors = c(rep(dittoColors(), 9), dittoColors()[seq_len(7)]),
+  annotation.colors = c(dittoColors(), dittoColors(1)[seq_len(7)]),
   data.out = FALSE,
   highlight.genes = NULL,
   show.colnames = TRUE,
