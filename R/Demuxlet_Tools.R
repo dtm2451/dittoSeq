@@ -280,7 +280,7 @@ importDemux <- function(
     DF <- read.demux(locations[1], verbose)
     if (length(locations) > 1) {
         for (i in 2:length(locations)) {
-            DF.new <- read.demux(locations[i])
+            DF.new <- read.demux(locations[i], verbose)
             # Change cellranger count appended '-1' to cellranger aggr appended '-#'
             DF.new$BARCODE <- vapply(
                 DF.new$BARCODE,
