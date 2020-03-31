@@ -4,7 +4,9 @@
 \name{RNAseq_mock}
 \alias{RNAseq_mock}
 \title{RNAseq_mock}
-\format{An object of class \code{RNAseq} of length 1.}
+\format{
+An object of class \code{RNAseq} of length 1.
+}
 \usage{
 RNAseq_mock
 }
