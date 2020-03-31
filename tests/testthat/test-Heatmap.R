@@ -77,7 +77,7 @@ test_that("Heatmap can hide rownames/colnames", {
         dittoHeatmap(
             genes,
             object = seurat,
-            show_colnames = FALSE),
+            show_colnames = TRUE),
         "pheatmap")
     ### No rownames
     expect_s3_class(
@@ -129,14 +129,16 @@ test_that("Heatmap colors can be adjusted", {
 })
 
 test_that("Heatmap annotations can be given & heatmaps can be ordered by metadata, expression, or user-input vector", {
-    ### Works for expression
+    # Works for expression
+    ### ordered by gene1
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
             order.by = "gene1"),
         "pheatmap")
-    ### Works for metadata
+    # Works for metadata
+    ### ordered by groups
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -144,7 +146,8 @@ test_that("Heatmap annotations can be given & heatmaps can be ordered by metadat
             order.by = "groups",
             annot.by = "groups"),
         "pheatmap")
-    ### Works with vectors provided
+    # Works with vectors provided
+    ### Ordered in REVERSE of number2
     expect_s3_class(
         dittoHeatmap(
             genes,
@@ -249,7 +252,7 @@ test_that("Heatmap can be subset to certain cells", {
         "pheatmap")
 })
 
-test_that("Heatmap annotation colors can be adjusted via annotation.colors", {
+test_that("Heatmap annotation colors can be adjusted via annot.colors", {
     # (via adjustment of the color pool)
     ### red, yellow, blue, purple for clusters
     ### green numeric (in order)
@@ -258,7 +261,7 @@ test_that("Heatmap annotation colors can be adjusted via annotation.colors", {
             genes,
             object = seurat,
             annot.by = c("number","clusters"),
-            annotation.colors = c("red", "yellow", "blue", "purple", "green3")),
+            annot.colors = c("red", "yellow", "blue", "purple", "green3")),
         "pheatmap")
 })
 
