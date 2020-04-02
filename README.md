@@ -39,9 +39,13 @@ Included in this package are a set of functions to facilitate Mux-seq applicatio
 ## Installataion:
 
 ```
-# Currently, dittoSeq is not quite into the Bioconductor build system
-# Install with:
-BiocManager::install("dtm2451/dittoSeq")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+# The following initializes usage of Bioc devel
+BiocManager::install(version='devel')
+
+BiocManager::install("dittoSeq")
 ```
 
 For older versions, use this code, and check out the READMEs on the associated branches of the repo
