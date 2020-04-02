@@ -65,9 +65,9 @@ devtools::install_github("dtm2451/dittoSeq@v0.3")
 # Quick Start Guide:
 
 ```
-# Install with either of these methods (just run one!)
+# Install
+
 BiocManager::install("dittoSeq")
-devtools::install_github("dtm2451/dittoSeq")
 # (Be sure to restart after a re-install!)
 ```
 
