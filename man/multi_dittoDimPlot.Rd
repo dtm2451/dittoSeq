@@ -22,7 +22,7 @@ multi_dittoDimPlot(
 
 \item{vars}{c("var1","var2","var3",...). A list of vars from which to generate the separate plots}
 
-\item{legend.show, xlab, ylab, ...}{other paramters passed to dittoDimPlot.}
+\item{legend.show, xlab, ylab, ...}{other paramters passed to \code{\link{dittoDimPlot}}.}
 
 \item{ncol, nrow}{Integer/NULL. How many columns or rows the plots should be arranged into}
 

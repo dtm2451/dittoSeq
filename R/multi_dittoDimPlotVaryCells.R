@@ -17,7 +17,7 @@
 #' @param show.titles Logical which sets whether titles should be added to the individual varycells plots
 #' @param ncol,nrow Integers which set dimensions of the plot grid.
 #' @param allcells.main String which adjusts the title of the allcells plot. Default = "All Cells".  Set to \code{NULL} or \code{""} to remove.
-#' @param color.panel,colors,min,max,assay,slot,adjustment,... additional parameters passed todittoDimPlot.
+#' @param color.panel,colors,min,max,assay,slot,adjustment,... additional parameters passed to \code{\link{dittoDimPlot}}.
 #' All parameters except for \code{cells.use}, \code{main}, and \code{legend.show} can be used.
 #' A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.
 #' \code{xlab} and \code{ylab} can be set to \code{NULL} to remove the axes labels and provide extra room for the data.

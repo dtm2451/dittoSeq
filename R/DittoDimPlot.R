@@ -483,7 +483,7 @@ dittoDimPlot <- function(
 #' @param ncol,nrow Integer/NULL. How many columns or rows the plots should be arranged into
 #' @param axes.labels.show Logical. Whether a axis labels should be shown. Ignored if xlab or ylab are set manually.
 #' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
-#' @param legend.show,xlab,ylab,... other paramters passed to dittoDimPlot.
+#' @param legend.show,xlab,ylab,... other paramters passed to \code{\link{dittoDimPlot}}.
 #' @return Given multiple 'var' parameters to \code{vars}, this function will output a dittoDimPlot for each one, arranged into a grid, with some slight tweaks to the defaults.
 #' If \code{OUT.list} was set to TRUE, the list of individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
 #' All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only parameter that can be adjusted between each is the \code{var}.

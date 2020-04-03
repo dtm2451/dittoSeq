@@ -304,7 +304,7 @@ dittoPlot <- function(
 #' \item When set to \code{NULL}, titles / axes labels will not be added.
 #' }
 #' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
-#' @param xlab,legend.show,... other paramters passed along to dittoPlot.
+#' @param xlab,legend.show,... other paramters passed along to \code{\link{dittoPlot}}.
 #' @return Given multiple 'var' parameters, this function will output a dittoPlot for each one, arranged into a grid, just with some slight tweaks to the defaults.
 #' If \code{OUT.list} was set to TRUE, the list of individual plots is output instead of the combined multi-plot.
 #' All parameters that can be adjusted in dittoPlot can be adjusted here.

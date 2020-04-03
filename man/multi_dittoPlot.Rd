@@ -41,7 +41,7 @@ Set both to NULL to have the grid.arrange function figure out what might be most
 \item When set to \code{NULL}, titles / axes labels will not be added.
 }}
 
-\item{xlab, legend.show, ...}{other paramters passed along to dittoPlot.}
+\item{xlab, legend.show, ...}{other paramters passed along to \code{\link{dittoPlot}}.}
 
 \item{OUT.List}{Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.}
 }

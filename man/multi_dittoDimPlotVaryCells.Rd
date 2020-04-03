@@ -42,7 +42,7 @@ Discrete or continuous data both work. REQUIRED.}
 \item{vary.cells.levels}{The values/groupings of the \code{vary.cells.meta} metadata that should get a plot.
 Defaults to all levels of the metadata.}
 
-\item{color.panel, colors, min, max, assay, slot, adjustment, ...}{additional parameters passed todittoDimPlot.
+\item{color.panel, colors, min, max, assay, slot, adjustment, ...}{additional parameters passed to \code{\link{dittoDimPlot}}.
 All parameters except for \code{cells.use}, \code{main}, and \code{legend.show} can be used.
 A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.
 \code{xlab} and \code{ylab} can be set to \code{NULL} to remove the axes labels and provide extra room for the data.
