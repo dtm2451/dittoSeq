@@ -30,7 +30,7 @@ test_that("Heatmap data type can be adjusted", {
 # Set genes1:5 to have all zeros in logcounts in a new object
 sce2 <- sce
 assay(sce2,"logcounts")[1:5,] <- 0
-test_that("Heatmap gives proper warnings when it should", {
+test_that("Heatmap gives warnings/errors when genes missing", {
     # Function throws a warning when any genes are not captured in the target cells.
     expect_warning(
         dittoHeatmap(
@@ -225,7 +225,7 @@ test_that("Heatmap can be ordered when also subset to certain cells", {
         "pheatmap")
 })
 
-test_that("Heatmap can be subset to certain cells", {
+test_that("Heatmap can be subset to certain cells by any method", {
     # By logical
     ### Few cells
     expect_s3_class(
@@ -242,13 +242,13 @@ test_that("Heatmap can be subset to certain cells", {
             object = seurat,
             cells.use = colnames(seurat)[meta("number", seurat)<10]), # names method
         "pheatmap")
-    ### Annotations still work (and ordering).
+    # By indices
+    ### Same few cells
     expect_s3_class(
         dittoHeatmap(
             genes,
             object = seurat,
-            annot.by = "clusters",
-            cells.use = colnames(seurat)[meta("number", seurat)<10]),
+            cells.use = 1:9), # names method
         "pheatmap")
 })
 

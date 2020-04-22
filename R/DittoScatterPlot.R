@@ -134,21 +134,22 @@
 #'     myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
 #'     color.var = "percent.mito")
 #' dittoScatterPlot(
-#'     myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
+#'     myRNA, x.var = "gene1", y.var = "gene2",
 #'     color.var = "groups",
-#'     shape.by = "SNP")
+#'     shape.by = "SNP",
+#'     size = 3)
 #' dittoScatterPlot(
-#'     myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
-#'     color.var = "gene1")
+#'     myRNA, x.var = "gene1", y.var = "gene2",
+#'     color.var = "gene3")
 #'
 #' # Data can be "split" or faceted by a discrete variable as well.
 #' dittoScatterPlot(
-#'     myRNA, x.var = "nCount_RNA",
-#'     y.var = "nFeature_RNA",
+#'     myRNA, x.var = "gene1",
+#'     y.var = "gene2",
 #'     split.by = "timepoint") # single split.by element
 #' dittoScatterPlot(
-#'     myRNA, x.var = "nCount_RNA",
-#'     y.var = "nFeature_RNA",
+#'     myRNA, x.var = "gene1",
+#'     y.var = "gene2",
 #'     split.by = c("groups","SNP")) # row and col split.by elements
 #' # OR with 'extra.vars' plus manually faceting for added control
 #' dittoDimPlot(myRNA, "gene1",
@@ -163,21 +164,34 @@ dittoScatterPlot <- function(
     cells.use = NULL, show.others = FALSE,
     size = 1, opacity = 1,
     color.panel = dittoColors(), colors = seq_along(color.panel),
-    split.nrow = NULL, split.ncol = NULL,
-    assay.x = .default_assay(object), slot.x = .default_slot(object),
+    split.nrow = NULL,
+    split.ncol = NULL,
+    assay.x = .default_assay(object),
+    slot.x = .default_slot(object),
     adjustment.x = NULL,
-    assay.y = .default_assay(object), slot.y = .default_slot(object),
+    assay.y = .default_assay(object),
+    slot.y = .default_slot(object),
     adjustment.y = NULL,
-    assay.color = .default_assay(object), slot.color = .default_slot(object),
+    assay.color = .default_assay(object),
+    slot.color = .default_slot(object),
     adjustment.color = NULL,
-    assay.extra = .default_assay(object), slot.extra = .default_slot(object),
+    assay.extra = .default_assay(object),
+    slot.extra = .default_slot(object),
     adjustment.extra = NULL,
-    do.hover = FALSE, hover.data = NULL, hover.assay = .default_assay(object),
-    hover.slot = .default_slot(object), hover.adjustment = NULL,
+    do.hover = FALSE,
+    hover.data = NULL,
+    hover.assay = .default_assay(object),
+    hover.slot = .default_slot(object),
+    hover.adjustment = NULL,
     shape.panel=c(16,15,17,23,25,8),
-    rename.color.groups = NULL, rename.shape.groups = NULL,
-    min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
-    xlab = x.var, ylab = y.var,
+    rename.color.groups = NULL,
+    rename.shape.groups = NULL,
+    min.color = "#F0E442",
+    max.color = "#0072B2",
+    min = NULL,
+    max = NULL,
+    xlab = x.var,
+    ylab = y.var,
     main = "make", sub = NULL, theme = theme_bw(),
     legend.show = TRUE,
     legend.color.title = color.var, legend.color.size = 5,
@@ -190,37 +204,107 @@ dittoScatterPlot <- function(
     all.cells <- .all_cells(object)
 
     # Make dataframe
-    # Base
     vars <- list(x.var, y.var, color.var, shape.by)
-    names <- c("X", "Y", "color", "shape")
-    assays <- c(assay.x, assay.y, assay.color, NA)
-    slots <- c(slot.x, slot.y, slot.color, NA)
-    adjustments <- c(adjustment.x, adjustment.y, adjustment.color, NA)
+    names <- list("X", "Y", "color", "shape")
+    assays <- list(assay.x, assay.y, assay.color, NA)
+    slots <- list(slot.x, slot.y, slot.color, NA)
+    adjustments <- list(adjustment.x, adjustment.y, adjustment.color, NA)
     relabels <- list(NULL, NULL, rename.color.groups, rename.shape.groups)
+
     dat <- data.frame(row.names = all.cells)
     for (i in seq_along(vars)) {
-        dat <- .add_by_cell(dat, unlist(vars[i]), names[i], object, assays[i],
-            slots[i], adjustments[i], NULL, unlist(relabels[i]))
+        dat <- .add_by_cell(dat, vars[[i]], names[[i]], object, assays[[i]],
+            slots[[i]], adjustments[[i]], NULL, relabels[[i]])
     }
-    # Extra
+
     extra.vars <- c(split.by, extra.vars)
     dat <- .add_by_cell(dat, extra.vars, extra.vars, object, assay.extra,
         slot.extra, adjustment.extra, mult = TRUE)
-    # Trim
+
+    if (do.hover) {
+        dat$hover.string <- .make_hover_strings_from_vars(
+            hover.data, object, hover.assay, hover.slot, hover.adjustment)
+    }
+
+    # Trim by cells.use
     Target_data <- dat[cells.use,]
     Others_data <- dat[!(all.cells %in% cells.use),]
 
-    # Set title
+    # Set title if "make"
     main <- .leave_default_or_null(main,
         paste0(c(color.var, shape.by), collapse = " and "))
 
+    # Make the plot
+    p <- .ditto_scatter_plot(Target_data, Others_data,
+        color.var, shape.by, split.by,  show.others, size, opacity,
+        color.panel, colors, split.nrow, split.ncol, do.hover, shape.panel,
+        min.color, max.color, min, max, xlab, ylab, main, sub, theme,
+        legend.show, legend.color.title, legend.color.size,
+        legend.color.breaks, legend.color.breaks.labels, legend.shape.title,
+        legend.shape.size)
+    if (!is.null(split.by)) {
+        p <- .add_splitting(
+            p, split.by, split.nrow, split.ncol, object, cells.use)
+    }
+
+    ### RETURN the PLOT ###
+    if (data.out) {
+        return(list(plot = p, Target_data = Target_data, Others_data = Others_data))
+    } else{
+        if (do.hover) {
+            .error_if_no_plotly()
+            return(plotly::ggplotly(p, tooltip = "text"))
+        } else {
+            return(p)
+        }
+    }
+}
+
+.ditto_scatter_plot <- function(
+    Target_data,
+    Others_data,
+    color.var,
+    shape.by,
+    split.by,
+    show.others,
+    size,
+    opacity,
+    color.panel,
+    colors,
+    split.nrow,
+    split.ncol,
+    do.hover,
+    shape.panel,
+    min.color,
+    max.color,
+    min,
+    max,
+    xlab,
+    ylab,
+    main,
+    sub,
+    theme,
+    legend.show,
+    legend.color.title,
+    legend.color.size,
+    legend.color.breaks,
+    legend.color.breaks.labels,
+    legend.shape.title,
+    legend.shape.size
+) {
+
     ### Set up plotting
     p <- ggplot() + ylab(ylab) + xlab(xlab) + ggtitle(main,sub) + theme
+
+    # Determine how to add data while adding proper theming
     aes.args <- list(x = "X", y = "Y")
+    geom.args <- list(
+        data = Target_data,
+        size=size, alpha = opacity)
 
     if (!is.null(color.var)) {
         aes.args$color = "color"
-        if (is.numeric(dat$color)) {
+        if (is.numeric(Target_data$color)) {
             p <- p +
             scale_colour_gradient(
                 name = legend.color.title, low= min.color, high = max.color,
@@ -245,50 +329,28 @@ dittoScatterPlot <- function(
             values = shape.panel[seq_along(levels(Target_data$shape))],
             name = legend.shape.title) +
         guides(shape = guide_legend(override.aes = list(size=legend.shape.size)))
-    }
-
-    if (do.hover) {
-        aes.args$text = "hover.string"
-        hover.string <- .make_hover_strings_from_vars(
-            hover.data, object, hover.assay, hover.slot, hover.adjustment)
-    }
-
-    geom.args <- list(
-        data = Target_data,
-        mapping = do.call(aes_string, aes.args),
-        size=size, alpha = opacity)
-    # Shapes if no shape.by
-    if (is.null(shape.by)) {
+    } else {
         geom.args$shape <- shape.panel[1]
     }
+
+    geom.args$mapping <- do.call(aes_string, aes.args)
 
     ### Add data
     if (show.others && nrow(Others_data)>1) {
         p <- p + geom_point(data = Others_data,
             aes_string(x = "X", y = "Y"), size=size, color = "gray90")
     }
+
     if (do.hover) {
+        aes.args$text = "hover.string"
         p <- p + suppressWarnings(do.call(geom_point, geom.args))
     } else {
         p <- p + do.call(geom_point, geom.args)
     }
+
     if (!legend.show) {
         p <- .remove_legend(p)
     }
-    if (!is.null(split.by)) {
-        p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol,object, cells.use)
-    }
 
-    ### RETURN the PLOT ###
-    if (data.out) {
-        return(list(plot = p, Target_data = Target_data, Others_data = Others_data))
-    } else{
-        if (do.hover) {
-            .error_if_no_plotly()
-            return(plotly::ggplotly(p, tooltip = "text"))
-        } else {
-            return(p)
-        }
-    }
+    p
 }

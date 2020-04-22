@@ -220,21 +220,22 @@ dittoScatterPlot(
     myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
     color.var = "percent.mito")
 dittoScatterPlot(
-    myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
+    myRNA, x.var = "gene1", y.var = "gene2",
     color.var = "groups",
-    shape.by = "SNP")
+    shape.by = "SNP",
+    size = 3)
 dittoScatterPlot(
-    myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
-    color.var = "gene1")
+    myRNA, x.var = "gene1", y.var = "gene2",
+    color.var = "gene3")
 
 # Data can be "split" or faceted by a discrete variable as well.
 dittoScatterPlot(
-    myRNA, x.var = "nCount_RNA",
-    y.var = "nFeature_RNA",
+    myRNA, x.var = "gene1",
+    y.var = "gene2",
     split.by = "timepoint") # single split.by element
 dittoScatterPlot(
-    myRNA, x.var = "nCount_RNA",
-    y.var = "nFeature_RNA",
+    myRNA, x.var = "gene1",
+    y.var = "gene2",
     split.by = c("groups","SNP")) # row and col split.by elements
 # OR with 'extra.vars' plus manually faceting for added control
 dittoDimPlot(myRNA, "gene1",

@@ -31,9 +31,9 @@ test_that("metaLevels works for Seurat and SCE", {
 
 test_that("meta and metaLevels give error when given a non-meta", {
     expect_error(meta("a", seurat),
-        "\"a\" is not a metadata of 'object'", fixed = TRUE)
+        "is not a metadata of 'object'", fixed = TRUE)
     expect_error(metaLevels("a", seurat),
-        "\"a\" is not a metadata of 'object'", fixed = TRUE)
+        "is not a metadata of 'object'", fixed = TRUE)
 })
 
 test_that("getGenes works for Seurat and SCE", {
@@ -71,13 +71,13 @@ test_that("gene works for different data types for Seurat and SCE", {
         gene("gene1", seurat, adjustment = "z-score")))
     expect_type(gene("gene1", seurat, adjustment = "relative.to.max"),
         "double")
-    expect_equal(1, max(
+    expect_equal(0:1, range(
         gene("gene1", seurat, adjustment = "relative.to.max")))
 })
 
 test_that("gene gives error when given a non-meta", {
     expect_error(gene("a", seurat),
-        "\"a\" is not a gene of 'object'", fixed = TRUE)
+        "is not a gene of 'object'", fixed = TRUE)
 })
 
 test_that("getReductions works for Seurat and SCE", {
@@ -97,7 +97,7 @@ test_that(".var_or_get_meta_or_gene gets metas, genes, spits back var, or errors
         length(.var_OR_get_meta_or_gene(seq_len(ncol(seurat)), seurat)),
         ncol(seurat)) # just checks length because names are added by the function.
     expect_error(.var_OR_get_meta_or_gene(1,sce),
-        "'var' is not a metadata or gene nor equal in length to ncol('object')", fixed = TRUE)
+        "is not a metadata or gene nor equal in length to ncol('object')", fixed = TRUE)
 })
 
 test_that("isBulk works properly", {
@@ -112,10 +112,20 @@ test_that("setBulk works properly", {
     expect_true(isBulk(setBulk(sce)))
 })
 
+test_that(".which_cells converts non-string cells.use to string", {
+    expect_equal(.which_cells(1:10, sce), colnames(sce)[1:10])
+    logical <- rep(FALSE, ncol(sce))
+    logical[1:10] <- TRUE
+    expect_equal(.which_cells(logical, sce), colnames(sce)[1:10])
+    expect_equal(.which_cells(colnames(sce)[1:10], sce), colnames(sce)[1:10])
+})
+
 test_that(".which_cells errors when logical 'cells.use' is the wrong length", {
     expect_error(.which_cells(TRUE, bulk),
         "'cells.use' length must equal the number of cells/samples in 'object' when given in logical form",
         fixed = TRUE)
 })
+
+
 
 

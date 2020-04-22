@@ -81,7 +81,7 @@ test_that("dittoDimPlot main legend can be removed or adjusted", {
         "ggplot")
 })
 
-test_that("dittoDimPlots can be subset to show only certain cells/samples with either cells.use method", {
+test_that("dittoDimPlots can be subset to show only certain cells/samples with any cells.use method", {
     expect_s3_class(
         c1 <- dittoDimPlot(
             disc, object=seurat,
@@ -93,6 +93,13 @@ test_that("dittoDimPlots can be subset to show only certain cells/samples with e
             cells.use = cells.logical),
         "ggplot")
     expect_equal(c1,c2)
+    c3 <- dittoDimPlot(
+        disc, object=seurat,
+        cells.use = 1:40,
+        data.out = TRUE)
+    expect_equal(c1,c2)
+    expect_equal(c1,c3$p)
+    expect_equal(nrow(c3$Target_data), 40)
     # And if we remove an entire grouping...
     expect_s3_class(
         dittoDimPlot(
@@ -370,4 +377,22 @@ test_that("dittoDimPlot can be faceted with split.by (1 or 2 vars)", {
             split.by = c(disc2,disc),
             cells.use = cells.logical),
         "ggplot")
+})
+
+test_that("dittoDimPlot genes can be different data types", {
+    df <- dittoDimPlot(gene, object = seurat, data.out = TRUE,
+        slot = "counts")
+    expect_equal(
+        df$Target_data$color,
+        round(df$Target_data$color,0))
+    df <- dittoDimPlot(gene, object = sce, data.out = TRUE,
+        assay = "counts")
+    expect_equal(
+        df$Target_data$color,
+        round(df$Target_data$color,0))
+    df <- dittoDimPlot(gene, object = sce, data.out = TRUE,
+        adjustment = "relative.to.max")
+    expect_equal(
+        0:1,
+        range(df$Target_data$color))
 })

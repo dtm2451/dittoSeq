@@ -10,20 +10,26 @@
 }
 
 .which_cells <- function(cells.use, object) {
-    # converts a 'cells.use' given as either string or logical vector
+    # converts a 'cells.use' given as string, logical, or numeric vector
     # into the string vector format expected internally by dittoSeq functions
     all.cells <- .all_cells(object)
+
     if (is.null(cells.use)) {
         # Returns all cells when 'cells.use' is NULL
         return(all.cells)
     }
+
     if (is.logical(cells.use)) {
         if (length(cells.use)!=length(all.cells)) {
             stop("'cells.use' length must equal the number of cells/samples in 'object' when given in logical form")
         }
         return(all.cells[cells.use])
     }
-    # If here, not a logical or NULL, thus should already be a list of names
+
+    if (is.numeric(cells.use)) {
+        return(all.cells[cells.use])
+    }
+
     cells.use
 }
 
@@ -68,22 +74,33 @@
     OUT
 }
 
-.add_by_cell <- function(dat, target, name, object,
+.add_by_cell <- function(df = NULL, target, name, object,
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL, reorder = NULL, relabels = NULL, mult = FALSE) {
 
-    # Extracts metadata or gene expression is target is length 1, then adds
-    # this data to the dat dataframe as a column named name. If target length
-    # = ncol(object), its values are used directly.
-    # For discrete (factor) data, reorder and relabel are used to do just that.
+    # Extracts metadata or gene expression if 'target' is the name of one,
+    # or if length('target') = ncol(object), its values are used directly.
+    # These values are added to the 'df' dataframe as a column named 'name'.
     #
-    # *In mult = TRUE mode, vector targets and vactor name are dealt with as
-    # if there is 1 meta/gene and associated name per index of these vectors,
-    # and reorder/delabels are not used.
+    # For gene data, 'assay', 'slot', and 'adjustment' control how the data is
+    # obtained via 'gene()'
+    #
+    # For discrete (factor) data, 'reorder' and 'relabels' are used to reorder
+    # and/or rename the factor levels within the data so that the data are
+    # renamed and used in the proper order by ggplot.
+    #
+    # *If 'mult = TRUE', takes in a list of 'target' and 'name' pairs.
+    # Each 'target' must be the name of a gene or metadata.
+    # Each pair is added to the dataframe with 'assay', 'slot', and
+    # 'adjustment' used the same was as in the 'multi = FALSE' mode.
+
+    if (is.null(df)) {
+        df <- data.frame(row.names = .all_cells(object))
+    }
 
     if (mult) {
         for (i in seq_along(target)) {
-            dat <- .add_by_cell(dat, target[i], name[i], object, assay, slot,
+            df <- .add_by_cell(df, target[i], name[i], object, assay, slot,
                 adjustment, reorder = NULL, relabels = NULL, mult = FALSE)
         }
     } else if (!is.null(target)) {
@@ -92,12 +109,12 @@
             target, object, assay, slot, adjustment)
         values <- .rename_and_or_reorder(values, reorder, relabels)
         # Add
-        dat <- cbind(dat, values)
+        df <- cbind(df, values)
         # Set the name
-        names(dat)[ncol(dat)] <- name
+        names(df)[ncol(df)] <- name
     }
 
-    dat
+    df
 }
 
 .extract_Reduced_Dim <- function(reduction.use, dim=1, object) {

@@ -83,7 +83,7 @@ test_that("dittoPlotVarsAcrossGroups summary.fxn can be adjusted", {
         NULL)
 })
 
-test_that("dittoPlotsVarsAcrossGroups can be subset to show only certain cells/samples with either cells.use method", {
+test_that("dittoPlotsVarsAcrossGroups can be subset to show only certain cells/samples with any cells.use method", {
     expect_s3_class(
         c1 <- dittoPlotVarsAcrossGroups(
             genes, object=seurat, group.by = grp,
@@ -95,6 +95,12 @@ test_that("dittoPlotsVarsAcrossGroups can be subset to show only certain cells/s
             genes, object=seurat, group.by = grp,
             plots = c("vlnplot", "boxplot"),
             cells.use = cells.logical),
+        "ggplot")
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, object=seurat, group.by = grp,
+            plots = c("vlnplot", "boxplot"),
+            cells.use = 1:40),
         "ggplot")
     expect_equal(c1,c2)
     # And if we remove an entire grouping...

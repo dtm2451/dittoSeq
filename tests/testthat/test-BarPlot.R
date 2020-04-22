@@ -32,7 +32,7 @@ test_that("dittoBarPlot works for SCE", {
         "ggplot")
 })
 
-test_that("dittoBarPlots can be subset to show only certain cells/samples with either cells.use method", {
+test_that("dittoBarPlots can be subset to show only certain cells/samples with any cells.use method", {
     expect_s3_class(
         c1 <- dittoBarPlot(
             seurat, grp2, group.by = grp3,
@@ -44,6 +44,12 @@ test_that("dittoBarPlots can be subset to show only certain cells/samples with e
             cells.use = cells.logical),
         "ggplot")
     expect_equal(c1,c2)
+    expect_s3_class(
+        c3 <- dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            cells.use = 1:40),
+        "ggplot")
+    expect_equal(c1,c3)
     # And if we remove an entire X grouping...
     expect_s3_class(
         dittoBarPlot(

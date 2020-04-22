@@ -7,11 +7,16 @@ gene3 <- "gene3"
 meta1 <- "score"
 meta2 <- "clusters"
 
-test_that("Showing hover.data works for ScatterPlot", {
+test_that("Showing hover.data works for ScatterPlot (with cells.use)", {
     if (requireNamespace("plotly", quietly = TRUE)) {
         expect_s3_class(
             dittoScatterPlot(gene1, gene2, object = seurat, do.hover = TRUE,
                 hover.data = c(gene1,meta1,"ident")),
+            "plotly")
+        expect_s3_class(
+            dittoScatterPlot(gene1, gene2, object = seurat, do.hover = TRUE,
+                hover.data = c(gene1,meta1,"ident"),
+                cells.use = rep(c(TRUE,FALSE), length.out = ncol(seurat))),
             "plotly")
     } else {
         expect_warning(
@@ -21,11 +26,16 @@ test_that("Showing hover.data works for ScatterPlot", {
     }
 })
 
-test_that("Showing hover.data works for DimPlot", {
+test_that("Showing hover.data works for DimPlot (with cells.use)", {
     if (requireNamespace("plotly", quietly = TRUE)) {
         expect_s3_class(
             dittoDimPlot(gene1, object = seurat, do.hover = TRUE,
                 hover.data = c(gene1,meta1,"ident")),
+            "plotly")
+        expect_s3_class(
+            dittoDimPlot(gene1, object = seurat, do.hover = TRUE,
+                hover.data = c(gene1,meta1,"ident"),
+                cells.use = rep(c(TRUE,FALSE), length.out = ncol(seurat))),
             "plotly")
     } else {
         expect_warning(
@@ -35,7 +45,7 @@ test_that("Showing hover.data works for DimPlot", {
     }
 })
 
-test_that("Showing hover.data works for BarPlot", {
+test_that("Showing hover.data works for BarPlot (with cells.use)", {
     if (requireNamespace("plotly", quietly = TRUE)) {
         expect_s3_class(
             dittoBarPlot(
@@ -43,6 +53,13 @@ test_that("Showing hover.data works for BarPlot", {
                 group.by = meta2,
                 do.hover = TRUE),
             "plotly")
+        expect_s3_class(
+            dittoBarPlot(
+                meta1, object = seurat,
+                group.by = meta2,
+                do.hover = TRUE,
+                cells.use = rep(c(TRUE,FALSE), length.out = ncol(seurat))),
+            "plotly")
     } else {
         expect_warning(
             dittoBarPlot(
@@ -53,7 +70,7 @@ test_that("Showing hover.data works for BarPlot", {
     }
 })
 
-test_that("Showing hover.data works for Plot", {
+test_that("Showing hover.data works for Plot (with cells.use)", {
     if (requireNamespace("plotly", quietly = TRUE)) {
         expect_s3_class(
             dittoPlot(
@@ -67,26 +84,13 @@ test_that("Showing hover.data works for Plot", {
                 gene1, object = seurat,
                 group.by = meta2, color.by = meta2,
                 do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident")),
+                hover.data = c(gene1,meta1,"ident"),
+                cells.use = rep(c(TRUE,FALSE), length.out = ncol(seurat))),
             "plotly")
     } else {
         expect_warning(
             dittoPlot(
                 gene1, object = seurat,
-                group.by = meta2, color.by = meta2,
-                do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident")),
-            "plotly installation required for using hover", fixed = TRUE)
-        expect_warning(
-            dittoBoxPlot(
-                gene1, object = seurat,
-                group.by = meta2, color.by = meta2,
-                do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident")),
-            "plotly installation required for using hover", fixed = TRUE)
-        expect_warning(
-            dittoRidgePlot(
-                gene1, object = seurat, plots = c("ridgeplot", "jitter"),
                 group.by = meta2, color.by = meta2,
                 do.hover = TRUE,
                 hover.data = c(gene1,meta1,"ident")),
@@ -106,12 +110,18 @@ test_that("Expected hover.data issue for dittoRidgePlot (if plotly available)",{
     }
 })
 
-test_that("Showing hover.data works for VarsAcrossGroups", {
+test_that("Showing hover.data works for VarsAcrossGroups (with cells.use)", {
     if (requireNamespace("plotly", quietly = TRUE)) {
         expect_s3_class(
             dittoPlotVarsAcrossGroups(c(gene1, gene2, gene3),
                 object = seurat, group.by = meta2,
                 do.hover = TRUE),
+            "plotly")
+        expect_s3_class(
+            dittoPlotVarsAcrossGroups(c(gene1, gene2, gene3),
+                object = seurat, group.by = meta2,
+                do.hover = TRUE,
+                cells.use = rep(c(TRUE,FALSE), length.out = ncol(seurat))),
             "plotly")
     } else {
         expect_warning(

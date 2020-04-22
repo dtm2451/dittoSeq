@@ -115,6 +115,7 @@
 #'
 #' example(importDittoBulk, echo = FALSE)
 #' myRNA
+#' scRNA <- setBulk(myRNA, FALSE)
 #'
 #' # Pick a set of genes
 #' genes <- getGenes(myRNA)[1:30]
@@ -126,6 +127,8 @@
 #' # For single-cell data, you will typically have more cells than can be
 #' # clustered quickly. Thus, cell clustering is turned off by default for
 #' # single-cell data.
+#' dittoHeatmap(scRNA, genes,
+#'     annot.by = "clustering")
 #'
 #' # Using the 'order.by' input:
 #' #   ordering by a useful metadata or gene is generally more helpful
@@ -150,10 +153,6 @@
 #' dittoHeatmap(myRNA, genes, annot.by = "groups",
 #'     order.by = "groups", show_colnames = FALSE,
 #'     scaled.to.max = TRUE)
-#' dittoHeatmap(myRNA, genes, annot.by = "groups",
-#'     order.by = "groups", show_colnames = FALSE,
-#'     scaled.to.max = FALSE,
-#'     heatmap.colors = colorRampPalette(c("white", "red"))(25))
 #'
 #' @author Daniel Bunis
 #' @importFrom pheatmap pheatmap
@@ -179,56 +178,109 @@ dittoHeatmap <- function(
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)
 
-    # Adjust title (off = NA in pheatmap)
-    if (is.null(main)) {
-        main <- NA
-    }
-
     # Make the data matrix
     data <- as.matrix(.which_data(assay,slot,object)[genes,cells.use])
-    if (sum(rowSums(data)==0)>0) {
+    if (any(rowSums(data)==0)) {
         data <- data[rowSums(data)!=0,]
         if (nrow(data)==0) {
             stop("No target genes are expressed in the 'cells.use' subset")
         }
         warning("Gene(s) removed due to absence of expression within the 'cells.use' subset")
     }
-
+    
+    if (!is.null(cell.names.meta)) {
+        cell.names <- .var_OR_get_meta_or_gene(cell.names.meta, object)
+    } else {
+        cell.names <- NULL
+    }
+    
+    if (!is.null(order.by)) {
+        order_data <- .var_OR_get_meta_or_gene(order.by, object, assay, slot)
+    } else {
+        order_data <- NULL
+    }
+    
     # Make the columns annotations data for colored annotation bars
     if (is.null(annotation_col)) {
         annotation_col <- data.frame(row.names = cells.use)
     } else if (!all(cells.use %in% rownames(annotation_col))) {
         stop("rows of 'annotation_col' must be cell/sample names of all cells/samples being displayed")
     }
+    
     if (!is.null(annot.by)) {
         annotation_col <- rbind(
             as.data.frame(getMetas(object, names.only = FALSE)[cells.use, annot.by, drop = FALSE]),
             annotation_col[cells.use, , drop=FALSE])
     }
+    
+    # Set title (off = NA in pheatmap)
+    if (is.null(main)) {
+        main <- NA
+    }
+    
+    args <- .prep_ditto_heatmap(
+        data, cells.use, all.cells, cell.names, order_data, main,
+        heatmap.colors, scaled.to.max, heatmap.colors.max.scaled, annot.colors,
+        annotation_col, annotation_colors, highlight.genes, show_colnames,
+        show_rownames, scale, cluster_cols, border_color, legend_breaks,
+        breaks, ...)
 
+    if (data.out) {
+        OUT <- args
+    } else {
+        OUT <- do.call(pheatmap::pheatmap, args)
+    }
+    OUT
+}
+
+.prep_ditto_heatmap <- function(
+    data,
+    cells.use,
+    all.cells,
+    cell.names,
+    order_data,
+    main,
+    heatmap.colors,
+    scaled.to.max,
+    heatmap.colors.max.scaled,
+    annot.colors,
+    annotation_col,
+    annotation_colors,
+    highlight.genes,
+    show_colnames,
+    show_rownames,
+    scale,
+    cluster_cols,
+    border_color,
+    legend_breaks,
+    breaks,
+    ...) {
+    
     # Create the base pheatmap inputs
     args <- list(
         mat = data, main = main, show_colnames = show_colnames,
         show_rownames = show_rownames, color = heatmap.colors,
         cluster_cols = cluster_cols, border_color = border_color,
         scale = scale, breaks = breaks, legend_breaks = legend_breaks, ...)
+    
+    # Adjust data
+    if (!is.null(order_data)){
+        args$mat <- args$mat[,order(order_data[all.cells %in% cells.use])]
+    }
+    if (scaled.to.max) {
+        args <- .scale_to_max(args, heatmap.colors.max.scaled)
+    }
+    
     # Add annotation_col / annotation_colors only if needed
     if (ncol(annotation_col)>0 || !is.null(args$annotation_row)) {
         if (ncol(annotation_col)>0) {
             args$annotation_col <- annotation_col
         }
         args$annotation_colors <- annotation_colors
+        # Add any missing annotation colors
         args <- .make_heatmap_annotation_colors(args, annot.colors)
     }
 
-    if (scaled.to.max) {
-        args <- .scale_to_max(args, heatmap.colors.max.scaled)
-    }
-
-    if (!is.null(order.by)) {
-        order_data <- .var_OR_get_meta_or_gene(order.by, object, assay, slot)
-        args$mat <- args$mat[,order(order_data[all.cells %in% cells.use])]
-    }
     # Make a labels_row input for displaying only certain genes if genes were given to 'highlight.genes'
     if (!(is.null(highlight.genes)) && sum(highlight.genes %in% rownames(data))>0) {
         highlight.genes <- highlight.genes[highlight.genes %in% rownames(data)]
@@ -239,18 +291,12 @@ dittoHeatmap <- function(
     }
 
     # Add cell/sample/row names unless provided separately by user
-    if(is.null(args$labels_col) && !(is.null(cell.names.meta))) {
-        names <- .var_OR_get_meta_or_gene(cell.names.meta, object)
-        args$labels_col <- as.character(names[colnames(args$mat)])
+    if(is.null(args$labels_col) && !is.null(cell.names)) {
+        args$labels_col <- as.character(cell.names[colnames(args$mat)])
         args$show_colnames <- TRUE
     }
-
-    if (data.out) {
-        OUT <- args
-    } else {
-        OUT <- do.call(pheatmap::pheatmap, args)
-    }
-    OUT
+    
+    args
 }
 
 .scale_to_max <- function(args, heatmap.colors.max.scaled) {

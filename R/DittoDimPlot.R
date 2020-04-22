@@ -251,10 +251,6 @@ dittoDimPlot <- function(
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
     trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE) {
 
-    #Standardize cells.use to a list of names.
-    cells.use <- .which_cells(cells.use, object)
-    all.cells <- .all_cells(object)
-
     if (do.hover || !is.null(shape.by)) {
         do.letter <- FALSE
     }

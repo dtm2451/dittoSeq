@@ -3,88 +3,42 @@
 
 test_that("Data outputing works for ScatterPlot", {
     expect_type(
-        dittoScatterPlot("gene1", "gene2", object = seurat,
-            data.out = TRUE),
+        data <- dittoScatterPlot("gene1", "gene2", object = seurat, data.out = TRUE),
         "list")
-    expect_type(
-        d1 <- dittoScatterPlot("gene1", "gene2", object = seurat,
-            data.out = TRUE)$Target_data,
-        "list")
-    expect_true(ncol(d1) >= 2 && nrow(d1) > 10)
+    expect_true(is.data.frame(data$Target_data))
+    expect_true(is.data.frame(data$Others_data))
+    expect_true(ncol(data$Target_data) >= 2 && nrow(data$Target_data) == ncol(seurat))
 })
 
 test_that("Data outputing works for DimPlot", {
     expect_type(
-        dittoDimPlot("gene1", object = seurat,
-            data.out = TRUE),
+        data <- dittoDimPlot("gene1", object = seurat, data.out = TRUE),
         "list")
-    expect_type(
-        d1 <- dittoDimPlot("gene1", object = seurat,
-            data.out = TRUE)$Target_data,
-        "list")
-    expect_true(ncol(d1) > 2 && nrow(d1) > 10)
+    expect_true(is.data.frame(data$Target_data))
+    expect_true(is.data.frame(data$Others_data))
+    expect_true(ncol(data$Target_data) > 2 && nrow(data$Target_data) == ncol(seurat))
 })
 
 test_that("Data outputing works for BarPlot", {
     expect_type(
-        dittoBarPlot(
-            "clusters", object = seurat,
-            group.by = "age", data.out = TRUE),
+        data <- dittoBarPlot("clusters", object = seurat, group.by = "age", data.out = TRUE),
         "list")
+    expect_true(is.data.frame(data$data))
 })
 
 test_that("Data outputing works for Plot", {
-    # "Coloring works for discrete column and row annotations"
-        # If: annotations are all discrete.
     expect_type(
-        dittoPlot(
-            "gene1", object = seurat,
-            group.by = "age", color.by = "age",
-            data.out = TRUE),
+        data <- dittoPlot("gene1", object = seurat, group.by = "age", color.by = "age", data.out = TRUE),
         "list")
-    expect_type(
-        d1 <- dittoPlot(
-            "gene1", object = seurat,
-            group.by = "age", color.by = "age",
-            data.out = TRUE)$data,
-        "list")
-    expect_type(
-        dittoRidgePlot(
-            "gene1", object = seurat,
-            group.by = "age", color.by = "age",
-            data.out = TRUE),
-        "list")
-    expect_type(
-        d2 <- dittoRidgePlot(
-            "gene1", object = seurat,
-            group.by = "age", color.by = "age",
-            data.out = TRUE)$data,
-        "list")
-    expect_type(
-        dittoBoxPlot(
-            "gene1", object = seurat,
-            group.by = "age", color.by = "age",
-            data.out = TRUE),
-        "list")
-    expect_type(
-        d3 <- dittoBoxPlot(
-            "gene1", object = seurat,
-            group.by = "age", color.by = "age",
-            data.out = TRUE)$data,
-        "list")
-    expect_true(ncol(d1) > 2 && nrow(d1) > 10)
-    expect_true(ncol(d2) > 2 && nrow(d1) > 10)
-    expect_true(ncol(d3) > 2 && nrow(d1) > 10)
+    expect_true(is.data.frame(data$data))
+    expect_true(ncol(data$data) > 2 && nrow(data$data) == ncol(seurat))
 })
 
 test_that("Data outputing works for Plot_VarsByGroup", {
     expect_type(
-        p <- dittoPlotVarsAcrossGroups(
-            c("gene1", "gene2"), object = seurat, group.by = "age",
-            data.out = TRUE),
+        data <- dittoPlotVarsAcrossGroups(c("gene1", "gene2"), object = seurat, group.by = "age", data.out = TRUE),
         "list")
-    expect_true(length(p) == 2)
-    expect_type(p$data, "list")
+    expect_true(is.data.frame(data$data))
 })
 
 test_that("Data outputing works for Heatmap", {
@@ -92,7 +46,6 @@ test_that("Data outputing works for Heatmap", {
         hm <- dittoHeatmap(c("gene1", "gene2"), object = seurat,
             data.out = TRUE),
         "list")
-    expect_true(length(hm) == 10)
     expect_true("mat" %in% names(hm))
 })
 

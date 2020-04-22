@@ -1,7 +1,9 @@
 # Tests for dittoScatterPlot function
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-ScatterPlot.R")
 
-# Most ScatterPlot features are used/tested in the test-DimPlot, so this will look light.
+####
+#### Most ScatterPlot features are used/tested in the test-DimPlot, so this will look light.
+####
 
 seurat$number <- as.numeric(seq_along(colnames(seurat)))
 gene <- "gene1"
@@ -24,6 +26,9 @@ test_that("dittoScatterPlot can plot genes or metadata & work for SCE", {
 })
 
 test_that("dittoScatterPlot can overlay colors, continuous or discrete", {
+    expect_true(
+        "color" %in%
+        names(dittoScatterPlot(gene, cont, cont, object = seurat, data.out = TRUE)$Target_data))
     expect_s3_class(
         dittoScatterPlot(
             gene, cont, cont, object = seurat),
@@ -35,6 +40,9 @@ test_that("dittoScatterPlot can overlay colors, continuous or discrete", {
 })
 
 test_that("dittoScatterPlot can overlay shapes", {
+    expect_true(
+        "shape" %in%
+        names(dittoScatterPlot(gene, cont, NULL, disc, object = seurat, data.out = TRUE)$Target_data))
     expect_s3_class(
         dittoScatterPlot(
             gene, cont, NULL, disc, object = seurat),
@@ -53,6 +61,31 @@ test_that("dittoScatterPlot can add extra vars to dataframe", {
     expect_equal(ncol(df1), 3)
     expect_equal(ncol(df2), 5)
 })
+
+test_that("dittoScatterPlot gene display can utilize different data.types (excluding for hover)", {
+    df <- dittoScatterPlot(gene, gene, gene, NULL, object = seurat,
+        slot.x = "counts",
+        slot.y = "counts",
+        adjustment.color = "z-score",
+        data.out = TRUE)
+    expect_equal(
+        df$Target_data$X,
+        round(df$Target_data$Y,0))
+    expect_equal(
+        mean(df$Target_data$color),
+        0)
+    df <- dittoScatterPlot(gene, gene, gene, NULL, object = sce,
+        assay.x = "counts",
+        assay.y = "counts",
+        data.out = TRUE)
+    expect_equal(
+        df$Target_data$X,
+        round(df$Target_data$Y,0))
+})
+
+####################
+### Manual Check ###
+####################
 
 test_that("dittoScatterPlot can be faceted with split.by (1 or 2 vars)", {
     # MANUAL CHECK: FACETING
@@ -87,15 +120,5 @@ test_that("dittoScatterPlot can be faceted with split.by (1 or 2 vars)", {
             gene, cont, NULL, disc, object = seurat,
             split.by = c(disc2,disc),
             cells.use = cells.logical),
-        "ggplot")
-})
-
-test_that("dittoScatterPlot gene display can utilize different data.types (excluding for hover)", {
-    expect_s3_class(
-        dittoScatterPlot(
-            gene, gene, gene, NULL, object = seurat,
-            slot.x = "counts",
-            adjustment.y = "z-score",
-            adjustment.color = "relative.to.max"),
         "ggplot")
 })

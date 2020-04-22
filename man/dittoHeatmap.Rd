@@ -162,6 +162,7 @@ For such filling, \code{annot.colors} are pulled for column annotations first, t
 
 example(importDittoBulk, echo = FALSE)
 myRNA
+scRNA <- setBulk(myRNA, FALSE)
 
 # Pick a set of genes
 genes <- getGenes(myRNA)[1:30]
@@ -173,6 +174,8 @@ dittoHeatmap(myRNA, genes,
 # For single-cell data, you will typically have more cells than can be
 # clustered quickly. Thus, cell clustering is turned off by default for
 # single-cell data.
+dittoHeatmap(scRNA, genes,
+    annot.by = "clustering")
 
 # Using the 'order.by' input:
 #   ordering by a useful metadata or gene is generally more helpful
@@ -197,10 +200,6 @@ dittoHeatmap(myRNA, genes,
 dittoHeatmap(myRNA, genes, annot.by = "groups",
     order.by = "groups", show_colnames = FALSE,
     scaled.to.max = TRUE)
-dittoHeatmap(myRNA, genes, annot.by = "groups",
-    order.by = "groups", show_colnames = FALSE,
-    scaled.to.max = FALSE,
-    heatmap.colors = colorRampPalette(c("white", "red"))(25))
 
 }
 \seealso{
