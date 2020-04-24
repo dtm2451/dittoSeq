@@ -19,14 +19,25 @@ dittoSeq also makes collection of underlying data easy, for submitting to journa
 
 ## News: dittoSeq has been accepted into Bioconductor!
 
-- Version 1.0 will release with the next Bioconductor release cycle in April.
-- Changes have been made but there is still a bit more to do before release, thus I have maintained the 0.3 version throughout the submission process.
-- Changes in 0.3 -> 1.0:
+- Version 1.0 will release with the upcoming Bioconductor release cycle.
+- Changes from 0.3 -> 1.0:
   - Helper function names changed from `get.X` and `is.X` to `getX` and `isX`
-  - bulk RNAseq data now utilized by conversion into the `SingleCellExperiment` data structure.
-  - Expression data access with Seurat & SCE native `assay` (and `slot`) instead of with `data.type` to provide full compatibility with all typical data of the objects.
+  - `object` input was made to come first in all visualization functions to align with other packages' norms.
+  - bulk RNAseq data now utilized by conversion into the `SingleCellExperiment` data structure. (Old RNAseq class was removed.)
+    - `addPrcomp()` and `addDimReduction()` setters were updated for this purpose.
+    - `addMetaRNAseq()` was removed in favor of `SingleCellExperiment`'s own methods for metadaata addition.
+  - Expression data access with Seurat & SCE native `assay` (and `slot`) instead of with `data.type` to provide full compatibility with all typical data of the objects."z-score" and "relative.to.max" adjustments of expression data are now requested via provision of such strings to a separate `adjustment` argument.
   - DEFAULT'ing removed. This was not congruent with best practices for packages.
-  - `object` input was made to come first in all visualization functions to align with other packages' norms & to allow for potential future S4 compatibility.
+  - Faceting capability was added, controlled by `split.by` (+ `split.ncol` & `split.nrow`), to `dittoPlot()`, `dittoDimPlot()`, `dittoScatterPlot()` and functions which operate off of these.
+  - `importDemux2Seurat()` was updated to work with SingleCellExperiment objects and renamed `importDemux()`
+    - Update included input renames
+      - `Seurat` -> `object`
+      - `Demuxlet.best` -> `demuxlet.best`
+  - Some additional inputs were renamed for ease-of-use or consistency purposes:
+    - `shape.var` -> `shape.by` (dittoPlot(), dittoDimPlot() & dittoScatterPlot())
+    - `reps` argument added to dittoColors() to allow error-free plot generation by default with up to 4000 discrete color elements
+    - `annotation.metas`, `show.colnames` & `show.rownames` -> `annot.by`, `show_colnames` & `show.rownames` (dittoHeatmap())
+    
 
 ## Color Blindness Compatibility:
 
@@ -39,18 +50,27 @@ Included in this package are a set of functions to facilitate Mux-seq applicatio
 ## Installataion:
 
 ```
+### For R-4.0 users:
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-# The following initializes usage of Bioc devel
-BiocManager::install(version='devel')
-
 BiocManager::install("dittoSeq")
+
+### For R-3.6 users:
+# BiocManager will not let you install the pre-compiled version, but you can
+# install directly from this github via:
+if (!requireNamespace("devtools", quietly = TRUE))
+    install.packages("devtools")
+
+devtools::install_github("dtm2451/dittoSeq")
 ```
 
 For older versions, use this code, and check out the READMEs on the associated branches of the repo
 
 ```
+if (!requireNamespace("devtools", quietly = TRUE))
+    install.packages("devtools")
+    
 # For pre-Bioconductor-submission version (still maintained currently): 
 devtools::install_github("dtm2451/dittoSeq@v0.3")
 
@@ -58,22 +78,15 @@ devtools::install_github("dtm2451/dittoSeq@v0.3")
 # (Note: These are nolonger maintained, and only offered for compatibility with old code.):
 #   Old 'DB' plotter version
 # devtools::install_github("dtm2451/dittoSeq@v0.2")
-#   Old 'DB' plotter version plus some early ditto plotters
+#   Old 'DB' plotter version plus some early 'ditto' plotters
 # devtools::install_github("dtm2451/dittoSeq@v0.2.20")
 ```
 
 # Quick Start Guide:
 
-```
-# Install
+Code in this guide requires the dittoSeq version v0.99 or above.
 
-BiocManager::install("dittoSeq")
-# (Be sure to restart after a re-install!)
-```
-
-Code in this guide requires the dittoSeq version above.
-
-Next, load in your data, then go!:
+Load in your data, then go!:
 
 ```
 library(dittoSeq)
@@ -89,9 +102,9 @@ dittoPlot(seurat, "CD14", group.by = "ident")
 sce <- Seurat::as.SingleCellExperiment(seurat)
 dittoBarPlot(sce, "ident", group.by = "RNA_snn_res.0.8")
 
-# For working with bulk RNAseq data, first load your data into a format that
-#   dittoSeq understands, one which contains space for holding dimensionality
-#   reductions.
+# For working with bulk RNAseq data, first import your data into a
+#   SingleCellExperiment structure, which is essentially a SummarizedExperiment
+#   structure just with an added space for holding dimensionality reductions.
 # myRNA <- importDittoBulk(se) # SummarizedExperiment
 # myRNA <- importDittoBulk(dds) # DESeq2
 # myRNA <- importDittoBulk(dgelist) # edgeR
