@@ -1,7 +1,7 @@
 Package: dittoSeq
 Type: Package
 Title: User Friendly Single-Cell and Bulk RNA Sequencing Visualization
-Version: 0.99.15
+Version: 0.99.16
 Author: Daniel Bunis
 Maintainer: Daniel Bunis <daniel.bunis@ucsf.edu>
 Description: A universal, user friendly, single-cell and bulk RNA sequencing
