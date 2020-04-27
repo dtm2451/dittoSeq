@@ -2,7 +2,7 @@
 % Please edit documentation in R/bulk-get-and-set.R
 \name{isBulk}
 \alias{isBulk}
-\title{Retrieve whether a SingleCellObject should be treated as single-cell versus bulk}
+\title{Retrieve whether a SingleCellExperiment object would be treated as bulk versus single-cell by dittoSeq}
 \usage{
 isBulk(object)
 }
@@ -15,11 +15,14 @@ Alternatively, anything else, but then the result will always be \code{FALSE}}
 Logical: whether the provided object would be treated as bulk data by dittoSeq
 }
 \description{
-Retrieve whether a SingleCellObject should be treated as single-cell versus bulk
+Retrieve whether a SingleCellExperiment object would be treated as bulk versus single-cell by dittoSeq
 }
 \examples{
 example(importDittoBulk, echo = FALSE)
 myRNA
 
 isBulk(myRNA)
+
+scRNA <- setBulk(myRNA, FALSE)
+isBulk(scRNA)
 }
