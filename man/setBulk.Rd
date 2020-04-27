@@ -3,7 +3,7 @@
 \name{setBulk}
 \alias{setBulk}
 \alias{setBulk,SingleCellExperiment-method}
-\title{Set whether a SingleCellExperiment object should be treated as single-cell versus bulk}
+\title{Set whether a SingleCellExperiment object should be treated as bulk versus single-cell by dittoSeq}
 \usage{
 setBulk(object, set = TRUE)
 
@@ -18,7 +18,7 @@ setBulk(object, set = TRUE)
 A \code{\linkS4class{SingleCellExperiment}} object with "bulk" internal metadata set to \code{set}
 }
 \description{
-Set whether a SingleCellExperiment object should be treated as single-cell versus bulk
+Set whether a SingleCellExperiment object should be treated as bulk versus single-cell by dittoSeq
 }
 \examples{
 example(importDittoBulk, echo = FALSE)

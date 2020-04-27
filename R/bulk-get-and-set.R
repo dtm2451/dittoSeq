@@ -1,4 +1,4 @@
-#' Retrieve whether a SingleCellObject should be treated as single-cell versus bulk
+#' Retrieve whether a SingleCellExperiment object would be treated as bulk versus single-cell by dittoSeq
 #' @param object A target SingleCellExperiment object
 #'
 #' Alternatively, anything else, but then the result will always be \code{FALSE}
@@ -8,6 +8,9 @@
 #' myRNA
 #'
 #' isBulk(myRNA)
+#' 
+#' scRNA <- setBulk(myRNA, FALSE)
+#' isBulk(scRNA)
 #' @importFrom SingleCellExperiment "int_metadata<-" int_metadata
 #' @export
 isBulk <- function(object) {
@@ -22,7 +25,7 @@ isBulk <- function(object) {
     OUT
 }
 
-#' Set whether a SingleCellExperiment object should be treated as single-cell versus bulk
+#' Set whether a SingleCellExperiment object should be treated as bulk versus single-cell by dittoSeq
 #' @rdname setBulk
 #' @param object A target SingleCellExperiment object
 #' @param set Logical, whether the object should be considered as bulk (TRUE) or not (FALSE)
