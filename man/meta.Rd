@@ -4,24 +4,45 @@
 \alias{meta}
 \title{Returns the values of a meta.data  for all cells/samples}
 \usage{
-meta(meta, object)
+meta(meta, object, adjustment = NULL, adj.fxn = NULL)
 }
 \arguments{
 \item{meta}{String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.}
 
 \item{object}{A target Seurat or SingleCellExperiment object}
+
+\item{adjustment}{A recognized string indicating whether numeric metadata should be used directly (default) versus adjusted to be
+\itemize{
+\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+\item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+}
+
+Ignored if the target metadata is not numeric.}
+
+\item{adj.fxn}{A function which takes a vector (of metadata values) and returns a vector of the same length.
+
+For example, \code{function(x) \{log2(x)\}} or \code{as.factor}}
 }
 \value{
-A named vector. Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
-Names of values will be the cell/sample names.
+A named vector.
 }
 \description{
 Returns the values of a meta.data  for all cells/samples
+}
+\details{
+Retrieves the values of a metadata slot from \code{object}, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
+If \code{adjustment} or \code{adj.fxn} are provided, then these requested adjustments are applied to these values (\code{adjustment} first).
+Lastly, outputs these values named as the cells'/samples' names.
 }
 \examples{
 
 example(importDittoBulk, echo = FALSE)
 meta("groups", object = myRNA)
+
+myRNA$numbers <- seq_len(ncol(myRNA))
+meta("numbers", myRNA, adjustment = "z-score")
+meta("numbers", myRNA, adj.fxn = as.factor)
+meta("numbers", myRNA, adj.fxn = function(x) \{log2(x)\})
 
 }
 \seealso{
