@@ -31,8 +31,11 @@ Returns the values of a meta.data  for all cells/samples
 }
 \details{
 Retrieves the values of a metadata slot from \code{object}, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
+
 If \code{adjustment} or \code{adj.fxn} are provided, then these requested adjustments are applied to these values (\code{adjustment} first).
-Lastly, outputs these values named as the cells'/samples' names.
+Note: Alterations via \code{adjustment} are only applied when metadata is numeric, but \code{adj.fxn} alterations are applied to metadata of any type.
+
+Lastly, outputs these values are named as the cells'/samples' names.
 }
 \examples{
 
