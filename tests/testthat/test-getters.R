@@ -21,6 +21,16 @@ test_that("meta works for Seurat and SCE", {
     expect_type(counts <- meta("score", seurat),
         "double")
     expect_equal(counts, meta("score", sce))
+    expect_type(meta("score", seurat, adjustment = "z-score"),
+        "double")
+    expect_equal(0, mean(
+        meta("score", seurat, adjustment = "z-score")))
+    expect_type(meta("score", seurat, adjustment = "relative.to.max"),
+        "double")
+    expect_equal(0:1, range(
+        meta("score", seurat, adjustment = "relative.to.max")))
+    expect_equal(factor(meta("score", seurat)),
+        meta("score", seurat, adj.fxn = function(x) {factor(x)}))
 })
 
 test_that("metaLevels works for Seurat and SCE", {
