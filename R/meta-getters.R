@@ -92,8 +92,21 @@ getMetas <- function(object, names.only = TRUE){
 #'
 #' @param meta String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.
 #' @param object A target Seurat or SingleCellExperiment object
-#' @return A named vector. Returns the values of a metadata slot, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
-#' Names of values will be the cell/sample names.
+#' @param adjustment A recognized string indicating whether numeric metadata should be used directly (default) versus adjusted to be
+#' \itemize{
+#' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+#' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+#' }
+#' 
+#' Ignored if the target metadata is not numeric.
+#' @param adj.fxn A function which takes a vector (of metadata values) and returns a vector of the same length.
+#' 
+#' For example, \code{function(x) \{log2(x)\}} or \code{as.factor}
+#' @return A named vector.
+#' @details
+#' Retrieves the values of a metadata slot from \code{object}, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
+#' If \code{adjustment} or \code{adj.fxn} are provided, then these requested adjustments are applied to these values (\code{adjustment} first).
+#' Lastly, outputs these values named as the cells'/samples' names.
 #' @seealso
 #' \code{\link{metaLevels}} for returning just the unique discrete identities that exist within a metadata slot
 #'
@@ -104,27 +117,57 @@ getMetas <- function(object, names.only = TRUE){
 #'
 #' example(importDittoBulk, echo = FALSE)
 #' meta("groups", object = myRNA)
+#' 
+#' myRNA$numbers <- seq_len(ncol(myRNA))
+#' meta("numbers", myRNA, adjustment = "z-score")
+#' meta("numbers", myRNA, adj.fxn = as.factor)
+#' meta("numbers", myRNA, adj.fxn = function(x) \{log2(x)\})
 #'
 #' @author Daniel Bunis
 #' @export
 
-meta <- function(meta, object) {
+meta <- function(meta, object,
+    adjustment = NULL, adj.fxn = NULL) {
 
     if (!isMeta(meta, object)) {
         stop(dQuote(meta)," is not a metadata of 'object'")
     }
+    
+    # Retrieve target metadata's values
     if (meta=="ident" && !is(object,"SingleCellExperiment")) {
-    # Retrieve clustering from Seurats
+        # Seurat clustering
         if (is(object, "Seurat")) {
             .error_if_no_Seurat()
-            return(Seurat::Idents(object))
+            values <- Seurat::Idents(object)
         } else {
-            return(object@ident)
+            values <- object@ident
+        }
+    } else {
+        
+        values <- getMetas(object, names.only = FALSE)[,meta, drop = TRUE]
+    }
+
+    # Add adjustments
+    if (is.numeric(values)) {
+        
+        if (!is.null(adjustment) && !is.na(adjustment)) {
+            if (adjustment=="z-score") {
+                values <- as.numeric(scale(values))
+            }
+            if (adjustment=="relative.to.max") {
+                values <- values/max(values)
+            }
         }
     }
-    meta <- getMetas(object, names.only = FALSE)[,meta]
-    names(meta) <- .all_cells(object)
-    meta
+        
+    if (!is.null(adj.fxn)) {
+        values <- adj.fxn(values)
+    }
+    
+    # Add names
+    names(values) <- .all_cells(object)
+    
+    values
 }
 
 #' Gives the distinct values of a meta.data slot (or ident)
