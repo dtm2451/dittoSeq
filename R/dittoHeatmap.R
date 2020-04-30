@@ -5,6 +5,7 @@
 #' @param object A Seurat or SingleCellExperiment object to work with
 #' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap.
 #' If not provided, defaults to all genes of the object / assay.
+#' @param metas String vector, c("meta1","meta2","meta3",...) = the list of metadata variables to put in the heatmap.
 #' @param cells.use String vector of cells'/samples' names which should be included.
 #'
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -160,7 +161,7 @@
 #' @export
 
 dittoHeatmap <- function(
-    object, genes = getGenes(object, assay), cells.use = NULL,
+    object, genes = getGenes(object, assay), metas = NULL, cells.use = NULL,
     annot.by = NULL,
     order.by = .default_order(object, annot.by),
     main = NA, cell.names.meta = NULL,
@@ -179,7 +180,21 @@ dittoHeatmap <- function(
     all.cells <- .all_cells(object)
 
     # Make the data matrix
-    data <- as.matrix(.which_data(assay,slot,object)[genes,cells.use])
+    if (!is.null(genes)) {
+        data <- as.matrix(.which_data(assay,slot,object)[genes,cells.use])
+    } else {
+        data <- NULL
+    }
+
+    if (!is.null(metas)) {
+        met.data <- as.matrix(t(getMetas(object, names.only = FALSE)[, metas]))
+        data <- rbind(data, met.data)
+    }
+
+    if (is.null(data)) {
+        stop("No data found for given genes/metadata")
+    }
+
     if (any(rowSums(data)==0)) {
         data <- data[rowSums(data)!=0,]
         if (nrow(data)==0) {
