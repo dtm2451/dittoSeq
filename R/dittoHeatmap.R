@@ -27,7 +27,7 @@
 #' @param annot.colors String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output from the heatmat itself, to a list containing all arguments that would have be passed to \code{\link{pheatmap}} for heatmap generation.
 #' (Can be useful for troubleshooting or customization.)
-#' @param highlight.genes String vector of genes whose names you would like to show. Only these genes will be named in the resulting heatmap.
+#' @param highlight.genes String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.
 #' @param cluster_cols,border_color,legend_breaks,breaks,... other arguments passed to \code{\link{pheatmap}} directly.
 #' @param show_colnames,show_rownames,scale,annotation_col,annotation_colors arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
 #' \itemize{
@@ -187,7 +187,7 @@ dittoHeatmap <- function(
     }
 
     if (!is.null(metas)) {
-        met.data <- as.matrix(t(getMetas(object, names.only = FALSE)[, metas]))
+        met.data <- as.matrix(t(getMetas(object, names.only = FALSE)[cells.use, metas]))
         data <- rbind(data, met.data)
     }
 
