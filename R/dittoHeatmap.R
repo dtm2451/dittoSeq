@@ -156,7 +156,7 @@
 #'     order.by = "groups", show_colnames = FALSE,
 #'     scaled.to.max = TRUE)
 #'
-#' @author Daniel Bunis
+#' @author Daniel Bunis and Jared Andrews
 #' @importFrom pheatmap pheatmap
 #' @importFrom grDevices colorRampPalette
 #' @export
