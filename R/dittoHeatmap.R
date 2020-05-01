@@ -432,16 +432,16 @@ dittoHeatmap <- function(
     } 
 
     if (is.null(data)) { 
-        stop("No data found for given genes/metadata") 
+        stop("No 'genes' or 'metas' requested") 
     } 
 
     if (any(rowSums(data)==0)) { 
         data <- data[rowSums(data)!=0,] 
         if (nrow(data)==0) { 
-            stop("No target genes/metadata features have positive values in the 'cells.use' subset") 
+            stop("No target genes/metadata features have non-zero values in the 'cells.use' subset") 
         } 
-        warning("Gene(s) or metadata removed due to absence of positive values within the 'cells.use' subset") 
+        warning("Gene(s) or metadata removed due to absence of non-zero values within the 'cells.use' subset") 
     } 
-    
+
     data
 }
