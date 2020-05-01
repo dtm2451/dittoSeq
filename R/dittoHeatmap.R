@@ -27,12 +27,13 @@
 #' @param annot.colors String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output from the heatmat itself, to a list containing all arguments that would have be passed to \code{\link{pheatmap}} for heatmap generation.
 #' (Can be useful for troubleshooting or customization.)
-#' @param highlight.genes String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.
+#' @param highlight.features String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.
+#' @param highlight.genes Deprecated, use \code{highlight.features} instead.
 #' @param cluster_cols,border_color,legend_breaks,breaks,... other arguments passed to \code{\link{pheatmap}} directly.
 #' @param show_colnames,show_rownames,scale,annotation_col,annotation_colors arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
 #' \itemize{
 #' \item show_colnames (& labels_col): if \code{cell.names.meta} is provided, pheatmaps's \code{labels_col} is utilized to show these names and \code{show_colnames} parameter is set to \code{TRUE}.
-#' \item show_rownames (& labels_row): if feature names are provided to \code{highlight.genes}, pheatmap's \code{labels_row} is utilized to show just these features' names and \code{show_rownames} parameter is set to \code{TRUE}.
+#' \item show_rownames (& labels_row): if feature names are provided to \code{highlight.features}, pheatmap's \code{labels_row} is utilized to show just these features' names and \code{show_rownames} parameter is set to \code{TRUE}.
 #' \item scale: when parameter \code{scaled.to.max} is set to true, pheatmap's \code{scale} is set to \code{"none"} and the max scaling is performed prior to the pheatmap call.
 #' \item annotation_col: Can be provided as normal by the user and any metadata given to \code{annot.by} will then be appended.
 #' \item annotation_colors: dittoHeatmap fills this complicated-to-produce input in automatically by pulling from the colors given to \code{annot.colors},
@@ -65,7 +66,7 @@
 #' \item A plot title can be added with \strong{\code{main}}.
 #' \item \strong{Gene or cell/sample names} can be hidden with \code{show_rownames} and \code{show_colnames}, respectively, or...
 #' \itemize{
-#' \item Particular genes can also be selected for labeling using the \code{highlight.genes} input.
+#' \item Particular features can also be selected for labeling using the \code{highlight.features} input.
 #' \item Names of all cells/samples can be replaced with the contents of a metadata slot using the \code{cell.names.meta} input.
 #' }
 #' \item Additional tweaks are possible through use of \code{\link[pheatmap]{pheatmap}} inputs which will be directly passed through.
@@ -171,13 +172,23 @@ dittoHeatmap <- function(
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
     annot.colors = c(dittoColors(),dittoColors(1)[seq_len(7)]),
     annotation_col = NULL, annotation_colors = NULL,
-    data.out=FALSE, highlight.genes = NULL, show_colnames = isBulk(object),
+    data.out=FALSE, highlight.features = NULL, highlight.genes = NULL, 
+    show_colnames = isBulk(object),
     show_rownames = TRUE, scale = "row", cluster_cols = isBulk(object),
     border_color = NA, legend_breaks = NA, breaks = NA, ...) {
 
     # If cells.use given as logical, populate as names.
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)
+
+    # Handle deprecated argument
+    if (!is.null(highlight.genes)) {
+        if (!is.null(highlight.features)) {
+            stop("you can only specify one of 'highlight.genes' or 'highlight.features'")
+        }
+        .Deprecated(msg="argument 'highlight.genes' is deprecated, please use 'highlight.features' instead")
+        highlight.features <- highlight.genes
+    }
 
     # Make the data matrix
     if (!is.null(genes)) {
@@ -236,7 +247,7 @@ dittoHeatmap <- function(
     args <- .prep_ditto_heatmap(
         data, cells.use, all.cells, cell.names, order_data, main,
         heatmap.colors, scaled.to.max, heatmap.colors.max.scaled, annot.colors,
-        annotation_col, annotation_colors, highlight.genes, show_colnames,
+        annotation_col, annotation_colors, highlight.features, show_colnames,
         show_rownames, scale, cluster_cols, border_color, legend_breaks,
         breaks, ...)
 
@@ -261,7 +272,7 @@ dittoHeatmap <- function(
     annot.colors,
     annotation_col,
     annotation_colors,
-    highlight.genes,
+    highlight.features,
     show_colnames,
     show_rownames,
     scale,
@@ -296,12 +307,12 @@ dittoHeatmap <- function(
         args <- .make_heatmap_annotation_colors(args, annot.colors)
     }
 
-    # Make a labels_row input for displaying only certain genes if genes were given to 'highlight.genes'
-    if (!(is.null(highlight.genes)) && sum(highlight.genes %in% rownames(data))>0) {
-        highlight.genes <- highlight.genes[highlight.genes %in% rownames(data)]
+    # Make a labels_row input for displaying only certain genes/variables if given to 'highlight.features'
+    if (!(is.null(highlight.features)) && sum(highlight.features %in% rownames(data))>0) {
+        highlight.features <- highlight.features[highlight.features %in% rownames(data)]
         args$labels_row <- rownames(data)
         #Overwrite all non-highlight genes rownames to ""
-        args$labels_row[-(match(highlight.genes,rownames(data)))] <- ""
+        args$labels_row[-(match(highlight.features,rownames(data)))] <- ""
         args$show_rownames <- TRUE
     }
 
