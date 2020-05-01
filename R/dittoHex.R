@@ -72,6 +72,10 @@
 #' 
 #' dittoDimHex(myRNA, bins = 10, split.by = "groups")
 #' dittoDimHex(myRNA, data.out = TRUE)
+#' 
+#' dittoDimHex(myRNA, bins = 10,
+#'     add.trajectory.lineages = list(c(1,2,4), c(1,4), c(1,3)),
+#'     trajectory.cluster.meta = "clustering")
 #'
 NULL
 
@@ -142,6 +146,11 @@ dittoScatterHex <- function(
         p <- .add_splitting(
             p, split.by, split.nrow, split.ncol, object, cells.use)
     }
+    
+    ### Add extra features
+    # if (add.contours) {
+    #     p <- .add_countours(p, data)
+    # }
 
     ### RETURN the PLOT ###
     if (data.out) {
@@ -198,11 +207,10 @@ dittoDimHex <- function(
         object, xdat$embeddings, ydat$embeddings, color.var, bins, split.by,
         extra.vars, cells.use, split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
-        min.alpha, max.alpha,
-        min.color, max.color, min, max, xlab, ylab, main, sub, theme,
-        legend.show, legend.color.title, legend.color.breaks,
-        legend.color.breaks.labels, legend.density.title, legend.density.breaks,
-        legend.density.breaks.labels, data.out = TRUE)
+        min.alpha, max.alpha, min.color, max.color, min, max, xlab, ylab, main,
+        sub, theme, legend.show, legend.color.title, legend.color.breaks,
+        legend.color.breaks.labels, legend.density.title,
+        legend.density.breaks, legend.density.breaks.labels, data.out = TRUE)
     p <- p.df$plot
     data <- p.df$data
 
@@ -216,10 +224,6 @@ dittoDimHex <- function(
     if (is.list(add.trajectory.curves)) {
         p <- .add_trajectory_curves(
             p, add.trajectory.curves, trajectory.arrow.size, dim.1, dim.2)
-    }
-
-    if (!legend.show) {
-        p <- .remove_legend(p)
     }
     
     ### RETURN the PLOT ###
@@ -294,10 +298,6 @@ dittoDimHex <- function(
     # } else {
         p <- p + do.call(stat_bin_hex, geom.args)
     # }
-    
-    ### Add contours
-    # if
-    #     p <- p + geom_density_2d
 
     if (!legend.show) {
         p <- .remove_legend(p)
@@ -363,3 +363,7 @@ dittoDimHex <- function(
     
     dat
 }
+
+# .add_contours <- function(p, data) {
+#     p <- p + geom_density_2d
+# }
