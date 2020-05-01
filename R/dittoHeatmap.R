@@ -190,29 +190,7 @@ dittoHeatmap <- function(
         highlight.features <- highlight.genes
     }
 
-    # Make the data matrix
-    if (!is.null(genes)) {
-        data <- as.matrix(.which_data(assay,slot,object)[genes,cells.use])
-    } else {
-        data <- NULL
-    }
-
-    if (!is.null(metas)) {
-        met.data <- as.matrix(t(getMetas(object, names.only = FALSE)[cells.use, metas]))
-        data <- rbind(data, met.data)
-    }
-
-    if (is.null(data)) {
-        stop("No data found for given genes/metadata")
-    }
-
-    if (any(rowSums(data)==0)) {
-        data <- data[rowSums(data)!=0,]
-        if (nrow(data)==0) {
-            stop("No target genes are expressed in the 'cells.use' subset")
-        }
-        warning("Gene(s) removed due to absence of expression within the 'cells.use' subset")
-    }
+    data <- .get_heatmap_data(object, genes, metas, assay, slot, cells.use)
     
     if (!is.null(cell.names.meta)) {
         cell.names <- .var_OR_get_meta_or_gene(cell.names.meta, object)
@@ -440,3 +418,30 @@ dittoHeatmap <- function(
         next.color.index.numeric = next.color.index.numeric)
 }
 
+# Get the heatmap data matrix.
+.get_heatmap_data <- function(object, genes, metas, assay, slot, cells.use) {
+    if (!is.null(genes)) { 
+        data <- as.matrix(.which_data(assay,slot,object)[genes,cells.use]) 
+    } else { 
+        data <- NULL 
+    } 
+
+    if (!is.null(metas)) { 
+        met.data <- as.matrix(t(getMetas(object, names.only = FALSE)[cells.use, metas])) 
+        data <- rbind(data, met.data) 
+    } 
+
+    if (is.null(data)) { 
+        stop("No data found for given genes/metadata") 
+    } 
+
+    if (any(rowSums(data)==0)) { 
+        data <- data[rowSums(data)!=0,] 
+        if (nrow(data)==0) { 
+            stop("No target genes/metadata features have positive values in the 'cells.use' subset") 
+        } 
+        warning("Gene(s) or metadata removed due to absence of positive values within the 'cells.use' subset") 
+    } 
+    
+    data
+}
