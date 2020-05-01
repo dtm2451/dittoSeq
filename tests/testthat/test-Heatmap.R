@@ -4,7 +4,7 @@
 seurat$number <- as.numeric(seq_along(colnames(seurat)))
 seurat$number2 <- as.numeric(rev(seq_along(colnames(seurat))))
 genes <- getGenes(seurat)[1:9]
-metas <- c("score", "score2")
+metas <- c("score", "score2", "score3")
 
 test_that("Heatmap can be plotted for Seurat or SCE", {
     expect_s3_class(
@@ -58,6 +58,7 @@ test_that("Heatmap gives warnings/errors when genes missing", {
     # And now for metadata.
     expect_warning(
         dittoHeatmap(
+            genes = NULL,
             metas = metas,
             object = sce2,
             cells.use = meta("number", seurat)<5),
@@ -65,6 +66,7 @@ test_that("Heatmap gives warnings/errors when genes missing", {
     # Function throws an error when no metas provided are captured in the target cells.
     expect_error(
         dittoHeatmap(
+            genes = NULL,
             metas = metas[1],
             object = sce2,
             cells.use = meta("number", seurat)<10),

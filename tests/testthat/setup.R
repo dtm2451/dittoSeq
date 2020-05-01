@@ -32,7 +32,8 @@ clusters <- factor(clusters)
 groups <- sample(c("A","B","C","D","E"), ncells, replace = TRUE)
 age <- sample(c("1","2","3","4"), ncells, replace = TRUE)
 score <- logexp[5,]
-score2 <- logexp[10,]
+score2 <- rnorm(ncells, 5, 2)
+score3 <- rnorm(ncells, 10, 2)
 
 # Make object
 sce <- SingleCellExperiment(
@@ -43,11 +44,12 @@ sce <- SingleCellExperiment(
                         groups = groups,
                         age = age,
                         score = score,
-                        score2 = score2)
+                        score2 = score2,
+                        score3 = score3)
 )
 
 # Remove the unneeded external data
-rm(exp,exp.vec,logexp,pca,tsne,l1,l2,clusters,groups,age,score,score2)
+rm(exp,exp.vec,logexp,pca,tsne,l1,l2,clusters,groups,age,score,score2,score3)
 
 # Make a Seurat
 seurat <- suppressWarnings(Seurat::as.Seurat(sce))
