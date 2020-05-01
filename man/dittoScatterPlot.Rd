@@ -149,9 +149,9 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 \item{legend.color.size, legend.shape.size}{Numbers representing the size at which shapes should be plotted in the color and shape legends (for discrete variable plotting).
 Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.}
 
-\item{legend.color.breaks}{Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.}
+\item{legend.color.breaks}{Numeric vector which sets the discrete values to label in the color-scale legend for continuous data.}
 
-\item{legend.color.breaks.labels}{String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.}
+\item{legend.color.breaks.labels}{String vector, with same length as \code{legend.breaks}, which sets the labels for the tick marks of the color-scale.}
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),

@@ -57,8 +57,8 @@
 #' @param min.color color for lowest values of var/min.  Default = yellow
 #' @param max.color color for highest values of var/max.  Default = blue
 #' @param min,max Numbers which set the values associated with the minimum and maximum colors.
-#' @param legend.color.breaks Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.
-#' @param legend.color.breaks.labels String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.
+#' @param legend.color.breaks Numeric vector which sets the discrete values to label in the color-scale legend for continuous data.
+#' @param legend.color.breaks.labels String vector, with same length as \code{legend.breaks}, which sets the labels for the tick marks of the color-scale.
 #' @param main String, sets the plot title.
 #' A default title is automatically generated if based on \code{color.var} and \code{shape.by} when either are provided.
 #' To remove, set to \code{NULL}.
@@ -204,31 +204,22 @@ dittoScatterPlot <- function(
     all.cells <- .all_cells(object)
 
     # Make dataframe
-    vars <- list(x.var, y.var, color.var, shape.by)
-    names <- list("X", "Y", "color", "shape")
-    assays <- list(assay.x, assay.y, assay.color, NA)
-    slots <- list(slot.x, slot.y, slot.color, NA)
-    adjustments <- list(adjustment.x, adjustment.y, adjustment.color, NA)
-    relabels <- list(NULL, NULL, rename.color.groups, rename.shape.groups)
-
-    dat <- data.frame(row.names = all.cells)
-    for (i in seq_along(vars)) {
-        dat <- .add_by_cell(dat, vars[[i]], names[[i]], object, assays[[i]],
-            slots[[i]], adjustments[[i]], NULL, relabels[[i]])
-    }
-
-    extra.vars <- c(split.by, extra.vars)
-    dat <- .add_by_cell(dat, extra.vars, extra.vars, object, assay.extra,
-        slot.extra, adjustment.extra, mult = TRUE)
-
-    if (do.hover) {
-        dat$hover.string <- .make_hover_strings_from_vars(
-            hover.data, object, hover.assay, hover.slot, hover.adjustment)
-    }
+    data <- .scatter_data_gather(
+		object = object, cells.use = cells.use, x.var = x.var, y.var = y.var,
+		color.var = color.var, shape.by = shape.by,
+		split.by = split.by, extra.vars = extra.vars,
+	    assay.x = assay.x, slot.x = slot.x, adjustment.x = adjustment.x,
+	    assay.y = assay.y, slot.y = slot.y, adjustment.y = adjustment.y,
+	    assay.color = assay.color, slot.color = slot.color,
+		adjustment.color = adjustment.color,
+	    assay.extra = assay.extra, slot.extra = slot.extra,
+		adjustment.extra = adjustment.extra,
+		do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
+	    rename.color.groups, rename.shape.groups)
 
     # Trim by cells.use
-    Target_data <- dat[cells.use,]
-    Others_data <- dat[!(all.cells %in% cells.use),]
+    Target_data <- data[cells.use,]
+    Others_data <- data[!(all.cells %in% cells.use),]
 
     # Set title if "make"
     main <- .leave_default_or_null(main,
@@ -236,8 +227,8 @@ dittoScatterPlot <- function(
 
     # Make the plot
     p <- .ditto_scatter_plot(Target_data, Others_data,
-        color.var, shape.by, split.by,  show.others, size, opacity,
-        color.panel, colors, split.nrow, split.ncol, do.hover, shape.panel,
+        color.var, shape.by, show.others, size, opacity,
+        color.panel, colors, do.hover, shape.panel,
         min.color, max.color, min, max, xlab, ylab, main, sub, theme,
         legend.show, legend.color.title, legend.color.size,
         legend.color.breaks, legend.color.breaks.labels, legend.shape.title,
@@ -265,14 +256,11 @@ dittoScatterPlot <- function(
     Others_data,
     color.var,
     shape.by,
-    split.by,
     show.others,
     size,
     opacity,
     color.panel,
     colors,
-    split.nrow,
-    split.ncol,
     do.hover,
     shape.panel,
     min.color,
