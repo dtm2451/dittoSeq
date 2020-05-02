@@ -9,7 +9,7 @@ metas <- c("score", "score2", "score3")
 test_that("Heatmap can be plotted for Seurat or SCE", {
     expect_s3_class(
         dittoHeatmap(
-            genges = genes,
+            genes = genes,
             object = seurat),
         "pheatmap")
     expect_s3_class(
