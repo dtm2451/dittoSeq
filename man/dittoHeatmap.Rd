@@ -7,6 +7,7 @@
 dittoHeatmap(
   object,
   genes = getGenes(object, assay),
+  metas = NULL,
   cells.use = NULL,
   annot.by = NULL,
   order.by = .default_order(object, annot.by),
@@ -21,6 +22,7 @@ dittoHeatmap(
   annotation_col = NULL,
   annotation_colors = NULL,
   data.out = FALSE,
+  highlight.features = NULL,
   highlight.genes = NULL,
   show_colnames = isBulk(object),
   show_rownames = TRUE,
@@ -37,6 +39,8 @@ dittoHeatmap(
 
 \item{genes}{String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap.
 If not provided, defaults to all genes of the object / assay.}
+
+\item{metas}{String vector, c("meta1","meta2","meta3",...) = the list of metadata variables to put in the heatmap.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 
@@ -70,12 +74,14 @@ Default is a ramp from white to red with 25 slices.}
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output from the heatmat itself, to a list containing all arguments that would have be passed to \code{\link{pheatmap}} for heatmap generation.
 (Can be useful for troubleshooting or customization.)}
 
-\item{highlight.genes}{String vector of genes whose names you would like to show. Only these genes will be named in the resulting heatmap.}
+\item{highlight.features}{String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.}
+
+\item{highlight.genes}{Deprecated, use \code{highlight.features} instead.}
 
 \item{show_colnames, show_rownames, scale, annotation_col, annotation_colors}{arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
 \itemize{
 \item show_colnames (& labels_col): if \code{cell.names.meta} is provided, pheatmaps's \code{labels_col} is utilized to show these names and \code{show_colnames} parameter is set to \code{TRUE}.
-\item show_rownames (& labels_row): if feature names are provided to \code{highlight.genes}, pheatmap's \code{labels_row} is utilized to show just these features' names and \code{show_rownames} parameter is set to \code{TRUE}.
+\item show_rownames (& labels_row): if feature names are provided to \code{highlight.features}, pheatmap's \code{labels_row} is utilized to show just these features' names and \code{show_rownames} parameter is set to \code{TRUE}.
 \item scale: when parameter \code{scaled.to.max} is set to true, pheatmap's \code{scale} is set to \code{"none"} and the max scaling is performed prior to the pheatmap call.
 \item annotation_col: Can be provided as normal by the user and any metadata given to \code{annot.by} will then be appended.
 \item annotation_colors: dittoHeatmap fills this complicated-to-produce input in automatically by pulling from the colors given to \code{annot.colors},
@@ -114,7 +120,7 @@ Such ordering happens by default for single-cell RNAseq data when any metadata a
 \item A plot title can be added with \strong{\code{main}}.
 \item \strong{Gene or cell/sample names} can be hidden with \code{show_rownames} and \code{show_colnames}, respectively, or...
 \itemize{
-\item Particular genes can also be selected for labeling using the \code{highlight.genes} input.
+\item Particular features can also be selected for labeling using the \code{highlight.features} input.
 \item Names of all cells/samples can be replaced with the contents of a metadata slot using the \code{cell.names.meta} input.
 }
 \item Additional tweaks are possible through use of \code{\link[pheatmap]{pheatmap}} inputs which will be directly passed through.
@@ -209,5 +215,5 @@ dittoHeatmap(myRNA, genes, annot.by = "groups",
 This function universally checks the options/levels of a string, factor (filled only by default), or numerical metadata.
 }
 \author{
-Daniel Bunis
+Daniel Bunis and Jared Andrews
 }
