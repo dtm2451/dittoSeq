@@ -1,6 +1,7 @@
 #' Show RNAseq data, grouped into hexagonal bins, on a scatter or dimensionality reduction plot
 #' @name dittoHex
 #' 
+#' @param bins Numeric or numeric vector giving the number of haxagonal bins in the x and y directions. Set to 30 by default.
 #' @param assay,slot,adjustment,assay.x,assay.y,assay.color,assay.extra,slot.x,slot.y,slot.color,slot.extra,adjustment.x,adjustment.y,adjustment.color,adjustment.extra
 #' assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.
 #' @param legend.density.title,legend.color.title Strings which set the title for the legends.
@@ -11,6 +12,7 @@
 #' @param main String, sets the plot title.
 #' A default title is automatically generated if based on \code{color.var} and \code{shape.by} when either are provided.
 #' To remove, set to \code{NULL}.
+#' Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 #' a data.frame containing the underlying data for target cells ("data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
@@ -70,12 +72,20 @@
 #' # We don't have too many samples here, so let's increase the bin size.
 #' dittoDimHex(myRNA, bins = 10)
 #' 
+#' # x and y bins can be set separately, useful for non-square plots
+#' dittoDimHex(myRNA, bins = c(20, 10))
+#' 
 #' dittoDimHex(myRNA, bins = 10, split.by = "groups")
 #' dittoDimHex(myRNA, data.out = TRUE)
 #' 
 #' dittoDimHex(myRNA, bins = 10,
 #'     add.trajectory.lineages = list(c(1,2,4), c(1,4), c(1,3)),
 #'     trajectory.cluster.meta = "clustering")
+#'     
+#' dittoDimHex(myRNA, bins = 10,
+#'     do.contour = TRUE,
+#'     contour.color = "lightblue", # Optional, black by default
+#'     contour.linetype = "dashed") # Optional, solid by default
 #'
 NULL
 
@@ -108,6 +118,9 @@ dittoScatterHex <- function(
     xlab = x.var,
     ylab = y.var,
     main = "make", sub = NULL, theme = theme_bw(),
+    do.contour = FALSE,
+    contour.color = "black",
+    contour.linetype = 1,
     legend.show = TRUE,
     legend.color.title = color.var,
     legend.color.breaks = waiver(),
@@ -122,16 +135,16 @@ dittoScatterHex <- function(
 
     # Make dataframe
     data <- .scatter_data_gather(
-		object = object, cells.use = cells.use, x.var = x.var, y.var = y.var,
-		color.var = color.var, shape.by = NULL,
-		split.by = split.by, extra.vars = extra.vars,
-	    assay.x = assay.x, slot.x = slot.x, adjustment.x = adjustment.x,
-	    assay.y = assay.y, slot.y = slot.y, adjustment.y = adjustment.y,
-	    assay.color = assay.color, slot.color = slot.color,
-		adjustment.color = adjustment.color,
-	    assay.extra = assay.extra, slot.extra = slot.extra,
-		adjustment.extra = adjustment.extra
-	)[cells.use,]
+        object = object, cells.use = cells.use, x.var = x.var, y.var = y.var,
+        color.var = color.var, shape.by = NULL,
+        split.by = split.by, extra.vars = extra.vars,
+        assay.x = assay.x, slot.x = slot.x, adjustment.x = adjustment.x,
+        assay.y = assay.y, slot.y = slot.y, adjustment.y = adjustment.y,
+        assay.color = assay.color, slot.color = slot.color,
+        adjustment.color = adjustment.color,
+        assay.extra = assay.extra, slot.extra = slot.extra,
+        adjustment.extra = adjustment.extra
+    )[cells.use,]
 
     # Set title if "make"
     main <- .leave_default_or_null(main,
@@ -148,9 +161,9 @@ dittoScatterHex <- function(
     }
     
     ### Add extra features
-    # if (add.contours) {
-    #     p <- .add_countours(p, data)
-    # }
+    if (do.contour) {
+        p <- .add_contours(p, data, contour.color,  contour.linetype)
+    }
 
     ### RETURN the PLOT ###
     if (data.out) {
@@ -174,15 +187,17 @@ dittoDimHex <- function(
     show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
     main = "make", sub = NULL, xlab = "make", ylab = "make",
     theme = theme_bw(),
+    do.contour = FALSE, contour.color = "black", contour.linetype = 1,
+    min.alpha = 0.2, max.alpha = 1,
+    min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
+    add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
+    trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE,
     legend.show = TRUE,
     legend.color.title = color.var,
     legend.color.breaks = waiver(), legend.color.breaks.labels = waiver(),
     legend.density.title = if (isBulk(object)) "Samples" else "Cells",
-    legend.density.breaks = waiver(), legend.density.breaks.labels = waiver(),
-    min.alpha = 0.2, max.alpha = 1,
-    min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
-    add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
-    trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE) {
+    legend.density.breaks = waiver(), legend.density.breaks.labels = waiver()
+    ) {
 
     # Generate the x/y dimensional reduction data and plot titles.
     xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
@@ -208,8 +223,9 @@ dittoDimHex <- function(
         extra.vars, cells.use, split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
         min.alpha, max.alpha, min.color, max.color, min, max, xlab, ylab, main,
-        sub, theme, legend.show, legend.color.title, legend.color.breaks,
-        legend.color.breaks.labels, legend.density.title,
+        sub, theme, do.contour, contour.color, contour.linetype,
+        legend.show, legend.color.title,
+        legend.color.breaks, legend.color.breaks.labels, legend.density.title,
         legend.density.breaks, legend.density.breaks.labels, data.out = TRUE)
     p <- p.df$plot
     data <- p.df$data
@@ -266,10 +282,10 @@ dittoDimHex <- function(
     # Determine how to add data while adding proper theming
     aes.args <- list(x = "X", y = "Y")
     geom.args <- list(
-        data = data, bins = bins)
+        data = data, bins = bins, na.rm = TRUE)
     
     # if !is.null(color.var) {
-    	# p <- p + scale_fill_gradient(
+        # p <- p + scale_fill_gradient(
         #     name = legend.color.title,
         #     low= min.color,
         #     high = max.color,
@@ -281,14 +297,14 @@ dittoDimHex <- function(
         #     
         #     scale_opacity # min.alpha, max.alpha
         # aes.args <- 
-	# } else {
+    # } else {
         p <- p + scale_fill_gradient(
             name = legend.density.title,
             low= min.color,
             high = max.color,
             breaks = legend.density.breaks,
             labels = legend.density.breaks.labels)
-	# }
+    # }
     
     geom.args$mapping <- do.call(aes_string, aes.args)
 
@@ -307,12 +323,12 @@ dittoDimHex <- function(
 }
 
 .scatter_data_gather <- function(
-	object,
-	cells.use,
-	x.var,
-	y.var,
-	color.var,
-	shape.by,
+    object,
+    cells.use,
+    x.var,
+    y.var,
+    color.var,
+    shape.by,
     split.by,
     extra.vars,
     assay.x,
@@ -327,14 +343,14 @@ dittoDimHex <- function(
     assay.extra,
     slot.extra,
     adjustment.extra,
-	do.hover = FALSE,
-	hover.data = NULL,
-	hover.assay = NULL,
-	hover.slot = NULL,
-	hover.adjustment = NULL,
-	rename.color.groups = NULL,
+    do.hover = FALSE,
+    hover.data = NULL,
+    hover.assay = NULL,
+    hover.slot = NULL,
+    hover.adjustment = NULL,
+    rename.color.groups = NULL,
     rename.shape.groups = NULL
-	) {
+    ) {
 
     all.cells <- .all_cells(object)
     
@@ -352,7 +368,7 @@ dittoDimHex <- function(
             slots[[i]], adjustments[[i]], NULL, relabels[[i]])
     }
 
-    extra.vars <- c(split.by, extra.vars)
+    extra.vars <- unique(c(split.by, extra.vars))
     dat <- .add_by_cell(dat, extra.vars, extra.vars, object, assay.extra,
         slot.extra, adjustment.extra, mult = TRUE)
 
@@ -363,7 +379,3 @@ dittoDimHex <- function(
     
     dat
 }
-
-# .add_contours <- function(p, data) {
-#     p <- p + geom_density_2d
-# }

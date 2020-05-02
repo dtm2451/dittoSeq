@@ -11,6 +11,7 @@ dittoScatterHex(
   x.var,
   y.var,
   color.var = NULL,
+  bins = 30,
   split.by = NULL,
   extra.vars = NULL,
   cells.use = NULL,
@@ -39,11 +40,14 @@ dittoScatterHex(
   main = "make",
   sub = NULL,
   theme = theme_bw(),
+  do.contour = FALSE,
+  contour.color = "black",
+  contour.linetype = 1,
   legend.show = TRUE,
   legend.color.title = color.var,
   legend.color.breaks = waiver(),
   legend.color.breaks.labels = waiver(),
-  legend.density.title = "Counts",
+  legend.density.title = if (isBulk(object)) "Samples" else "Cells",
   legend.density.breaks = waiver(),
   legend.density.breaks.labels = waiver(),
   data.out = FALSE
@@ -52,6 +56,7 @@ dittoScatterHex(
 dittoDimHex(
   object,
   color.var = NULL,
+  bins = 30,
   reduction.use = .default_reduction(object),
   dim.1 = 1,
   dim.2 = 2,
@@ -73,13 +78,9 @@ dittoDimHex(
   xlab = "make",
   ylab = "make",
   theme = theme_bw(),
-  legend.show = TRUE,
-  legend.color.title = color.var,
-  legend.color.breaks = waiver(),
-  legend.color.breaks.labels = waiver(),
-  legend.density.title = "Counts",
-  legend.density.breaks = waiver(),
-  legend.density.breaks.labels = waiver(),
+  do.contour = FALSE,
+  contour.color = "black",
+  contour.linetype = 1,
   min.alpha = 0.2,
   max.alpha = 1,
   min.color = "#F0E442",
@@ -90,7 +91,14 @@ dittoDimHex(
   add.trajectory.curves = NULL,
   trajectory.cluster.meta,
   trajectory.arrow.size = 0.15,
-  data.out = FALSE
+  data.out = FALSE,
+  legend.show = TRUE,
+  legend.color.title = color.var,
+  legend.color.breaks = waiver(),
+  legend.color.breaks.labels = waiver(),
+  legend.density.title = if (isBulk(object)) "Samples" else "Cells",
+  legend.density.breaks = waiver(),
+  legend.density.breaks.labels = waiver()
 )
 }
 \arguments{
@@ -109,6 +117,8 @@ Alternatively, can be a directly supplied numeric vector of length equal to the 
 \item{color.var}{Single string giving a gene or metadata that will set the color of cells/samples in the plot.
 
 Alternatively, can be a directly supplied numeric or string, vector or a factor of length equal to the total number of cells/samples in \code{object}.}
+
+\item{bins}{Numeric or numeric vector giving the number of haxagonal bins in the x and y directions. Set to 30 by default.}
 
 \item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 
@@ -145,13 +155,20 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 
 \item{main}{String, sets the plot title.
 A default title is automatically generated if based on \code{color.var} and \code{shape.by} when either are provided.
-To remove, set to \code{NULL}.}
+To remove, set to \code{NULL}.
+Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
 
 \item{sub}{String, sets the plot subtitle.}
 
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_bw()}.
 See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.}
+
+\item{do.contour}{Logical. Whether density-based contours should be displayed.}
+
+\item{contour.color}{String that sets the color(s) of the \code{do.contour} contours.}
+
+\item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.}
 
 \item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
 
@@ -251,6 +268,25 @@ myRNA$percent.mito <- sample(c(runif(50,0,0.05),runif(10,0.05,0.2)))
 
 dittoScatterHex(
     myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA")
+dittoDimHex(myRNA)
+
+# We don't have too many samples here, so let's increase the bin size.
+dittoDimHex(myRNA, bins = 10)
+
+# x and y bins can be set separately, useful for non-square plots
+dittoDimHex(myRNA, bins = c(20, 10))
+
+dittoDimHex(myRNA, bins = 10, split.by = "groups")
+dittoDimHex(myRNA, data.out = TRUE)
+
+dittoDimHex(myRNA, bins = 10,
+    add.trajectory.lineages = list(c(1,2,4), c(1,4), c(1,3)),
+    trajectory.cluster.meta = "clustering")
+    
+dittoDimHex(myRNA, bins = 10,
+    do.contour = TRUE,
+    contour.color = "lightblue", # Optional, black by default
+    contour.linetype = "dashed") # Optional, solid by default
 
 }
 \seealso{

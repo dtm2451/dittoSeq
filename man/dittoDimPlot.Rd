@@ -27,30 +27,23 @@ dittoDimPlot(
   show.others = TRUE,
   show.axes.numbers = TRUE,
   show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
+  min.color = "#F0E442",
+  max.color = "#0072B2",
+  min = NULL,
+  max = NULL,
   main = "make",
   sub = NULL,
   xlab = "make",
   ylab = "make",
+  rename.var.groups = NULL,
+  rename.shape.groups = NULL,
   theme = theme_bw(),
-  legend.show = TRUE,
-  legend.size = 5,
-  legend.title = "make",
-  shape.legend.size = 5,
-  shape.legend.title = shape.by,
+  do.letter = FALSE,
   do.ellipse = FALSE,
   do.label = FALSE,
   labels.size = 5,
   labels.highlight = TRUE,
   labels.repel = TRUE,
-  rename.var.groups = NULL,
-  rename.shape.groups = NULL,
-  min.color = "#F0E442",
-  max.color = "#0072B2",
-  min = NULL,
-  max = NULL,
-  legend.breaks = waiver(),
-  legend.breaks.labels = waiver(),
-  do.letter = FALSE,
   do.hover = FALSE,
   hover.data = var,
   hover.assay = .default_assay(object),
@@ -60,6 +53,16 @@ dittoDimPlot(
   add.trajectory.curves = NULL,
   trajectory.cluster.meta,
   trajectory.arrow.size = 0.15,
+  do.contour = FALSE,
+  contour.color = "black",
+  contour.linetype = 1,
+  legend.show = TRUE,
+  legend.size = 5,
+  legend.title = "make",
+  legend.breaks = waiver(),
+  legend.breaks.labels = waiver(),
+  shape.legend.size = 5,
+  shape.legend.title = shape.by,
   data.out = FALSE
 )
 }
@@ -138,6 +141,14 @@ For these reasons, even as a color blind person myself writing this code, I reco
 They are removed when set to FALSE.
 Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.}
 
+\item{min.color}{color for lowest values of \code{var}/\code{min}.  Default = yellow}
+
+\item{max.color}{color for highest values of \code{var}/\code{max}.  Default = blue}
+
+\item{min}{Number which sets the value associated with the minimum color.}
+
+\item{max}{Number which sets the value associated with the maximum color.}
+
 \item{main}{String, sets the plot title.
 Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.}
 
@@ -147,20 +158,17 @@ Default title is automatically generated if not given a specific value.  To remo
 Default labels are generated if you do not give this a specific value.
 To remove, set to \code{NULL}.}
 
+\item{rename.var.groups}{String vector which sets new names for the identities of \code{var} groups.}
+
+\item{rename.shape.groups}{String vector which sets new names for the identities of \code{shape.by} groups.}
+
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_bw()}.
 See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.}
 
-\item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
-
-\item{legend.size}{Number representing the size at which color legend shapes should be plotted (for discrete variable plotting) in the color legend.
-Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.}
-
-\item{legend.title}{String which sets the title for the color legend. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.}
-
-\item{shape.legend.size}{Number representing the size at which shapes should be plotted in the shape legend.}
-
-\item{shape.legend.title}{String which sets the title of the shapes legend.  Default is \code{shape.by}}
+\item{do.letter}{Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
+NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
+lettering is incompatible with plotly and with changing the dots' to be different shapes.}
 
 \item{do.ellipse}{Logical. Whether the groups should be surrounded by median-centered ellipses.}
 
@@ -172,26 +180,6 @@ Default = 5. *Enlarging the colors legend is incredibly helpful for making color
 
 \item{labels.repel}{Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
 TRUE by default.}
-
-\item{rename.var.groups}{String vector which sets new names for the identities of \code{var} groups.}
-
-\item{rename.shape.groups}{String vector which sets new names for the identities of \code{shape.by} groups.}
-
-\item{min.color}{color for lowest values of \code{var}/\code{min}.  Default = yellow}
-
-\item{max.color}{color for highest values of \code{var}/\code{max}.  Default = blue}
-
-\item{min}{Number which sets the value associated with the minimum color.}
-
-\item{max}{Number which sets the value associated with the maximum color.}
-
-\item{legend.breaks}{Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.}
-
-\item{legend.breaks.labels}{String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.}
-
-\item{do.letter}{Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
-NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
-lettering is incompatible with plotly and with changing the dots' to be different shapes.}
 
 \item{do.hover}{Logical which controls whether the output will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 \code{hover.data} argument is used to determine what data to use.}
@@ -213,6 +201,27 @@ you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingsho
 \item{trajectory.cluster.meta}{String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.}
 
 \item{trajectory.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
+
+\item{do.contour}{Logical. Whether density-based contours should be displayed.}
+
+\item{contour.color}{String that sets the color(s) of the \code{do.contour} contours.}
+
+\item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.}
+
+\item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
+
+\item{legend.size}{Number representing the size at which color legend shapes should be plotted (for discrete variable plotting) in the color legend.
+Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.}
+
+\item{legend.title}{String which sets the title for the color legend. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.}
+
+\item{legend.breaks}{Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.}
+
+\item{legend.breaks.labels}{String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.}
+
+\item{shape.legend.size}{Number representing the size at which shapes should be plotted in the shape legend.}
+
+\item{shape.legend.title}{String which sets the title of the shapes legend.  Default is \code{shape.by}}
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
@@ -326,6 +335,11 @@ if (requireNamespace("plotly", quietly = TRUE)) {
 dittoDimPlot(myRNA, "gene1", add.trajectory.lineages = list(c(1,2,4), c(1,3)),
     trajectory.cluster.meta = "clustering",
     sub = "Pseudotime Trajectories")
+
+dittoDimPlot(myRNA, "gene1",
+    do.contour = TRUE,
+    contour.color = "lightblue", # Optional, black by default
+    contour.linetype = "dashed") # Optional, solid by default
 }
 \seealso{
 \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.by}, etc. options are.
@@ -340,5 +354,5 @@ dittoDimPlot(myRNA, "gene1", add.trajectory.lineages = list(c(1,2,4), c(1,3)),
 \code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
 }
 \author{
-Daniel Bunis
+Daniel Bunis and Jared Andrews
 }

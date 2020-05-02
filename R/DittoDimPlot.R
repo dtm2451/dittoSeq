@@ -92,6 +92,9 @@
 #' @param do.letter Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
 #' NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
 #' lettering is incompatible with plotly and with changing the dots' to be different shapes.
+#' @param do.contour Logical. Whether density-based contours should be displayed.
+#' @param contour.color String that sets the color(s) of the \code{do.contour} contours.
+#' @param contour.linetype String or numeric which sets the type of line used for \code{do.contour} contours.
 #' @param do.hover Logical which controls whether the output will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 #' \code{hover.data} argument is used to determine what data to use.
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
@@ -109,7 +112,7 @@
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 #' a data.frame containing the underlying data for target cells ("Target_data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
-#'
+#' 
 #' Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.
 #' @return A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
 #'
@@ -168,7 +171,7 @@
 #'
 #' \code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
 #'
-#' @author Daniel Bunis
+#' @author Daniel Bunis and Jared Andrews
 #' @importFrom stats median
 #' @export
 #' @examples
@@ -224,6 +227,11 @@
 #' dittoDimPlot(myRNA, "gene1", add.trajectory.lineages = list(c(1,2,4), c(1,3)),
 #'     trajectory.cluster.meta = "clustering",
 #'     sub = "Pseudotime Trajectories")
+#' 
+#' dittoDimPlot(myRNA, "gene1",
+#'     do.contour = TRUE,
+#'     contour.color = "lightblue", # Optional, black by default
+#'     contour.linetype = "dashed") # Optional, solid by default
 
 dittoDimPlot <- function(
     object, var, reduction.use = .default_reduction(object), size=1,
@@ -236,20 +244,21 @@ dittoDimPlot <- function(
     shape.panel = c(16,15,17,23,25,8),
     show.others = TRUE, show.axes.numbers = TRUE,
     show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
-    main = "make", sub = NULL, xlab = "make", ylab = "make",
-    theme = theme_bw(),
-    legend.show = TRUE, legend.size = 5, legend.title = "make",
-    shape.legend.size = 5, shape.legend.title = shape.by,
-    do.ellipse = FALSE, do.label = FALSE,
-    labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
-    rename.var.groups = NULL, rename.shape.groups = NULL,
     min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
-    legend.breaks = waiver(), legend.breaks.labels = waiver(),
-    do.letter = FALSE, do.hover = FALSE, hover.data = var,
-    hover.assay = .default_assay(object), hover.slot = .default_slot(object),
-    hover.adjustment = NULL,
+    main = "make", sub = NULL, xlab = "make", ylab = "make",
+    rename.var.groups = NULL, rename.shape.groups = NULL,
+    theme = theme_bw(),
+    do.letter = FALSE, do.ellipse = FALSE, do.label = FALSE,
+    labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
+    do.hover = FALSE, hover.data = var, hover.assay = .default_assay(object),
+    hover.slot = .default_slot(object), hover.adjustment = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
-    trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE) {
+    trajectory.cluster.meta, trajectory.arrow.size = 0.15,
+    do.contour = FALSE, contour.color = "black", contour.linetype = 1,
+    legend.show = TRUE, legend.size = 5, legend.title = "make",
+    legend.breaks = waiver(), legend.breaks.labels = waiver(),
+    shape.legend.size = 5, shape.legend.title = shape.by,
+    data.out = FALSE) {
 
     if (do.hover || !is.null(shape.by)) {
         do.letter <- FALSE
@@ -281,10 +290,12 @@ dittoDimPlot <- function(
         show.others, size, opacity, color.panel, colors,
         split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay, slot, adjustment,
-        do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
         shape.panel, rename.var.groups, rename.shape.groups,
         min.color, max.color, min, max,
-        xlab, ylab, main, sub, theme, legend.show, legend.title, legend.size,
+        xlab, ylab, main, sub, theme,
+        do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
+        do.contour, contour.color, contour.linetype,
+        legend.show, legend.title, legend.size,
         legend.breaks, legend.breaks.labels, shape.legend.title,
         shape.legend.size, data.out = TRUE)
     p <- p.df$plot

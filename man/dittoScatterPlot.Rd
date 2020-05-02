@@ -32,11 +32,6 @@ dittoScatterPlot(
   assay.extra = .default_assay(object),
   slot.extra = .default_slot(object),
   adjustment.extra = NULL,
-  do.hover = FALSE,
-  hover.data = NULL,
-  hover.assay = .default_assay(object),
-  hover.slot = .default_slot(object),
-  hover.adjustment = NULL,
   shape.panel = c(16, 15, 17, 23, 25, 8),
   rename.color.groups = NULL,
   rename.shape.groups = NULL,
@@ -49,6 +44,14 @@ dittoScatterPlot(
   main = "make",
   sub = NULL,
   theme = theme_bw(),
+  do.hover = FALSE,
+  hover.data = NULL,
+  hover.assay = .default_assay(object),
+  hover.slot = .default_slot(object),
+  hover.adjustment = NULL,
+  do.contour = FALSE,
+  contour.color = "black",
+  contour.linetype = 1,
   legend.show = TRUE,
   legend.color.title = color.var,
   legend.color.size = 5,
@@ -107,13 +110,6 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 
 \item{assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
 
-\item{do.hover}{Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
-\code{hover.data} argument is used to determine what data to use.}
-
-\item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.}
-
-\item{hover.assay, hover.slot, hover.adjustment}{Similar to the x, y, color, and extra versions, when showing expression data upon hover, these set what data will be shown.}
-
 \item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes.
 When nothing is supplied to \code{shape.by}, only the first value is used.
@@ -141,6 +137,19 @@ To remove, set to \code{NULL}.}
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_bw()}.
 See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.}
+
+\item{do.hover}{Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
+\code{hover.data} argument is used to determine what data to use.}
+
+\item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.}
+
+\item{hover.assay, hover.slot, hover.adjustment}{Similar to the x, y, color, and extra versions, when showing expression data upon hover, these set what data will be shown.}
+
+\item{do.contour}{Logical. Whether density-based contours should be displayed.}
+
+\item{contour.color}{String that sets the color(s) of the \code{do.contour} contours.}
+
+\item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.}
 
 \item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
 
@@ -217,9 +226,6 @@ dittoScatterPlot(
 #   or (only colors) continuous metadata / expression data by providing
 #   metadata or gene names to 'color.var' and 'shape.by'
 dittoScatterPlot(
-    myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
-    color.var = "percent.mito")
-dittoScatterPlot(
     myRNA, x.var = "gene1", y.var = "gene2",
     color.var = "groups",
     shape.by = "SNP",
@@ -228,22 +234,26 @@ dittoScatterPlot(
     myRNA, x.var = "gene1", y.var = "gene2",
     color.var = "gene3")
 
+# Note: scatterplots like this can be very useful for dataset QC, especially
+#   with percentage of mitochondrial reads as the color overlay.
+dittoScatterPlot(myRNA,
+    x.var = "nCount_RNA", y.var = "nFeature_RNA",
+    color.var = "percent.mito")
+
 # Data can be "split" or faceted by a discrete variable as well.
-dittoScatterPlot(
-    myRNA, x.var = "gene1",
-    y.var = "gene2",
+dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
     split.by = "timepoint") # single split.by element
-dittoScatterPlot(
-    myRNA, x.var = "gene1",
-    y.var = "gene2",
+dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
     split.by = c("groups","SNP")) # row and col split.by elements
 # OR with 'extra.vars' plus manually faceting for added control
-dittoDimPlot(myRNA, "gene1",
+dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
     extra.vars = c("SNP")) +
     facet_wrap("SNP", ncol = 1, strip.position = "left")
 
-# Note: scatterplots like this can be very useful for dataset QC, especially
-#   with percentage of reads coming from genes as the color overlay.
+# Countours can also be added to help illumunate overlapping samples
+dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
+    do.contour = TRUE)
+
 }
 \seealso{
 \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are.
