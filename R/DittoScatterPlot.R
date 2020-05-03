@@ -339,8 +339,6 @@ dittoScatterPlot <- function(
         geom.args$shape <- shape.panel[1]
     }
 
-    geom.args$mapping <- do.call(aes_string, aes.args)
-
     ### Add data
     if (show.others && nrow(Others_data)>1) {
         p <- p + geom_point(data = Others_data,
@@ -349,8 +347,10 @@ dittoScatterPlot <- function(
 
     if (do.hover) {
         aes.args$text = "hover.string"
+        geom.args$mapping <- do.call(aes_string, aes.args)
         p <- p + suppressWarnings(do.call(geom_point, geom.args))
     } else {
+        geom.args$mapping <- do.call(aes_string, aes.args)
         p <- p + do.call(geom_point, geom.args)
     }
 
