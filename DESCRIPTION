@@ -42,6 +42,7 @@ Suggests: plotly,
     testthat,
     Seurat (>= 2.2),
     DESeq2,
+    ggplot.multistats,
     knitr,
     BiocStyle,
     scRNAseq

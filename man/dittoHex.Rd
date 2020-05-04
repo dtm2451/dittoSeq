@@ -12,9 +12,12 @@ dittoScatterHex(
   y.var,
   color.var = NULL,
   bins = 30,
+  color.method = "median",
   split.by = NULL,
   extra.vars = NULL,
   cells.use = NULL,
+  color.panel = dittoColors(),
+  colors = seq_along(color.panel),
   split.nrow = NULL,
   split.ncol = NULL,
   assay.x = .default_assay(object),
@@ -29,8 +32,8 @@ dittoScatterHex(
   assay.extra = .default_assay(object),
   slot.extra = .default_slot(object),
   adjustment.extra = NULL,
-  min.alpha = 0.2,
-  max.alpha = 1,
+  min.opacity = 0.2,
+  max.opacity = 1,
   min.color = "#F0E442",
   max.color = "#0072B2",
   min = NULL,
@@ -44,7 +47,8 @@ dittoScatterHex(
   contour.color = "black",
   contour.linetype = 1,
   legend.show = TRUE,
-  legend.color.title = color.var,
+  legend.color.title = "make",
+  legend.color.size = 5,
   legend.color.breaks = waiver(),
   legend.color.breaks.labels = waiver(),
   legend.density.title = if (isBulk(object)) "Samples" else "Cells",
@@ -57,10 +61,13 @@ dittoDimHex(
   object,
   color.var = NULL,
   bins = 30,
+  color.method = "median",
   reduction.use = .default_reduction(object),
   dim.1 = 1,
   dim.2 = 2,
   cells.use = NULL,
+  color.panel = dittoColors(),
+  colors = seq_along(color.panel),
   split.by = NULL,
   extra.vars = NULL,
   split.nrow = NULL,
@@ -81,8 +88,8 @@ dittoDimHex(
   do.contour = FALSE,
   contour.color = "black",
   contour.linetype = 1,
-  min.alpha = 0.2,
-  max.alpha = 1,
+  min.opacity = 0.2,
+  max.opacity = 1,
   min.color = "#F0E442",
   max.color = "#0072B2",
   min = NULL,
@@ -93,7 +100,8 @@ dittoDimHex(
   trajectory.arrow.size = 0.15,
   data.out = FALSE,
   legend.show = TRUE,
-  legend.color.title = color.var,
+  legend.color.title = "make",
+  legend.color.size = 5,
   legend.color.breaks = waiver(),
   legend.color.breaks.labels = waiver(),
   legend.density.title = if (isBulk(object)) "Samples" else "Cells",
@@ -120,6 +128,15 @@ Alternatively, can be a directly supplied numeric or string, vector or a factor 
 
 \item{bins}{Numeric or numeric vector giving the number of haxagonal bins in the x and y directions. Set to 30 by default.}
 
+\item{color.method}{Works differently depending on whether the color.var is continous versus discrete:
+
+\strong{Continuous}: String signifying a function for how target data should be summarized for each bin.
+Can be any function that summarizes a numeric vector input with a single numeric output value.
+Default is \code{median}. Other useful options are \code{sum}, \code{mean}, \code{sd}, or \code{mad}.
+
+\strong{Discrete}: A string signifying whether the color should (default) be simply based on the "max" grouping of the bin,
+or based on the "max.prop"ortion of cells/samples belonging to any grouping.}
+
 \item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 
 When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
@@ -135,11 +152,15 @@ Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
 
+\item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.}
+
+\item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
+
 \item{split.nrow}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
-\item{min.alpha, max.alpha}{Scalar between [0,1] which sets the minimum or maximum opacities used for the density legend when color is used for \code{color.var} and density is shown via opacity.}
+\item{min.opacity, max.opacity}{Scalar between [0,1] which sets the minimum or maximum opacities used for the density legend when color is used for \code{color.var} and density is shown via opacity.}
 
 \item{min.color}{color for lowest values of var/min.  Default = yellow}
 
@@ -171,6 +192,9 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 \item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.}
 
 \item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
+
+\item{legend.color.size}{Numbers representing the size at which shapes should be plotted in the color and shape legends (for discrete variable plotting).
+Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.}
 
 \item{legend.density.title, legend.color.title}{Strings which set the title for the legends.}
 
@@ -276,18 +300,38 @@ dittoDimHex(myRNA, bins = 10)
 # x and y bins can be set separately, useful for non-square plots
 dittoDimHex(myRNA, bins = c(20, 10))
 
+### Coloring
+# Default coloring, as above, is by cell/sample density in the region, but
+# 'color.var' can be used to color the data by another metric.
+# Density with then be represented via bin opacity.
+dittoDimHex(myRNA, color.var = "groups", bins = 10)
+dittoDimHex(myRNA, color.var = "gene1", bins = 10)
+
+# 'color.method' is then used to adjust how the target data is summarized
+dittoDimHex(myRNA, color.var = "groups", bins = 10,
+    color.method = "max.prop")
+dittoDimHex(myRNA, color.var = "gene1", bins = 10,
+    color.method = "mean")
+
+### Additional Features:
+
+# Faceting with 'split.by'
 dittoDimHex(myRNA, bins = 10, split.by = "groups")
+dittoDimHex(myRNA, bins = 10, split.by = c("groups", "clustering"))
+
+# Underlying data output with 'data.out = TRUE'
 dittoDimHex(myRNA, data.out = TRUE)
 
-dittoDimHex(myRNA, bins = 10,
-    add.trajectory.lineages = list(c(1,2,4), c(1,4), c(1,3)),
-    trajectory.cluster.meta = "clustering")
-    
+# Contour lines can be added with 'do.contours = TRUE'
 dittoDimHex(myRNA, bins = 10,
     do.contour = TRUE,
     contour.color = "lightblue", # Optional, black by default
     contour.linetype = "dashed") # Optional, solid by default
 
+# Trajectories can be added to dittoDimHex plots (see above for details)
+dittoDimHex(myRNA, bins = 10,
+    add.trajectory.lineages = list(c(1,2,4), c(1,4), c(1,3)),
+    trajectory.cluster.meta = "clustering")
 }
 \seealso{
 \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are.
@@ -295,5 +339,5 @@ dittoDimHex(myRNA, bins = 10,
 \code{\link{dittoDimPlot}} for making very similar data representations, but where dimensionality reduction (PCA, t-SNE, UMAP, etc.) dimensions are the scatterplot axes.
 }
 \author{
-Daniel Bunis
+Daniel Bunis with some code adapted from Giuseppe D'Agostino
 }

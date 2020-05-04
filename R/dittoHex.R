@@ -2,12 +2,21 @@
 #' @name dittoHex
 #' 
 #' @param bins Numeric or numeric vector giving the number of haxagonal bins in the x and y directions. Set to 30 by default.
+#' @param color.method Works differently depending on whether the color.var is continous versus discrete:
+#' 
+#' \strong{Continuous}: String signifying a function for how target data should be summarized for each bin.
+#' Can be any function that summarizes a numeric vector input with a single numeric output value.
+#' Default is \code{median}. Other useful options are \code{sum}, \code{mean}, \code{sd}, or \code{mad}.
+#' 
+#' \strong{Discrete}: A string signifying whether the color should (default) be simply based on the "max" grouping of the bin,
+#' or based on the "max.prop"ortion of cells/samples belonging to any grouping.
+#' 
 #' @param assay,slot,adjustment,assay.x,assay.y,assay.color,assay.extra,slot.x,slot.y,slot.color,slot.extra,adjustment.x,adjustment.y,adjustment.color,adjustment.extra
 #' assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.
 #' @param legend.density.title,legend.color.title Strings which set the title for the legends.
 #' @param legend.density.breaks,legend.color.breaks Numeric vector which sets the discrete values to label in the density and color.var legends.
 #' @param legend.density.breaks.labels,legend.color.breaks.labels String vector, with same length as \code{legend.*.breaks}, which sets the labels for the tick marks of associated legend.
-#' @param min.alpha,max.alpha Scalar between [0,1] which sets the minimum or maximum opacities used for the density legend when color is used for \code{color.var} and density is shown via opacity.
+#' @param min.opacity,max.opacity Scalar between [0,1] which sets the minimum or maximum opacities used for the density legend when color is used for \code{color.var} and density is shown via opacity.
 #' @param max.color color for highest values of var/max.  Default = blue
 #' @param main String, sets the plot title.
 #' A default title is automatically generated if based on \code{color.var} and \code{shape.by} when either are provided.
@@ -48,7 +57,7 @@
 #'
 #' \code{\link{dittoDimPlot}} for making very similar data representations, but where dimensionality reduction (PCA, t-SNE, UMAP, etc.) dimensions are the scatterplot axes.
 #'
-#' @author Daniel Bunis
+#' @author Daniel Bunis with some code adapted from Giuseppe D'Agostino
 #' @examples
 #' # dittoSeq handles bulk and single-cell data quit similarly.
 #' # The SingleCellExperiment object structure is used for both,
@@ -75,26 +84,48 @@
 #' # x and y bins can be set separately, useful for non-square plots
 #' dittoDimHex(myRNA, bins = c(20, 10))
 #' 
+#' ### Coloring
+#' # Default coloring, as above, is by cell/sample density in the region, but
+#' # 'color.var' can be used to color the data by another metric.
+#' # Density with then be represented via bin opacity.
+#' dittoDimHex(myRNA, color.var = "groups", bins = 10)
+#' dittoDimHex(myRNA, color.var = "gene1", bins = 10)
+#' 
+#' # 'color.method' is then used to adjust how the target data is summarized
+#' dittoDimHex(myRNA, color.var = "groups", bins = 10,
+#'     color.method = "max.prop")
+#' dittoDimHex(myRNA, color.var = "gene1", bins = 10,
+#'     color.method = "mean")
+#' 
+#' ### Additional Features:
+#' 
+#' # Faceting with 'split.by'
 #' dittoDimHex(myRNA, bins = 10, split.by = "groups")
+#' dittoDimHex(myRNA, bins = 10, split.by = c("groups", "clustering"))
+#' 
+#' # Underlying data output with 'data.out = TRUE'
 #' dittoDimHex(myRNA, data.out = TRUE)
 #' 
-#' dittoDimHex(myRNA, bins = 10,
-#'     add.trajectory.lineages = list(c(1,2,4), c(1,4), c(1,3)),
-#'     trajectory.cluster.meta = "clustering")
-#'     
+#' # Contour lines can be added with 'do.contours = TRUE'
 #' dittoDimHex(myRNA, bins = 10,
 #'     do.contour = TRUE,
 #'     contour.color = "lightblue", # Optional, black by default
 #'     contour.linetype = "dashed") # Optional, solid by default
-#'
+#' 
+#' # Trajectories can be added to dittoDimHex plots (see above for details)
+#' dittoDimHex(myRNA, bins = 10,
+#'     add.trajectory.lineages = list(c(1,2,4), c(1,4), c(1,3)),
+#'     trajectory.cluster.meta = "clustering")
 NULL
 
 #' @describeIn dittoHex Make a scatter plot of RNAseq data, grouped into hexagonal bins
 #' @export
 dittoScatterHex <- function(
     object, x.var, y.var, color.var = NULL, bins = 30,
+    color.method = "median",
     split.by = NULL, extra.vars = NULL,
     cells.use = NULL,
+    color.panel = dittoColors(), colors = seq_along(color.panel),
     split.nrow = NULL,
     split.ncol = NULL,
     assay.x = .default_assay(object),
@@ -109,20 +140,23 @@ dittoScatterHex <- function(
     assay.extra = .default_assay(object),
     slot.extra = .default_slot(object),
     adjustment.extra = NULL,
-    min.alpha = 0.2,
-    max.alpha = 1,
+    min.opacity = 0.2,
+    max.opacity = 1,
     min.color = "#F0E442",
     max.color = "#0072B2",
     min = NULL,
     max = NULL,
     xlab = x.var,
     ylab = y.var,
-    main = "make", sub = NULL, theme = theme_bw(),
+    main = "make",
+    sub = NULL,
+    theme = theme_bw(),
     do.contour = FALSE,
     contour.color = "black",
     contour.linetype = 1,
     legend.show = TRUE,
-    legend.color.title = color.var,
+    legend.color.title = "make",
+    legend.color.size = 5,
     legend.color.breaks = waiver(),
     legend.color.breaks.labels = waiver(),
     legend.density.title = if (isBulk(object)) "Samples" else "Cells",
@@ -146,14 +180,18 @@ dittoScatterHex <- function(
         adjustment.extra = adjustment.extra
     )[cells.use,]
 
-    # Set title if "make"
+    # Set titles if "make"
     main <- .leave_default_or_null(main,
         "filler")
+    legend.color.title <- .leave_default_or_null(legend.color.title,
+        paste(color.var, color.method, sep = ",\n"))
 
     # Make the plot
-    p <- .ditto_scatter_hex(data, color.var, bins, min.alpha, max.alpha,
-        min.color, max.color, min, max, xlab, ylab, main, sub, theme,
-        legend.show, legend.color.title, legend.color.breaks, legend.color.breaks.labels,
+    p <- .ditto_scatter_hex(
+        data, bins, color.method, color.panel, colors,
+        min.opacity, max.opacity, min.color, max.color, min, max,
+        xlab, ylab, main, sub, theme, legend.show, legend.color.title,
+        legend.color.size, legend.color.breaks, legend.color.breaks.labels,
         legend.density.title, legend.density.breaks, legend.density.breaks.labels)
     if (!is.null(split.by)) {
         p <- .add_splitting(
@@ -177,8 +215,11 @@ dittoScatterHex <- function(
 #' @export
 dittoDimHex <- function(
     object, color.var = NULL, bins = 30,
+    color.method = "median",
     reduction.use = .default_reduction(object), dim.1 = 1, dim.2 = 2,
-    cells.use = NULL, split.by = NULL, extra.vars = NULL,
+    cells.use = NULL,
+    color.panel = dittoColors(), colors = seq_along(color.panel),
+    split.by = NULL, extra.vars = NULL,
     split.nrow = NULL, split.ncol = NULL,
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL,
@@ -188,15 +229,18 @@ dittoDimHex <- function(
     main = "make", sub = NULL, xlab = "make", ylab = "make",
     theme = theme_bw(),
     do.contour = FALSE, contour.color = "black", contour.linetype = 1,
-    min.alpha = 0.2, max.alpha = 1,
+    min.opacity = 0.2, max.opacity = 1,
     min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
     trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE,
     legend.show = TRUE,
-    legend.color.title = color.var,
-    legend.color.breaks = waiver(), legend.color.breaks.labels = waiver(),
+    legend.color.title = "make",
+    legend.color.size = 5,
+    legend.color.breaks = waiver(),
+    legend.color.breaks.labels = waiver(),
     legend.density.title = if (isBulk(object)) "Samples" else "Cells",
-    legend.density.breaks = waiver(), legend.density.breaks.labels = waiver()
+    legend.density.breaks = waiver(),
+    legend.density.breaks.labels = waiver()
     ) {
 
     # Generate the x/y dimensional reduction data and plot titles.
@@ -219,12 +263,15 @@ dittoDimHex <- function(
 
     # Make dataframes and plot
     p.df <- dittoScatterHex(
-        object, xdat$embeddings, ydat$embeddings, color.var, bins, split.by,
-        extra.vars, cells.use, split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
+        object, xdat$embeddings, ydat$embeddings, color.var, bins,
+        color.method, split.by,
+        extra.vars, cells.use, color.panel, colors,
+        split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
-        min.alpha, max.alpha, min.color, max.color, min, max, xlab, ylab, main,
-        sub, theme, do.contour, contour.color, contour.linetype,
-        legend.show, legend.color.title,
+        min.opacity, max.opacity, min.color, max.color, min, max,
+        xlab, ylab, main, sub, theme,
+        do.contour, contour.color, contour.linetype,
+        legend.show, legend.color.title, legend.color.size,
         legend.color.breaks, legend.color.breaks.labels, legend.density.title,
         legend.density.breaks, legend.density.breaks.labels, data.out = TRUE)
     p <- p.df$plot
@@ -254,10 +301,12 @@ dittoDimHex <- function(
 
 .ditto_scatter_hex <- function(
     data,
-    color.var,
     bins,
-    min.alpha,
-    max.alpha,
+    color.method,
+    color.panel,
+    colors,
+    min.opacity,
+    max.opacity,
     min.color,
     max.color,
     min,
@@ -269,6 +318,7 @@ dittoDimHex <- function(
     theme,
     legend.show,
     legend.color.title,
+    legend.color.size,
     legend.color.breaks,
     legend.color.breaks.labels,
     legend.density.title,
@@ -279,41 +329,84 @@ dittoDimHex <- function(
     ### Set up plotting
     p <- ggplot() + ylab(ylab) + xlab(xlab) + ggtitle(main,sub) + theme
 
-    # Determine how to add data while adding proper theming
+    ### Determine how to add data while adding proper theming
     aes.args <- list(x = "X", y = "Y")
     geom.args <- list(
         data = data, bins = bins, na.rm = TRUE)
     
-    # if !is.null(color.var) {
-        # p <- p + scale_fill_gradient(
-        #     name = legend.color.title,
-        #     low= min.color,
-        #     high = max.color,
-        #     limits = c(
-        #         ifelse(is.null(min), min(data$color), min),
-        #         ifelse(is.null(max), max(data$color), max)),
-        #     breaks = legend.color.breaks,
-        #     labels = legend.color.breaks.labels) +
-        #     
-        #     scale_opacity # min.alpha, max.alpha
-        # aes.args <- 
-    # } else {
+    if (is.null(data$color)) {
+        ## Simple case: no color.var given
+        
+        # Set color scale based on density
         p <- p + scale_fill_gradient(
             name = legend.density.title,
             low= min.color,
             high = max.color,
             breaks = legend.density.breaks,
             labels = legend.density.breaks.labels)
-    # }
+        
+    } else {
+        ## Setup for ggplot.multistats::stat_summaries_hex
+        .error_if_no_ggplot.multistats()
+        
+        # Set alpha scale based on density
+        p <- p + scale_alpha_continuous(
+            name = legend.density.title,
+            range = c(min.opacity, max.opacity),
+            breaks = legend.density.breaks,
+            labels = legend.density.breaks.labels)
+        
+        # Set aesthetics
+        aes.args$z <- "color"
+        aes.args$fill <- "stat(c)"
+        aes.args$alpha <- "stat(d)"
+        # Fix for when color metadata is a factor
+        aes.args$group <- 1
+        
+        # Determine how 'c' and 'd' should be calculated &
+        # set fill based on color.var and the color.method
+        if (is.numeric(data$color) || is.character(color.method) && color.method == "max.prop") {
+            
+            geom.args$funs <- c(
+                c = if (is.numeric(data$color)) {
+                    color.method
+                } else {
+                    function(x) max(table(x)/length(x))
+                }, d = length)
+            
+            p <- p + scale_fill_gradient(
+                name = legend.color.title,
+                low= min.color,
+                high = max.color,
+                limits = c(
+                    ifelse(is.null(min), NA, min),
+                    ifelse(is.null(max), NA, max)),
+                breaks = legend.color.breaks,
+                labels = legend.color.breaks.labels)
+        
+        } else {
+            
+            geom.args$funs <- 
+                c(c = function(x) names(which.max(table(x))), d = length)
+            
+            # Fix title in default case where color.method was left as 'median'
+            legend.color.title <- gsub("\nmedian", "\nmax", legend.color.title)
+            
+            p <- p + scale_fill_manual(
+                    name = legend.color.title,
+                    values = color.panel[colors]) +
+                # Set legend key size
+                guides(color = guide_legend(override.aes = list(size=legend.color.size)))
+        }
+    }
     
-    geom.args$mapping <- do.call(aes_string, aes.args)
-
     ### Add data
-    # if (!is.null(color.var)) {
-    #     p <- p + do.call(ggplot.multistats::geom_summaries_hex, geom.args)
-    # } else {
+    geom.args$mapping <- do.call(aes_string, aes.args)
+    if (!is.null(data$color)) {
+        p <- p + do.call(ggplot.multistats::stat_summaries_hex, geom.args)
+    } else {
         p <- p + do.call(stat_bin_hex, geom.args)
-    # }
+    }
 
     if (!legend.show) {
         p <- .remove_legend(p)

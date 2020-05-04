@@ -9,3 +9,9 @@
         stop("plotly installation required for using hover")
     }
 }
+
+.error_if_no_ggplot.multistats <- function() {
+    if (!requireNamespace("ggplot.multistats", quietly = TRUE)) {
+        stop("ggplot.multistats installation required for supplying 'color.var' to dittoHex plotters.")
+    }
+}
