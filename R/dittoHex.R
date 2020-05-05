@@ -18,44 +18,57 @@
 #' @param legend.density.breaks.labels,legend.color.breaks.labels String vector, with same length as \code{legend.*.breaks}, which sets the labels for the tick marks of associated legend.
 #' @param min.opacity,max.opacity Scalar between [0,1] which sets the minimum or maximum opacities used for the density legend when color is used for \code{color.var} and density is shown via opacity.
 #' @param max.color color for highest values of var/max.  Default = blue
-#' @param main String, sets the plot title.
-#' A default title is automatically generated if based on \code{color.var} and \code{shape.by} when either are provided.
+#' @param main String, sets the plot title. The default title is either "Density", \code{color.var}, or NULL, depending on the identity of \code{color.var}.
 #' To remove, set to \code{NULL}.
-#' Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 #' a data.frame containing the underlying data for target cells ("data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
 #' @inheritParams dittoScatterPlot
 #' @inheritParams dittoDimPlot
 #' 
-#' @return Filler
+#' @return A ggplot object where colored hexagonal bins are used to summarize RNAseq data in a scatterplot or tSNE, PCA, UMAP.
+#'
+#' Alternatively, if \code{data.out=TRUE}, a list containing two slots is output: the plot (named 'plot'), and a data.table containing the underlying data for target cells (named 'data').
+#'
 #' @details
-#' This function creates a dataframe with X, Y, color, and faceting data determined by \code{x.var}, \code{y.var}, \code{color.var}, and \code{split.by}.
-#' Any extra gene or metadata requested with \code{extra.var} is added as well.
-#' For expression/counts data, \code{assay}, \code{slot}, and \code{adjustment} inputs (\code{.x}, \code{.y}, and \code{.color}) can be used to change which data is used, and if it should be adjusted in some way.
+#' The functions create a dataframe with x and y coordinates for eaach cell/sample determined by either \code{x.var} and \code{y.var} for \code{dittoScatterHex},
+#' or \code{reduction.use}, \code{dim.1} (x), and \code{dim.2} (y) for \code{dittoDimHex}.
+#' Extra data requested by \code{color.var} for coloring, \code{split.by} for faceting, or \code{extra.var} for manual external manipulations, are added to the dataframe as well.
+#' For expression/counts data, \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to select which values to use, and if they should be adjusted in some way.
 #'
-#' Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{data} and \code{Others_data} based on subsetting by the target cells/samples.
+#' The dataframe is then subset to only target cells/samples based on the \code{cells.use} input.
 #'
-#' Finally, a hex plot is created using these dataframes.
-#' 
-#' Fillr filler filler for the rest
+#' Finally, a hex plot is created using this dataframe. 
+#' If \code{color.var} is not rovided, coloring is based on the density cells within each hex bins.
+#' When \code{color.var} is provided, density is represented through opacity while coloring is based on a summarization, chosen with the \code{color.method} input, of the target \code{color.var} data.
+#' If \code{split.by} was used, the plot will be split into a matrix of panels based on the associated groupings.
 #'
 #' @section Many characteristics of the plot can be adjusted using discrete inputs:
-#' FILLER
 #' \itemize{
-#' \item all filler
-#' \item \code{size} and \code{opacity} can be used to adjust the size and transparency of the data points.
-#' \item Colors used can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
-#' \item Shapes used can be adjusted with \code{shape.panel}.
-#' \item Color and shape labels can be changed using \code{rename.color.groups} and \code{rename.shape.groups}.
-#' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+#' \item Colors: \code{min.color} and \code{max.color} adjust the colors for continuous data.
+#' For discrete \code{color.var} plotting with \code{color.method = "max"}, colors used can be adjusted with \code{color.panel} and/or \code{colors}
+#' \item Discrete color labels can be changed using \code{rename.color.groups}.
+#' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.color.title} and \code{legend.density.title} arguments.
 #' \item Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab completion lookup.
+#' }
+#' 
+#' @section Additional Features:
+#' Other tweaks and features can be added as well.
+#' Each is accessible through 'tab' autocompletion starting with "\code{do.}"\code{---} or "\code{add.}"\code{---},
+#' and if additional inputs are involved in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
+#' \itemize{
+#' \item If \code{do.contour} is provided, density gradiant contour lines will be overlaid with color and linetype adjustable via \code{contour.color} and \code{contour.linetype}.
+#' \item If \code{add.trajectory.lineages} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectory.cluster.meta},
+#' then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
+#' \item If \code{add.trajectory.curves} is provided a list of matrices (each matrix containing x, y coordinates from start to end), paths and arrows will be overlayed to show trajectory inference curves in the current dimmenionality reduction space.
+#' Arrow size is controlled with the \code{trajectory.arrow.size} input.
 #' }
 #'
 #' @seealso
+#' \code{\link{dittoDimPlot}} and \code{\link{dittoScatterPlot}} for making very similar data representations, but where each cell is represented individually.
+#' It is often best to investigate your data with both the individual and hex-bin methods, then pick whichever is the best representation for your particular goal.
+#' 
 #' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are.
-#'
-#' \code{\link{dittoDimPlot}} for making very similar data representations, but where dimensionality reduction (PCA, t-SNE, UMAP, etc.) dimensions are the scatterplot axes.
 #'
 #' @author Daniel Bunis with some code adapted from Giuseppe D'Agostino
 #' @examples
@@ -146,6 +159,7 @@ dittoScatterHex <- function(
     max.color = "#0072B2",
     min = NULL,
     max = NULL,
+    rename.color.groups = NULL,
     xlab = x.var,
     ylab = y.var,
     main = "make",
@@ -169,15 +183,10 @@ dittoScatterHex <- function(
 
     # Make dataframe
     data <- .scatter_data_gather(
-        object = object, cells.use = cells.use, x.var = x.var, y.var = y.var,
-        color.var = color.var, shape.by = NULL,
-        split.by = split.by, extra.vars = extra.vars,
-        assay.x = assay.x, slot.x = slot.x, adjustment.x = adjustment.x,
-        assay.y = assay.y, slot.y = slot.y, adjustment.y = adjustment.y,
-        assay.color = assay.color, slot.color = slot.color,
-        adjustment.color = adjustment.color,
-        assay.extra = assay.extra, slot.extra = slot.extra,
-        adjustment.extra = adjustment.extra
+        object, cells.use, x.var, y.var, color.var, shape.by=NULL, split.by,
+        extra.vars, assay.x, slot.x, adjustment.x, assay.y, slot.y,
+        adjustment.y, assay.color, slot.color, adjustment.color, assay.extra,
+        slot.extra, adjustment.extra, rename.color.groups = rename.color.groups
     )[cells.use,]
 
     # Parse coloring methods
@@ -198,9 +207,10 @@ dittoScatterHex <- function(
     
     # Set titles if "make"
     main <- .leave_default_or_null(main,
-        ifelse(color_by_var, color.var, "Density"))
+        default = ifelse(!color_by_var, "Density",
+            ifelse(length(color.var)==1, color.var, NULL)))
     legend.color.title <- .leave_default_or_null(legend.color.title,
-        paste(color.var, color.method, sep = ",\n"))
+        default = paste(color.var, color.method, sep = ",\n"))
 
     # Make the plot
     p <- .ditto_scatter_hex(
@@ -247,6 +257,7 @@ dittoDimHex <- function(
     do.contour = FALSE, contour.color = "black", contour.linetype = 1,
     min.opacity = 0.2, max.opacity = 1,
     min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
+    rename.color.groups = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
     trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE,
     legend.show = TRUE,
@@ -285,7 +296,7 @@ dittoDimHex <- function(
         split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
         min.opacity, max.opacity, min.color, max.color, min, max,
-        xlab, ylab, main, sub, theme,
+        rename.color.groups, xlab, ylab, main, sub, theme,
         do.contour, contour.color, contour.linetype,
         legend.show, legend.color.title, legend.color.size,
         legend.color.breaks, legend.color.breaks.labels, legend.density.title,

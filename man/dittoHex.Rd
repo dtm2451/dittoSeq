@@ -38,6 +38,7 @@ dittoScatterHex(
   max.color = "#0072B2",
   min = NULL,
   max = NULL,
+  rename.color.groups = NULL,
   xlab = x.var,
   ylab = y.var,
   main = "make",
@@ -94,6 +95,7 @@ dittoDimHex(
   max.color = "#0072B2",
   min = NULL,
   max = NULL,
+  rename.color.groups = NULL,
   add.trajectory.lineages = NULL,
   add.trajectory.curves = NULL,
   trajectory.cluster.meta,
@@ -170,14 +172,14 @@ For the typically easier logical method, provide \code{USE} in \code{object@cell
 
 \item{max}{Numbers which set the values associated with the minimum and maximum colors.}
 
+\item{rename.color.groups}{String vector containing new names for the identities of the color or shape overlay groups.}
+
 \item{xlab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
 
 \item{ylab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
 
-\item{main}{String, sets the plot title.
-A default title is automatically generated if based on \code{color.var} and \code{shape.by} when either are provided.
-To remove, set to \code{NULL}.
-Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
+\item{main}{String, sets the plot title. The default title is either "Density", \code{color.var}, or NULL, depending on the identity of \code{color.var}.
+To remove, set to \code{NULL}.}
 
 \item{sub}{String, sets the plot subtitle.}
 
@@ -189,7 +191,8 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 
 \item{contour.color}{String that sets the color(s) of the \code{do.contour} contours.}
 
-\item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.}
+\item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.
+Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
 
 \item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
 
@@ -208,11 +211,11 @@ and a data.frame containing the underlying data for non-target cells ("Others_da
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
-Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", or the first dimensionality reduction slot if none of those exist.}
+Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.}
 
-\item{dim.1}{The component number to use on the x-axis.  Default = 1}
+\item{dim.1}{The component number to use on the x-axis. Default = 1}
 
-\item{dim.2}{The component number to use on the y-axis.  Default = 2}
+\item{dim.2}{The component number to use on the y-axis. Default = 2}
 
 \item{assay, slot, adjustment, assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
 
@@ -237,21 +240,25 @@ you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingsho
 \item{trajectory.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
 }
 \value{
-Filler
+A ggplot object where colored hexagonal bins are used to summarize RNAseq data in a scatterplot or tSNE, PCA, UMAP.
+
+Alternatively, if \code{data.out=TRUE}, a list containing two slots is output: the plot (named 'plot'), and a data.table containing the underlying data for target cells (named 'data').
 }
 \description{
 Show RNAseq data, grouped into hexagonal bins, on a scatter or dimensionality reduction plot
 }
 \details{
-This function creates a dataframe with X, Y, color, and faceting data determined by \code{x.var}, \code{y.var}, \code{color.var}, and \code{split.by}.
-Any extra gene or metadata requested with \code{extra.var} is added as well.
-For expression/counts data, \code{assay}, \code{slot}, and \code{adjustment} inputs (\code{.x}, \code{.y}, and \code{.color}) can be used to change which data is used, and if it should be adjusted in some way.
+The functions create a dataframe with x and y coordinates for eaach cell/sample determined by either \code{x.var} and \code{y.var} for \code{dittoScatterHex},
+or \code{reduction.use}, \code{dim.1} (x), and \code{dim.2} (y) for \code{dittoDimHex}.
+Extra data requested by \code{color.var} for coloring, \code{split.by} for faceting, or \code{extra.var} for manual external manipulations, are added to the dataframe as well.
+For expression/counts data, \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to select which values to use, and if they should be adjusted in some way.
 
-Next, if a set of cells or samples to use is indicated with the \code{cells.use} input, then the dataframe is split into \code{data} and \code{Others_data} based on subsetting by the target cells/samples.
+The dataframe is then subset to only target cells/samples based on the \code{cells.use} input.
 
-Finally, a hex plot is created using these dataframes.
-
-Fillr filler filler for the rest
+Finally, a hex plot is created using this dataframe. 
+If \code{color.var} is not rovided, coloring is based on the density cells within each hex bins.
+When \code{color.var} is provided, density is represented through opacity while coloring is based on a summarization, chosen with the \code{color.method} input, of the target \code{color.var} data.
+If \code{split.by} was used, the plot will be split into a matrix of panels based on the associated groupings.
 }
 \section{Functions}{
 \itemize{
@@ -262,15 +269,26 @@ Fillr filler filler for the rest
 
 \section{Many characteristics of the plot can be adjusted using discrete inputs}{
 
-FILLER
 \itemize{
-\item all filler
-\item \code{size} and \code{opacity} can be used to adjust the size and transparency of the data points.
-\item Colors used can be adjusted with \code{color.panel} and/or \code{colors} for discrete data, or \code{min}, \code{max}, \code{min.color}, and \code{max.color} for continuous data.
-\item Shapes used can be adjusted with \code{shape.panel}.
-\item Color and shape labels can be changed using \code{rename.color.groups} and \code{rename.shape.groups}.
-\item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+\item Colors: \code{min.color} and \code{max.color} adjust the colors for continuous data.
+For discrete \code{color.var} plotting with \code{color.method = "max"}, colors used can be adjusted with \code{color.panel} and/or \code{colors}
+\item Discrete color labels can be changed using \code{rename.color.groups}.
+\item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.color.title} and \code{legend.density.title} arguments.
 \item Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab completion lookup.
+}
+}
+
+\section{Additional Features}{
+
+Other tweaks and features can be added as well.
+Each is accessible through 'tab' autocompletion starting with "\code{do.}"\code{---} or "\code{add.}"\code{---},
+and if additional inputs are involved in implementing or tweaking these, the associated inputs will start with the "\code{---.}":
+\itemize{
+\item If \code{do.contour} is provided, density gradiant contour lines will be overlaid with color and linetype adjustable via \code{contour.color} and \code{contour.linetype}.
+\item If \code{add.trajectory.lineages} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectory.cluster.meta},
+then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
+\item If \code{add.trajectory.curves} is provided a list of matrices (each matrix containing x, y coordinates from start to end), paths and arrows will be overlayed to show trajectory inference curves in the current dimmenionality reduction space.
+Arrow size is controlled with the \code{trajectory.arrow.size} input.
 }
 }
 
@@ -334,9 +352,10 @@ dittoDimHex(myRNA, bins = 10,
     trajectory.cluster.meta = "clustering")
 }
 \seealso{
-\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are.
+\code{\link{dittoDimPlot}} and \code{\link{dittoScatterPlot}} for making very similar data representations, but where each cell is represented individually.
+It is often best to investigate your data with both the individual and hex-bin methods, then pick whichever is the best representation for your particular goal.
 
-\code{\link{dittoDimPlot}} for making very similar data representations, but where dimensionality reduction (PCA, t-SNE, UMAP, etc.) dimensions are the scatterplot axes.
+\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are.
 }
 \author{
 Daniel Bunis with some code adapted from Giuseppe D'Agostino

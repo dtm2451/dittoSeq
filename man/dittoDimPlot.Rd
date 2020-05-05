@@ -76,7 +76,7 @@ Alternatively, can be a vector of same length as there are cells/samples in the 
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
-Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", or the first dimensionality reduction slot if none of those exist.}
+Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.}
 
 \item{size}{Number which sets the size of data points. Default = 1.}
 
@@ -85,9 +85,9 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 1 = not see-through at all. 0 = invisible. Default = 1.
 (In terms of typical ggplot variables, = alpha)}
 
-\item{dim.1}{The component number to use on the x-axis.  Default = 1}
+\item{dim.1}{The component number to use on the x-axis. Default = 1}
 
-\item{dim.2}{The component number to use on the y-axis.  Default = 2}
+\item{dim.2}{The component number to use on the y-axis. Default = 2}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -206,7 +206,8 @@ you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingsho
 
 \item{contour.color}{String that sets the color(s) of the \code{do.contour} contours.}
 
-\item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.}
+\item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.
+Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
 
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 
@@ -275,6 +276,7 @@ The size of the text in the labels can be adjusted using the \code{labels.size} 
 By default labels will repel eachother and the bounds of the plot, and labels will be highlighted with a white background.
 Either of these can be turned off by setting \code{labels.repel = FALSE} or \code{labels.highlight = FALSE},
 \item If \code{do.ellipse} is set to \code{TRUE}, ellipses will be added to highlight distinct \code{var}-data groups' positions based on median positions of their cell/sample components.
+\item If \code{do.contour} is provided, density gradiant contour lines will be overlaid with color and linetype adjustable via \code{contour.color} and \code{contour.linetype}.
 \item If \code{add.trajectory.lineages} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectory.cluster.meta},
 then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
 \item If \code{add.trajectory.curves} is provided a list of matrices (each matrix containing x, y coordinates from start to end), paths and arrows will be overlayed to show trajectory inference curves in the current dimmenionality reduction space.
@@ -349,7 +351,7 @@ dittoDimPlot(myRNA, "gene1",
 
 \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are wanted as the axes.
 
-\code{\link{dittoPlot}} for an alternative continuous data display method where data is shown on a y- (or x-) axis.
+\code{\link{dittoPlot}} for an alternative continuous data display method where data broken into discrete groupings is shown on a y- (or x-) axis.
 
 \code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
 }
