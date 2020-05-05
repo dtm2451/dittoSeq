@@ -88,7 +88,7 @@
 #' # Default coloring, as above, is by cell/sample density in the region, but
 #' # 'color.var' can be used to color the data by another metric.
 #' # Density with then be represented via bin opacity.
-#' dittoDimHex(myRNA, color.var = "groups", bins = 10)
+#' dittoDimHex(myRNA, color.var = "clustering", bins = 10)
 #' dittoDimHex(myRNA, color.var = "gene1", bins = 10)
 #' 
 #' # 'color.method' is then used to adjust how the target data is summarized
@@ -122,7 +122,7 @@ NULL
 #' @export
 dittoScatterHex <- function(
     object, x.var, y.var, color.var = NULL, bins = 30,
-    color.method = "median",
+    color.method = NULL,
     split.by = NULL, extra.vars = NULL,
     cells.use = NULL,
     color.panel = dittoColors(), colors = seq_along(color.panel),
@@ -180,15 +180,31 @@ dittoScatterHex <- function(
         adjustment.extra = adjustment.extra
     )[cells.use,]
 
+    # Parse coloring methods
+    color_by_var <- FALSE
+    if (!is.null(color.var)) {
+        
+        color_by_var <- TRUE
+        if (is.numeric(data$color) || "max.prop" %in% color.method) {
+            discrete <- FALSE
+        } else {
+            discrete <- TRUE
+        }
+        
+        if (is.null(color.method)) {
+            color.method <- ifelse(discrete, "max", "median")
+        }
+    }
+    
     # Set titles if "make"
     main <- .leave_default_or_null(main,
-        "filler")
+        ifelse(color_by_var, color.var, "Density"))
     legend.color.title <- .leave_default_or_null(legend.color.title,
         paste(color.var, color.method, sep = ",\n"))
 
     # Make the plot
     p <- .ditto_scatter_hex(
-        data, bins, color.method, color.panel, colors,
+        data, bins, color_by_var, discrete, color.method, color.panel, colors,
         min.opacity, max.opacity, min.color, max.color, min, max,
         xlab, ylab, main, sub, theme, legend.show, legend.color.title,
         legend.color.size, legend.color.breaks, legend.color.breaks.labels,
@@ -215,7 +231,7 @@ dittoScatterHex <- function(
 #' @export
 dittoDimHex <- function(
     object, color.var = NULL, bins = 30,
-    color.method = "median",
+    color.method = NULL,
     reduction.use = .default_reduction(object), dim.1 = 1, dim.2 = 2,
     cells.use = NULL,
     color.panel = dittoColors(), colors = seq_along(color.panel),
@@ -302,6 +318,8 @@ dittoDimHex <- function(
 .ditto_scatter_hex <- function(
     data,
     bins,
+    color_by_var,
+    discrete,
     color.method,
     color.panel,
     colors,
@@ -334,10 +352,8 @@ dittoDimHex <- function(
     geom.args <- list(
         data = data, bins = bins, na.rm = TRUE)
     
-    if (is.null(data$color)) {
-        ## Simple case: no color.var given
-        
-        # Set color scale based on density
+    if (!color_by_var) {
+        ## Set color scale based on density for stat_bin_hex
         p <- p + scale_fill_gradient(
             name = legend.density.title,
             low= min.color,
@@ -356,7 +372,7 @@ dittoDimHex <- function(
             breaks = legend.density.breaks,
             labels = legend.density.breaks.labels)
         
-        # Set aesthetics
+        # Prep aesthetics
         aes.args$z <- "color"
         aes.args$fill <- "stat(c)"
         aes.args$alpha <- "stat(d)"
@@ -364,14 +380,25 @@ dittoDimHex <- function(
         aes.args$group <- 1
         
         # Determine how 'c' and 'd' should be calculated &
-        # set fill based on color.var and the color.method
-        if (is.numeric(data$color) || is.character(color.method) && color.method == "max.prop") {
+        # set fill based on color.method
+        if (discrete) {
             
             geom.args$funs <- c(
-                c = if (is.numeric(data$color)) {
-                    color.method
-                } else {
+                c = if (color.method == "max") {
+                    function(x) names(which.max(table(x)))
+                }, d = length)
+            
+            p <- p + scale_fill_manual(
+                    name = legend.color.title,
+                    values = color.panel[colors])
+        
+        } else {
+            
+            geom.args$funs <- c(
+                c = if (color.method == "max.prop") {
                     function(x) max(table(x)/length(x))
+                } else {
+                    color.method
                 }, d = length)
             
             p <- p + scale_fill_gradient(
@@ -383,20 +410,7 @@ dittoDimHex <- function(
                     ifelse(is.null(max), NA, max)),
                 breaks = legend.color.breaks,
                 labels = legend.color.breaks.labels)
-        
-        } else {
             
-            geom.args$funs <- 
-                c(c = function(x) names(which.max(table(x))), d = length)
-            
-            # Fix title in default case where color.method was left as 'median'
-            legend.color.title <- gsub("\nmedian", "\nmax", legend.color.title)
-            
-            p <- p + scale_fill_manual(
-                    name = legend.color.title,
-                    values = color.panel[colors]) +
-                # Set legend key size
-                guides(color = guide_legend(override.aes = list(size=legend.color.size)))
         }
     }
     

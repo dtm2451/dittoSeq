@@ -12,7 +12,7 @@ dittoScatterHex(
   y.var,
   color.var = NULL,
   bins = 30,
-  color.method = "median",
+  color.method = NULL,
   split.by = NULL,
   extra.vars = NULL,
   cells.use = NULL,
@@ -61,7 +61,7 @@ dittoDimHex(
   object,
   color.var = NULL,
   bins = 30,
-  color.method = "median",
+  color.method = NULL,
   reduction.use = .default_reduction(object),
   dim.1 = 1,
   dim.2 = 2,
@@ -304,7 +304,7 @@ dittoDimHex(myRNA, bins = c(20, 10))
 # Default coloring, as above, is by cell/sample density in the region, but
 # 'color.var' can be used to color the data by another metric.
 # Density with then be represented via bin opacity.
-dittoDimHex(myRNA, color.var = "groups", bins = 10)
+dittoDimHex(myRNA, color.var = "clustering", bins = 10)
 dittoDimHex(myRNA, color.var = "gene1", bins = 10)
 
 # 'color.method' is then used to adjust how the target data is summarized
