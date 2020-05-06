@@ -32,12 +32,12 @@ dittoScatterHex(
   assay.extra = .default_assay(object),
   slot.extra = .default_slot(object),
   adjustment.extra = NULL,
-  min.opacity = 0.2,
-  max.opacity = 1,
   min.density = NA,
   max.density = NA,
   min.color = "#F0E442",
   max.color = "#0072B2",
+  min.opacity = 0.2,
+  max.opacity = 1,
   min = NA,
   max = NA,
   rename.color.groups = NULL,
@@ -90,12 +90,12 @@ dittoDimHex(
   do.contour = FALSE,
   contour.color = "black",
   contour.linetype = 1,
-  min.opacity = 0.2,
-  max.opacity = 1,
   min.density = NA,
   max.density = NA,
   min.color = "#F0E442",
   max.color = "#0072B2",
+  min.opacity = 0.2,
+  max.opacity = 1,
   min = NA,
   max = NA,
   rename.color.groups = NULL,
@@ -116,19 +116,14 @@ dittoDimHex(
 \arguments{
 \item{object}{A Seurat or SingleCellExperiment object}
 
-\item{x.var}{Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
-Note: must be continuous.
-
-Alternatively, can be a directly supplied numeric vector of length equal to the total number of cells/samples in \code{object}.}
-
-\item{y.var}{Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
+\item{x.var, y.var}{Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
 Note: must be continuous.
 
 Alternatively, can be a directly supplied numeric vector of length equal to the total number of cells/samples in \code{object}.}
 
 \item{color.var}{Single string giving a gene or metadata that will set the color of cells/samples in the plot.
 
-Alternatively, can be a directly supplied numeric or string, vector or a factor of length equal to the total number of cells/samples in \code{object}.}
+Alternatively, can be a directly supplied numeric or string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
 
 \item{bins}{Numeric or numeric vector giving the number of haxagonal bins in the x and y directions. Set to 30 by default.}
 
@@ -151,34 +146,30 @@ When 1 metadata is named, shape control can be achieved with \code{split.nrow} a
 
 Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
-\item{cells.use}{String vector of cells'/samples' names which should be included.
+\item{cells.use}{String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
 
-Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
+Alternatively, a Logical vector, the same length as the number of cells in the object.
+
+For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .}
 
 \item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.}
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
-\item{split.nrow}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
-\item{split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+\item{min.density, max.density}{Number which sets the min/max values used for the density scale.
+Used no matter whether density is represented through opacity or color.}
 
-\item{min.opacity, max.opacity}{Scalar between [0,1] which sets the minimum or maximum opacities used for the density legend when color is used for \code{color.var} and density is shown via opacity.}
+\item{min.color, max.color}{color for the min/max values of the color scale.}
 
-\item{min.color}{color for lowest values of var/min.  Default = yellow}
+\item{min.opacity, max.opacity}{Scalar between [0,1] which sets the minimum or maximum opacity used for the density legend (when color is used for \code{color.var} data and density is shown via opacity).}
 
-\item{max.color}{color for highest values of var/max.  Default = blue}
+\item{min, max}{Number which sets the values associated with the minimum or maximum color for \code{color.var} data.}
 
-\item{min}{Numbers which set the values associated with the minimum and maximum colors.}
+\item{rename.color.groups}{String vector containing new names for the identities of discrete color groups.}
 
-\item{max}{Numbers which set the values associated with the minimum and maximum colors.}
-
-\item{rename.color.groups}{String vector containing new names for the identities of the color or shape overlay groups.}
-
-\item{xlab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
-
-\item{ylab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
+\item{xlab, ylab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
 
 \item{main}{String, sets the plot title. The default title is either "Density", \code{color.var}, or NULL, depending on the identity of \code{color.var}.
 To remove, set to \code{NULL}.}
@@ -202,15 +193,14 @@ Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
 
 \item{legend.density.breaks, legend.color.breaks}{Numeric vector which sets the discrete values to label in the density and color.var legends.}
 
-\item{legend.density.breaks.labels, legend.color.breaks.labels}{String vector, with same length as \code{legend.*.breaks}, which sets the labels for the tick marks of associated legend.}
+\item{legend.density.breaks.labels, legend.color.breaks.labels}{String vector, with same length as \code{legend.*.breaks}, which sets the labels for the tick marks or hex icons of the associated legend.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
-a data.frame containing the underlying data for target cells ("data"),
-and a data.frame containing the underlying data for non-target cells ("Others_data").}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output from the plot alone to a list containing the plot ("plot"),
+and data.frame of the underlying data for target cells ("data").}
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
-Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.}
+Default = the first dimensionality reduction slot inside the object with "umap", "tsne", or "pca" within its name, (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.}
 
 \item{dim.1}{The component number to use on the x-axis. Default = 1}
 
@@ -226,7 +216,7 @@ Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.}
 
 \item{add.trajectory.lineages}{List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 
-If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.}
+If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}.}
 
 \item{add.trajectory.curves}{List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x (\code{dim.1}) and y (\code{dim.2}) coordinates of the paths.
 
@@ -247,16 +237,18 @@ Alternatively, if \code{data.out=TRUE}, a list containing two slots is output: t
 Show RNAseq data, grouped into hexagonal bins, on a scatter or dimensionality reduction plot
 }
 \details{
-The functions create a dataframe with x and y coordinates for eaach cell/sample determined by either \code{x.var} and \code{y.var} for \code{dittoScatterHex},
+The functions create a dataframe with x and y coordinates for each cell/sample, determined by either \code{x.var} and \code{y.var} for \code{dittoScatterHex},
 or \code{reduction.use}, \code{dim.1} (x), and \code{dim.2} (y) for \code{dittoDimHex}.
 Extra data requested by \code{color.var} for coloring, \code{split.by} for faceting, or \code{extra.var} for manual external manipulations, are added to the dataframe as well.
 For expression/counts data, \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to select which values to use, and if they should be adjusted in some way.
 
 The dataframe is then subset to only target cells/samples based on the \code{cells.use} input.
 
-Finally, a hex plot is created using this dataframe. 
-If \code{color.var} is not rovided, coloring is based on the density cells within each hex bins.
+Finally, a hex plot is created using this dataframe:
+
+If \code{color.var} is not rovided, coloring is based on the density of cells/samples within each hex bin.
 When \code{color.var} is provided, density is represented through opacity while coloring is based on a summarization, chosen with the \code{color.method} input, of the target \code{color.var} data.
+
 If \code{split.by} was used, the plot will be split into a matrix of panels based on the associated groupings.
 }
 \section{Functions}{
@@ -270,8 +262,7 @@ If \code{split.by} was used, the plot will be split into a matrix of panels base
 
 \itemize{
 \item Colors: \code{min.color} and \code{max.color} adjust the colors for continuous data.
-For discrete \code{color.var} plotting with \code{color.method = "max"}, colors used can be adjusted with \code{color.panel} and/or \code{colors}
-\item Discrete color labels can be changed using \code{rename.color.groups}.
+\item For discrete \code{color.var} plotting with \code{color.method = "max"}, colors are instead adjusted with \code{color.panel} and/or \code{colors} & the labels of the groupings can be changed using \code{rename.color.groups}.
 \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.color.title} and \code{legend.density.title} arguments.
 \item Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab completion lookup.
 }
@@ -354,7 +345,9 @@ dittoDimHex(myRNA, bins = 10,
 \code{\link{dittoDimPlot}} and \code{\link{dittoScatterPlot}} for making very similar data representations, but where each cell is represented individually.
 It is often best to investigate your data with both the individual and hex-bin methods, then pick whichever is the best representation for your particular goal.
 
-\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are.
+\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{split.by}, etc. options are of an \code{object}.
+
+\code{\link{getReductions}} to see what the \code{reduction.use} options are of an \code{object}.
 }
 \author{
 Daniel Bunis with some code adapted from Giuseppe D'Agostino

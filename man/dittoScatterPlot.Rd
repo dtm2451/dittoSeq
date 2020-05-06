@@ -72,7 +72,7 @@ Alternatively, can be a directly supplied numeric vector of length equal to the 
 
 \item{color.var}{Single string giving a gene or metadata that will set the color of cells/samples in the plot.
 
-Alternatively, can be a directly supplied numeric or string, vector or a factor of length equal to the total number of cells/samples in \code{object}.}
+Alternatively, can be a directly supplied numeric or string vector or a factor of length equal to the total number of cells/samples in \code{object}.}
 
 \item{shape.by}{Single string giving a metadata (Note: must be discrete.) that will set the shape of cells/samples in the plot.
 
@@ -88,10 +88,11 @@ When 1 metadata is named, shape control can be achieved with \code{split.nrow} a
 
 Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
-\item{cells.use}{String vector of cells'/samples' names which should be included.
+\item{cells.use}{String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
 
-Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
+Alternatively, a Logical vector, the same length as the number of cells in the object.
+
+For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .}
 
 \item{show.others}{Logical. TRUE by default, whether other cells should be shown in the background in light gray.}
 
@@ -257,9 +258,11 @@ dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
 
 }
 \seealso{
-\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are.
+\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are of an \code{object}.
 
 \code{\link{dittoDimPlot}} for making very similar data representations, but where dimensionality reduction (PCA, t-SNE, UMAP, etc.) dimensions are the scatterplot axes.
+
+\code{\link{dittoDimHex}} and \code{\link{dittoScatterHex}} for showing very similar data representations, but where nearby cells are summarized together in hexagonal bins.
 }
 \author{
 Daniel Bunis

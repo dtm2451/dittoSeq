@@ -1,6 +1,18 @@
 #' Show RNAseq data, grouped into hexagonal bins, on a scatter or dimensionality reduction plot
 #' @name dittoHex
 #' 
+#' @param x.var,y.var Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
+#' Note: must be continuous.
+#'
+#' Alternatively, can be a directly supplied numeric vector of length equal to the total number of cells/samples in \code{object}.
+#' 
+#' @param rename.color.groups String vector containing new names for the identities of discrete color groups.
+#' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
+#' @param assay,slot,adjustment,assay.x,assay.y,assay.color,assay.extra,slot.x,slot.y,slot.color,slot.extra,adjustment.x,adjustment.y,adjustment.color,adjustment.extra
+#' assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.
+#' @param xlab,ylab Strings which set the labels for the axes. To remove, set to \code{NULL}.
+#' 
+#' 
 #' @param bins Numeric or numeric vector giving the number of haxagonal bins in the x and y directions. Set to 30 by default.
 #' @param color.method Works differently depending on whether the color.var is continous versus discrete:
 #' 
@@ -10,44 +22,44 @@
 #' 
 #' \strong{Discrete}: A string signifying whether the color should (default) be simply based on the "max" grouping of the bin,
 #' or based on the "max.prop"ortion of cells/samples belonging to any grouping.
-#' 
-#' @param assay,slot,adjustment,assay.x,assay.y,assay.color,assay.extra,slot.x,slot.y,slot.color,slot.extra,adjustment.x,adjustment.y,adjustment.color,adjustment.extra
-#' assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.
 #' @param legend.density.title,legend.color.title Strings which set the title for the legends.
 #' @param legend.density.breaks,legend.color.breaks Numeric vector which sets the discrete values to label in the density and color.var legends.
-#' @param legend.density.breaks.labels,legend.color.breaks.labels String vector, with same length as \code{legend.*.breaks}, which sets the labels for the tick marks of associated legend.
-#' @param min.opacity,max.opacity Scalar between [0,1] which sets the minimum or maximum opacities used for the density legend when color is used for \code{color.var} and density is shown via opacity.
-#' @param max.color color for highest values of var/max.  Default = blue
+#' @param legend.density.breaks.labels,legend.color.breaks.labels String vector, with same length as \code{legend.*.breaks}, which sets the labels for the tick marks or hex icons of the associated legend.
+#' @param min.opacity,max.opacity Scalar between [0,1] which sets the minimum or maximum opacity used for the density legend (when color is used for \code{color.var} data and density is shown via opacity).
+#' @param min.density,max.density Number which sets the min/max values used for the density scale.
+#' Used no matter whether density is represented through opacity or color.
+#' @param min.color,max.color color for the min/max values of the color scale. 
+#' @param min,max Number which sets the values associated with the minimum or maximum color for \code{color.var} data.
 #' @param main String, sets the plot title. The default title is either "Density", \code{color.var}, or NULL, depending on the identity of \code{color.var}.
 #' To remove, set to \code{NULL}.
-#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
-#' a data.frame containing the underlying data for target cells ("data"),
-#' and a data.frame containing the underlying data for non-target cells ("Others_data").
+#' @param data.out Logical. When set to \code{TRUE}, changes the output from the plot alone to a list containing the plot ("plot"),
+#' and data.frame of the underlying data for target cells ("data").
 #' @inheritParams dittoScatterPlot
 #' @inheritParams dittoDimPlot
 #' 
-#' @return A ggplot object where colored hexagonal bins are used to summarize RNAseq data in a scatterplot or tSNE, PCA, UMAP.
-#'
-#' Alternatively, if \code{data.out=TRUE}, a list containing two slots is output: the plot (named 'plot'), and a data.table containing the underlying data for target cells (named 'data').
-#'
 #' @details
-#' The functions create a dataframe with x and y coordinates for eaach cell/sample determined by either \code{x.var} and \code{y.var} for \code{dittoScatterHex},
+#' The functions create a dataframe with x and y coordinates for each cell/sample, determined by either \code{x.var} and \code{y.var} for \code{dittoScatterHex},
 #' or \code{reduction.use}, \code{dim.1} (x), and \code{dim.2} (y) for \code{dittoDimHex}.
 #' Extra data requested by \code{color.var} for coloring, \code{split.by} for faceting, or \code{extra.var} for manual external manipulations, are added to the dataframe as well.
 #' For expression/counts data, \code{assay}, \code{slot}, and \code{adjustment} inputs can be used to select which values to use, and if they should be adjusted in some way.
 #'
 #' The dataframe is then subset to only target cells/samples based on the \code{cells.use} input.
 #'
-#' Finally, a hex plot is created using this dataframe. 
-#' If \code{color.var} is not rovided, coloring is based on the density cells within each hex bins.
+#' Finally, a hex plot is created using this dataframe:
+#' 
+#' If \code{color.var} is not rovided, coloring is based on the density of cells/samples within each hex bin.
 #' When \code{color.var} is provided, density is represented through opacity while coloring is based on a summarization, chosen with the \code{color.method} input, of the target \code{color.var} data.
+#' 
 #' If \code{split.by} was used, the plot will be split into a matrix of panels based on the associated groupings.
+#'
+#' @return A ggplot object where colored hexagonal bins are used to summarize RNAseq data in a scatterplot or tSNE, PCA, UMAP.
+#'
+#' Alternatively, if \code{data.out=TRUE}, a list containing two slots is output: the plot (named 'plot'), and a data.table containing the underlying data for target cells (named 'data').
 #'
 #' @section Many characteristics of the plot can be adjusted using discrete inputs:
 #' \itemize{
 #' \item Colors: \code{min.color} and \code{max.color} adjust the colors for continuous data.
-#' For discrete \code{color.var} plotting with \code{color.method = "max"}, colors used can be adjusted with \code{color.panel} and/or \code{colors}
-#' \item Discrete color labels can be changed using \code{rename.color.groups}.
+#' \item For discrete \code{color.var} plotting with \code{color.method = "max"}, colors are instead adjusted with \code{color.panel} and/or \code{colors} & the labels of the groupings can be changed using \code{rename.color.groups}.
 #' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.color.title} and \code{legend.density.title} arguments.
 #' \item Legends can also be adjusted in other ways, using variables that all start with "\code{legend.}" for easy tab completion lookup.
 #' }
@@ -68,8 +80,10 @@
 #' \code{\link{dittoDimPlot}} and \code{\link{dittoScatterPlot}} for making very similar data representations, but where each cell is represented individually.
 #' It is often best to investigate your data with both the individual and hex-bin methods, then pick whichever is the best representation for your particular goal.
 #' 
-#' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are.
+#' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{split.by}, etc. options are of an \code{object}.
 #'
+#' \code{\link{getReductions}} to see what the \code{reduction.use} options are of an \code{object}.
+#' 
 #' @author Daniel Bunis with some code adapted from Giuseppe D'Agostino
 #' @examples
 #' # dittoSeq handles bulk and single-cell data quit similarly.
@@ -153,12 +167,12 @@ dittoScatterHex <- function(
     assay.extra = .default_assay(object),
     slot.extra = .default_slot(object),
     adjustment.extra = NULL,
-    min.opacity = 0.2,
-    max.opacity = 1,
     min.density = NA,
     max.density = NA,
     min.color = "#F0E442",
     max.color = "#0072B2",
+    min.opacity = 0.2,
+    max.opacity = 1,
     min = NA,
     max = NA,
     rename.color.groups = NULL,
@@ -222,8 +236,8 @@ dittoScatterHex <- function(
     # Make the plot
     p <- .ditto_scatter_hex(
         data, bins, color_by_var, discrete, color.method, color.panel, colors,
-        min.opacity, max.opacity, min.density, max.density,
-        min.color, max.color, min, max,
+        min.density, max.density, min.color, max.color,
+        min.opacity, max.opacity, min, max,
         xlab, ylab, main, sub, theme, legend.show,
         legend.color.title, legend.color.breaks, legend.color.breaks.labels,
         legend.density.title, legend.density.breaks, legend.density.breaks.labels)
@@ -263,8 +277,10 @@ dittoDimHex <- function(
     main = "make", sub = NULL, xlab = "make", ylab = "make",
     theme = theme_bw(),
     do.contour = FALSE, contour.color = "black", contour.linetype = 1,
-    min.opacity = 0.2, max.opacity = 1, min.density = NA, max.density = NA,
-    min.color = "#F0E442", max.color = "#0072B2", min = NA, max = NA,
+    min.density = NA, max.density = NA,
+    min.color = "#F0E442", max.color = "#0072B2",
+    min.opacity = 0.2, max.opacity = 1, 
+    min = NA, max = NA,
     rename.color.groups = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
     trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE,
@@ -301,8 +317,8 @@ dittoDimHex <- function(
         extra.vars, cells.use, color.panel, colors,
         split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
-        min.opacity, max.opacity, min.density, max.density,
-        min.color, max.color, min, max,
+        min.density, max.density, min.color, max.color,
+        min.opacity, max.opacity, min, max,
         rename.color.groups, xlab, ylab, main, sub, theme,
         do.contour, contour.color, contour.linetype,
         legend.show,
@@ -342,12 +358,12 @@ dittoDimHex <- function(
     color.method,
     color.panel,
     colors,
-    min.opacity,
-    max.opacity,
     min.density,
     max.density,
     min.color,
     max.color,
+    min.opacity,
+    max.opacity,
     min,
     max,
     xlab,

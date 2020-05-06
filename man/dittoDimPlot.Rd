@@ -76,7 +76,7 @@ Alternatively, can be a vector of same length as there are cells/samples in the 
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
-Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.}
+Default = the first dimensionality reduction slot inside the object with "umap", "tsne", or "pca" within its name, (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.}
 
 \item{size}{Number which sets the size of data points. Default = 1.}
 
@@ -89,9 +89,11 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 
 \item{dim.2}{The component number to use on the y-axis. Default = 2}
 
-\item{cells.use}{String vector of cells'/samples' names which should be included.
-Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.}
+\item{cells.use}{String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
+
+Alternatively, a Logical vector, the same length as the number of cells in the object.
+
+For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .}
 
 \item{shape.by}{Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
 
@@ -190,7 +192,7 @@ TRUE by default.}
 
 \item{add.trajectory.lineages}{List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 
-If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.}
+If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}.}
 
 \item{add.trajectory.curves}{List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x (\code{dim.1}) and y (\code{dim.2}) coordinates of the paths.
 
@@ -344,12 +346,16 @@ dittoDimPlot(myRNA, "gene1",
     contour.linetype = "dashed") # Optional, solid by default
 }
 \seealso{
-\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.by}, etc. options are.
+\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{split.by}, etc. options are of an \code{object}.
+
+\code{\link{getReductions}} to see what the \code{reduction.use} options are of an \code{object}.
 
 \code{\link{importDittoBulk}} for how to create a \code{\link{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
 \code{\link{addDimReduction}} for how to specifically add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 
 \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are wanted as the axes.
+
+\code{\link{dittoDimHex}} and \code{\link{dittoScatterHex}} for showing very similar data representations, but where nearby cells are summarized together in hexagonal bins.
 
 \code{\link{dittoPlot}} for an alternative continuous data display method where data broken into discrete groupings is shown on a y- (or x-) axis.
 
