@@ -145,6 +145,97 @@
 #'     trajectory.cluster.meta = "clustering")
 NULL
 
+#' @describeIn dittoHex Show RNAseq data overlayed on a tsne, pca, or similar, grouped into hexagonal bins
+#' @export
+dittoDimHex <- function(
+    object, color.var = NULL, bins = 30,
+    color.method = NULL,
+    reduction.use = .default_reduction(object), dim.1 = 1, dim.2 = 2,
+    cells.use = NULL,
+    color.panel = dittoColors(), colors = seq_along(color.panel),
+    split.by = NULL, extra.vars = NULL,
+    split.nrow = NULL, split.ncol = NULL,
+    assay = .default_assay(object), slot = .default_slot(object),
+    adjustment = NULL,
+    assay.extra = assay, slot.extra = slot, adjustment.extra = adjustment,
+    show.axes.numbers = TRUE,
+    show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
+    main = "make", sub = NULL, xlab = "make", ylab = "make",
+    theme = theme_bw(),
+    do.contour = FALSE, contour.color = "black", contour.linetype = 1,
+    min.density = NA, max.density = NA,
+    min.color = "#F0E442", max.color = "#0072B2",
+    min.opacity = 0.2, max.opacity = 1, 
+    min = NA, max = NA,
+    rename.color.groups = NULL,
+    add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
+    trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE,
+    legend.show = TRUE,
+    legend.color.title = "make",
+    legend.color.breaks = waiver(),
+    legend.color.breaks.labels = waiver(),
+    legend.density.title = if (isBulk(object)) "Samples" else "Cells",
+    legend.density.breaks = waiver(),
+    legend.density.breaks.labels = waiver()
+    ) {
+
+    # Generate the x/y dimensional reduction data and plot titles.
+    xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
+    ydat <- .extract_Reduced_Dim(reduction.use, dim.2, object)
+    xlab <- .leave_default_or_null(xlab, xdat$name)
+    ylab <- .leave_default_or_null(ylab, ydat$name)
+
+    # Edit theme
+    if (!show.grid.lines) {
+        theme <- theme + theme(
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank())
+    }
+    if (!show.axes.numbers) {
+        theme <- theme +
+            theme(axis.text.x=element_blank(), axis.text.y=element_blank())
+    }
+
+    # Make dataframes and plot
+    p.df <- dittoScatterHex(
+        object, xdat$embeddings, ydat$embeddings, color.var, bins,
+        color.method, split.by,
+        extra.vars, cells.use, color.panel, colors,
+        split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
+        assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
+        min.density, max.density, min.color, max.color,
+        min.opacity, max.opacity, min, max,
+        rename.color.groups, xlab, ylab, main, sub, theme,
+        do.contour, contour.color, contour.linetype,
+        legend.show,
+        legend.color.title, legend.color.breaks, legend.color.breaks.labels,
+        legend.density.title, legend.density.breaks, legend.density.breaks.labels,
+        data.out = TRUE)
+    p <- p.df$plot
+    data <- p.df$data
+
+    # Add extra features
+    if (is.list(add.trajectory.lineages)) {
+        p <- .add_trajectory_lineages(
+            p, add.trajectory.lineages, trajectory.cluster.meta,
+            trajectory.arrow.size, object, reduction.use, dim.1, dim.2)
+    }
+
+    if (is.list(add.trajectory.curves)) {
+        p <- .add_trajectory_curves(
+            p, add.trajectory.curves, trajectory.arrow.size, dim.1, dim.2)
+    }
+    
+    ### RETURN the PLOT ###
+    if (data.out) {
+        return(list(
+            plot = p,
+            data = data))
+    } else {
+        return(p)
+    }
+}
+
 #' @describeIn dittoHex Make a scatter plot of RNAseq data, grouped into hexagonal bins
 #' @export
 dittoScatterHex <- function(
@@ -255,97 +346,6 @@ dittoScatterHex <- function(
     if (data.out) {
         return(list(plot = p, data = data))
     } else{
-        return(p)
-    }
-}
-
-#' @describeIn dittoHex Show RNAseq data overlayed on a tsne, pca, or similar, grouped into hexagonal bins
-#' @export
-dittoDimHex <- function(
-    object, color.var = NULL, bins = 30,
-    color.method = NULL,
-    reduction.use = .default_reduction(object), dim.1 = 1, dim.2 = 2,
-    cells.use = NULL,
-    color.panel = dittoColors(), colors = seq_along(color.panel),
-    split.by = NULL, extra.vars = NULL,
-    split.nrow = NULL, split.ncol = NULL,
-    assay = .default_assay(object), slot = .default_slot(object),
-    adjustment = NULL,
-    assay.extra = assay, slot.extra = slot, adjustment.extra = adjustment,
-    show.axes.numbers = TRUE,
-    show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
-    main = "make", sub = NULL, xlab = "make", ylab = "make",
-    theme = theme_bw(),
-    do.contour = FALSE, contour.color = "black", contour.linetype = 1,
-    min.density = NA, max.density = NA,
-    min.color = "#F0E442", max.color = "#0072B2",
-    min.opacity = 0.2, max.opacity = 1, 
-    min = NA, max = NA,
-    rename.color.groups = NULL,
-    add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
-    trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE,
-    legend.show = TRUE,
-    legend.color.title = "make",
-    legend.color.breaks = waiver(),
-    legend.color.breaks.labels = waiver(),
-    legend.density.title = if (isBulk(object)) "Samples" else "Cells",
-    legend.density.breaks = waiver(),
-    legend.density.breaks.labels = waiver()
-    ) {
-
-    # Generate the x/y dimensional reduction data and plot titles.
-    xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
-    ydat <- .extract_Reduced_Dim(reduction.use, dim.2, object)
-    xlab <- .leave_default_or_null(xlab, xdat$name)
-    ylab <- .leave_default_or_null(ylab, ydat$name)
-
-    # Edit theme
-    if (!show.grid.lines) {
-        theme <- theme + theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank())
-    }
-    if (!show.axes.numbers) {
-        theme <- theme +
-            theme(axis.text.x=element_blank(), axis.text.y=element_blank())
-    }
-
-    # Make dataframes and plot
-    p.df <- dittoScatterHex(
-        object, xdat$embeddings, ydat$embeddings, color.var, bins,
-        color.method, split.by,
-        extra.vars, cells.use, color.panel, colors,
-        split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
-        assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
-        min.density, max.density, min.color, max.color,
-        min.opacity, max.opacity, min, max,
-        rename.color.groups, xlab, ylab, main, sub, theme,
-        do.contour, contour.color, contour.linetype,
-        legend.show,
-        legend.color.title, legend.color.breaks, legend.color.breaks.labels,
-        legend.density.title, legend.density.breaks, legend.density.breaks.labels,
-        data.out = TRUE)
-    p <- p.df$plot
-    data <- p.df$data
-
-    # Add extra features
-    if (is.list(add.trajectory.lineages)) {
-        p <- .add_trajectory_lineages(
-            p, add.trajectory.lineages, trajectory.cluster.meta,
-            trajectory.arrow.size, object, reduction.use, dim.1, dim.2)
-    }
-
-    if (is.list(add.trajectory.curves)) {
-        p <- .add_trajectory_curves(
-            p, add.trajectory.curves, trajectory.arrow.size, dim.1, dim.2)
-    }
-    
-    ### RETURN the PLOT ###
-    if (data.out) {
-        return(list(
-            plot = p,
-            data = data))
-    } else {
         return(p)
     }
 }

@@ -2,63 +2,10 @@
 % Please edit documentation in R/dittoHex.R
 \name{dittoHex}
 \alias{dittoHex}
-\alias{dittoScatterHex}
 \alias{dittoDimHex}
+\alias{dittoScatterHex}
 \title{Show RNAseq data, grouped into hexagonal bins, on a scatter or dimensionality reduction plot}
 \usage{
-dittoScatterHex(
-  object,
-  x.var,
-  y.var,
-  color.var = NULL,
-  bins = 30,
-  color.method = NULL,
-  split.by = NULL,
-  extra.vars = NULL,
-  cells.use = NULL,
-  color.panel = dittoColors(),
-  colors = seq_along(color.panel),
-  split.nrow = NULL,
-  split.ncol = NULL,
-  assay.x = .default_assay(object),
-  slot.x = .default_slot(object),
-  adjustment.x = NULL,
-  assay.y = .default_assay(object),
-  slot.y = .default_slot(object),
-  adjustment.y = NULL,
-  assay.color = .default_assay(object),
-  slot.color = .default_slot(object),
-  adjustment.color = NULL,
-  assay.extra = .default_assay(object),
-  slot.extra = .default_slot(object),
-  adjustment.extra = NULL,
-  min.density = NA,
-  max.density = NA,
-  min.color = "#F0E442",
-  max.color = "#0072B2",
-  min.opacity = 0.2,
-  max.opacity = 1,
-  min = NA,
-  max = NA,
-  rename.color.groups = NULL,
-  xlab = x.var,
-  ylab = y.var,
-  main = "make",
-  sub = NULL,
-  theme = theme_bw(),
-  do.contour = FALSE,
-  contour.color = "black",
-  contour.linetype = 1,
-  legend.show = TRUE,
-  legend.color.title = "make",
-  legend.color.breaks = waiver(),
-  legend.color.breaks.labels = waiver(),
-  legend.density.title = if (isBulk(object)) "Samples" else "Cells",
-  legend.density.breaks = waiver(),
-  legend.density.breaks.labels = waiver(),
-  data.out = FALSE
-)
-
 dittoDimHex(
   object,
   color.var = NULL,
@@ -112,14 +59,62 @@ dittoDimHex(
   legend.density.breaks = waiver(),
   legend.density.breaks.labels = waiver()
 )
+
+dittoScatterHex(
+  object,
+  x.var,
+  y.var,
+  color.var = NULL,
+  bins = 30,
+  color.method = NULL,
+  split.by = NULL,
+  extra.vars = NULL,
+  cells.use = NULL,
+  color.panel = dittoColors(),
+  colors = seq_along(color.panel),
+  split.nrow = NULL,
+  split.ncol = NULL,
+  assay.x = .default_assay(object),
+  slot.x = .default_slot(object),
+  adjustment.x = NULL,
+  assay.y = .default_assay(object),
+  slot.y = .default_slot(object),
+  adjustment.y = NULL,
+  assay.color = .default_assay(object),
+  slot.color = .default_slot(object),
+  adjustment.color = NULL,
+  assay.extra = .default_assay(object),
+  slot.extra = .default_slot(object),
+  adjustment.extra = NULL,
+  min.density = NA,
+  max.density = NA,
+  min.color = "#F0E442",
+  max.color = "#0072B2",
+  min.opacity = 0.2,
+  max.opacity = 1,
+  min = NA,
+  max = NA,
+  rename.color.groups = NULL,
+  xlab = x.var,
+  ylab = y.var,
+  main = "make",
+  sub = NULL,
+  theme = theme_bw(),
+  do.contour = FALSE,
+  contour.color = "black",
+  contour.linetype = 1,
+  legend.show = TRUE,
+  legend.color.title = "make",
+  legend.color.breaks = waiver(),
+  legend.color.breaks.labels = waiver(),
+  legend.density.title = if (isBulk(object)) "Samples" else "Cells",
+  legend.density.breaks = waiver(),
+  legend.density.breaks.labels = waiver(),
+  data.out = FALSE
+)
 }
 \arguments{
 \item{object}{A Seurat or SingleCellExperiment object}
-
-\item{x.var, y.var}{Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
-Note: must be continuous.
-
-Alternatively, can be a directly supplied numeric vector of length equal to the total number of cells/samples in \code{object}.}
 
 \item{color.var}{Single string giving a gene or metadata that will set the color of cells/samples in the plot.
 
@@ -136,15 +131,13 @@ Default is \code{median}. Other useful options are \code{sum}, \code{mean}, \cod
 \strong{Discrete}: A string signifying whether the color should (default) be simply based on the "max" grouping of the bin,
 or based on the "max.prop"ortion of cells/samples belonging to any grouping.}
 
-\item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
+\item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
-When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+Default = the first dimensionality reduction slot inside the object with "umap", "tsne", or "pca" within its name, (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.}
 
-When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
+\item{dim.1}{The component number to use on the x-axis. Default = 1}
 
-\item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
-
-Useful for making custom alterations \emph{after} dittoSeq plot generation.}
+\item{dim.2}{The component number to use on the y-axis. Default = 2}
 
 \item{cells.use}{String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
 
@@ -156,25 +149,32 @@ For the typically easier logical method, provide \code{USE} in \code{colnames(ob
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
+\item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
+
+When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+
+When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
+
+\item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
+
+Useful for making custom alterations \emph{after} dittoSeq plot generation.}
+
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
-\item{min.density, max.density}{Number which sets the min/max values used for the density scale.
-Used no matter whether density is represented through opacity or color.}
+\item{assay, slot, adjustment, assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
 
-\item{min.color, max.color}{color for the min/max values of the color scale.}
+\item{show.axes.numbers}{Logical which controls whether the axes values should be displayed.}
 
-\item{min.opacity, max.opacity}{Scalar between [0,1] which sets the minimum or maximum opacity used for the density legend (when color is used for \code{color.var} data and density is shown via opacity).}
-
-\item{min, max}{Number which sets the values associated with the minimum or maximum color for \code{color.var} data.}
-
-\item{rename.color.groups}{String vector containing new names for the identities of discrete color groups.}
-
-\item{xlab, ylab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
+\item{show.grid.lines}{Logical which sets whether gridlines of the plot should be shown.
+They are removed when set to FALSE.
+Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.}
 
 \item{main}{String, sets the plot title. The default title is either "Density", \code{color.var}, or NULL, depending on the identity of \code{color.var}.
 To remove, set to \code{NULL}.}
 
 \item{sub}{String, sets the plot subtitle.}
+
+\item{xlab, ylab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
 
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_bw()}.
@@ -187,32 +187,16 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 \item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.
 Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
 
-\item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
+\item{min.density, max.density}{Number which sets the min/max values used for the density scale.
+Used no matter whether density is represented through opacity or color.}
 
-\item{legend.density.title, legend.color.title}{Strings which set the title for the legends.}
+\item{min.color, max.color}{color for the min/max values of the color scale.}
 
-\item{legend.density.breaks, legend.color.breaks}{Numeric vector which sets the discrete values to label in the density and color.var legends.}
+\item{min.opacity, max.opacity}{Scalar between [0,1] which sets the minimum or maximum opacity used for the density legend (when color is used for \code{color.var} data and density is shown via opacity).}
 
-\item{legend.density.breaks.labels, legend.color.breaks.labels}{String vector, with same length as \code{legend.*.breaks}, which sets the labels for the tick marks or hex icons of the associated legend.}
+\item{min, max}{Number which sets the values associated with the minimum or maximum color for \code{color.var} data.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output from the plot alone to a list containing the plot ("plot"),
-and data.frame of the underlying data for target cells ("data").}
-
-\item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
-
-Default = the first dimensionality reduction slot inside the object with "umap", "tsne", or "pca" within its name, (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.}
-
-\item{dim.1}{The component number to use on the x-axis. Default = 1}
-
-\item{dim.2}{The component number to use on the y-axis. Default = 2}
-
-\item{assay, slot, adjustment, assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
-
-\item{show.axes.numbers}{Logical which controls whether the axes values should be displayed.}
-
-\item{show.grid.lines}{Logical which sets whether gridlines of the plot should be shown.
-They are removed when set to FALSE.
-Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.}
+\item{rename.color.groups}{String vector containing new names for the identities of discrete color groups.}
 
 \item{add.trajectory.lineages}{List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 
@@ -227,6 +211,22 @@ you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingsho
 \item{trajectory.cluster.meta}{String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.}
 
 \item{trajectory.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
+
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output from the plot alone to a list containing the plot ("plot"),
+and data.frame of the underlying data for target cells ("data").}
+
+\item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
+
+\item{legend.density.title, legend.color.title}{Strings which set the title for the legends.}
+
+\item{legend.density.breaks, legend.color.breaks}{Numeric vector which sets the discrete values to label in the density and color.var legends.}
+
+\item{legend.density.breaks.labels, legend.color.breaks.labels}{String vector, with same length as \code{legend.*.breaks}, which sets the labels for the tick marks or hex icons of the associated legend.}
+
+\item{x.var, y.var}{Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
+Note: must be continuous.
+
+Alternatively, can be a directly supplied numeric vector of length equal to the total number of cells/samples in \code{object}.}
 }
 \value{
 A ggplot object where colored hexagonal bins are used to summarize RNAseq data in a scatterplot or tSNE, PCA, UMAP.
@@ -253,9 +253,9 @@ If \code{split.by} was used, the plot will be split into a matrix of panels base
 }
 \section{Functions}{
 \itemize{
-\item \code{dittoScatterHex}: Make a scatter plot of RNAseq data, grouped into hexagonal bins
-
 \item \code{dittoDimHex}: Show RNAseq data overlayed on a tsne, pca, or similar, grouped into hexagonal bins
+
+\item \code{dittoScatterHex}: Make a scatter plot of RNAseq data, grouped into hexagonal bins
 }}
 
 \section{Many characteristics of the plot can be adjusted using discrete inputs}{
