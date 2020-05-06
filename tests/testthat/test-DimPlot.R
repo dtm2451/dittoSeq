@@ -212,11 +212,11 @@ test_that("dittoDimPlots titles and theme can be adjusted", {
             xlab = "Pokemon", ylab = "Pokedex #s",
             legend.title = "groups"),
         "ggplot")
-    ### Manual check: gridlines should be shown
+    ### Manual check: top and right plot outline removed
     expect_s3_class(
         dittoDimPlot(
             cont, object=seurat,
-            theme = theme_bw()),
+            theme = theme_classic()),
         "ggplot")
 })
 
@@ -275,8 +275,8 @@ test_that("dittoDimPlot trajectory adding works", {
         dittoDimPlot(
             disc, object=seurat,
             add.trajectory.lineages = list(
-                c(1,0,2),
-                c(2,1)),
+                c("B","A","C"),
+                c("C","A")),
             trajectory.cluster.meta = disc,
             do.label = TRUE),
         "ggplot")
@@ -285,7 +285,7 @@ test_that("dittoDimPlot trajectory adding works", {
         dittoDimPlot(
             cont, object=seurat,
             add.trajectory.lineages = list(
-                c(1,0)),
+                c("C","A")),
             trajectory.cluster.meta = disc,
             trajectory.arrow.size = 1),
         "ggplot")
@@ -395,4 +395,16 @@ test_that("dittoDimPlot genes can be different data types", {
     expect_equal(
         0:1,
         range(df$Target_data$color))
+})
+
+test_that("dittoDimHex adding contours", {
+    expect_s3_class(dittoDimPlot(object=seurat, disc,
+        do.contour = TRUE),
+        "ggplot")
+    
+    ### Manual Check: Contour lines light blue and dashed
+    expect_s3_class(dittoDimPlot(object=seurat, disc,
+        do.contour = TRUE,
+        contour.color = "lightblue", contour.linetype = "dashed"),
+        "ggplot")
 })

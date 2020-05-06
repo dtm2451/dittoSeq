@@ -34,10 +34,12 @@ dittoScatterHex(
   adjustment.extra = NULL,
   min.opacity = 0.2,
   max.opacity = 1,
+  min.density = NA,
+  max.density = NA,
   min.color = "#F0E442",
   max.color = "#0072B2",
-  min = NULL,
-  max = NULL,
+  min = NA,
+  max = NA,
   rename.color.groups = NULL,
   xlab = x.var,
   ylab = y.var,
@@ -49,7 +51,6 @@ dittoScatterHex(
   contour.linetype = 1,
   legend.show = TRUE,
   legend.color.title = "make",
-  legend.color.size = 5,
   legend.color.breaks = waiver(),
   legend.color.breaks.labels = waiver(),
   legend.density.title = if (isBulk(object)) "Samples" else "Cells",
@@ -91,10 +92,12 @@ dittoDimHex(
   contour.linetype = 1,
   min.opacity = 0.2,
   max.opacity = 1,
+  min.density = NA,
+  max.density = NA,
   min.color = "#F0E442",
   max.color = "#0072B2",
-  min = NULL,
-  max = NULL,
+  min = NA,
+  max = NA,
   rename.color.groups = NULL,
   add.trajectory.lineages = NULL,
   add.trajectory.curves = NULL,
@@ -103,7 +106,6 @@ dittoDimHex(
   data.out = FALSE,
   legend.show = TRUE,
   legend.color.title = "make",
-  legend.color.size = 5,
   legend.color.breaks = waiver(),
   legend.color.breaks.labels = waiver(),
   legend.density.title = if (isBulk(object)) "Samples" else "Cells",
@@ -195,9 +197,6 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
 
 \item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
-
-\item{legend.color.size}{Numbers representing the size at which shapes should be plotted in the color and shape legends (for discrete variable plotting).
-Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.}
 
 \item{legend.density.title, legend.color.title}{Strings which set the title for the legends.}
 

@@ -155,10 +155,12 @@ dittoScatterHex <- function(
     adjustment.extra = NULL,
     min.opacity = 0.2,
     max.opacity = 1,
+    min.density = NA,
+    max.density = NA,
     min.color = "#F0E442",
     max.color = "#0072B2",
-    min = NULL,
-    max = NULL,
+    min = NA,
+    max = NA,
     rename.color.groups = NULL,
     xlab = x.var,
     ylab = y.var,
@@ -170,7 +172,6 @@ dittoScatterHex <- function(
     contour.linetype = 1,
     legend.show = TRUE,
     legend.color.title = "make",
-    legend.color.size = 5,
     legend.color.breaks = waiver(),
     legend.color.breaks.labels = waiver(),
     legend.density.title = if (isBulk(object)) "Samples" else "Cells",
@@ -191,18 +192,24 @@ dittoScatterHex <- function(
 
     # Parse coloring methods
     color_by_var <- FALSE
+    discrete <- FALSE
+    
     if (!is.null(color.var)) {
         
         color_by_var <- TRUE
-        if (is.numeric(data$color) || "max.prop" %in% color.method) {
+        if (is.numeric(data$color)) {
             discrete <- FALSE
-        } else {
+        } else if ("max.prop" %in% color.method) {
+            discrete <- FALSE
+        }else {
             discrete <- TRUE
         }
         
         if (is.null(color.method)) {
             color.method <- ifelse(discrete, "max", "median")
         }
+        
+        .check_color.method(color.method, discrete)
     }
     
     # Set titles if "make"
@@ -215,9 +222,10 @@ dittoScatterHex <- function(
     # Make the plot
     p <- .ditto_scatter_hex(
         data, bins, color_by_var, discrete, color.method, color.panel, colors,
-        min.opacity, max.opacity, min.color, max.color, min, max,
-        xlab, ylab, main, sub, theme, legend.show, legend.color.title,
-        legend.color.size, legend.color.breaks, legend.color.breaks.labels,
+        min.opacity, max.opacity, min.density, max.density,
+        min.color, max.color, min, max,
+        xlab, ylab, main, sub, theme, legend.show,
+        legend.color.title, legend.color.breaks, legend.color.breaks.labels,
         legend.density.title, legend.density.breaks, legend.density.breaks.labels)
     if (!is.null(split.by)) {
         p <- .add_splitting(
@@ -255,14 +263,13 @@ dittoDimHex <- function(
     main = "make", sub = NULL, xlab = "make", ylab = "make",
     theme = theme_bw(),
     do.contour = FALSE, contour.color = "black", contour.linetype = 1,
-    min.opacity = 0.2, max.opacity = 1,
-    min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
+    min.opacity = 0.2, max.opacity = 1, min.density = NA, max.density = NA,
+    min.color = "#F0E442", max.color = "#0072B2", min = NA, max = NA,
     rename.color.groups = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
     trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE,
     legend.show = TRUE,
     legend.color.title = "make",
-    legend.color.size = 5,
     legend.color.breaks = waiver(),
     legend.color.breaks.labels = waiver(),
     legend.density.title = if (isBulk(object)) "Samples" else "Cells",
@@ -275,7 +282,6 @@ dittoDimHex <- function(
     ydat <- .extract_Reduced_Dim(reduction.use, dim.2, object)
     xlab <- .leave_default_or_null(xlab, xdat$name)
     ylab <- .leave_default_or_null(ylab, ydat$name)
-    main <- .leave_default_or_null(main, color.var, length(color.var)!=1)
 
     # Edit theme
     if (!show.grid.lines) {
@@ -295,12 +301,14 @@ dittoDimHex <- function(
         extra.vars, cells.use, color.panel, colors,
         split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
-        min.opacity, max.opacity, min.color, max.color, min, max,
+        min.opacity, max.opacity, min.density, max.density,
+        min.color, max.color, min, max,
         rename.color.groups, xlab, ylab, main, sub, theme,
         do.contour, contour.color, contour.linetype,
-        legend.show, legend.color.title, legend.color.size,
-        legend.color.breaks, legend.color.breaks.labels, legend.density.title,
-        legend.density.breaks, legend.density.breaks.labels, data.out = TRUE)
+        legend.show,
+        legend.color.title, legend.color.breaks, legend.color.breaks.labels,
+        legend.density.title, legend.density.breaks, legend.density.breaks.labels,
+        data.out = TRUE)
     p <- p.df$plot
     data <- p.df$data
 
@@ -336,6 +344,8 @@ dittoDimHex <- function(
     colors,
     min.opacity,
     max.opacity,
+    min.density,
+    max.density,
     min.color,
     max.color,
     min,
@@ -347,7 +357,6 @@ dittoDimHex <- function(
     theme,
     legend.show,
     legend.color.title,
-    legend.color.size,
     legend.color.breaks,
     legend.color.breaks.labels,
     legend.density.title,
@@ -369,6 +378,7 @@ dittoDimHex <- function(
             name = legend.density.title,
             low= min.color,
             high = max.color,
+            limits = c(min.density, max.density),
             breaks = legend.density.breaks,
             labels = legend.density.breaks.labels)
         
@@ -380,6 +390,7 @@ dittoDimHex <- function(
         p <- p + scale_alpha_continuous(
             name = legend.density.title,
             range = c(min.opacity, max.opacity),
+            limits = c(min.density, max.density),
             breaks = legend.density.breaks,
             labels = legend.density.breaks.labels)
         
@@ -416,9 +427,7 @@ dittoDimHex <- function(
                 name = legend.color.title,
                 low= min.color,
                 high = max.color,
-                limits = c(
-                    ifelse(is.null(min), NA, min),
-                    ifelse(is.null(max), NA, max)),
+                limits = c(min,max),
                 breaks = legend.color.breaks,
                 labels = legend.color.breaks.labels)
             
@@ -496,4 +505,18 @@ dittoDimHex <- function(
     }
     
     dat
+}
+
+.check_color.method <- function(color.method, discrete) {
+    
+    valid <- FALSE
+    if (discrete) {
+        valid <- color.method == "max"
+    } else {
+        valid <- color.method == "max.prop" || exists(color.method, mode='function')
+    }
+    
+    if (!valid) {
+        stop("'color.method' not valid. Must be \"max\" or \"max.prop\" (discrete data) or the name of a function (continuous data)")
+    }
 }
