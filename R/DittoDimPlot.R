@@ -12,14 +12,14 @@
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 #' @param reduction.use String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 #'
-#' Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", or the first dimensionality reduction slot if none of those exist.
+#' Default = the first dimensionality reduction slot inside the object with "umap", "tsne", or "pca" within its name, (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.
 #' @param size Number which sets the size of data points. Default = 1.
 #' @param opacity Number between 0 and 1.
 #' Great for when you have MANY overlapping points, this sets how solid the points should be:
 #' 1 = not see-through at all. 0 = invisible. Default = 1.
 #' (In terms of typical ggplot variables, = alpha)
-#' @param dim.1 The component number to use on the x-axis.  Default = 1
-#' @param dim.2 The component number to use on the y-axis.  Default = 2
+#' @param dim.1 The component number to use on the x-axis. Default = 1
+#' @param dim.2 The component number to use on the y-axis. Default = 2
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
 #' Default = \code{theme_bw()}.
 #' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
@@ -71,9 +71,11 @@
 #' Default labels are generated if you do not give this a specific value.
 #' To remove, set to \code{NULL}.
 #' @param show.axes.numbers Logical which controls whether the axes values should be displayed.
-#' @param cells.use String vector of cells'/samples' names which should be included.
-#' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.
+#' @param cells.use String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
+#'
+#' Alternatively, a Logical vector, the same length as the number of cells in the object.
+#' 
+#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .
 #' @param show.others Logical. Whether other cells should be shown in the background in light gray. Default = TRUE.
 #' @param do.ellipse Logical. Whether the groups should be surrounded by median-centered ellipses.
 #' @param do.label  Logical. Whether to add text labels near the center (median) of clusters for grouping vars.
@@ -92,13 +94,17 @@
 #' @param do.letter Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
 #' NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
 #' lettering is incompatible with plotly and with changing the dots' to be different shapes.
+#' @param do.contour Logical. Whether density-based contours should be displayed.
+#' @param contour.color String that sets the color(s) of the \code{do.contour} contours.
+#' @param contour.linetype String or numeric which sets the type of line used for \code{do.contour} contours.
+#' Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.
 #' @param do.hover Logical which controls whether the output will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 #' \code{hover.data} argument is used to determine what data to use.
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
 #' @param hover.assay,hover.slot,hover.adjustment Similar to the non-hover versions of these inputs, when showing expression data upon hover, these set what data will be shown.
 #' @param add.trajectory.lineages List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 #'
-#' If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.
+#' If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}.
 #' @param add.trajectory.curves List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x (\code{dim.1}) and y (\code{dim.2}) coordinates of the paths.
 #'
 #' Alternatively, a list of lists(/princurve objects) can be provided.
@@ -109,7 +115,7 @@
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 #' a data.frame containing the underlying data for target cells ("Target_data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
-#'
+#' 
 #' Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.
 #' @return A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
 #'
@@ -150,6 +156,7 @@
 #' By default labels will repel eachother and the bounds of the plot, and labels will be highlighted with a white background.
 #' Either of these can be turned off by setting \code{labels.repel = FALSE} or \code{labels.highlight = FALSE},
 #' \item If \code{do.ellipse} is set to \code{TRUE}, ellipses will be added to highlight distinct \code{var}-data groups' positions based on median positions of their cell/sample components.
+#' \item If \code{do.contour} is provided, density gradiant contour lines will be overlaid with color and linetype adjustable via \code{contour.color} and \code{contour.linetype}.
 #' \item If \code{add.trajectory.lineages} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectory.cluster.meta},
 #' then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
 #' \item If \code{add.trajectory.curves} is provided a list of matrices (each matrix containing x, y coordinates from start to end), paths and arrows will be overlayed to show trajectory inference curves in the current dimmenionality reduction space.
@@ -157,18 +164,22 @@
 #' }
 #'
 #' @seealso
-#' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.by}, etc. options are.
+#' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{split.by}, etc. options are of an \code{object}.
 #'
+#' \code{\link{getReductions}} to see what the \code{reduction.use} options are of an \code{object}.
+#' 
 #' \code{\link{importDittoBulk}} for how to create a \code{\link{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
 #' \code{\link{addDimReduction}} for how to specifically add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 #'
 #' \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are wanted as the axes.
+#' 
+#' \code{\link{dittoDimHex}} and \code{\link{dittoScatterHex}} for showing very similar data representations, but where nearby cells are summarized together in hexagonal bins.
 #'
-#' \code{\link{dittoPlot}} for an alternative continuous data display method where data is shown on a y- (or x-) axis.
+#' \code{\link{dittoPlot}} for an alternative continuous data display method where data broken into discrete groupings is shown on a y- (or x-) axis.
 #'
 #' \code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
 #'
-#' @author Daniel Bunis
+#' @author Daniel Bunis and Jared Andrews
 #' @importFrom stats median
 #' @export
 #' @examples
@@ -224,6 +235,11 @@
 #' dittoDimPlot(myRNA, "gene1", add.trajectory.lineages = list(c(1,2,4), c(1,3)),
 #'     trajectory.cluster.meta = "clustering",
 #'     sub = "Pseudotime Trajectories")
+#' 
+#' dittoDimPlot(myRNA, "gene1",
+#'     do.contour = TRUE,
+#'     contour.color = "lightblue", # Optional, black by default
+#'     contour.linetype = "dashed") # Optional, solid by default
 
 dittoDimPlot <- function(
     object, var, reduction.use = .default_reduction(object), size=1,
@@ -236,20 +252,21 @@ dittoDimPlot <- function(
     shape.panel = c(16,15,17,23,25,8),
     show.others = TRUE, show.axes.numbers = TRUE,
     show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
-    main = "make", sub = NULL, xlab = "make", ylab = "make",
-    theme = theme_bw(),
-    legend.show = TRUE, legend.size = 5, legend.title = "make",
-    shape.legend.size = 5, shape.legend.title = shape.by,
-    do.ellipse = FALSE, do.label = FALSE,
-    labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
-    rename.var.groups = NULL, rename.shape.groups = NULL,
     min.color = "#F0E442", max.color = "#0072B2", min = NULL, max = NULL,
-    legend.breaks = waiver(), legend.breaks.labels = waiver(),
-    do.letter = FALSE, do.hover = FALSE, hover.data = var,
-    hover.assay = .default_assay(object), hover.slot = .default_slot(object),
-    hover.adjustment = NULL,
+    main = "make", sub = NULL, xlab = "make", ylab = "make",
+    rename.var.groups = NULL, rename.shape.groups = NULL,
+    theme = theme_bw(),
+    do.letter = FALSE, do.ellipse = FALSE, do.label = FALSE,
+    labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
+    do.hover = FALSE, hover.data = var, hover.assay = .default_assay(object),
+    hover.slot = .default_slot(object), hover.adjustment = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
-    trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE) {
+    trajectory.cluster.meta, trajectory.arrow.size = 0.15,
+    do.contour = FALSE, contour.color = "black", contour.linetype = 1,
+    legend.show = TRUE, legend.size = 5, legend.title = "make",
+    legend.breaks = waiver(), legend.breaks.labels = waiver(),
+    shape.legend.size = 5, shape.legend.title = shape.by,
+    data.out = FALSE) {
 
     if (do.hover || !is.null(shape.by)) {
         do.letter <- FALSE
@@ -281,10 +298,12 @@ dittoDimPlot <- function(
         show.others, size, opacity, color.panel, colors,
         split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay, slot, adjustment,
-        do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
         shape.panel, rename.var.groups, rename.shape.groups,
         min.color, max.color, min, max,
-        xlab, ylab, main, sub, theme, legend.show, legend.title, legend.size,
+        xlab, ylab, main, sub, theme,
+        do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
+        do.contour, contour.color, contour.linetype,
+        legend.show, legend.title, legend.size,
         legend.breaks, legend.breaks.labels, shape.legend.title,
         shape.legend.size, data.out = TRUE)
     p <- p.df$plot

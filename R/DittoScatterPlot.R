@@ -8,7 +8,7 @@
 #' Alternatively, can be a directly supplied numeric vector of length equal to the total number of cells/samples in \code{object}.
 #' @param color.var Single string giving a gene or metadata that will set the color of cells/samples in the plot.
 #'
-#' Alternatively, can be a directly supplied numeric or string, vector or a factor of length equal to the total number of cells/samples in \code{object}.
+#' Alternatively, can be a directly supplied numeric or string vector or a factor of length equal to the total number of cells/samples in \code{object}.
 #' @param shape.by Single string giving a metadata (Note: must be discrete.) that will set the shape of cells/samples in the plot.
 #'
 #' Alternatively, can be a directly supplied string vector or a factor of length equal to the total number of cells/samples in \code{object}.
@@ -22,10 +22,11 @@
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom alterations \emph{after} dittoSeq plot generation.
-#' @param cells.use String vector of cells'/samples' names which should be included.
+#' @param cells.use String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
 #'
-#' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#' For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).
+#' Alternatively, a Logical vector, the same length as the number of cells in the object.
+#' 
+#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .
 #' @param show.others Logical. TRUE by default, whether other cells should be shown in the background in light gray.
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
@@ -57,8 +58,8 @@
 #' @param min.color color for lowest values of var/min.  Default = yellow
 #' @param max.color color for highest values of var/max.  Default = blue
 #' @param min,max Numbers which set the values associated with the minimum and maximum colors.
-#' @param legend.color.breaks Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.
-#' @param legend.color.breaks.labels String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.
+#' @param legend.color.breaks Numeric vector which sets the discrete values to label in the color-scale legend for continuous data.
+#' @param legend.color.breaks.labels String vector, with same length as \code{legend.breaks}, which sets the labels for the tick marks of the color-scale.
 #' @param main String, sets the plot title.
 #' A default title is automatically generated if based on \code{color.var} and \code{shape.by} when either are provided.
 #' To remove, set to \code{NULL}.
@@ -70,8 +71,9 @@
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 #' a data.frame containing the underlying data for target cells ("Target_data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
-#'
+#' 
 #' Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.
+#' @inheritParams dittoDimPlot
 #' @return a ggplot scatterplot where colored dots and/or shapes represent individual cells/samples. X and Y axes can be gene expression, numeric metadata, or manually supplied values.
 #'
 #' Alternatively, if \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
@@ -102,9 +104,11 @@
 #' }
 #'
 #' @seealso
-#' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are.
+#' \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{x.var}, \code{y.var}, \code{color.var}, \code{shape.by}, and \code{hover.data} options are of an \code{object}.
 #'
 #' \code{\link{dittoDimPlot}} for making very similar data representations, but where dimensionality reduction (PCA, t-SNE, UMAP, etc.) dimensions are the scatterplot axes.
+#'
+#' \code{\link{dittoDimHex}} and \code{\link{dittoScatterHex}} for showing very similar data representations, but where nearby cells are summarized together in hexagonal bins.
 #'
 #' @author Daniel Bunis
 #' @export
@@ -131,9 +135,6 @@
 #' #   or (only colors) continuous metadata / expression data by providing
 #' #   metadata or gene names to 'color.var' and 'shape.by'
 #' dittoScatterPlot(
-#'     myRNA, x.var = "nCount_RNA", y.var = "nFeature_RNA",
-#'     color.var = "percent.mito")
-#' dittoScatterPlot(
 #'     myRNA, x.var = "gene1", y.var = "gene2",
 #'     color.var = "groups",
 #'     shape.by = "SNP",
@@ -141,23 +142,27 @@
 #' dittoScatterPlot(
 #'     myRNA, x.var = "gene1", y.var = "gene2",
 #'     color.var = "gene3")
+#' 
+#' # Note: scatterplots like this can be very useful for dataset QC, especially
+#' #   with percentage of mitochondrial reads as the color overlay.
+#' dittoScatterPlot(myRNA,
+#'     x.var = "nCount_RNA", y.var = "nFeature_RNA",
+#'     color.var = "percent.mito")
 #'
 #' # Data can be "split" or faceted by a discrete variable as well.
-#' dittoScatterPlot(
-#'     myRNA, x.var = "gene1",
-#'     y.var = "gene2",
+#' dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
 #'     split.by = "timepoint") # single split.by element
-#' dittoScatterPlot(
-#'     myRNA, x.var = "gene1",
-#'     y.var = "gene2",
+#' dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
 #'     split.by = c("groups","SNP")) # row and col split.by elements
 #' # OR with 'extra.vars' plus manually faceting for added control
-#' dittoDimPlot(myRNA, "gene1",
+#' dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
 #'     extra.vars = c("SNP")) +
 #'     facet_wrap("SNP", ncol = 1, strip.position = "left")
+#' 
+#' # Countours can also be added to help illumunate overlapping samples
+#' dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
+#'     do.contour = TRUE)
 #'
-#' # Note: scatterplots like this can be very useful for dataset QC, especially
-#' #   with percentage of reads coming from genes as the color overlay.
 dittoScatterPlot <- function(
     object, x.var, y.var, color.var = NULL, shape.by = NULL,
     split.by = NULL, extra.vars = NULL,
@@ -178,11 +183,6 @@ dittoScatterPlot <- function(
     assay.extra = .default_assay(object),
     slot.extra = .default_slot(object),
     adjustment.extra = NULL,
-    do.hover = FALSE,
-    hover.data = NULL,
-    hover.assay = .default_assay(object),
-    hover.slot = .default_slot(object),
-    hover.adjustment = NULL,
     shape.panel=c(16,15,17,23,25,8),
     rename.color.groups = NULL,
     rename.shape.groups = NULL,
@@ -192,7 +192,17 @@ dittoScatterPlot <- function(
     max = NULL,
     xlab = x.var,
     ylab = y.var,
-    main = "make", sub = NULL, theme = theme_bw(),
+    main = "make",
+    sub = NULL,
+    theme = theme_bw(),
+    do.hover = FALSE,
+    hover.data = NULL,
+    hover.assay = .default_assay(object),
+    hover.slot = .default_slot(object),
+    hover.adjustment = NULL,
+    do.contour = FALSE,
+    contour.color = "black",
+    contour.linetype = 1,
     legend.show = TRUE,
     legend.color.title = color.var, legend.color.size = 5,
     legend.color.breaks = waiver(), legend.color.breaks.labels = waiver(),
@@ -204,31 +214,22 @@ dittoScatterPlot <- function(
     all.cells <- .all_cells(object)
 
     # Make dataframe
-    vars <- list(x.var, y.var, color.var, shape.by)
-    names <- list("X", "Y", "color", "shape")
-    assays <- list(assay.x, assay.y, assay.color, NA)
-    slots <- list(slot.x, slot.y, slot.color, NA)
-    adjustments <- list(adjustment.x, adjustment.y, adjustment.color, NA)
-    relabels <- list(NULL, NULL, rename.color.groups, rename.shape.groups)
-
-    dat <- data.frame(row.names = all.cells)
-    for (i in seq_along(vars)) {
-        dat <- .add_by_cell(dat, vars[[i]], names[[i]], object, assays[[i]],
-            slots[[i]], adjustments[[i]], NULL, relabels[[i]])
-    }
-
-    extra.vars <- c(split.by, extra.vars)
-    dat <- .add_by_cell(dat, extra.vars, extra.vars, object, assay.extra,
-        slot.extra, adjustment.extra, mult = TRUE)
-
-    if (do.hover) {
-        dat$hover.string <- .make_hover_strings_from_vars(
-            hover.data, object, hover.assay, hover.slot, hover.adjustment)
-    }
+    data <- .scatter_data_gather(
+        object = object, cells.use = cells.use, x.var = x.var, y.var = y.var,
+        color.var = color.var, shape.by = shape.by, split.by = split.by,
+        extra.vars = extra.vars,
+        assay.x = assay.x, slot.x = slot.x, adjustment.x = adjustment.x,
+        assay.y = assay.y, slot.y = slot.y, adjustment.y = adjustment.y,
+        assay.color = assay.color, slot.color = slot.color,
+        adjustment.color = adjustment.color,
+        assay.extra = assay.extra, slot.extra = slot.extra,
+        adjustment.extra = adjustment.extra,
+        do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
+        rename.color.groups, rename.shape.groups)
 
     # Trim by cells.use
-    Target_data <- dat[cells.use,]
-    Others_data <- dat[!(all.cells %in% cells.use),]
+    Target_data <- data[cells.use,]
+    Others_data <- data[!(all.cells %in% cells.use),]
 
     # Set title if "make"
     main <- .leave_default_or_null(main,
@@ -236,15 +237,21 @@ dittoScatterPlot <- function(
 
     # Make the plot
     p <- .ditto_scatter_plot(Target_data, Others_data,
-        color.var, shape.by, split.by,  show.others, size, opacity,
-        color.panel, colors, split.nrow, split.ncol, do.hover, shape.panel,
+        color.var, shape.by, show.others, size, opacity,
+        color.panel, colors, do.hover, shape.panel,
         min.color, max.color, min, max, xlab, ylab, main, sub, theme,
         legend.show, legend.color.title, legend.color.size,
         legend.color.breaks, legend.color.breaks.labels, legend.shape.title,
         legend.shape.size)
+
+    ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
             p, split.by, split.nrow, split.ncol, object, cells.use)
+    }
+    
+    if (do.contour) {
+        p <- .add_contours(p, Target_data, contour.color, contour.linetype)
     }
 
     ### RETURN the PLOT ###
@@ -265,14 +272,11 @@ dittoScatterPlot <- function(
     Others_data,
     color.var,
     shape.by,
-    split.by,
     show.others,
     size,
     opacity,
     color.panel,
     colors,
-    split.nrow,
-    split.ncol,
     do.hover,
     shape.panel,
     min.color,
@@ -303,7 +307,9 @@ dittoScatterPlot <- function(
         size=size, alpha = opacity)
 
     if (!is.null(color.var)) {
+        
         aes.args$color = "color"
+        
         if (is.numeric(Target_data$color)) {
             p <- p +
             scale_colour_gradient(
@@ -323,17 +329,18 @@ dittoScatterPlot <- function(
     }
 
     if (!is.null(shape.by)) {
+        
         aes.args$shape = "shape"
+        
         p <- p +
-        scale_shape_manual(
-            values = shape.panel[seq_along(levels(Target_data$shape))],
-            name = legend.shape.title) +
-        guides(shape = guide_legend(override.aes = list(size=legend.shape.size)))
+            scale_shape_manual(
+                values = shape.panel[seq_along(levels(Target_data$shape))],
+                name = legend.shape.title) +
+            guides(shape = guide_legend(override.aes = list(size=legend.shape.size)))
+    
     } else {
         geom.args$shape <- shape.panel[1]
     }
-
-    geom.args$mapping <- do.call(aes_string, aes.args)
 
     ### Add data
     if (show.others && nrow(Others_data)>1) {
@@ -343,8 +350,10 @@ dittoScatterPlot <- function(
 
     if (do.hover) {
         aes.args$text = "hover.string"
+        geom.args$mapping <- do.call(aes_string, aes.args)
         p <- p + suppressWarnings(do.call(geom_point, geom.args))
     } else {
+        geom.args$mapping <- do.call(aes_string, aes.args)
         p <- p + do.call(geom_point, geom.args)
     }
 
@@ -353,4 +362,15 @@ dittoScatterPlot <- function(
     }
 
     p
+}
+
+.add_contours <- function(
+    p, data, color, linetype = 1) {
+    
+    p + geom_density_2d(
+        data = data,
+        mapping = aes_string(x = "X", y = "Y"),
+        color = color,
+        linetype = linetype,
+        na.rm = TRUE)
 }

@@ -27,30 +27,23 @@ dittoDimPlot(
   show.others = TRUE,
   show.axes.numbers = TRUE,
   show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
+  min.color = "#F0E442",
+  max.color = "#0072B2",
+  min = NULL,
+  max = NULL,
   main = "make",
   sub = NULL,
   xlab = "make",
   ylab = "make",
+  rename.var.groups = NULL,
+  rename.shape.groups = NULL,
   theme = theme_bw(),
-  legend.show = TRUE,
-  legend.size = 5,
-  legend.title = "make",
-  shape.legend.size = 5,
-  shape.legend.title = shape.by,
+  do.letter = FALSE,
   do.ellipse = FALSE,
   do.label = FALSE,
   labels.size = 5,
   labels.highlight = TRUE,
   labels.repel = TRUE,
-  rename.var.groups = NULL,
-  rename.shape.groups = NULL,
-  min.color = "#F0E442",
-  max.color = "#0072B2",
-  min = NULL,
-  max = NULL,
-  legend.breaks = waiver(),
-  legend.breaks.labels = waiver(),
-  do.letter = FALSE,
   do.hover = FALSE,
   hover.data = var,
   hover.assay = .default_assay(object),
@@ -60,6 +53,16 @@ dittoDimPlot(
   add.trajectory.curves = NULL,
   trajectory.cluster.meta,
   trajectory.arrow.size = 0.15,
+  do.contour = FALSE,
+  contour.color = "black",
+  contour.linetype = 1,
+  legend.show = TRUE,
+  legend.size = 5,
+  legend.title = "make",
+  legend.breaks = waiver(),
+  legend.breaks.labels = waiver(),
+  shape.legend.size = 5,
+  shape.legend.title = shape.by,
   data.out = FALSE
 )
 }
@@ -73,7 +76,7 @@ Alternatively, can be a vector of same length as there are cells/samples in the 
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
-Default = the first dimensionality reduction slot inside the object named "umap", "tsne", or "pca", or the first dimensionality reduction slot if none of those exist.}
+Default = the first dimensionality reduction slot inside the object with "umap", "tsne", or "pca" within its name, (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.}
 
 \item{size}{Number which sets the size of data points. Default = 1.}
 
@@ -82,13 +85,15 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 1 = not see-through at all. 0 = invisible. Default = 1.
 (In terms of typical ggplot variables, = alpha)}
 
-\item{dim.1}{The component number to use on the x-axis.  Default = 1}
+\item{dim.1}{The component number to use on the x-axis. Default = 1}
 
-\item{dim.2}{The component number to use on the y-axis.  Default = 2}
+\item{dim.2}{The component number to use on the y-axis. Default = 2}
 
-\item{cells.use}{String vector of cells'/samples' names which should be included.
-Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.}
+\item{cells.use}{String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
+
+Alternatively, a Logical vector, the same length as the number of cells in the object.
+
+For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .}
 
 \item{shape.by}{Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
 
@@ -138,6 +143,14 @@ For these reasons, even as a color blind person myself writing this code, I reco
 They are removed when set to FALSE.
 Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.}
 
+\item{min.color}{color for lowest values of \code{var}/\code{min}.  Default = yellow}
+
+\item{max.color}{color for highest values of \code{var}/\code{max}.  Default = blue}
+
+\item{min}{Number which sets the value associated with the minimum color.}
+
+\item{max}{Number which sets the value associated with the maximum color.}
+
 \item{main}{String, sets the plot title.
 Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.}
 
@@ -147,20 +160,17 @@ Default title is automatically generated if not given a specific value.  To remo
 Default labels are generated if you do not give this a specific value.
 To remove, set to \code{NULL}.}
 
+\item{rename.var.groups}{String vector which sets new names for the identities of \code{var} groups.}
+
+\item{rename.shape.groups}{String vector which sets new names for the identities of \code{shape.by} groups.}
+
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_bw()}.
 See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.}
 
-\item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
-
-\item{legend.size}{Number representing the size at which color legend shapes should be plotted (for discrete variable plotting) in the color legend.
-Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.}
-
-\item{legend.title}{String which sets the title for the color legend. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.}
-
-\item{shape.legend.size}{Number representing the size at which shapes should be plotted in the shape legend.}
-
-\item{shape.legend.title}{String which sets the title of the shapes legend.  Default is \code{shape.by}}
+\item{do.letter}{Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
+NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
+lettering is incompatible with plotly and with changing the dots' to be different shapes.}
 
 \item{do.ellipse}{Logical. Whether the groups should be surrounded by median-centered ellipses.}
 
@@ -173,26 +183,6 @@ Default = 5. *Enlarging the colors legend is incredibly helpful for making color
 \item{labels.repel}{Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
 TRUE by default.}
 
-\item{rename.var.groups}{String vector which sets new names for the identities of \code{var} groups.}
-
-\item{rename.shape.groups}{String vector which sets new names for the identities of \code{shape.by} groups.}
-
-\item{min.color}{color for lowest values of \code{var}/\code{min}.  Default = yellow}
-
-\item{max.color}{color for highest values of \code{var}/\code{max}.  Default = blue}
-
-\item{min}{Number which sets the value associated with the minimum color.}
-
-\item{max}{Number which sets the value associated with the maximum color.}
-
-\item{legend.breaks}{Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.}
-
-\item{legend.breaks.labels}{String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.}
-
-\item{do.letter}{Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
-NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
-lettering is incompatible with plotly and with changing the dots' to be different shapes.}
-
 \item{do.hover}{Logical which controls whether the output will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 \code{hover.data} argument is used to determine what data to use.}
 
@@ -202,7 +192,7 @@ lettering is incompatible with plotly and with changing the dots' to be differen
 
 \item{add.trajectory.lineages}{List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 
-If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}. In future versions, I might build such retrieval in by default for SCEs.}
+If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}.}
 
 \item{add.trajectory.curves}{List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x (\code{dim.1}) and y (\code{dim.2}) coordinates of the paths.
 
@@ -213,6 +203,28 @@ you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingsho
 \item{trajectory.cluster.meta}{String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.}
 
 \item{trajectory.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
+
+\item{do.contour}{Logical. Whether density-based contours should be displayed.}
+
+\item{contour.color}{String that sets the color(s) of the \code{do.contour} contours.}
+
+\item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.
+Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
+
+\item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
+
+\item{legend.size}{Number representing the size at which color legend shapes should be plotted (for discrete variable plotting) in the color legend.
+Default = 5. *Enlarging the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.}
+
+\item{legend.title}{String which sets the title for the color legend. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.}
+
+\item{legend.breaks}{Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.}
+
+\item{legend.breaks.labels}{String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.}
+
+\item{shape.legend.size}{Number representing the size at which shapes should be plotted in the shape legend.}
+
+\item{shape.legend.title}{String which sets the title of the shapes legend.  Default is \code{shape.by}}
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
@@ -266,6 +278,7 @@ The size of the text in the labels can be adjusted using the \code{labels.size} 
 By default labels will repel eachother and the bounds of the plot, and labels will be highlighted with a white background.
 Either of these can be turned off by setting \code{labels.repel = FALSE} or \code{labels.highlight = FALSE},
 \item If \code{do.ellipse} is set to \code{TRUE}, ellipses will be added to highlight distinct \code{var}-data groups' positions based on median positions of their cell/sample components.
+\item If \code{do.contour} is provided, density gradiant contour lines will be overlaid with color and linetype adjustable via \code{contour.color} and \code{contour.linetype}.
 \item If \code{add.trajectory.lineages} is provided a list of vectors (each vector being cluster names from start-cluster-name to end-cluster-name), and a metadata name pointing to the relevant clustering information is provided to \code{trajectory.cluster.meta},
 then median centers of the clusters will be calculated and arrows will be overlayed to show trajectory inference paths in the current dimmenionality reduction space.
 \item If \code{add.trajectory.curves} is provided a list of matrices (each matrix containing x, y coordinates from start to end), paths and arrows will be overlayed to show trajectory inference curves in the current dimmenionality reduction space.
@@ -326,19 +339,28 @@ if (requireNamespace("plotly", quietly = TRUE)) {
 dittoDimPlot(myRNA, "gene1", add.trajectory.lineages = list(c(1,2,4), c(1,3)),
     trajectory.cluster.meta = "clustering",
     sub = "Pseudotime Trajectories")
+
+dittoDimPlot(myRNA, "gene1",
+    do.contour = TRUE,
+    contour.color = "lightblue", # Optional, black by default
+    contour.linetype = "dashed") # Optional, solid by default
 }
 \seealso{
-\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{shape.by}, etc. options are.
+\code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{split.by}, etc. options are of an \code{object}.
+
+\code{\link{getReductions}} to see what the \code{reduction.use} options are of an \code{object}.
 
 \code{\link{importDittoBulk}} for how to create a \code{\link{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
 \code{\link{addDimReduction}} for how to specifically add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 
 \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are wanted as the axes.
 
-\code{\link{dittoPlot}} for an alternative continuous data display method where data is shown on a y- (or x-) axis.
+\code{\link{dittoDimHex}} and \code{\link{dittoScatterHex}} for showing very similar data representations, but where nearby cells are summarized together in hexagonal bins.
+
+\code{\link{dittoPlot}} for an alternative continuous data display method where data broken into discrete groupings is shown on a y- (or x-) axis.
 
 \code{\link{dittoBarPlot}} for an alternative discrete data display and quantification method.
 }
 \author{
-Daniel Bunis
+Daniel Bunis and Jared Andrews
 }
