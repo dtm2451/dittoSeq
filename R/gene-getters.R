@@ -121,7 +121,7 @@ gene <- function(
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL){
 
-    if (!isGene(gene, object)) {
+    if (!isGene(gene, object, assay)) {
         stop(dQuote(gene)," is not a gene of 'object'")
     }
     # Recursive functions for adjustments
