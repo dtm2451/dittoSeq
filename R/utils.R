@@ -1,3 +1,9 @@
+.msg_if <- function(verbose, ...){
+    if (verbose) {
+        message(...)
+    }
+}
+
 .error_if_no_Seurat <- function() {
     if (!requireNamespace("Seurat", quietly = TRUE)) {
         stop("Seurat installation required for working with Seurat objects")

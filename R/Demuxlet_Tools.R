@@ -180,16 +180,16 @@ importDemux <- function(
 
     .check_meta_overwrite(object, bypass.check, verbose)
 
-    .msg_ifV(verbose,"Adding 'Lane' information as meta.data")
+    .msg_if(verbose,"Adding 'Lane' information as meta.data")
     if (is.null(raw.cell.names)) {
         raw.cell.names <- .all_cells(object)
     }
     object <- .parse_and_add_lanes(object, lane.meta, lane.names, raw.cell.names)
 
-    .msg_ifV(verbose,"Extracting the Demuxlet calls")
+    .msg_if(verbose,"Extracting the Demuxlet calls")
     Demuxlet.info <- .extract_and_parse_demux_calls(demuxlet.best, verbose)
 
-    .msg_ifV(verbose,"Matching barcodes")
+    .msg_if(verbose,"Matching barcodes")
 
     # Strip barcodes in cell.names from any of the extra info that may have been added by Seurat (normally "text_" at start of names)
     barcodes <- raw.cell.names
@@ -213,10 +213,10 @@ importDemux <- function(
     trim.info <- rbind(trim.info, array(NA, dim = ncol(trim.info)))
     inds[is.na(inds)] <- nrow(trim.info)
 
-    .msg_ifV(verbose,"Adding Demuxlet info as metadata")
+    .msg_if(verbose,"Adding Demuxlet info as metadata")
     object <- .add_demux_metas(object, trim.info, inds)
 
-    .msg_ifV(verbose,"Checking for barcode duplicates across lanes...")
+    .msg_if(verbose,"Checking for barcode duplicates across lanes...")
     object <- .check_barcode_dups(object,inds, NA.ind=nrow(trim.info), verbose)
 
     if (verbose) {
@@ -233,7 +233,7 @@ importDemux <- function(
         "demux.barcode.dup")
     if (sum(check.these %in% getMetas(object))>0) {
         if(bypass.check) {
-            .msg_ifV(verbose,
+            .msg_if(verbose,
                 "Note: '",
                 paste0(
                     check.these[check.these %in% getMetas(object)],
@@ -289,7 +289,7 @@ importDemux <- function(
 
 .location_.best_to_data.frame <- function(locations, verbose) {
     read.demux <- function(file, verbose){
-        .msg_ifV(verbose,"    from \"", file, "\"")
+        .msg_if(verbose,"    from \"", file, "\"")
         read.table(
             file = file,
             header=TRUE,
@@ -350,7 +350,7 @@ importDemux <- function(
         warning("Warning: Cell barcodes are duplicated accross lanes, possibly leading to artificial doublet calls.")
         object$demux.barcode.dup <- demux.barcode.dup
     } else {
-        .msg_ifV(verbose,"  No barcode duplicates were found.\n")
+        .msg_if(verbose,"  No barcode duplicates were found.\n")
     }
     object
 }
@@ -381,12 +381,6 @@ importDemux <- function(
 
         sum(!(barcodes %in% barcodes_in)),
         " cells were not annotated in the demuxlet.best file.")
-}
-
-.msg_ifV <- function(verbose, ...){
-    if (verbose) {
-        message(...)
-    }
 }
 
 #' Plots the number of SNPs sequenced per droplet

@@ -397,7 +397,7 @@ test_that("dittoDimPlot genes can be different data types", {
         range(df$Target_data$color))
 })
 
-test_that("dittoDimHex adding contours", {
+test_that("dittoDimPlot adding contours", {
     expect_s3_class(dittoDimPlot(object=seurat, disc,
         do.contour = TRUE),
         "ggplot")
@@ -407,4 +407,21 @@ test_that("dittoDimHex adding contours", {
         do.contour = TRUE,
         contour.color = "lightblue", contour.linetype = "dashed"),
         "ggplot")
+})
+
+test_that("dittoDimPlot ignores do.letter/do.label/do.ellipse for continuous data", {
+    expect_message(dittoDimPlot(object=seurat, cont,
+        do.label = TRUE),
+        "do.label was/were ignored for non-discrete data", fixed = TRUE)
+    expect_message(dittoDimPlot(object=seurat, cont,
+        do.letter = TRUE),
+        "do.letter was/were ignored for non-discrete data", fixed = TRUE)
+    expect_message(dittoDimPlot(object=seurat, cont,
+        do.ellipse = TRUE),
+        "do.ellipse was/were ignored for non-discrete data", fixed = TRUE)
+    
+    # No message for discrete data && MANUAAL CHECK: ellipse is drawn 
+    expect_message(dittoDimPlot(object=seurat, disc,
+        do.ellipse = TRUE),
+        NA)
 })
