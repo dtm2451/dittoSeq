@@ -363,14 +363,3 @@ dittoScatterPlot <- function(
 
     p
 }
-
-.add_contours <- function(
-    p, data, color, linetype = 1) {
-    
-    p + geom_density_2d(
-        data = data,
-        mapping = aes_string(x = "X", y = "Y"),
-        color = color,
-        linetype = linetype,
-        na.rm = TRUE)
-}

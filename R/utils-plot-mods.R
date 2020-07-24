@@ -24,3 +24,162 @@
     # Obtains and plots just the legend of a ggplot
     cowplot::ggdraw(cowplot::get_legend(ggplot))
 }
+
+.add_contours <- function(
+    p, data, color, linetype = 1) {
+    # Add contours based on the density of cells/samples
+    # (Dim and Scatter plots)
+    
+    p + geom_density_2d(
+        data = data,
+        mapping = aes_string(x = "X", y = "Y"),
+        color = color,
+        linetype = linetype,
+        na.rm = TRUE)
+}
+
+.add_labels <- function(
+    p, Target_data, col.use = "color",
+    labels.highlight, labels.size, labels.repel) {
+    # Add text labels at/near the median x and y values for each group
+    # (Dim and Scatter plots)
+
+    #Determine medians
+    cent.x = vapply(
+        levels(as.factor(Target_data[,col.use])),
+        function(level) {
+            median(Target_data$X[Target_data[,col.use]==level])
+        }, FUN.VALUE = numeric(1))
+    cent.y = vapply(
+        levels(as.factor(Target_data[,col.use])),
+        function(level) {
+            median(Target_data$Y[Target_data[,col.use]==level])
+        }, FUN.VALUE = numeric(1))
+
+    #Add labels
+    args <- list(
+        data = data.frame(cent.x=cent.x, cent.y=cent.y),
+        mapping = aes(x = cent.x, y = cent.y),
+        size = labels.size,
+        label = levels(as.factor(Target_data[,col.use])))
+    geom.use <-
+        if (labels.highlight) {
+            if (labels.repel) {
+                ggrepel::geom_label_repel
+            } else {
+                geom_label
+            }
+        } else {
+            if (labels.repel) {
+                ggrepel::geom_text_repel
+            } else {
+                geom_text
+            }
+        }
+    p + do.call(geom.use, args)
+}
+
+.add_trajectory_lineages <- function(
+    p, trajectories, clusters, arrow.size = 0.15, object, reduction.use,
+    dim.1, dim.2) {
+    # Add trajectory path arrows, following sets of cluster-to-cluster paths, from cluster median to cluster median.
+    # (Dim and Scatter plots)
+    #
+    # p = a ggplot to add to
+    # clusters = the name of the metadata slot that holds the clusters which were used for cluster-based trajectory analysis
+    # trajectories = List of lists of cluster-to-cluster paths. Also, the output of SlingshotDataSet(SCE_with_slingshot)$lineages
+    # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
+
+    #Determine medians
+    cluster.dat <- meta(clusters, object)
+    cluster.levels <- metaLevels(clusters, object)
+    data <- data.frame(
+        cent.x = vapply(
+            cluster.levels,
+            function(level) {
+                median(
+                    .extract_Reduced_Dim(reduction.use, dim.1, object)$embedding[
+                        cluster.dat==level])
+            }, FUN.VALUE = numeric(1)),
+        cent.y = vapply(
+            cluster.levels,
+            function(level) {
+                median(
+                    .extract_Reduced_Dim(reduction.use, dim.2, object)$embedding[
+                        cluster.dat==level])
+            }, FUN.VALUE = numeric(1)))
+
+    #Add trajectories
+    for (i in seq_along(trajectories)){
+        p <- p + geom_path(
+            data = data[as.character(trajectories[[i]]),],
+            aes_string(x = "cent.x", y = "cent.y"),
+            arrow = arrow(
+                angle = 20, type = "closed", length = unit(arrow.size, "inches")))
+    }
+    p
+}
+
+.add_trajectory_curves <- function(
+    p, trajectories, arrow.size = 0.15, dim.1, dim.2) {
+    # Add trajectory path arrows following sets of given (x,y) coordinates.
+    # (Dim and Scatter plots)
+    #
+    # p = a ggplot to add to
+    # trajectories = List of matrices containing trajectory curves. The output of SlingshotDataSet(SCE_with_slingshot)$curves can be used if the coordinate matrix (`$s`) for each list is extracted and they are all stored in a list.
+    # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
+
+    if ("s" %in% names(trajectories[[1]])) {
+    #Add trajectories for princurves/slingshot list of lists provision method
+        for (i in seq_along(trajectories)){
+            #extract fit coords per cell
+            data <- as.data.frame(trajectories[[i]]$s)
+            #order cells' fit coords by pseudotime order
+            data <- data[trajectories[[i]]$ord,]
+            #name the dimensions used
+            names(data)[c(dim.1,dim.2)] <- c("x", "y")
+            p <- p + geom_path(
+                data = data,
+                aes_string(x = "x", y = "y"),
+                arrow = arrow(
+                    angle = 20, type = "closed", length = unit(arrow.size, "inches")))
+        }
+    } else {
+    #Add trajectories for general list of matrices provision method.
+    #  Note: Accepts dataframes too.
+        for (i in seq_along(trajectories)){
+            data <- as.data.frame(trajectories[[i]])
+            names(data) <- c("x", "y")
+            p <- p + geom_path(
+                data = data,
+                aes_string(x = "x", y = "y"),
+                arrow = arrow(
+                    angle = 20, type = "closed", length = unit(arrow.size, "inches")))
+        }
+    }
+    p
+}
+
+.add_letters <- function(
+    p, Target_data, col.use = "color", size, opacity, legend.title,
+    legend.size) {
+    # Overlay letters on top of the original colored dots.
+    # Color blindness aid
+    # (Dim and Scatter plots)
+
+    letters.needed <- length(levels(as.factor(Target_data[,col.use])))
+    letter.labels <- c(
+        LETTERS, letters, 0:9, "!", "@", "#", "$", "%", "^", "&", "*", "(",
+        ")", "-", "+", "_", "=", ";", "/", "|", "{", "}", "~"
+        )[seq_len(letters.needed)]
+    names(letter.labels) <- levels(as.factor(Target_data[,col.use]))
+    p <- p +
+        geom_point(
+            data=Target_data,
+            aes_string(x = "X", y = "Y", shape = col.use),
+            color = "black", size=size*3/4, alpha = opacity) +
+        scale_shape_manual(
+            name = legend.title,
+            values = letter.labels)
+    p
+}
