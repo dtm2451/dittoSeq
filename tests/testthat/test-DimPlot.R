@@ -343,42 +343,6 @@ test_that("dittoDimPlot can add extra vars to dataframe", {
     expect_equal(ncol(df2), 5)
 })
 
-test_that("dittoDimPlot can be faceted with split.by (1 or 2 vars)", {
-    # MANUAL CHECK: FACETING
-    expect_s3_class(
-        dittoDimPlot(
-            disc, object=seurat,
-            split.by = disc2),
-        "ggplot")
-    # horizontal
-    expect_s3_class(
-        dittoDimPlot(
-            disc, object=seurat,
-            split.by = disc2,
-            split.nrow = 1),
-        "ggplot")
-    # vertical
-    expect_s3_class(
-        dittoDimPlot(
-            disc, object=seurat,
-            split.by = disc2,
-            split.ncol = 1),
-        "ggplot")
-    # Grid with rows=age, cols=groups
-    expect_s3_class(
-        dittoDimPlot(
-            disc, object=seurat,
-            split.by = c(disc2,disc)),
-        "ggplot")
-    # Works with cells.use (should have grey cells)
-    expect_s3_class(
-        dittoDimPlot(
-            disc, object=seurat,
-            split.by = c(disc2,disc),
-            cells.use = cells.logical),
-        "ggplot")
-})
-
 test_that("dittoDimPlot genes can be different data types", {
     df <- dittoDimPlot(gene, object = seurat, data.out = TRUE,
         slot = "counts")
@@ -425,3 +389,134 @@ test_that("dittoDimPlot ignores do.letter/do.label/do.ellipse for continuous dat
         do.ellipse = TRUE),
         NA)
 })
+
+test_that("dittoDimPlot can be faceted with split.by (1 or 2 vars)", {
+    # MANUAL CHECK: FACETING
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2),
+        "ggplot")
+    # horizontal
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2,
+            split.nrow = 1),
+        "ggplot")
+    # vertical
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2,
+            split.ncol = 1),
+        "ggplot")
+    # Grid with rows=age, cols=groups
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc)),
+        "ggplot")
+    # Works with cells.use (should have grey cells)
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc),
+            cells.use = cells.logical),
+        "ggplot")
+})
+
+test_that("dittoDimPlot added features work with single-metadata faceting", {
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2,
+            do.label = TRUE)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2,
+            do.ellipse = TRUE)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2,
+            do.letter = TRUE)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2,
+            do.contour = TRUE)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2,
+            add.trajectory.lineages = list(
+                    c("C","A")),
+            trajectory.cluster.meta = disc)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = disc2,
+            add.trajectory.curves = list(
+                data.frame(
+                    c(-10,0,-20),
+                    c(-20,-10,0)),
+                data.frame(
+                    c(5:20),
+                    c(5:10,9:5,6:10))))),
+        NA)
+})
+
+# Currently, labeling & 
+# test_that("dittoDimPlot added features work with double-metadata faceting", {
+#     expect_error(
+#         print(dittoDimPlot(
+#             disc, object=seurat,
+#             split.by = c(disc2,disc),
+#             do.label = TRUE)),
+#         NA)
+#     expect_error(
+#         print(dittoDimPlot(
+#             disc, object=seurat,
+#             split.by = c(disc2,disc),
+#             do.ellipse = TRUE)),
+#         NA)
+#     expect_error(
+#         print(dittoDimPlot(
+#             disc, object=seurat,
+#             split.by = c(disc2,disc),
+#             do.letter = TRUE)),
+#         NA)
+#     expect_error(
+#         print(dittoDimPlot(
+#             disc, object=seurat,
+#             split.by = c(disc2,disc),
+#             do.contour = TRUE)),
+#         NA)
+#     expect_error(
+#         print(dittoDimPlot(
+#             disc, object=seurat,
+#             split.by = c(disc2,disc),
+#             add.trajectory.lineages = list(
+#                     c("C","A")),
+#             trajectory.cluster.meta = disc)),
+#         NA)
+#     expect_error(
+#         print(dittoDimPlot(
+#             disc, object=seurat,
+#             split.by = c(disc2,disc),
+#             add.trajectory.curves = list(
+#                 data.frame(
+#                     c(-10,0,-20),
+#                     c(-20,-10,0)),
+#                 data.frame(
+#                     c(5:20),
+#                     c(5:10,9:5,6:10))))),
+#         NA)
+# })

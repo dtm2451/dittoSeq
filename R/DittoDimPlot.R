@@ -43,7 +43,7 @@
 #' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
-#' Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
+#' Useful for making custom splitting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
 #' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 #' When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes.
 #' When nothing is supplied to \code{shape.by}, only the first value is used.
@@ -83,6 +83,8 @@
 #' @param labels.highlight Logical. Whether the labels should have a box behind them
 #' @param labels.repel Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
 #' TRUE by default.
+#' @param labels.split.by String of one or two metadata names which controls the facet-split calculations for label placements.
+#' Defaults to \code{split.by}, so generally there is no need to adjust this except when you are utilizing the \code{extra.vars} input to achieve manual faceting control.
 #' @param rename.var.groups String vector which sets new names for the identities of \code{var} groups.
 #' @param rename.shape.groups String vector which sets new names for the identities of \code{shape.by} groups.
 #' @param min.color color for lowest values of \code{var}/\code{min}.  Default = yellow
@@ -258,6 +260,7 @@ dittoDimPlot <- function(
     theme = theme_bw(),
     do.letter = FALSE, do.ellipse = FALSE, do.label = FALSE,
     labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
+    labels.split.by = split.by,
     do.hover = FALSE, hover.data = var, hover.assay = .default_assay(object),
     hover.slot = .default_slot(object), hover.adjustment = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
@@ -327,7 +330,7 @@ dittoDimPlot <- function(
         if (do.label) {
             p <- .add_labels(
                 p, Target_data, "color", labels.highlight, labels.size,
-                labels.repel)
+                labels.repel, labels.split.by)
         }
     } else {
         ignored.targs = paste(

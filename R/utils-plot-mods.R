@@ -40,28 +40,56 @@
 
 .add_labels <- function(
     p, Target_data, col.use = "color",
-    labels.highlight, labels.size, labels.repel) {
+    labels.highlight, labels.size, labels.repel, split.by) {
     # Add text labels at/near the median x and y values for each group
     # (Dim and Scatter plots)
 
     #Determine medians
-    cent.x = vapply(
-        levels(as.factor(Target_data[,col.use])),
-        function(level) {
-            median(Target_data$X[Target_data[,col.use]==level])
-        }, FUN.VALUE = numeric(1))
-    cent.y = vapply(
-        levels(as.factor(Target_data[,col.use])),
-        function(level) {
-            median(Target_data$Y[Target_data[,col.use]==level])
-        }, FUN.VALUE = numeric(1))
+    if (is.null(split.by)) {
+        median.data <- .calc_center_medians(Target_data, col.use)
+    } else if (length(split.by)==1) {
+        
+        median.data <- NULL
+        
+        for (level in levels(as.factor(as.character(Target_data[,split.by])))) {
+            
+            level.dat <- Target_data[Target_data[,split.by]==level,]
+                
+            level.med.dat <- .calc_center_medians(level.dat, col.use)
+            # Add split.by columns
+            level.med.dat$split1 <- level
+            colnames(level.med.dat)[4] <- split.by
+            
+            median.data <- rbind(median.data, level.med.dat)
+        }
+    } else if (length(split.by)==2) {
+        
+        median.data <- NULL
+        
+        for (level1 in levels(as.factor(as.character(Target_data[,split.by[1]])))) {
+            for (level2 in levels(as.factor(as.character(Target_data[,split.by[2]])))) {
+            
+                level.dat <- Target_data[Target_data[,split.by[1]]==level1,]
+                level.dat <- level.dat[level.dat[,split.by[2]]==level2,]
+                    
+                if (nrow(level.dat)>0) {
+                    level.med.dat <- .calc_center_medians(level.dat, col.use)
+                    # Add split.by columns
+                    level.med.dat$split1 <- level1
+                    level.med.dat$split2 <- level2
+                    colnames(level.med.dat)[4:5] <- split.by
+                    
+                    median.data <- rbind(median.data, level.med.dat)
+                }
+            }
+        }
+    }
 
     #Add labels
     args <- list(
-        data = data.frame(cent.x=cent.x, cent.y=cent.y),
-        mapping = aes(x = cent.x, y = cent.y),
-        size = labels.size,
-        label = levels(as.factor(Target_data[,col.use])))
+        data = median.data,
+        mapping = aes_string(x = "cent.x", y = "cent.y", label = "label"),
+        size = labels.size)
     geom.use <-
         if (labels.highlight) {
             if (labels.repel) {
@@ -77,6 +105,22 @@
             }
         }
     p + do.call(geom.use, args)
+}
+
+.calc_center_medians <- function(x.y.group.df, group.col) {
+    groups <- levels(as.factor(as.character(x.y.group.df[,group.col])))
+    data.frame(
+        cent.x = vapply(
+            groups,
+            function(level) {
+                median(x.y.group.df$X[x.y.group.df[,group.col]==level])
+            }, FUN.VALUE = numeric(1)),
+        cent.y = vapply(
+            groups,
+            function(level) {
+                median(x.y.group.df$Y[x.y.group.df[,group.col]==level])
+            }, FUN.VALUE = numeric(1)),
+        label = groups)
 }
 
 .add_trajectory_lineages <- function(
