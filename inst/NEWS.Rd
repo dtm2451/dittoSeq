@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.1.4}{\itemize{
+\item Bug fix: Allows `do.label` to work in conjunction with faceting of dittoDimPlots. Added a `labels.split.by` input in order to allow proper handling even when users manually add faceting via `extra.vars` instead of `split.by`.
+}}
+
 \section{Version 1.1.3}{\itemize{
 \item Bug fix: Allow expression grabbing across visualizations (ultimately via `gene()`) from non-default assays of Seurat objects.
 \item Added ignorance of `do.label`, `do.letter`, and `do.ellipse` inputs of dittoDimPlot for continuous target data, which allows their use in `multi_dittoDimPlot()` when `vars` includes both discrete & continuous data.
