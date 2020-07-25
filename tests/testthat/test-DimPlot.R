@@ -473,50 +473,49 @@ test_that("dittoDimPlot added features work with single-metadata faceting", {
         NA)
 })
 
-# Currently, labeling & 
-# test_that("dittoDimPlot added features work with double-metadata faceting", {
-#     expect_error(
-#         print(dittoDimPlot(
-#             disc, object=seurat,
-#             split.by = c(disc2,disc),
-#             do.label = TRUE)),
-#         NA)
-#     expect_error(
-#         print(dittoDimPlot(
-#             disc, object=seurat,
-#             split.by = c(disc2,disc),
-#             do.ellipse = TRUE)),
-#         NA)
-#     expect_error(
-#         print(dittoDimPlot(
-#             disc, object=seurat,
-#             split.by = c(disc2,disc),
-#             do.letter = TRUE)),
-#         NA)
-#     expect_error(
-#         print(dittoDimPlot(
-#             disc, object=seurat,
-#             split.by = c(disc2,disc),
-#             do.contour = TRUE)),
-#         NA)
-#     expect_error(
-#         print(dittoDimPlot(
-#             disc, object=seurat,
-#             split.by = c(disc2,disc),
-#             add.trajectory.lineages = list(
-#                     c("C","A")),
-#             trajectory.cluster.meta = disc)),
-#         NA)
-#     expect_error(
-#         print(dittoDimPlot(
-#             disc, object=seurat,
-#             split.by = c(disc2,disc),
-#             add.trajectory.curves = list(
-#                 data.frame(
-#                     c(-10,0,-20),
-#                     c(-20,-10,0)),
-#                 data.frame(
-#                     c(5:20),
-#                     c(5:10,9:5,6:10))))),
-#         NA)
-# })
+test_that("dittoDimPlot added features work with double-metadata faceting", {
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc),
+            do.label = TRUE)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc),
+            do.ellipse = TRUE)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc),
+            do.letter = TRUE)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc),
+            do.contour = TRUE)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc),
+            add.trajectory.lineages = list(
+                    c("C","A")),
+            trajectory.cluster.meta = disc)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc),
+            add.trajectory.curves = list(
+                data.frame(
+                    c(-10,0,-20),
+                    c(-20,-10,0)),
+                data.frame(
+                    c(5:20),
+                    c(5:10,9:5,6:10))))),
+        NA)
+})

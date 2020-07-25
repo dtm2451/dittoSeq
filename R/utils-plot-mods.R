@@ -9,8 +9,8 @@
     # second element is used for columns.
     if (length(split.by) == 2) {
         return(p + facet_grid(
-            rows = vars(meta(split.by[1], object)[cells.use]),
-            cols = vars(meta(split.by[2], object)[cells.use])))
+            eval(expr(paste0(".data$",split.by[1], "~ .data$",split.by[2]))))
+        )
     }
 }
 
