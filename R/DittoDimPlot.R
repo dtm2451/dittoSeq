@@ -43,7 +43,7 @@
 #' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
-#' Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
+#' Useful for making custom splitting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
 #' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 #' When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes.
 #' When nothing is supplied to \code{shape.by}, only the first value is used.
@@ -83,6 +83,8 @@
 #' @param labels.highlight Logical. Whether the labels should have a box behind them
 #' @param labels.repel Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
 #' TRUE by default.
+#' @param labels.split.by String of one or two metadata names which controls the facet-split calculations for label placements.
+#' Defaults to \code{split.by}, so generally there is no need to adjust this except when you are utilizing the \code{extra.vars} input to achieve manual faceting control.
 #' @param rename.var.groups String vector which sets new names for the identities of \code{var} groups.
 #' @param rename.shape.groups String vector which sets new names for the identities of \code{shape.by} groups.
 #' @param min.color color for lowest values of \code{var}/\code{min}.  Default = yellow
@@ -258,6 +260,7 @@ dittoDimPlot <- function(
     theme = theme_bw(),
     do.letter = FALSE, do.ellipse = FALSE, do.label = FALSE,
     labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
+    labels.split.by = split.by,
     do.hover = FALSE, hover.data = var, hover.assay = .default_assay(object),
     hover.slot = .default_slot(object), hover.adjustment = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
@@ -327,7 +330,7 @@ dittoDimPlot <- function(
         if (do.label) {
             p <- .add_labels(
                 p, Target_data, "color", labels.highlight, labels.size,
-                labels.repel)
+                labels.repel, labels.split.by)
         }
     } else {
         ignored.targs = paste(
@@ -365,140 +368,6 @@ dittoDimPlot <- function(
             return(p)
         }
     }
-}
-
-.add_labels <- function(p, Target_data, col.use = "color", labels.highlight, labels.size, labels.repel) {
-    #Make a text plot at the median x and y values for each cluster
-
-    #Determine medians
-    cent.x = vapply(
-        levels(as.factor(Target_data[,col.use])),
-        function(level) {
-            median(Target_data$X[Target_data[,col.use]==level])
-        }, FUN.VALUE = numeric(1))
-    cent.y = vapply(
-        levels(as.factor(Target_data[,col.use])),
-        function(level) {
-            median(Target_data$Y[Target_data[,col.use]==level])
-        }, FUN.VALUE = numeric(1))
-
-    #Add labels
-    args <- list(
-        data = data.frame(cent.x=cent.x, cent.y=cent.y),
-        mapping = aes(x = cent.x, y = cent.y),
-        size = labels.size,
-        label = levels(as.factor(Target_data[,col.use])))
-    geom.use <-
-        if (labels.highlight) {
-            if (labels.repel) {
-                ggrepel::geom_label_repel
-            } else {
-                geom_label
-            }
-        } else {
-            if (labels.repel) {
-                ggrepel::geom_text_repel
-            } else {
-                geom_text
-            }
-        }
-    p + do.call(geom.use, args)
-}
-
-.add_trajectory_lineages <- function(
-    p, trajectories, clusters, arrow.size = 0.15, object, reduction.use,
-    dim.1, dim.2) {
-    # p = the $p output of a dittoDimPlot(any.var,..., data.out = TRUE)
-    # clusters = the name of the metadata metadata slot that holds the clusters used for cluster-based trajectory analysis
-    # trajectories = List of lists of cluster paths. Also, the output of SlingshotDataSet(SCE_with_slingshot)$lineages
-    # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
-
-    #Determine medians
-    cluster.dat <- meta(clusters, object)
-    cluster.levels <- metaLevels(clusters, object)
-    data <- data.frame(
-        cent.x = vapply(
-            cluster.levels,
-            function(level) {
-                median(
-                    .extract_Reduced_Dim(reduction.use, dim.1, object)$embedding[
-                        cluster.dat==level])
-            }, FUN.VALUE = numeric(1)),
-        cent.y = vapply(
-            cluster.levels,
-            function(level) {
-                median(
-                    .extract_Reduced_Dim(reduction.use, dim.2, object)$embedding[
-                        cluster.dat==level])
-            }, FUN.VALUE = numeric(1)))
-
-    #Add trajectories
-    for (i in seq_along(trajectories)){
-        p <- p + geom_path(
-            data = data[as.character(trajectories[[i]]),],
-            aes_string(x = "cent.x", y = "cent.y"),
-            arrow = arrow(
-                angle = 20, type = "closed", length = unit(arrow.size, "inches")))
-    }
-    p
-}
-
-.add_trajectory_curves <- function(
-    p, trajectories, arrow.size = 0.15, dim.1, dim.2) {
-    # p = the $p output of a dittoDimPlot(any.var,..., data.out = TRUE)
-    # trajectories = List of matrices containing trajectory curves. The output of SlingshotDataSet(SCE_with_slingshot)$curves can be used if the coordinate matrix (`$s`) for each list is extracted and they are all stored in a list.
-    # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
-
-    if ("s" %in% names(trajectories[[1]])) {
-    #Add trajectories for princurves/slingshot list of lists provision method
-        for (i in seq_along(trajectories)){
-            #extract fit coords per cell
-            data <- as.data.frame(trajectories[[i]]$s)
-            #order cells' fit coords by pseudotime order
-            data <- data[trajectories[[i]]$ord,]
-            #name the dimensions used
-            names(data)[c(dim.1,dim.2)] <- c("x", "y")
-            p <- p + geom_path(
-                data = data,
-                aes_string(x = "x", y = "y"),
-                arrow = arrow(
-                    angle = 20, type = "closed", length = unit(arrow.size, "inches")))
-        }
-    } else {
-    #Add trajectories for general list of matrices provision method.
-    #  Note: Accepts dataframes too.
-        for (i in seq_along(trajectories)){
-            data <- as.data.frame(trajectories[[i]])
-            names(data) <- c("x", "y")
-            p <- p + geom_path(
-                data = data,
-                aes_string(x = "x", y = "y"),
-                arrow = arrow(
-                    angle = 20, type = "closed", length = unit(arrow.size, "inches")))
-        }
-    }
-    p
-}
-
-.add_letters <- function(
-    p, Target_data, col.use = "color", size, opacity, legend.title,
-    legend.size) {
-
-    letters.needed <- length(levels(as.factor(Target_data[,col.use])))
-    letter.labels <- c(
-        LETTERS, letters, 0:9, "!", "@", "#", "$", "%", "^", "&", "*", "(",
-        ")", "-", "+", "_", "=", ";", "/", "|", "{", "}", "~"
-        )[seq_len(letters.needed)]
-    names(letter.labels) <- levels(as.factor(Target_data[,col.use]))
-    p <- p +
-        geom_point(
-            data=Target_data,
-            aes_string(x = "X", y = "Y", shape = col.use),
-            color = "black", size=size*3/4, alpha = opacity) +
-        scale_shape_manual(
-            name = legend.title,
-            values = letter.labels)
-    p
 }
 
 #### multi_dittoDimPlot : a function for quickly making multiple DBDimPlots arranged in a grid.

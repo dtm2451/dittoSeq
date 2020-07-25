@@ -44,6 +44,7 @@ dittoDimPlot(
   labels.size = 5,
   labels.highlight = TRUE,
   labels.repel = TRUE,
+  labels.split.by = split.by,
   do.hover = FALSE,
   hover.data = var,
   hover.assay = .default_assay(object),
@@ -108,7 +109,7 @@ When 1 metadata is named, shape control can be achieved with \code{split.nrow} a
 
 \item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 
-Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.}
+Useful for making custom splitting/faceting or other additional alterations \emph{after} dittoSeq plot generation.}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
@@ -182,6 +183,9 @@ lettering is incompatible with plotly and with changing the dots' to be differen
 
 \item{labels.repel}{Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
 TRUE by default.}
+
+\item{labels.split.by}{String of one or two metadata names which controls the facet-split calculations for label placements.
+Defaults to \code{split.by}, so generally there is no need to adjust this except when you are utilizing the \code{extra.vars} input to achieve manual faceting control.}
 
 \item{do.hover}{Logical which controls whether the output will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 \code{hover.data} argument is used to determine what data to use.}
