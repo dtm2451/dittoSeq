@@ -34,6 +34,11 @@
 #' To remove, set to \code{NULL}.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output from the plot alone to a list containing the plot ("plot"),
 #' and data.frame of the underlying data for target cells ("data").
+#' @param add.trajectory.curves List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x (\code{dim.1}) and y (\code{dim.2}) coordinates of the paths.
+#'
+#' Alternatively, (for dittoDimHex only, but not dittoScatterHex) a list of lists(/princurve objects) can be provided.
+#' Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
+#' you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}
 #' @inheritParams dittoScatterPlot
 #' @inheritParams dittoDimPlot
 #' 
@@ -208,7 +213,8 @@ dittoDimHex <- function(
         min.opacity, max.opacity, min, max,
         rename.color.groups, xlab, ylab, main, sub, theme,
         do.contour, contour.color, contour.linetype,
-        add.trajectory.lineages, trajectory.cluster.meta, trajectory.arrow.size,
+        add.trajectory.lineages, add.trajectory.curves = NULL,
+        trajectory.cluster.meta, trajectory.arrow.size,
         legend.show,
         legend.color.title, legend.color.breaks, legend.color.breaks.labels,
         legend.density.title, legend.density.breaks, legend.density.breaks.labels,
@@ -272,6 +278,7 @@ dittoScatterHex <- function(
     contour.color = "black",
     contour.linetype = 1,
     add.trajectory.lineages = NULL,
+    add.trajectory.curves = NULL,
     trajectory.cluster.meta,
     trajectory.arrow.size = 0.15,
     legend.show = TRUE,
@@ -346,6 +353,11 @@ dittoScatterHex <- function(
         p <- .add_trajectory_lineages(
             p, all_data, add.trajectory.lineages, trajectory.cluster.meta,
             trajectory.arrow.size, object)
+    }
+    
+    if (is.list(add.trajectory.curves)) {
+        p <- .add_trajectory_curves(
+            p, add.trajectory.curves, trajectory.arrow.size)
     }
 
     ### RETURN the PLOT ###

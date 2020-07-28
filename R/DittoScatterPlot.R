@@ -51,6 +51,7 @@
 #' 1 = not see-through at all. 0 = invisible. Default = 1.
 #' (In terms of typical ggplot variables, = alpha)
 #' @param rename.color.groups,rename.shape.groups String vector containing new names for the identities of the color or shape overlay groups.
+#' @param add.trajectory.curves List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x and y coordinates of the paths.
 #' @param legend.show Logical. Whether any legend should be displayed. Default = \code{TRUE}.
 #' @param legend.color.title,legend.shape.title Strings which set the title for the color or shape legends.
 #' @param legend.color.size,legend.shape.size Numbers representing the size at which shapes should be plotted in the color and shape legends (for discrete variable plotting).
@@ -204,6 +205,7 @@ dittoScatterPlot <- function(
     contour.color = "black",
     contour.linetype = 1,
     add.trajectory.lineages = NULL,
+    add.trajectory.curves = NULL,
     trajectory.cluster.meta,
     trajectory.arrow.size = 0.15,
     do.letter = FALSE,
@@ -291,6 +293,11 @@ dittoScatterPlot <- function(
         p <- .add_trajectory_lineages(
             p, rbind(Target_data,Others_data), add.trajectory.lineages,
             trajectory.cluster.meta, trajectory.arrow.size, object)
+    }
+    
+    if (is.list(add.trajectory.curves)) {
+        p <- .add_trajectory_curves(
+            p, add.trajectory.curves, trajectory.arrow.size)
     }
 
     ### RETURN the PLOT ###

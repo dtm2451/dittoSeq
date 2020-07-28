@@ -104,6 +104,7 @@ dittoScatterHex(
   contour.color = "black",
   contour.linetype = 1,
   add.trajectory.lineages = NULL,
+  add.trajectory.curves = NULL,
   trajectory.cluster.meta,
   trajectory.arrow.size = 0.15,
   legend.show = TRUE,
@@ -207,7 +208,7 @@ If the \code{\link[slingshot]{slingshot}} package was used for trajectory analys
 
 \item{add.trajectory.curves}{List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x (\code{dim.1}) and y (\code{dim.2}) coordinates of the paths.
 
-Alternatively, a list of lists(/princurve objects) can be provided.
+Alternatively, (for dittoDimHex only, but not dittoScatterHex) a list of lists(/princurve objects) can be provided.
 Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
 you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}}
 

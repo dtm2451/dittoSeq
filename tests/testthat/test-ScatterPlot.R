@@ -122,3 +122,20 @@ test_that("dittoScatterPlot can be faceted with split.by (1 or 2 vars)", {
             cells.use = cells.logical),
         "ggplot")
 })
+
+test_that("dittoScatterPlot can show trajectory curves", {
+    # MANUAL CHECK: Should have arrows overlaid which are detached from data points
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, object=seurat,
+            add.trajectory.curves = list(
+                data.frame(
+                    c(-10,0,-20),
+                    c(-20,-10,0)),
+                data.frame(
+                    c(5:20),
+                    c(5:10,9:5,6:10)
+                ))
+            ),
+        "ggplot")
+})
