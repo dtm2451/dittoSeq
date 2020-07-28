@@ -52,6 +52,16 @@ dittoScatterPlot(
   do.contour = FALSE,
   contour.color = "black",
   contour.linetype = 1,
+  add.trajectory.lineages = NULL,
+  trajectory.cluster.meta,
+  trajectory.arrow.size = 0.15,
+  do.letter = FALSE,
+  do.ellipse = FALSE,
+  do.label = FALSE,
+  labels.size = 5,
+  labels.highlight = TRUE,
+  labels.repel = TRUE,
+  labels.split.by = split.by,
   legend.show = TRUE,
   legend.color.title = color.var,
   legend.color.size = 5,
@@ -152,6 +162,32 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 
 \item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.
 Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
+
+\item{add.trajectory.lineages}{List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
+
+If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}.}
+
+\item{trajectory.cluster.meta}{String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.}
+
+\item{trajectory.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
+
+\item{do.letter}{Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
+NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
+lettering is incompatible with plotly and with changing the dots' to be different shapes.}
+
+\item{do.ellipse}{Logical. Whether the groups should be surrounded by median-centered ellipses.}
+
+\item{do.label}{Logical. Whether to add text labels near the center (median) of clusters for grouping vars.}
+
+\item{labels.size}{Size of the the labels text}
+
+\item{labels.highlight}{Logical. Whether the labels should have a box behind them}
+
+\item{labels.repel}{Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
+TRUE by default.}
+
+\item{labels.split.by}{String of one or two metadata names which controls the facet-split calculations for label placements.
+Defaults to \code{split.by}, so generally there is no need to adjust this except when you are utilizing the \code{extra.vars} input to achieve manual faceting control.}
 
 \item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
 

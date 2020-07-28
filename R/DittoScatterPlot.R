@@ -203,6 +203,13 @@ dittoScatterPlot <- function(
     do.contour = FALSE,
     contour.color = "black",
     contour.linetype = 1,
+    add.trajectory.lineages = NULL,
+    trajectory.cluster.meta,
+    trajectory.arrow.size = 0.15,
+    do.letter = FALSE,
+    do.ellipse = FALSE,
+    do.label = FALSE, labels.size = 5, labels.highlight = TRUE,
+    labels.repel = TRUE, labels.split.by = split.by,
     legend.show = TRUE,
     legend.color.title = color.var, legend.color.size = 5,
     legend.color.breaks = waiver(), legend.color.breaks.labels = waiver(),
@@ -252,6 +259,38 @@ dittoScatterPlot <- function(
     
     if (do.contour) {
         p <- .add_contours(p, Target_data, contour.color, contour.linetype)
+    }
+    
+    is_numeric <- is.numeric(Target_data$color)
+    if (!is_numeric) {
+        if (do.letter) {
+            p <- .add_letters(
+                p, Target_data, "color", size, opacity, legend.color.title, legend.color.size)
+        }
+        if (do.ellipse) {
+            p <- p + stat_ellipse(
+                data=Target_data,
+                aes_string(x = "X", y = "Y", colour = "color"),
+                type = "t", linetype = 2, size = 0.5, show.legend = FALSE)
+        }
+        if (do.label) {
+            p <- .add_labels(
+                p, Target_data, "color", labels.highlight, labels.size,
+                labels.repel, labels.split.by)
+        }
+    } else {
+        ignored.targs = paste(
+            c("do.letter", "do.ellipse", "do.label")[c(do.letter,do.ellipse,do.label)],
+            collapse = ", ")
+        .msg_if(
+            do.letter || do.ellipse || do.label,
+            ignored.targs, " was/were ignored for non-discrete data.")
+    }
+    
+    if (is.list(add.trajectory.lineages)) {
+        p <- .add_trajectory_lineages(
+            p, rbind(Target_data,Others_data), add.trajectory.lineages,
+            trajectory.cluster.meta, trajectory.arrow.size, object)
     }
 
     ### RETURN the PLOT ###

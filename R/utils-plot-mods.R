@@ -124,34 +124,23 @@
 }
 
 .add_trajectory_lineages <- function(
-    p, trajectories, clusters, arrow.size = 0.15, object, reduction.use,
-    dim.1, dim.2) {
+    p, data, trajectories, clusters, arrow.size = 0.15, object) {
     # Add trajectory path arrows, following sets of cluster-to-cluster paths, from cluster median to cluster median.
     # (Dim and Scatter plots)
     #
     # p = a ggplot to add to
+    # data = data for all cells/samples with columns X and Y
     # clusters = the name of the metadata slot that holds the clusters which were used for cluster-based trajectory analysis
     # trajectories = List of lists of cluster-to-cluster paths. Also, the output of SlingshotDataSet(SCE_with_slingshot)$lineages
     # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
 
-    #Determine medians
-    cluster.dat <- meta(clusters, object)
+    # Ensure data is in the objects' original cells' order, and add clusters data
+    data <- data[.all_cells(object),]
+    data$clusters <- meta(clusters, object)
+    
+    # Determine medians
     cluster.levels <- metaLevels(clusters, object)
-    data <- data.frame(
-        cent.x = vapply(
-            cluster.levels,
-            function(level) {
-                median(
-                    .extract_Reduced_Dim(reduction.use, dim.1, object)$embedding[
-                        cluster.dat==level])
-            }, FUN.VALUE = numeric(1)),
-        cent.y = vapply(
-            cluster.levels,
-            function(level) {
-                median(
-                    .extract_Reduced_Dim(reduction.use, dim.2, object)$embedding[
-                        cluster.dat==level])
-            }, FUN.VALUE = numeric(1)))
+    data <- .calc_center_medians(data, "clusters")
 
     #Add trajectories
     for (i in seq_along(trajectories)){

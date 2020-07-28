@@ -169,7 +169,8 @@ dittoDimHex <- function(
     min = NA, max = NA,
     rename.color.groups = NULL,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
-    trajectory.cluster.meta, trajectory.arrow.size = 0.15, data.out = FALSE,
+    trajectory.cluster.meta, trajectory.arrow.size = 0.15,
+    data.out = FALSE,
     legend.show = TRUE,
     legend.color.title = "make",
     legend.color.breaks = waiver(),
@@ -207,20 +208,15 @@ dittoDimHex <- function(
         min.opacity, max.opacity, min, max,
         rename.color.groups, xlab, ylab, main, sub, theme,
         do.contour, contour.color, contour.linetype,
+        add.trajectory.lineages, trajectory.cluster.meta, trajectory.arrow.size,
         legend.show,
         legend.color.title, legend.color.breaks, legend.color.breaks.labels,
         legend.density.title, legend.density.breaks, legend.density.breaks.labels,
         data.out = TRUE)
     p <- p.df$plot
     data <- p.df$data
-
+    
     # Add extra features
-    if (is.list(add.trajectory.lineages)) {
-        p <- .add_trajectory_lineages(
-            p, add.trajectory.lineages, trajectory.cluster.meta,
-            trajectory.arrow.size, object, reduction.use, dim.1, dim.2)
-    }
-
     if (is.list(add.trajectory.curves)) {
         p <- .add_trajectory_curves(
             p, add.trajectory.curves, trajectory.arrow.size, dim.1, dim.2)
@@ -275,6 +271,9 @@ dittoScatterHex <- function(
     do.contour = FALSE,
     contour.color = "black",
     contour.linetype = 1,
+    add.trajectory.lineages = NULL,
+    trajectory.cluster.meta,
+    trajectory.arrow.size = 0.15,
     legend.show = TRUE,
     legend.color.title = "make",
     legend.color.breaks = waiver(),
@@ -288,12 +287,13 @@ dittoScatterHex <- function(
     cells.use <- .which_cells(cells.use, object)
 
     # Make dataframe
-    data <- .scatter_data_gather(
+    all_data <- .scatter_data_gather(
         object, cells.use, x.var, y.var, color.var, shape.by=NULL, split.by,
         extra.vars, assay.x, slot.x, adjustment.x, assay.y, slot.y,
         adjustment.y, assay.color, slot.color, adjustment.color, assay.extra,
         slot.extra, adjustment.extra, rename.color.groups = rename.color.groups
-    )[cells.use,]
+    )
+    data <- all_data[cells.use,]
 
     # Parse coloring methods
     color_by_var <- FALSE
@@ -340,6 +340,12 @@ dittoScatterHex <- function(
     ### Add extra features
     if (do.contour) {
         p <- .add_contours(p, data, contour.color,  contour.linetype)
+    }
+    
+    if (is.list(add.trajectory.lineages)) {
+        p <- .add_trajectory_lineages(
+            p, all_data, add.trajectory.lineages, trajectory.cluster.meta,
+            trajectory.arrow.size, object)
     }
 
     ### RETURN the PLOT ###
