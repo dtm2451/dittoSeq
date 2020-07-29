@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.1.5}{\itemize{
+\item Adds features available in `dittoDimPlot()/Hex()` to `dittoScatterPlot()/Hex()`, including: `do.label`, `do.letter`, `do.ellipse`, `add.trajectory.lineages`, and `add.trajectory.curves`.
+}}
+
 \section{Version 1.1.4}{\itemize{
 \item Bug fix: Allows `do.label` to work in conjunction with faceting of dittoDimPlots. Added a `labels.split.by` input in order to allow proper handling even when users manually add faceting via `extra.vars` instead of `split.by`.
 }}

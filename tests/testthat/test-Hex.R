@@ -313,6 +313,21 @@ test_that("dittoDimHex trajectory adding works", {
         "ggplot")
 })
 
+test_that("dittoScatterHex trajectory curve adding works", {
+    expect_s3_class(
+        dittoScatterHex(
+            gene, cont, gene, object=seurat,
+            add.trajectory.curves = list(
+                data.frame(
+                    c(-10,0,-20),
+                    c(-20,-10,0)),
+                data.frame(
+                    c(5:20),
+                    c(5:10,9:5,6:10)
+                ))),
+        "ggplot")
+})
+
 test_that("dittoDimHex adding contours", {
     expect_s3_class(dittoDimHex(object=seurat, disc,
         do.contour = TRUE),

@@ -51,6 +51,7 @@
 #' 1 = not see-through at all. 0 = invisible. Default = 1.
 #' (In terms of typical ggplot variables, = alpha)
 #' @param rename.color.groups,rename.shape.groups String vector containing new names for the identities of the color or shape overlay groups.
+#' @param add.trajectory.curves List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x and y coordinates of the paths.
 #' @param legend.show Logical. Whether any legend should be displayed. Default = \code{TRUE}.
 #' @param legend.color.title,legend.shape.title Strings which set the title for the color or shape legends.
 #' @param legend.color.size,legend.shape.size Numbers representing the size at which shapes should be plotted in the color and shape legends (for discrete variable plotting).
@@ -203,6 +204,14 @@ dittoScatterPlot <- function(
     do.contour = FALSE,
     contour.color = "black",
     contour.linetype = 1,
+    add.trajectory.lineages = NULL,
+    add.trajectory.curves = NULL,
+    trajectory.cluster.meta,
+    trajectory.arrow.size = 0.15,
+    do.letter = FALSE,
+    do.ellipse = FALSE,
+    do.label = FALSE, labels.size = 5, labels.highlight = TRUE,
+    labels.repel = TRUE, labels.split.by = split.by,
     legend.show = TRUE,
     legend.color.title = color.var, legend.color.size = 5,
     legend.color.breaks = waiver(), legend.color.breaks.labels = waiver(),
@@ -252,6 +261,43 @@ dittoScatterPlot <- function(
     
     if (do.contour) {
         p <- .add_contours(p, Target_data, contour.color, contour.linetype)
+    }
+    
+    is_numeric <- is.numeric(Target_data$color)
+    if (!is_numeric) {
+        if (do.letter) {
+            p <- .add_letters(
+                p, Target_data, "color", size, opacity, legend.color.title, legend.color.size)
+        }
+        if (do.ellipse) {
+            p <- p + stat_ellipse(
+                data=Target_data,
+                aes_string(x = "X", y = "Y", colour = "color"),
+                type = "t", linetype = 2, size = 0.5, show.legend = FALSE)
+        }
+        if (do.label) {
+            p <- .add_labels(
+                p, Target_data, "color", labels.highlight, labels.size,
+                labels.repel, labels.split.by)
+        }
+    } else {
+        ignored.targs = paste(
+            c("do.letter", "do.ellipse", "do.label")[c(do.letter,do.ellipse,do.label)],
+            collapse = ", ")
+        .msg_if(
+            do.letter || do.ellipse || do.label,
+            ignored.targs, " was/were ignored for non-discrete data.")
+    }
+    
+    if (is.list(add.trajectory.lineages)) {
+        p <- .add_trajectory_lineages(
+            p, rbind(Target_data,Others_data), add.trajectory.lineages,
+            trajectory.cluster.meta, trajectory.arrow.size, object)
+    }
+    
+    if (is.list(add.trajectory.curves)) {
+        p <- .add_trajectory_curves(
+            p, add.trajectory.curves, trajectory.arrow.size)
     }
 
     ### RETURN the PLOT ###

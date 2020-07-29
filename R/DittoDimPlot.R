@@ -306,6 +306,10 @@ dittoDimPlot <- function(
         xlab, ylab, main, sub, theme,
         do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
         do.contour, contour.color, contour.linetype,
+        add.trajectory.lineages, add.trajectory.curves = NULL,
+        trajectory.cluster.meta, trajectory.arrow.size,
+        do.letter, do.ellipse, do.label, labels.size, labels.highlight,
+        labels.repel, labels.split.by,
         legend.show, legend.title, legend.size,
         legend.breaks, legend.breaks.labels, shape.legend.title,
         shape.legend.size, data.out = TRUE)
@@ -314,38 +318,6 @@ dittoDimPlot <- function(
     Others_data <- p.df$Others_data
 
     # Add extra features
-    is_numeric <- is.numeric(Target_data$color)
-    
-    if (!is_numeric) {
-        if (do.letter) {
-            p <- .add_letters(
-                p, Target_data, "color", size, opacity, legend.title, legend.size)
-        }
-        if (do.ellipse) {
-            p <- p + stat_ellipse(
-                data=Target_data,
-                aes_string(x = "X", y = "Y", colour = "color"),
-                type = "t", linetype = 2, size = 0.5, show.legend = FALSE)
-        }
-        if (do.label) {
-            p <- .add_labels(
-                p, Target_data, "color", labels.highlight, labels.size,
-                labels.repel, labels.split.by)
-        }
-    } else {
-        ignored.targs = paste(
-            c("do.letter", "do.ellipse", "do.label")[c(do.letter,do.ellipse,do.label)],
-            collapse = ", ")
-        .msg_if(
-            do.letter || do.ellipse || do.label,
-            ignored.targs, " was/were ignored for non-discrete data.")
-    }
-        
-    if (is.list(add.trajectory.lineages)) {
-        p <- .add_trajectory_lineages(
-            p, add.trajectory.lineages, trajectory.cluster.meta,
-            trajectory.arrow.size, object, reduction.use, dim.1, dim.2)
-    }
     if (is.list(add.trajectory.curves)) {
         p <- .add_trajectory_curves(
             p, add.trajectory.curves, trajectory.arrow.size, dim.1, dim.2)
