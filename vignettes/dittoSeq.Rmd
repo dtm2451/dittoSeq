@@ -4,7 +4,7 @@ author:
 - name: Daniel Bunis
   affiliation: Bakar Computational Health Sciences Institute, University of California San Francisco, San
   email: daniel.bunis@ucsf.edu
-date: "March 2nd, 2020"
+date: "July 31st, 2020"
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -66,7 +66,7 @@ Additionally:
 
 - Shapes displayed in the legends are generally enlarged as this can be almost
 as helpful as the actual color choice for colorblind individuals.
-- When sensible, dittoSeq funcitons have a shape.by input for having groups
+- When sensible, dittoSeq functions have a shape.by input for having groups
 displayed through shapes rather than color. (But note: even as a red-green
 color impaired individual myself writing this vignette, I recommend using color
 and I generally only use shapes for showing additional groupings.)
@@ -108,14 +108,14 @@ library(Seurat)
 sce <- BaronPancreasData()
 # Trim to only 5 of the celltypes for simplicity of vignette
 sce <- sce[,meta("label",sce) %in% c(
-    "acinar", "endothelial", "gamma", "delta", "ductal")]
+    "acinar", "beta", "gamma", "delta", "ductal")]
 ```
 
 Now that we have a single-cell dataset loaded, we are ready to go.  All
 functions work for either Seurat or SCE encapsulated single-cell data.
 
-But to make full use of dittoSeq, we should reaally have this data
-log-normalized, and dimensionality reductions and clustering run.
+But to make full use of dittoSeq, we should really have this data
+log-normalized, and we should run dimensionality reduction and clustering.
 
 ```{r}
 # Make Seurat and grab metadata
@@ -125,7 +125,7 @@ seurat <- AddMetaData(seurat, sce$donor, col.name = "Sample")
 seurat <- AddMetaData(seurat,
                       PercentageFeatureSet(seurat, pattern = "^MT"),
                       col.name = "percent.mt")
-# Basic Seurat workflow (possibly outdated, but fine for this vignette)
+# Basic Seurat work flow (possibly outdated, but fine for this vignette)
 seurat <- NormalizeData(seurat, verbose = FALSE)
 seurat <- FindVariableFeatures(object = seurat, verbose = FALSE)
 seurat <- ScaleData(object = seurat, verbose = FALSE)
@@ -139,9 +139,8 @@ seurat <- FindClusters(object = seurat, verbose = FALSE)
 # Grab PCA, TSNE, clustering, log-norm data, and metadata to sce
 
 # sce <- as.SingleCellExperiment(seurat)
-# At the time this vignette was made, the above function gave warnings
-
-# So... manual method
+# At the time this part of the vignette was made, the above function gave
+# warnings. So... manual method
 sce <- addDimReduction(
   sce, embeddings = Embeddings(seurat, reduction = "pca"), name = "PCA")
 sce <- addDimReduction(
@@ -174,9 +173,9 @@ dittoBarPlot(sce, "celltype", group.by = "Sample")
 ## Bulk RNAseq data
 
 Bulk RNAseq data is handled by dittoSeq using the SingleCellExperiment
-structure (as of version 0.99). This structure is essentially very similar
-to the Bioconductor standard SummarizedExperiment, just with room added for
-storing calculated dimensionality reductions.
+structure. This structure is essentially very similar to the
+SummarizedExperiment, just with room added for storing calculated
+dimensionality reductions.
 
 ```{r}
 # First, lets make some mock expression and conditions data
@@ -189,10 +188,11 @@ conditions <- factor(rep(1:4, 5))
 sex <- c(rep("M", 9), rep("F", 11))
 ```
 
-### Standard bulk data import workflow
+### Standard bulk data import workflow, `importDittoBulk()`
 
 Importing bulk data can be accomplished with just the `importDittoBulk()`
-function, but metadata and dimensionality reductions can also be added after.
+function. The function converts various common storage structures for bulk data
+into the `SingleCellExperiment` structure.
 
 ```{r}
 # Import
@@ -207,7 +207,13 @@ myRNA <- importDittoBulk(
                           sex = sex),
     #   For adding dimensionality reductions
     reductions = list(pca = matrix(rnorm(20000), nrow=20)))
+```
 
+Metadata and dimensionality reductions can be added either directly within the
+`importDittoBulk()` function via the `metadata` and `reductions` inputs,
+respectively, or separately aafterwards:
+
+```{r}
 # Add metadata (metadata can alternatively be added in this way)
 myRNA$conditions <- conditions
 myRNA$sex <- sex
@@ -221,29 +227,40 @@ myRNA <- addDimReduction(
     key = "PC")
 ```
 
-Additional details:
-
-By default, provided metadata is added to (or replaces) any metadata already
-inside of x, but the `combine_metadata` input can additionally be used to
-turn retention of previous metadata slots off.
-
-When providing expression data as a list of a single or multiple
-matrices, it is recommended that matrices containing raw feature counts data
-be named `counts`, and log-normalized counts data be named `logcounts`.
-
-DGEList note: The import function attempts to pull in all information stored in
-common DGEList slots (\$counts, \$samples, \$genes, \$AveLogCPM,
-\$common.dispersion, \$trended.dispersion, \$tagwise.dispersion, and \$offset),
-but any other slots are ignored.
+Making plots for bulk data then operates the exact same way as for single-cell.
 
 ```{r}
-# Now making plots operates the exact same way as for single-cell data
 dittoDimPlot(myRNA, "sex", size = 3, do.ellipse = TRUE)
 dittoBarPlot(myRNA, "sex", group.by = "conditions")
 dittoBoxPlot(myRNA, "gene1", group.by = "sex")
 dittoHeatmap(myRNA, getGenes(myRNA)[1:10],
     annot.by = c("conditions", "sex"))
 ```
+
+#### Additional details on bulk data import:
+
+The SCE object created by `importDittoBulk()` will contain an internal metadata
+slot which tells dittoSeq that the object holds bulk data. Functions like
+`dittoBarPlot()` and `dittoHeatmap()` have 
+
+By default, metadata from original objects are retained. But metadata provided
+to the `metadata` input will replace any similarly named slots from the
+original object. The `combine_metadata` input can additionally be used to
+turn retention of previous metadata slots off.
+
+When providing `x` a list of a single or multiple matrices, it is recommended
+that matrices containing raw feature counts data be named `counts`,
+log-normalized counts data be named `logcounts`, and otherwise normalized data,
+be named `normcounts`. Then you can give the `assay` input of dittoSeq
+functions "counts" to point towards the raw data for example. This is not a
+requirement, but the default assay used in dittoSeq functions will be one of:
+1) "logcounts" if it exists, 2) "normcounts" if it exists, 3) "counts" if it
+exists, or 4) whatever the first assay is in the object.
+
+DGEList note: The import function attempts to pull in all information stored in
+common DGEList slots (\$counts, \$samples, \$genes, \$AveLogCPM,
+\$common.dispersion, \$trended.dispersion, \$tagwise.dispersion, and \$offset),
+but any other slots are ignored.
 
 # Helper Functions
 
@@ -305,13 +322,14 @@ NOTE: for any non-SCE objects, `isBulk()` will always return FALSE
 # Visualizations
 
 There are many different types of dittoSeq visualizations. Each has intuitive
-defaults which allow creation of immediately useable plots. Each also has many
-additional tweaks avaiolable through discrete input that can help ensure you
-can create publication-quality plots out-of-the-box.
+defaults which allow creation of immediately usable plots. Each also has many
+additional tweaks available through discrete inputs that can help ensure you
+can create precisely-tuned, deliberately-labeled, publication-quality plots
+out-of-the-box.
 
 ## dittoDimPlot & dittoScatterPlot
 
-These show cells/samples data overlayed on a scatter plot, with the axes of
+These show cells/samples data overlaid on a scatter plot, with the axes of
 `dittoScatterPlot()` being gene expression or metadata data and with the axes
 of `dittoDimPlot()` being dimensionality reductions like tsne, pca, umap or
 similar.
@@ -324,35 +342,114 @@ dittoDimPlot(sce, "ENO1")
 ```{r, results = "hold"}
 dittoScatterPlot(
     object = sce,
-    x.var = "ENO1", y.var = "INS",
-    color.var = "celltype", shape.by = "Sample",
-    size = 3)
+    x.var = "PPY", y.var = "INS",
+    color.var = "celltype")
 dittoScatterPlot(
     object = seurat,
     x.var = "nCount_RNA", y.var = "nFeature_RNA",
-    color.var = "percent.mt",
-    size = 3)
+    color.var = "percent.mt")
 ```
 
-### Many additional dittoDimPlot features
+### Additional features
 
-dittoDimPlot has various additional features which can be overlayed on top.
-Adding each is controlled by an input that starts with `add.` or `do.` such as
-`do.label` or `add.trajectory.lineages`. Additional inputs that apply to these
-features will then start with the XXXX part that comes after `add.XXXX` or
-`do.XXXX`, as exemplified below.
+Various additional features can be overlaid on top of these plots.
+Adding each is controlled by an input that starts with `add.` or `do.` such as:
+
+- `do.label`
+- `do.ellipse`
+- `do.letter`
+- `do.contour`
+- `do.hover`
+- `add.trajectory.lineages`
+- `add.trajectory.curves`
+
+Additional inputs that apply to and adjust these features will then start with
+the XXXX part that comes after `add.XXXX` or `do.XXXX`, as exemplified below.
+(Tab-completion friendly!)
+
+A few examples:
 
 ```{r}
 dittoDimPlot(seurat, "ident",
-             do.label = TRUE, labels.repel = FALSE)
-dittoDimPlot(seurat, "ident",
+             
+             do.label = TRUE,
+             labels.repel = FALSE,
+             
              add.trajectory.lineages = list(
-                 c("3","4","11","8","2","10"),
-                 c("3","9","6","12"),
-                 c("3","9","7", "1"),
-                 c("3","9","7","5")),
+                 c("9","3"),
+                 c("8","7","2","4"),
+                 c("8","7","1"),
+                 c("5","11","6"),
+                 c("10","0")),
              trajectory.cluster.meta = "ident")
 ```
+
+## dittoDimHex & dittoScatterHex
+
+Similar to the "Plot" versions, these show cells/samples data overlaid on a
+scatter plot, with the axes of `dittoScatterHex()` being gene expression or
+metadata or some other data, and with the axes of `dittoDimHex()` being
+dimensionality reductions like tsne, pca, umap or similar.
+
+The plot area is then broken into hexagonal bins and data is presented as
+summaries of cells/samples within each of those bins.
+
+The minimal functions will summarize density of cells/samples only using color.
+
+```{r, results = "hold"}
+dittoDimHex(seurat)
+dittoScatterHex(seurat,
+    x.var = "PPY", y.var = "INS")
+```
+
+An additional feature can be be provided to have that data be summarized in
+addition to density. Density will then be represented with opacity, while color
+is used for the additional feature. The `color.method` input then controls how
+data within the bins are represented.
+
+NOTE: It is important to note that as soon as differing opacity is added, the
+color-blindness friendliness of dittoSeq's default colors is no longer
+guaranteed.
+
+```{r, results = "hold"}
+dittoDimHex(seurat, "INS")
+dittoScatterHex(
+    object = seurat,
+    x.var = "PPY", y.var = "INS",
+    color.var = "celltype",
+    colors = c(1:4,7), max.density = 15)
+```
+
+### Summary function control
+
+`color.method` controls how data within the bins are represented in colors. It
+is provided a string, but how that string is utilized depends on the type of
+target data.
+
+For discrete data, you can provide either `"max"` (the default) to display the
+predominant grouping of the bins, or `"max.prop"` to display the proportion of
+cells in the bins that belong to the maximal grouping.
+
+For continuous data, any string signifying a function [that summarizes a
+numeric vector input into with a single numeric value] can be provided.
+The default is `"median"`, but other useful options are `"sum"`, `"mean"`,
+`"sd"`, or `"mad"`.
+
+### Additional features
+
+Similar to dittoDimPlot and dittoScatterPlot, various additional layers are
+built in and their addition is controlled by inputs that starts with `add.` or
+`do.` such as:
+
+- `do.label`
+- `do.ellipse`
+- `do.contour`
+- `add.trajectory.lineages`
+- `add.trajectory.curves`
+
+Additional inputs that apply to and adjust these features will then start with
+the XXXX part that comes after `add.XXXX` or `do.XXXX`, as exemplified below.
+(Tab-completion friendly!)
 
 ## dittoPlot (and dittoRidgePlot + dittoBoxPlot wrappers)
 
@@ -362,7 +459,7 @@ grouping metadata. Data can be represented with violin plots, box plots,
 individual points for each cell/sample, and/or ridge plots. The `plots` input
 controls which data representations are used.  The `group.by` input controls
 how the data are grouped in the x-axis.  And the `color.by` input controls the
-color that fills in violin, box, and ridge plots.
+colors that fill in violin, box, and ridge plots.
 
 `dittoPlot()` is the main function, but `dittoRidgePlot()` and
 `dittoBoxPlot()` are wrappers which essentially just adjust the default for
@@ -376,18 +473,23 @@ dittoRidgePlot(sce, "ENO1", group.by = "celltype")
 dittoBoxPlot(seurat, "ENO1", group.by = "celltype")
 ```
 
+### Adjustments to data representations
+
 Tweaks to the individual data representation types can be made with discrete
 inputs, all of which start with the representation types' name.  For
 example...
 
 ```{r}
 dittoPlot(seurat, "ENO1", group.by = "celltype",
-    plots = c("vlnplot", "jitter", "boxplot"),
+    plots = c("jitter", "vlnplot", "boxplot"), # <- order matters
+    
     # change the color and size of jitter points
     jitter.color = "blue", jitter.size = 0.5,
+    
     # change the outline color and width, and remove the fill of boxplots
     boxplot.color = "white", boxplot.width = 0.1,
     boxplot.fill = FALSE,
+    
     # change how the violinplot widths are normalized across groups
     vlnplot.scaling = "count"
     )
@@ -448,14 +550,14 @@ dittoHeatmap(seurat, genes,
     show_rownames = FALSE)
 ```
 
-A subset of the supplied genes can be given to the `highlight.genes` input to
+A subset of the supplied genes can be given to the `highlight.features` input to
 have names shown for just these genes.
 
 ```{r}
 # Highlight certain genes
 dittoHeatmap(seurat, genes,
     annot.by = c("celltype", "Sample"),
-    highlight.genes = genes[1:3])
+    highlight.features = genes[1:3])
 ```
 
 Additional tweaks can be added through other built in inputs or by providing
@@ -464,8 +566,8 @@ additional inputs that get passed along to pheatmap (see `?pheatmap`).
 ## Multi-Plotters
 
 These create either multiple plots or create plots that summarize data for
-multiple variables all in one plot.  They make it easier to create sumarzies
-for many genes or many celltypes without the need for writing loops.
+multiple variables all in one plot.  They make it easier to create summarzies
+for many genes or many cell types without the need for writing loops.
 
 Some setup for these, let's roughly pick out the markers of delta cells in
 this dataset
@@ -476,10 +578,11 @@ this dataset
 # delta.genes <- rownames(delta.marker.table)[1:20]
 # Idents(seurat) <- "seurat_clusters"
 
-delta.genes <- c("SST", "RBP4", "PCSK1", "CPE", "GPX3",
-    "NLRP1", "PPP1R1A", "PCP4", "CHGB", "DHRS2", "LEPR", 
-    "PTPRN", "BEX1", "SCGN", "PCSK1N", "SCG5", "UCHL1",
-    "CHGA", "GAD2", "SEC11C")
+delta.genes <- c(
+    "SST", "RBP4", "LEPR", "PAPPA2", "LY6H",
+    "CBLN4", "GPX3", "BCHE", "HHEX", "DPYSL3",
+    "SERPINA1", "SEC11C", "ANXA2", "CHGB", "RGS2",
+    "FXYD6", "KCNIP1", "SMOC1", "RPL10", "LRFN5")
 ```
 
 ### multi_dittoPlot & dittoPlot_VarsAcrossGroups
@@ -509,7 +612,7 @@ metadata, but where distinct cells are highlighted in each plot. The
 `vary.cells.meta` input sets the discrete metadata to be used for breaking up
 cells/samples over distinct plots. This can be useful for
 checking/highlighting when a gene may be differentially expressed within
-multiple cell types or accross all samples.
+multiple cell types or across all samples.
 
 - The output of `multi_dittoDimPlotVaryCells()` is similar to that of
 faceting using dittoDimPlot's `split.by` input, but with added capability of
@@ -535,8 +638,8 @@ are many more.  Be sure to check the function documentation (e.g.
 
 The cells/samples shown in a given plot can be adjusted with the `cells.use`
 input. This can be provided as either a list of cells' / samples' names to
-include, or as a logical vector that states whether each cell / sample should
-be included.
+include, as an integer vector with the indices of cells to keep, or as a
+logical vector that states whether each cell / sample should be included.
 
 ```{r}
 # Original
@@ -545,6 +648,10 @@ dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count")
 # String method, first 10 cells
 dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
     cells.use = colnames(seurat)[1:10])
+
+# Index method, first 10 cells
+dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
+    cells.use = 1:10)
 
 # Logical method, only acinar cells
 dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
@@ -633,9 +740,9 @@ dittoBarPlot, dittoPlotVarsAcrossGroups) can be supplied `do.hover = TRUE` to
 have it be converted into a plotly object that will display additional data
 about each data point when the user hovers their cursor on top.
 
-Generally, a second input, `hover.data`, is used to tell dittoSeq qhat extra
+Generally, a second input, `hover.data`, is used to tell dittoSeq what extra
 data to display.  This input takes in a vector of gene or metadata names (or
-"ident" for seurat object clustering) in the order you wish for them to be
+"ident" for Seurat object clustering) in the order you wish for them to be
 displayed.
 
 ```{r, eval = FALSE}
