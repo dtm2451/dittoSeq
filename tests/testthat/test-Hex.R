@@ -340,6 +340,34 @@ test_that("dittoDimHex adding contours", {
         "ggplot")
 })
 
+test_that("dittoDimHex do.label/do.ellipse", {
+    expect_s3_class(
+        dittoDimHex(
+            disc, object=seurat,
+            do.label = TRUE),
+        "ggplot")
+    expect_s3_class(
+        dittoDimHex(
+            disc, object=seurat,
+            do.ellipse = TRUE),
+        "ggplot")
+})
+
+test_that("dittoDimHex ignores do.label/do.ellipse for continuous data", {
+    expect_message(dittoDimHex(object=seurat, cont,
+        do.label = TRUE),
+        "do.label was/were ignored for non-discrete data", fixed = TRUE)
+    expect_message(dittoDimHex(object=seurat, cont,
+        do.ellipse = TRUE),
+        "do.ellipse was/were ignored for non-discrete data", fixed = TRUE)
+    
+    # No message for discrete data && MANUAAL CHECK: ellipse is drawn 
+    expect_message(dittoDimHex(object=seurat, disc,
+        do.ellipse = TRUE),
+        NA)
+})
+
+
 ##########
 # Addition checks for Scatter
 ##########

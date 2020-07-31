@@ -46,6 +46,12 @@ dittoDimHex(
   min = NA,
   max = NA,
   rename.color.groups = NULL,
+  do.ellipse = FALSE,
+  do.label = FALSE,
+  labels.size = 5,
+  labels.highlight = TRUE,
+  labels.repel = TRUE,
+  labels.split.by = split.by,
   add.trajectory.lineages = NULL,
   add.trajectory.curves = NULL,
   trajectory.cluster.meta,
@@ -103,6 +109,12 @@ dittoScatterHex(
   do.contour = FALSE,
   contour.color = "black",
   contour.linetype = 1,
+  do.ellipse = FALSE,
+  do.label = FALSE,
+  labels.size = 5,
+  labels.highlight = TRUE,
+  labels.repel = TRUE,
+  labels.split.by = split.by,
   add.trajectory.lineages = NULL,
   add.trajectory.curves = NULL,
   trajectory.cluster.meta,
@@ -201,6 +213,20 @@ Used no matter whether density is represented through opacity or color.}
 \item{min, max}{Number which sets the values associated with the minimum or maximum color for \code{color.var} data.}
 
 \item{rename.color.groups}{String vector containing new names for the identities of discrete color groups.}
+
+\item{do.ellipse}{Logical. Whether the groups should be surrounded by median-centered ellipses.}
+
+\item{do.label}{Logical. Whether to add text labels near the center (median) of clusters for grouping vars.}
+
+\item{labels.size}{Size of the the labels text}
+
+\item{labels.highlight}{Logical. Whether the labels should have a box behind them}
+
+\item{labels.repel}{Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
+TRUE by default.}
+
+\item{labels.split.by}{String of one or two metadata names which controls the facet-split calculations for label placements.
+Defaults to \code{split.by}, so generally there is no need to adjust this except when you are utilizing the \code{extra.vars} input to achieve manual faceting control.}
 
 \item{add.trajectory.lineages}{List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 

@@ -173,6 +173,9 @@ dittoDimHex <- function(
     min.opacity = 0.2, max.opacity = 1, 
     min = NA, max = NA,
     rename.color.groups = NULL,
+    do.ellipse = FALSE,
+    do.label = FALSE, labels.size = 5, labels.highlight = TRUE,
+    labels.repel = TRUE, labels.split.by = split.by,
     add.trajectory.lineages = NULL, add.trajectory.curves = NULL,
     trajectory.cluster.meta, trajectory.arrow.size = 0.15,
     data.out = FALSE,
@@ -213,6 +216,8 @@ dittoDimHex <- function(
         min.opacity, max.opacity, min, max,
         rename.color.groups, xlab, ylab, main, sub, theme,
         do.contour, contour.color, contour.linetype,
+        do.ellipse, do.label, labels.size, labels.highlight, labels.repel,
+        labels.split.by,
         add.trajectory.lineages, add.trajectory.curves = NULL,
         trajectory.cluster.meta, trajectory.arrow.size,
         legend.show,
@@ -277,6 +282,9 @@ dittoScatterHex <- function(
     do.contour = FALSE,
     contour.color = "black",
     contour.linetype = 1,
+    do.ellipse = FALSE,
+    do.label = FALSE, labels.size = 5, labels.highlight = TRUE,
+    labels.repel = TRUE, labels.split.by = split.by,
     add.trajectory.lineages = NULL,
     add.trajectory.curves = NULL,
     trajectory.cluster.meta,
@@ -304,24 +312,25 @@ dittoScatterHex <- function(
 
     # Parse coloring methods
     color_by_var <- FALSE
-    discrete <- FALSE
+    discrete_disp <- FALSE
+    discrete_data <- FALSE
     
     if (!is.null(color.var)) {
-        
         color_by_var <- TRUE
-        if (is.numeric(data$color)) {
-            discrete <- FALSE
-        } else if ("max.prop" %in% color.method) {
-            discrete <- FALSE
-        }else {
-            discrete <- TRUE
+        
+        if (!is.numeric(data$color)) {
+            discrete_data <- TRUE
+            
+            if (!("max.prop" %in% color.method)) {
+                discrete_disp <- TRUE
+            }
         }
         
         if (is.null(color.method)) {
-            color.method <- ifelse(discrete, "max", "median")
+            color.method <- ifelse(discrete_data, "max", "median")
         }
         
-        .check_color.method(color.method, discrete)
+        .check_color.method(color.method, discrete_disp)
     }
     
     # Set titles if "make"
@@ -333,20 +342,42 @@ dittoScatterHex <- function(
 
     # Make the plot
     p <- .ditto_scatter_hex(
-        data, bins, color_by_var, discrete, color.method, color.panel, colors,
+        data, bins, color_by_var, discrete_disp, color.method, color.panel, colors,
         min.density, max.density, min.color, max.color,
         min.opacity, max.opacity, min, max,
         xlab, ylab, main, sub, theme, legend.show,
         legend.color.title, legend.color.breaks, legend.color.breaks.labels,
         legend.density.title, legend.density.breaks, legend.density.breaks.labels)
+    
+    ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
             p, split.by, split.nrow, split.ncol, object, cells.use)
     }
     
-    ### Add extra features
     if (do.contour) {
         p <- .add_contours(p, data, contour.color,  contour.linetype)
+    }
+    
+    if (discrete_data) {
+        if (do.ellipse) {
+            p <- p + stat_ellipse(
+                data=data,
+                aes_string(x = "X", y = "Y", colour = "color"),
+                type = "t", linetype = 2, size = 0.5, show.legend = FALSE)
+        }
+        if (do.label) {
+            p <- .add_labels(
+                p, data, "color", labels.highlight, labels.size,
+                labels.repel, labels.split.by)
+        }
+    } else {
+        ignored.targs = paste(
+            c("do.ellipse", "do.label")[c(do.ellipse,do.label)],
+            collapse = ", ")
+        .msg_if(
+            do.ellipse || do.label,
+            ignored.targs, " was/were ignored for non-discrete data.")
     }
     
     if (is.list(add.trajectory.lineages)) {
