@@ -2,6 +2,11 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.1.6}{\itemize{
+\item Adds `do.label` & `do.ellipse` features to Hex plotters.
+\item Updates the vignette to include Hex plotters and improve clarity.
+}}
+
 \section{Version 1.1.5}{\itemize{
 \item Adds features available in `dittoDimPlot()/Hex()` to `dittoScatterPlot()/Hex()`, including: `do.label`, `do.letter`, `do.ellipse`, `add.trajectory.lineages`, and `add.trajectory.curves`.
 }}
