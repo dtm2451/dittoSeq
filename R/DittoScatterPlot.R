@@ -263,31 +263,11 @@ dittoScatterPlot <- function(
         p <- .add_contours(p, Target_data, contour.color, contour.linetype)
     }
     
-    is_numeric <- is.numeric(Target_data$color)
-    if (!is_numeric) {
-        if (do.letter) {
-            p <- .add_letters(
-                p, Target_data, "color", size, opacity, legend.color.title, legend.color.size)
-        }
-        if (do.ellipse) {
-            p <- p + stat_ellipse(
-                data=Target_data,
-                aes_string(x = "X", y = "Y", colour = "color"),
-                type = "t", linetype = 2, size = 0.5, show.legend = FALSE, na.rm = TRUE)
-        }
-        if (do.label) {
-            p <- .add_labels(
-                p, Target_data, "color", labels.highlight, labels.size,
-                labels.repel, labels.split.by)
-        }
-    } else {
-        ignored.targs = paste(
-            c("do.letter", "do.ellipse", "do.label")[c(do.letter,do.ellipse,do.label)],
-            collapse = ", ")
-        .msg_if(
-            do.letter || do.ellipse || do.label,
-            ignored.targs, " was/were ignored for non-discrete data.")
-    }
+    p <- .add_letters_ellipses_labels_if_discrete(
+        p, Target_data, is.discrete = !is.numeric(Target_data$color),
+        do.letter, do.ellipse, do.label,
+        labels.highlight, labels.size, labels.repel, labels.split.by,
+        size, opacity, legend.color.title, legend.color.size)
     
     if (is.list(add.trajectory.lineages)) {
         p <- .add_trajectory_lineages(

@@ -359,26 +359,10 @@ dittoScatterHex <- function(
         p <- .add_contours(p, data, contour.color,  contour.linetype)
     }
     
-    if (discrete_data) {
-        if (do.ellipse) {
-            p <- p + stat_ellipse(
-                data=data,
-                aes_string(x = "X", y = "Y", colour = "color"),
-                type = "t", linetype = 2, size = 0.5, show.legend = FALSE, na.rm = TRUE)
-        }
-        if (do.label) {
-            p <- .add_labels(
-                p, data, "color", labels.highlight, labels.size,
-                labels.repel, labels.split.by)
-        }
-    } else {
-        ignored.targs = paste(
-            c("do.ellipse", "do.label")[c(do.ellipse,do.label)],
-            collapse = ", ")
-        .msg_if(
-            do.ellipse || do.label,
-            ignored.targs, " was/were ignored for non-discrete data.")
-    }
+    p <- .add_letters_ellipses_labels_if_discrete(
+        p, data, is.discrete = discrete_data,
+        FALSE, do.ellipse, do.label,
+        labels.highlight, labels.size, labels.repel, labels.split.by)
     
     if (is.list(add.trajectory.lineages)) {
         p <- .add_trajectory_lineages(

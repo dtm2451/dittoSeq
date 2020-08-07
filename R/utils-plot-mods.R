@@ -25,6 +25,41 @@
     cowplot::ggdraw(cowplot::get_legend(ggplot))
 }
 
+.add_letters_ellipses_labels_if_discrete <- function(
+    p, data,
+    is.discrete, do.letter, do.ellipse, do.label,
+    labels.highlight, labels.size, labels.repel, labels.split.by,
+    letter.size, letter.opacity, letter.legend.title, letter.legend.size,
+    column = "color") {
+if (is.discrete) {
+        if (do.letter) {
+            p <- .add_letters(
+                p, data, column,
+                letter.size, letter.opacity, letter.legend.title, letter.legend.size)
+        }
+        if (do.ellipse) {
+            p <- p + stat_ellipse(
+                data=data,
+                aes_string(x = "X", y = "Y", colour = column),
+                type = "t", linetype = 2, size = 0.5, show.legend = FALSE, na.rm = TRUE)
+        }
+        if (do.label) {
+            p <- .add_labels(
+                p, data, column, labels.highlight, labels.size,
+                labels.repel, labels.split.by)
+        }
+    } else {
+        ignored.targs = paste(
+            c("do.letter", "do.ellipse", "do.label")[c(do.letter,do.ellipse,do.label)],
+            collapse = ", ")
+        .msg_if(
+            do.letter || do.ellipse || do.label,
+            ignored.targs, " was/were ignored for non-discrete data.")
+    }
+    
+    p
+}
+
 .add_contours <- function(
     p, data, color, linetype = 1) {
     # Add contours based on the density of cells/samples
