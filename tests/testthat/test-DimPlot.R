@@ -496,12 +496,6 @@ test_that("dittoDimPlot added features work with double-metadata faceting", {
         print(dittoDimPlot(
             disc, object=seurat,
             split.by = c(disc2,disc),
-            do.contour = TRUE)),
-        NA)
-    expect_error(
-        print(dittoDimPlot(
-            disc, object=seurat,
-            split.by = c(disc2,disc),
             add.trajectory.lineages = list(
                     c("C","A")),
             trajectory.cluster.meta = disc)),

@@ -273,7 +273,7 @@ dittoScatterPlot <- function(
             p <- p + stat_ellipse(
                 data=Target_data,
                 aes_string(x = "X", y = "Y", colour = "color"),
-                type = "t", linetype = 2, size = 0.5, show.legend = FALSE)
+                type = "t", linetype = 2, size = 0.5, show.legend = FALSE, na.rm = TRUE)
         }
         if (do.label) {
             p <- .add_labels(

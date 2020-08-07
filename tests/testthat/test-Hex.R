@@ -26,7 +26,7 @@ test_that("DimHex & ScatterHex can plot density for Seurat or SCE", {
 
 test_that("dittoDimHex - bins input adjusts number of bins", {
     ### Manual check: Large bins
-    dittoDimHex(sce, bins = 5)
+    expect_s3_class(dittoDimHex(sce, bins = 5), "ggplot")
 })
 
 test_that("DimHex can plot continuous or discrete color.var data", {
