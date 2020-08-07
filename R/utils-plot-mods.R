@@ -31,24 +31,31 @@
     labels.highlight, labels.size, labels.repel, labels.split.by,
     letter.size, letter.opacity, letter.legend.title, letter.legend.size,
     column = "color") {
-if (is.discrete) {
+    
+    if (is.discrete) {
+        
         if (do.letter) {
             p <- .add_letters(
                 p, data, column,
                 letter.size, letter.opacity, letter.legend.title, letter.legend.size)
         }
+        
         if (do.ellipse) {
             p <- p + stat_ellipse(
                 data=data,
                 aes_string(x = "X", y = "Y", colour = column),
                 type = "t", linetype = 2, size = 0.5, show.legend = FALSE, na.rm = TRUE)
         }
+        
         if (do.label) {
             p <- .add_labels(
                 p, data, column, labels.highlight, labels.size,
                 labels.repel, labels.split.by)
         }
+        
     } else {
+        
+        # Data is incompatible, so message instead of adding.
         ignored.targs = paste(
             c("do.letter", "do.ellipse", "do.label")[c(do.letter,do.ellipse,do.label)],
             collapse = ", ")
