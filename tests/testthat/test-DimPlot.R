@@ -330,6 +330,20 @@ test_that("dittoDimPlot can remove axes numbers", {
         "ggplot")
 })
 
+test_that("dittoDimPlot plotting order can be ordered by the data", {
+    out <- dittoDimPlot(disc, object=seurat, data.out = TRUE, order = "decreasing")
+    expect_s3_class(
+        out$p,
+        "ggplot")
+    expect_equal(
+        out$Target_data$color,
+        rev(
+            dittoDimPlot(
+                disc, object=seurat, data.out = TRUE, order = "increasing"
+                )$Target_data$color)
+    )
+})
+
 test_that("dittoDimPlot can add extra vars to dataframe", {
     df1 <- dittoDimPlot(
             disc, object=seurat,

@@ -39,6 +39,7 @@ dittoScatterPlot(
   max.color = "#0072B2",
   min = NULL,
   max = NULL,
+  order = c("unordered", "increasing", "decreasing"),
   xlab = x.var,
   ylab = y.var,
   main = "make",
@@ -137,6 +138,8 @@ For these reasons, even as a color blind person myself writing this code, I reco
 \item{max.color}{color for highest values of var/max.  Default = blue}
 
 \item{min, max}{Numbers which set the values associated with the minimum and maximum colors.}
+
+\item{order}{String. If the data should be plotted based on the order of the color data, sets whether to plot in "increasing" or "decreasing" order.}
 
 \item{xlab, ylab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
 

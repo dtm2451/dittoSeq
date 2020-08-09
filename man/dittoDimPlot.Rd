@@ -31,6 +31,7 @@ dittoDimPlot(
   max.color = "#0072B2",
   min = NULL,
   max = NULL,
+  order = c("unordered", "increasing", "decreasing"),
   main = "make",
   sub = NULL,
   xlab = "make",
@@ -151,6 +152,8 @@ Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.}
 \item{min}{Number which sets the value associated with the minimum color.}
 
 \item{max}{Number which sets the value associated with the maximum color.}
+
+\item{order}{String. If the data should be plotted based on the order of the color data, sets whether to plot in "increasing" or "decreasing" order.}
 
 \item{main}{String, sets the plot title.
 Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.}

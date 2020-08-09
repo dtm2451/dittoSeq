@@ -191,6 +191,7 @@ dittoScatterPlot <- function(
     max.color = "#0072B2",
     min = NULL,
     max = NULL,
+    order = c("unordered", "increasing", "decreasing"),
     xlab = x.var,
     ylab = y.var,
     main = "make",
@@ -218,12 +219,14 @@ dittoScatterPlot <- function(
     legend.shape.title = shape.by, legend.shape.size = 5,
     data.out = FALSE) {
 
+    order <- match.arg(order)
+    
     # Standardize cells/samples vectors.
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)
 
     # Make dataframe
-    data <- .scatter_data_gather(
+    all_data <- .scatter_data_gather(
         object = object, cells.use = cells.use, x.var = x.var, y.var = y.var,
         color.var = color.var, shape.by = shape.by, split.by = split.by,
         extra.vars = extra.vars,
@@ -236,9 +239,16 @@ dittoScatterPlot <- function(
         do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
         rename.color.groups, rename.shape.groups)
 
-    # Trim by cells.use
-    Target_data <- data[cells.use,]
-    Others_data <- data[!(all.cells %in% cells.use),]
+    # Trim by cells.use, then order if wants
+    Target_data <- all_data[cells.use,]
+    Others_data <- all_data[!(all.cells %in% cells.use),]
+    
+    if (order != "unordered") {
+        decreasing <- switch(order,
+            "decreasing" = TRUE,
+            "increasing" = FALSE)
+        Target_data <- Target_data[order(Target_data$color, decreasing = decreasing),]
+    }
 
     # Set title if "make"
     main <- .leave_default_or_null(main,
@@ -248,7 +258,8 @@ dittoScatterPlot <- function(
     p <- .ditto_scatter_plot(Target_data, Others_data,
         color.var, shape.by, show.others, size, opacity,
         color.panel, colors, do.hover, shape.panel,
-        min.color, max.color, min, max, xlab, ylab, main, sub, theme,
+        min.color, max.color, min, max,
+        xlab, ylab, main, sub, theme,
         legend.show, legend.color.title, legend.color.size,
         legend.color.breaks, legend.color.breaks.labels, legend.shape.title,
         legend.shape.size)
@@ -271,7 +282,7 @@ dittoScatterPlot <- function(
     
     if (is.list(add.trajectory.lineages)) {
         p <- .add_trajectory_lineages(
-            p, rbind(Target_data,Others_data), add.trajectory.lineages,
+            p, all_data, add.trajectory.lineages,
             trajectory.cluster.meta, trajectory.arrow.size, object)
     }
     
@@ -322,7 +333,7 @@ dittoScatterPlot <- function(
     legend.shape.title,
     legend.shape.size
 ) {
-
+    
     ### Set up plotting
     p <- ggplot() + ylab(ylab) + xlab(xlab) + ggtitle(main,sub) + theme
 
