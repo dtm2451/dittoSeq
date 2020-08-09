@@ -104,7 +104,7 @@ test_that("dittoDimPlots can be subset to show only certain cells/samples with a
     expect_s3_class(
         dittoDimPlot(
             disc, object=seurat,
-            cells.use = meta(disc,seurat)!=0),
+            cells.use = meta(disc,seurat)!="A"),
         "ggplot")
 })
 
@@ -174,7 +174,7 @@ test_that("dittoDimPlots colors can be adjusted for discrete data", {
     expect_s3_class(
         dittoDimPlot(
             disc, object=seurat,
-            color.panel = cols[5:1]),
+            color.panel = cols[6:1]),
         "ggplot")
     expect_s3_class(
         dittoDimPlot(
@@ -301,8 +301,7 @@ test_that("dittoDimPlot trajectory adding works", {
                     c(5:20),
                     c(5:10,9:5,6:10)
                 )),
-            trajectory.cluster.meta = disc,
-            do.label = TRUE),
+            trajectory.cluster.meta = disc),
         "ggplot")
 })
 
@@ -331,15 +330,17 @@ test_that("dittoDimPlot can remove axes numbers", {
 })
 
 test_that("dittoDimPlot plotting order can be ordered by the data", {
-    out <- dittoDimPlot(disc, object=seurat, data.out = TRUE, order = "decreasing")
+    out <- dittoDimPlot(disc, object=seurat, data.out = TRUE, size = 10, order = "decreasing")
+    ### Manual Check: Orange aalways in front
     expect_s3_class(
         out$p,
         "ggplot")
+    ### Manual Check: Dark blue aalways in front
     expect_equal(
         out$Target_data$color,
         rev(
             dittoDimPlot(
-                disc, object=seurat, data.out = TRUE, order = "increasing"
+                disc, object=seurat, data.out = TRUE, size = 10, order = "increasing"
                 )$Target_data$color)
     )
 })
