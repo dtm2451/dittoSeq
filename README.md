@@ -219,7 +219,7 @@ dittoScatterPlot(
 
 **Many adjustments can be made with simple additional inputs:**
 
-Many adjustments to how data is reresented are within the examples above.  See documentation for more!  Also,
+Many adjustments to how data is represented are within the examples above.  See documentation for more!  Also,
 
 - All Titles are adjustable.
 - Easily subset the cells shown with `cells.use`
