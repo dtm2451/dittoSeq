@@ -6,11 +6,11 @@ dittoSeq includes universal plotting and helper functions for working with (sc)R
 
 - single-cell:
   - Seurat (versions 2 & 3), *Seurat* data structure
-  - scran / scater / other Bioc packages that utilize the *SingleCellExperiment* data structure
+  - scran / scater / other Bioconductor packages that utilize the *SingleCellExperiment* data structure
   - (Compatibility is planned for Monocle in a future version.)
 - bulk:
   - edgeR, *DGEList* data structure
-  - DESeq2 / other Bioc packages that utilize the *SummarizedExperiment* data structure
+  - DESeq2 / other Bioconductor packages that utilize the *SummarizedExperiment* data structure
   
 All plotting functions spit out easy-to-read, color blind friendly, plots (ggplot2, plotly, or pheatmap) upon minimal coding input for your daily analysis needs, yet also allow sufficient manipulations to provide for out-of-the-box submission-quality figures!
 
@@ -29,8 +29,8 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
   - `object` input was made to come first in all visualization functions to align with other packages' norms.
   - bulk RNAseq data now utilized by conversion into the `SingleCellExperiment` data structure. (Old RNAseq class was removed.)
     - `addPrcomp()` and `addDimReduction()` setters were updated for this purpose.
-    - `addMetaRNAseq()` was removed in favor of `SingleCellExperiment`'s own methods for metadaata addition.
-  - Expression data access with Seurat & SCE native `assay` (and `slot`) instead of with `data.type` to provide full compatibility with all typical data of the objects."z-score" and "relative.to.max" adjustments of expression data are now requested via provision of such strings to a separate `adjustment` argument.
+    - `addMetaRNAseq()` was removed in favor of `SingleCellExperiment`'s own methods for metadata addition.
+  - Expression data access with Seurat & SCE native `assay` (and `slot`) instead of with `data.type` to provide full compatibility with all typical data of the objects. "z-score" and "relative.to.max" adjustments of expression data are now requested via provision of such strings to a separate `adjustment` argument.
   - DEFAULT'ing removed. This was not congruent with best practices for packages.
   - Faceting capability was added, controlled by `split.by` (+ `split.ncol` & `split.nrow`), to `dittoPlot()`, `dittoDimPlot()`, `dittoScatterPlot()` and functions which operate off of these.
   - `importDemux2Seurat()` was updated to work with SingleCellExperiment objects and renamed `importDemux()`
@@ -52,7 +52,7 @@ The default colors of this package are meant to be color blind friendly.  To mak
 
 Included in this package are a set of functions to facilitate Mux-seq applications. For information about how to use these tools, see the [Demuxlet section down below](#demuxlet-tools). For more information on Demuxlet and Mux-sequencing, see the [Demuxlet GitHub Page](https://github.com/statgen/demuxlet). (Impetus: Many Mux-seq experiments will involve generating the side-by-side bulk and single-cell RNAseq data like the rest of the package is built for.)
 
-## Installataion:
+## Installation:
 
 ```
 ### For R-4.0 users:
@@ -63,7 +63,7 @@ BiocManager::install("dittoSeq")
 
 ### For R-3.6 users:
 # BiocManager will not let you install the pre-compiled version, but you can
-# install directly from this github via:
+# install directly from this GitHub via:
 if (!requireNamespace("devtools", quietly = TRUE))
     install.packages("devtools")
 
@@ -80,7 +80,7 @@ if (!requireNamespace("devtools", quietly = TRUE))
 devtools::install_github("dtm2451/dittoSeq@v0.3")
 
 # For even older versions
-# (Note: These are nolonger maintained, and only offered for compatibility with old code.):
+# (Note: These are no longer maintained, and only offered for compatibility with old code.):
 #   Old 'DB' plotter version
 # devtools::install_github("dtm2451/dittoSeq@v0.2")
 #   Old 'DB' plotter version plus some early 'ditto' plotters
@@ -210,16 +210,25 @@ dittoScatterPlot(
 ```
 # Also multi-plotters:
     # multi_dittoDimPlot (multiple, in an array)
-    # multi_dittoDimPlotVaryCells (multiple, in an array, but showing only certain
-    #     cells in each plot)
+    # multi_dittoDimPlotVaryCells (multiple, in an array, but showing only
+    #     certain cells in each plot)
     # multi_dittoPlot (multiple, in an array)
-    # dittoPlot_VarsAcrossGroups (multiple genes or metadata as the jitterpoints (and
-    #     other representations), summarized across groups by mean, median, ..., )
+    # dittoPlot_VarsAcrossGroups (multiple genes or metadata as the jitter
+    #     points (and other representations), summarized across groups by
+    #     z-score, or mean, or median, or any function that outputs a
+    #     single numeric value from a numeric vector input.)
 ```
 
 **Many adjustments can be made with simple additional inputs:**
 
-Many adjustments to how data is reresented are within the examples above.  See documentation for more!  Also,
+dittoSeq allows many adjustments to how data is represented inputs directly within dittoSeq functions.
+Adjustments that are common across functions are briefly described below.
+Some others are within the examples above.
+
+For more details, review the full vignette (`vignette("dittoSeq")` after installation via Bioconductor)
+and/or the documentation of individual functions (example: `?dittoDimPlot`).
+
+Common Adjustments:
 
 - All Titles are adjustable.
 - Easily subset the cells shown with `cells.use`
@@ -265,11 +274,11 @@ dittoBarPlot(seurat, "ident", group.by = "RNA_snn_res.0.8",
 
 # Color-blindness Friendliness
 
-dittoSeq has many methods to make it's plots color-blindness friendly:
+dittoSeq has many methods to make its plots color-blindness friendly:
 
 ### 1. The default color palette is built to work for the most common forms of colorblindness.
 
-I am a protanomalous myself (meaning I am red-green impaired, but more red than green impaired), so I chose colors for dittoSeq that I could tell apart! These colors also work for deutanomolies (red-green, but more green than red) the most common form of color-blindness.
+I am a protanomalous myself (meaning I am red-green impaired, but more red than green impaired), so I chose colors for dittoSeq that I could tell apart. These colors also work for deuteranomolies (red-green, but more green than red) the most common form of color-blindness.
 
 Note: There are still other forms of colorblindness, tritanomaly (blue deficiency), and complete monochromacy. These are more rare. dittoSeq's default colors are not great for these, but 2 & 3 below can still help!
 
@@ -283,9 +292,13 @@ Once the number of colors being used for discrete plotting in `dittoDimPlot` get
 
 ### 4. Shape.by
 
-As an alternate to letting (do.letter & shape.by are incompatible with eachother), distinct groups can be displayed using different shapes as well.
+As an alternate to letting (do.letter & shape.by are incompatible with each other), distinct groups can be displayed using different shapes as well.
 
-### 5. The **`Simulate`** function
+### 5. Interactive Plots
+
+Many dittoSeq visualizations offer plotly conversion when a `do.hover` input is set to `TRUE`. Making plots interactive is another great way to make them accessible to individuals with vision impairments. I plan to build plotly such conversion into more functions in the future.
+
+### 6. The **`Simulate`** function
 
 This function allows a cone-typical individual to see what their dittoSeq plot might look like to a colorblind individual.  This function works for all dittoSeq visualizations currently, except for dittoHeatmap.
 
@@ -305,8 +318,8 @@ Simulate(type = "deutan", plot.function=dittoDimPlot, "CD3E", object = seurat, d
 
 The Simulate() function's inputs are:
 
-- `type` = "deutan", "protan", "tritan" = the type of colorblindness that you want to simulate.  Deutanopia is the most common, and involves primarily red color deficiency, and generally also a bit of green.  Protanopia involves primarily green color deficiency, and generally also a bit of red.  Tritanopia involves primarily blue color deficiency.
-- `plot.function` = the function you want to use.  R may try to add (), but delete that if it does.
+- `type` = "deutan", "protan", "tritan" = the type of colorblindness that you want to simulate.  Deuteranopia is the most common, and involves primarily red color deficiency, and generally also a bit of green.  Protanopia involves primarily green color deficiency, and generally also a bit of red.  Tritanopia involves primarily blue color deficiency.
+- `plot.function` = the function you want to use.  R may try to add `()`, but delete that if it does.
 - `...` = any and all inputs that go into the plotting function you want to use.
 
 # Demuxlet tools
@@ -327,7 +340,7 @@ demux.calls.summary(object)
 demux.SNP.summary(object)
 ```
 
-### Demux Import Function:
+### `importDemux()` Function:
 
 You will need to point the function to:
 
@@ -343,15 +356,15 @@ See `?importDemux` in R for suggested usage.
 
 Metadata slot name | Description OR the Demuxlet.best column name if directly carried over
 --- | ---
-Lane | guided by Lane.names import input, represents of separate droblet-generation lane, pool, sequencing lane, etc.
+Lane | guided by lane.names input, represents of separate droplet-generation lanes, pool, sequencing lane, etc.
 Sample | The sample call, from the BEST column
-demux.doublet.call | whether the sample was a singlet (SNG), doublet (DBL), or ambiguious (AMB), from the BEST column
+demux.doublet.call | whether the sample was a singlet (SNG), doublet (DBL), or ambiguous (AMB), from the BEST column
 demux.RD.TOTL | RD.TOTL
 demux.RD.PASS | RD.PASS
 demux.RD.UNIQ | RD.UNIQ
 demux.N.SNP | N.SNP
 demux.PRB.DBL | PRB.DBL
-demux.barcode.dup | (Only generated when TRUEs will exist, indicative of a technical issue in the bioinformatics pipeline) whether a cell's barcode refered to only 1 row of the .best file, but multiple distinct cells in the dataset.
+demux.barcode.dup | (Only generated when TRUEs will exist, indicative of a technical issue in the bioinformatics pipeline) whether a cell's barcode referred to only 1 row of the .best file, but multiple distinct cells in the dataset.
 
 #### Summary output:
 The import function spits out a quick summary of what was done, which will look something like this:

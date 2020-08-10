@@ -25,9 +25,9 @@ library(BiocStyle)
 # Introduction
 
 dittoSeq is a tool built to enable analysis and visualization of single-cell
-and bulk RNA-sequencing data by novice, experienced, and color blind coders.
+and bulk RNA-sequencing data by novice, experienced, and color-blind coders.
 Thus, it provides many useful visualizations, which all utilize red-green
-color blindness-optimized colors by default, and which allow sufficient
+color-blindness optimized colors by default, and which allow sufficient
 customizations, via discrete inputs, for out-of-the-box creation of
 publication-ready figures.
 
@@ -54,9 +54,9 @@ For bulk data, or if your data is currently not analyzed, or simply not in one
 of these structures, you can still pull it in to the SingleCellExperiment
 structure that dittoSeq works with using the `importDittoBulk` function.
 
-## Color blindness friendliness:
+## Color-blindness friendliness:
 
-The default colors of this package are red-green color blindness friendly. To
+The default colors of this package are red-green color-blindness friendly. To
 make it so, I used the suggested colors from [@wong_points_2011] and adapted
 them slightly by appending darker and lighter versions to create a 24 color
 vector. All plotting functions use these colors, stored in `dittoColors()`, by
@@ -106,7 +106,7 @@ library(SingleCellExperiment)
 library(Seurat)
 # Download data
 sce <- BaronPancreasData()
-# Trim to only 5 of the celltypes for simplicity of vignette
+# Trim to only 5 of the cell types for simplicity of vignette
 sce <- sce[,meta("label",sce) %in% c(
     "acinar", "beta", "gamma", "delta", "ductal")]
 ```
@@ -125,7 +125,7 @@ seurat <- AddMetaData(seurat, sce$donor, col.name = "Sample")
 seurat <- AddMetaData(seurat,
                       PercentageFeatureSet(seurat, pattern = "^MT"),
                       col.name = "percent.mt")
-# Basic Seurat work flow (possibly outdated, but fine for this vignette)
+# Basic Seurat workflow (possibly outdated, but fine for this vignette)
 seurat <- NormalizeData(seurat, verbose = FALSE)
 seurat <- FindVariableFeatures(object = seurat, verbose = FALSE)
 seurat <- ScaleData(object = seurat, verbose = FALSE)
@@ -178,7 +178,7 @@ SummarizedExperiment, just with room added for storing calculated
 dimensionality reductions.
 
 ```{r}
-# First, lets make some mock expression and conditions data
+# First, let's make some mock expression and conditions data
 exp <- matrix(rpois(20000, 5), ncol=20)
 colnames(exp) <- paste0("sample", seq_len(ncol(exp)))
 rownames(exp) <- paste0("gene", seq_len(nrow(exp)))
@@ -211,7 +211,7 @@ myRNA <- importDittoBulk(
 
 Metadata and dimensionality reductions can be added either directly within the
 `importDittoBulk()` function via the `metadata` and `reductions` inputs,
-respectively, or separately aafterwards:
+respectively, or separately afterwards:
 
 ```{r}
 # Add metadata (metadata can alternatively be added in this way)
@@ -402,7 +402,7 @@ dittoScatterHex(seurat,
     x.var = "PPY", y.var = "INS")
 ```
 
-An additional feature can be be provided to have that data be summarized in
+An additional feature can be provided to have that data be summarized in
 addition to density. Density will then be represented with opacity, while color
 is used for the additional feature. The `color.method` input then controls how
 data within the bins are represented.
@@ -490,7 +490,7 @@ dittoPlot(seurat, "ENO1", group.by = "celltype",
     boxplot.color = "white", boxplot.width = 0.1,
     boxplot.fill = FALSE,
     
-    # change how the violinplot widths are normalized across groups
+    # change how the violin plot widths are normalized across groups
     vlnplot.scaling = "count"
     )
 ```
@@ -539,7 +539,7 @@ dittoHeatmap(seurat, genes,
 of each gene [0,1], which is often useful for zero-enriched single-cell data.
 
 `show_colnames`/`show_rownames` control whether cell/gene names will be
-shown. (`show.colnames` default is TRUE for bulk, and FALSE for single-cell.)
+shown. (`show_colnames` default is TRUE for bulk, and FALSE for single-cell.)
 
 ```{r}
 # Add annotations
@@ -566,7 +566,7 @@ additional inputs that get passed along to pheatmap (see `?pheatmap`).
 ## Multi-Plotters
 
 These create either multiple plots or create plots that summarize data for
-multiple variables all in one plot.  They make it easier to create summarzies
+multiple variables all in one plot.  They make it easier to create summaries
 for many genes or many cell types without the need for writing loops.
 
 Some setup for these, let's roughly pick out the markers of delta cells in
@@ -585,7 +585,7 @@ delta.genes <- c(
     "FXYD6", "KCNIP1", "SMOC1", "RPL10", "LRFN5")
 ```
 
-### multi_dittoPlot & dittoPlot_VarsAcrossGroups
+### multi_dittoPlot & dittoPlotVarsAcrossGroups
 
 `multi_dittoPlot()` creates dittoPlots for multiple genes or metadata, one
 plot each.
@@ -616,7 +616,7 @@ multiple cell types or across all samples.
 
 - The output of `multi_dittoDimPlotVaryCells()` is similar to that of
 faceting using dittoDimPlot's `split.by` input, but with added capability of
-showing an "AllCells" plot as well, or of outputing the individual plots for
+showing an "AllCells" plot as well, or of outputting the individual plots for
 making manually customized plot arrangements when `data.out = TRUE`.
 
 ```{r, results = "hold"}
@@ -735,15 +735,22 @@ dittoHeatmap(seurat, c("SST","CPE","GPX3"), cells.use = colnames(seurat)[1:5],
 
 ## plotly hovering can be added.
 
-Any dittoSeq function that normally outputs a ggplot (dittoDimPlot, dittoPlot,
-dittoBarPlot, dittoPlotVarsAcrossGroups) can be supplied `do.hover = TRUE` to
-have it be converted into a plotly object that will display additional data
+Many dittoSeq functions can be supplied `do.hover = TRUE` to have them convert
+the output into an interactive plotly object that will display additional data
 about each data point when the user hovers their cursor on top.
 
 Generally, a second input, `hover.data`, is used to tell dittoSeq what extra
-data to display.  This input takes in a vector of gene or metadata names (or
+data to display. This input takes in a vector of gene or metadata names (or
 "ident" for Seurat object clustering) in the order you wish for them to be
 displayed.
+
+Compatible functions (**bold** = `hover.data` input also required):
+
+- **`dittoDimPlot()`**
+- **`dittoScatterPlot()`**
+- **`dittoPlot()`**
+- `dittoPlotVarsAcrossGroups()`
+- `dittoBarPlot()`
 
 ```{r, eval = FALSE}
 # These can be finicky to render in knitting, but still, example code:
