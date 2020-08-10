@@ -221,7 +221,7 @@ dittoScatterPlot(
 
 **Many adjustments can be made with simple additional inputs:**
 
-dittoSeq allows many adjustments to how data is represented inputs directly within dittoSeq functions.
+dittoSeq allows many adjustments to how data is represented via inputs directly within dittoSeq functions.
 Adjustments that are common across functions are briefly described below.
 Some others are within the examples above.
 
@@ -296,7 +296,7 @@ As an alternate to letting (do.letter & shape.by are incompatible with each othe
 
 ### 5. Interactive Plots
 
-Many dittoSeq visualizations offer plotly conversion when a `do.hover` input is set to `TRUE`. Making plots interactive is another great way to make them accessible to individuals with vision impairments. I plan to build plotly such conversion into more functions in the future.
+Many dittoSeq visualizations offer plotly conversion when a `do.hover` input is set to `TRUE`. Making plots interactive is another great way to make them accessible to individuals with vision impairments. I plan to build such plotly conversion into more functions in the future.
 
 ### 6. The **`Simulate`** function
 
