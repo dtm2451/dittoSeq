@@ -98,15 +98,30 @@
 #' @export
 
 dittoBarPlot <- function(
-    object, var, group.by, scale = c("percent", "count"),
-    cells.use = NULL, data.out = FALSE, do.hover = FALSE,
-    color.panel = dittoColors(), colors = seq_along(color.panel),
-    y.breaks = NA, min = 0, max = NULL,
-    var.labels.rename = NULL, var.labels.reorder = NULL,
-    x.labels = NULL, x.labels.rotate = TRUE, x.reorder = NULL,
+    object,
+    var,
+    group.by,
+    scale = c("percent", "count"),
+    cells.use = NULL,
+    data.out = FALSE,
+    do.hover = FALSE,
+    color.panel = dittoColors(),
+    colors = seq_along(color.panel),
+    y.breaks = NA,
+    min = 0,
+    max = NULL,
+    var.labels.rename = NULL,
+    var.labels.reorder = NULL,
+    x.labels = NULL,
+    x.labels.rotate = TRUE,
+    x.reorder = NULL,
     theme = theme_classic(),
-    xlab = group.by, ylab = "make", main = "make", sub = NULL,
-    legend.show = TRUE, legend.title = NULL) {
+    xlab = group.by,
+    ylab = "make",
+    main = "make",
+    sub = NULL,
+    legend.show = TRUE,
+    legend.title = NULL) {
 
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)

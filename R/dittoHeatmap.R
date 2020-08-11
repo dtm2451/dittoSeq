@@ -162,20 +162,33 @@
 #' @export
 
 dittoHeatmap <- function(
-    object, genes = getGenes(object, assay), metas = NULL, cells.use = NULL,
+    object,
+    genes = getGenes(object, assay),
+    metas = NULL,
+    cells.use = NULL,
     annot.by = NULL,
     order.by = .default_order(object, annot.by),
-    main = NA, cell.names.meta = NULL,
-    assay = .default_assay(object), slot = .default_slot(object),
+    main = NA,
+    cell.names.meta = NULL,
+    assay = .default_assay(object),
+    slot = .default_slot(object),
     heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
     scaled.to.max = FALSE,
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
     annot.colors = c(dittoColors(),dittoColors(1)[seq_len(7)]),
-    annotation_col = NULL, annotation_colors = NULL,
-    data.out=FALSE, highlight.features = NULL, highlight.genes = NULL, 
+    annotation_col = NULL,
+    annotation_colors = NULL,
+    data.out=FALSE,
+    highlight.features = NULL,
+    highlight.genes = NULL, 
     show_colnames = isBulk(object),
-    show_rownames = TRUE, scale = "row", cluster_cols = isBulk(object),
-    border_color = NA, legend_breaks = NA, breaks = NA, ...) {
+    show_rownames = TRUE,
+    scale = "row",
+    cluster_cols = isBulk(object),
+    border_color = NA,
+    legend_breaks = NA,
+    breaks = NA,
+    ...) {
 
     # If cells.use given as logical, populate as names.
     cells.use <- .which_cells(cells.use, object)

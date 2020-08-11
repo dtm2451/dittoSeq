@@ -248,7 +248,7 @@ dittoDimPlot <- function(
     object,
     var,
     reduction.use = .default_reduction(object),
-    size=1,
+    size = 1,
     opacity = 1,
     dim.1 = 1,
     dim.2 = 2,
@@ -408,8 +408,16 @@ dittoDimPlot <- function(
 #' @export
 
 multi_dittoDimPlot <- function(
-    object, vars, legend.show = FALSE, ncol = NULL, nrow = NULL,
-    axes.labels.show = FALSE, xlab = NA, ylab = NA, OUT.List = FALSE, ...) {
+    object,
+    vars,
+    legend.show = FALSE,
+    ncol = NULL,
+    nrow = NULL,
+    axes.labels.show = FALSE,
+    xlab = NA,
+    ylab = NA,
+    OUT.List = FALSE,
+    ...) {
 
     #Interpret axes.labels.show:
     # If axes.labels.show left as FALSE, set lab to NULL, else "make".
