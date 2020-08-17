@@ -231,7 +231,11 @@ dittoScatterPlot <- function(
     legend.color.breaks.labels = waiver(),
     legend.shape.title = shape.by,
     legend.shape.size = 5,
-    data.out = FALSE) {
+    data.out = FALSE,
+    metadata = NULL) {
+
+    # Create object if needed
+    object <- .make_sce_if_raw(object, metadata)
 
     order <- match.arg(order)
     

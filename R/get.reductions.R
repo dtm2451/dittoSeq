@@ -27,4 +27,6 @@ getReductions <- function(object){
     if (is(object,"seurat")) {
         return(names(object@dr))
     }
+    
+    NULL
 }

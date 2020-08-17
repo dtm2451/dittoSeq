@@ -58,7 +58,7 @@ isMeta <- function(test, object, return.values=FALSE){
 #' @seealso
 #' \code{\link{isMeta}} for checking if certain metadata slots exist in an \code{object}
 #'
-#' \code{\link{meta}} for obtaining the contants of metadata slots
+#' \code{\link{meta}} for obtaining the contents of metadata slots
 #'
 #' @examples
 #'
@@ -74,12 +74,14 @@ isMeta <- function(test, object, return.values=FALSE){
 #' @export
 
 getMetas <- function(object, names.only = TRUE){
+    
     metadata <-
         if (is(object,"SummarizedExperiment")) {
             SummarizedExperiment::colData(object)
         } else {
             object@meta.data
         }
+    
     if (names.only) {
         return(names(metadata))
     } else {
@@ -133,7 +135,11 @@ meta <- function(meta, object,
     adjustment = NULL, adj.fxn = NULL) {
 
     if (!isMeta(meta, object)) {
-        stop(dQuote(meta)," is not a metadata of 'object'")
+        stop(
+            dQuote(meta)," is not a metadata of 'object'.",
+            if (isFALSE(ncol(getMetas(object, names.only = FALSE))>0)) {
+                " 'object' has no metadata. Provide some to 'metadata' if 'object' is raw data."
+            })
     }
     
     # Retrieve target metadata's values

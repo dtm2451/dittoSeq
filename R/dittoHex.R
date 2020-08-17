@@ -174,7 +174,7 @@ dittoDimHex <- function(
     slot.extra = slot,
     adjustment.extra = adjustment,
     show.axes.numbers = TRUE,
-    show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
+    show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)[1]),
     main = "make",
     sub = NULL,
     xlab = "make",
@@ -209,8 +209,11 @@ dittoDimHex <- function(
     legend.color.breaks.labels = waiver(),
     legend.density.title = if (isBulk(object)) "Samples" else "Cells",
     legend.density.breaks = waiver(),
-    legend.density.breaks.labels = waiver()
-    ) {
+    legend.density.breaks.labels = waiver(),
+    metadata = NULL) {
+
+    # Create object if needed
+    object <- .make_sce_if_raw(object, metadata, reduction.use)
 
     # Generate the x/y dimensional reduction data and plot titles.
     xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
@@ -329,7 +332,11 @@ dittoScatterHex <- function(
     legend.density.title = if (isBulk(object)) "Samples" else "Cells",
     legend.density.breaks = waiver(),
     legend.density.breaks.labels = waiver(),
-    data.out = FALSE) {
+    data.out = FALSE,
+    metadata = NULL) {
+
+    # Create object if needed
+    object <- .make_sce_if_raw(object, metadata)
 
     # Standardize cells/samples vectors.
     cells.use <- .which_cells(cells.use, object)

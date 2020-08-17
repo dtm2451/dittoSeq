@@ -188,7 +188,11 @@ dittoHeatmap <- function(
     border_color = NA,
     legend_breaks = NA,
     breaks = NA,
-    ...) {
+    ...,
+    metadata = NULL) {
+
+    # Create object if needed
+    object <- .make_sce_if_raw(object, metadata)
 
     # If cells.use given as logical, populate as names.
     cells.use <- .which_cells(cells.use, object)

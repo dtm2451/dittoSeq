@@ -266,7 +266,7 @@ dittoDimPlot <- function(
     shape.panel = c(16,15,17,23,25,8),
     show.others = TRUE,
     show.axes.numbers = TRUE,
-    show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
+    show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)[1]),
     min.color = "#F0E442",
     max.color = "#0072B2",
     min = NULL,
@@ -305,7 +305,11 @@ dittoDimPlot <- function(
     legend.breaks.labels = waiver(),
     shape.legend.size = 5,
     shape.legend.title = shape.by,
-    data.out = FALSE) {
+    data.out = FALSE,
+    metadata = NULL) {
+
+    # Create object if needed
+    object <- .make_sce_if_raw(object, metadata, reduction.use)
 
     order <- match.arg(order)
     

@@ -68,7 +68,8 @@
     }
 
     if (length(OUT)!=length(cells)) {
-        stop("'var' is not a metadata or gene nor equal in length to ncol('object')")
+        targ <- ifelse(length(var)==1, var, "'var'")
+        stop(targ," is not a metadata or gene nor equal in length to ncol('object')")
     }
     names(OUT) <- cells
     OUT
@@ -121,6 +122,11 @@
     # Extracts loadings ("embeddings") and suggested plotting label ("name")
     # for an individual dimensionality reduction dimension.
 
+    if (!is.character(reduction.use)){
+        # Data was given as raw form and reduction.use held the data, not the name.
+        reduction.use <- "Dim" # = the dittoSeq-created reduction name
+    }
+    
     if (is(object,"seurat")) {
         embeds <- eval(expr = parse(text = paste0(
             "object@dr$",reduction.use,"@cell.embeddings")))

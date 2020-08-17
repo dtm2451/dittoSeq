@@ -246,7 +246,11 @@ dittoPlot <- function(
     line.color = "black",
     legend.show = TRUE,
     legend.title = "make",
-    data.out = FALSE) {
+    data.out = FALSE,
+    metadata = NULL) {
+
+    # Create object if needed
+    object <- .make_sce_if_raw(object, metadata)
 
     #Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)

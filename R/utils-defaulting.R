@@ -51,17 +51,19 @@
         .error_if_no_Seurat()
         return(Seurat::DefaultAssay(object))
     }
+    
+    # assay name used when raw data provided by user
+    "counts"
 }
 
 .default_slot <- function(object) {
     # Decides what slot should be by default
-    if (is(object, "SingleCellExperiment")) {
-        # no slots for SCEs
-        return(NA)
-    } else {
+    if (is(object, "Seurat") || is(object, "seurat")) {
         # default to the normalized data for Seurats
         return("data")
     }
+    
+    NA
 }
 
 .default_order <- function(object, annot.by) {
@@ -81,7 +83,7 @@
     # Capitalization-ignored, prefers umap > tsne > pca > the first reduciton.
     opts <- getReductions(object)
     if (is.null(opts)) {
-        stop("No dimensionality reduction slots in 'object'")
+        stop("No dimensionality reductions in 'object'. Add one, or provide such data to 'reduction.use'.")
     }
     use <- .preferred_or_first(opts, c("umap","tsne","pca"))
     use

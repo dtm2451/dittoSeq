@@ -1,6 +1,7 @@
 ##################### multi_dittoDimPlotVaryCells #######################
 #' Generates multiple dittoDimPlots, each showing different cells, arranged into a grid.
 #'
+#' @inheritParams dittoDimPlot
 #' @param object A Seurat or SingleCellExperiment object to work with
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 #' This is the data that will be displayed for each cell/sample.
@@ -90,18 +91,40 @@
 #' @export
 
 multi_dittoDimPlotVaryCells <- function(
-    object, var, vary.cells.meta,
-    vary.cells.levels = metaLevels(vary.cells.meta, object),
-    assay = .default_assay(object), slot = .default_slot(object),
-    adjustment = NULL, min = NULL, max = NULL,
-    color.panel = dittoColors(), colors = seq_along(color.panel),
-    show.titles=TRUE, show.allcells.plot = TRUE, allcells.main = "All Cells",
-    show.legend.single = TRUE, show.legend.plots = FALSE,
-    show.legend.allcells.plot = FALSE, nrow = NULL, ncol = NULL,
-    OUT.List = FALSE, ...)
-{
+    object,
+    var,
+    vary.cells.meta,
+    vary.cells.levels = NULL,
+    reduction.use = .default_reduction(object),
+    assay = .default_assay(object),
+    slot = .default_slot(object),
+    adjustment = NULL,
+    min = NULL,
+    max = NULL,
+    color.panel = dittoColors(),
+    colors = seq_along(color.panel),
+    show.titles=TRUE,
+    show.allcells.plot = TRUE,
+    allcells.main = "All Cells",
+    show.legend.single = TRUE,
+    show.legend.plots = FALSE,
+    show.legend.allcells.plot = FALSE,
+    nrow = NULL,
+    ncol = NULL,
+    OUT.List = FALSE,
+    ...,
+    metadata = NULL) {
+
+    # Create object if needed
+    object <- .make_sce_if_raw(object, metadata, reduction.use)
+    
+    if (is.null(vary.cells.levels)) {
+        vary.cells.levels <- metaLevels(vary.cells.meta, object)
+    }
+    
     color.panel <- color.panel[colors]
     cells.meta <- meta(vary.cells.meta,object)
+    
     #Determine if var is continuous vs discrete
     numeric <- ifelse(
         is.numeric(.var_OR_get_meta_or_gene(var, object, assay, slot, adjustment)),

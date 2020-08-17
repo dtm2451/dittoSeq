@@ -121,8 +121,12 @@ dittoBarPlot <- function(
     main = "make",
     sub = NULL,
     legend.show = TRUE,
-    legend.title = NULL) {
+    legend.title = NULL,
+    metadata = NULL) {
 
+    # Create object if needed
+    object <- .make_sce_if_raw(object, metadata)
+    
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)
     scale = match.arg(scale)
