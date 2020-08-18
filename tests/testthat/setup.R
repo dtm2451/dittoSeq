@@ -31,7 +31,7 @@ clusters[!l1&l2] <- 4
 clusters <- factor(clusters)
 groups <- sample(c("A","B","C","D","E"), ncells, replace = TRUE)
 age <- sample(c("1","2","3","4"), ncells, replace = TRUE)
-score <- logexp[5,]
+score <- as.vector(logexp[5,])
 score2 <- rnorm(ncells, 5, 2)
 score3 <- rnorm(ncells, 10, 2)
 

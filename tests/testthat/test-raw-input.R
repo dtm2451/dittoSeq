@@ -16,6 +16,9 @@ raw <- as.vector(gene("gene1", sce))
 cells.names <- colnames(seurat)[1:40]
 cells.logical <- c(rep(TRUE, 40), rep(FALSE,ncells-40))
 
+# For checking different data structures
+colnames(sce) <- paste0("cell", seq_len(ncol(sce)))
+
 # Extract raw
 count_mtx <- counts(sce)
 meta_DF <- colData(sce)
@@ -35,6 +38,45 @@ test_that("raw object creation makes sce with all parts", {
         "SingleCellExperiment")
     
     expect_equal(counts(x), count_mtx)
+    expect_equal(getMetas(x, FALSE), meta_DF)
+    expect_equal(dittoSeq:::.extract_Reduced_Dim("Dim", 1, x)$embeddings, pc_mtx[,1])
+})
+
+test_that("raw object creation makes sce when given all dataframes", {
+    expect_s4_class(
+        x <- dittoSeq:::.make_sce_if_raw(
+            object = data.frame(count_mtx),
+            metadata = meta_df,
+            reduction.matrix = data.frame(pc_mtx)),
+        "SingleCellExperiment")
+    
+    expect_equal(as.matrix(counts(x)), as.matrix(count_mtx))
+    expect_equal(getMetas(x, FALSE), meta_DF)
+    expect_equal(dittoSeq:::.extract_Reduced_Dim("Dim", 1, x)$embeddings, pc_mtx[,1])
+})
+
+test_that("raw object creation makes sce when given all DataFrames", {
+    expect_s4_class(
+        x <- dittoSeq:::.make_sce_if_raw(
+            object = DataFrame(count_mtx),
+            metadata = meta_DF,
+            reduction.matrix = DataFrame(pc_mtx)),
+        "SingleCellExperiment")
+    
+    expect_equal(as.matrix(counts(x)), as.matrix(count_mtx))
+    expect_equal(getMetas(x, FALSE), meta_DF)
+    expect_equal(dittoSeq:::.extract_Reduced_Dim("Dim", 1, x)$embeddings, pc_mtx[,1])
+})
+
+test_that("raw object creation makes sce when numeric data given as DelayedArrays", {
+    expect_s4_class(
+        x <- dittoSeq:::.make_sce_if_raw(
+            object = DelayedArray(count_mtx),
+            metadata = meta_DF,
+            reduction.matrix = DelayedArray(pc_mtx)),
+        "SingleCellExperiment")
+    
+    expect_equal(as.matrix(counts(x)), as.matrix(count_mtx))
     expect_equal(getMetas(x, FALSE), meta_DF)
     expect_equal(dittoSeq:::.extract_Reduced_Dim("Dim", 1, x)$embeddings, pc_mtx[,1])
 })
