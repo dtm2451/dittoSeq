@@ -1,26 +1,43 @@
 #### multi_dittoDimPlot
-#' Generates multiple dittoDimPlots arranged in a grid.
+#' Generates multiple dittoDimPlots.
 #'
 #' @param object A Seurat or SingleCellExperiment object to work with
-#' @param vars c("var1","var2","var3",...). A list of vars from which to generate the separate plots
+#' @param vars c("var1","var2","var3",...). A vector of vars ('var' in regular \code{\link{dittoDimPlot}}) from which to generate the separate plots.
 #' @param ncol,nrow Integer/NULL. How many columns or rows the plots should be arranged into
-#' @param axes.labels.show Logical. Whether a axis labels should be shown. Ignored if xlab or ylab are set manually.
+#' @param axes.labels.show Logical. Whether axis labels should be shown. Ignored if xlab or ylab are set manually.
 #' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
-#' @param legend.show,xlab,ylab,... other paramters passed to \code{\link{dittoDimPlot}}.
-#' @return Given multiple 'var' parameters to \code{vars}, this function will output a dittoDimPlot for each one, arranged into a grid, with some slight tweaks to the defaults.
-#' If \code{OUT.list} was set to TRUE, the list of individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
-#' All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only parameter that can be adjusted between each is the \code{var}.
+#' @param ...,xlab,ylab,data.out,do.hover,legend.show other parameters passed to \code{\link{dittoDimPlot}}.
+#' @return A set of dittoDimPlots either arranged into a grid (default), or output as a list.
+#' 
+#' @details
+#' Given multiple 'var' parameters to \code{vars}, this function creates a \code{\link{dittoDimPlot}} for each one, with minor defaulting tweaks (see below).
+#' 
+#' By default, these dittoDimPlots are arranged into a grid.
+#' If \code{OUT.list} is set to \code{TRUE}, they are output as a list instead where names with be \code{vars} being shown in each.
+#' 
+#' All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only parameter that will change between plots is the \code{var}.
+#' 
+#' @section Slight tweaks to dittoDimPlot defaults:
+#' \itemize{
+#' \item axes labels are not shown by default to save space (control with \code{axes.labels.show} or \code{xlab} and \code{ylab})
+#' \item legends are also not shown to save space (control with \code{legens.show})
+#' }
+#' 
+#' @seealso
+#' \code{\link{multi_dittoDimPlotVaryCells}} for an alternate \code{\link{dittoDimPlot}} multi-plotter where the cells/samples are varied between plots.
+#' 
 #' @examples
-#' # dittoSeq handles bulk and single-cell data quit similarly.
-#' # The SingleCellExperiment object structure is used for both,
-#' # but all functions can be used similarly directly on Seurat
-#' # objects as well.
-#'
 #' example(importDittoBulk, echo = FALSE)
-#' myRNA
-#'
-#' genes <- getGenes(myRNA)[1:5]
-#' multi_dittoDimPlot(myRNA, c(genes, "clustering"))
+#' 
+#' multi_dittoDimPlot(myRNA, c("gene1", "gene2", "clustering"))
+#' 
+#' # Control grid shape with ncol / nrow
+#' multi_dittoDimPlot(myRNA, c("gene1", "gene2", "clustering"),
+#'     nrow = 1)
+#'     
+#' # Output as list instead
+#' multi_dittoDimPlot(myRNA, c("gene1", "gene2", "clustering"),
+#'     OUT.List = TRUE)
 #'
 #' @author Daniel Bunis
 #' @export
@@ -28,30 +45,44 @@
 multi_dittoDimPlot <- function(
     object,
     vars,
-    legend.show = FALSE,
     ncol = NULL,
     nrow = NULL,
     axes.labels.show = FALSE,
+    OUT.List = FALSE,
+    ...,
     xlab = NA,
     ylab = NA,
-    OUT.List = FALSE,
-    ...) {
+    data.out = FALSE,
+    do.hover = FALSE,
+    legend.show = FALSE
+    ) {
 
     #Interpret axes.labels.show:
-    # If axes.labels.show left as FALSE, set lab to NULL, else "make".
-    # Then pass to xlab and ylab unless these were provided.
-    lab <- if(!axes.labels.show) {
-        NULL
-    } else {
-        "make"
-    }
+    # If xlab/ylab not given, set via axes.labels.show
+    lab <- switch(axes.labels.show, "TRUE" = "make", "FALSE" = NULL)
     if (is.na(ylab)) {ylab <- lab}
     if (is.na(xlab)) {xlab <- lab}
 
-    plots <- lapply(vars, function(X) {
-        dittoDimPlot(
-            object, X, xlab = xlab, ylab = ylab, legend.show = legend.show, ...)
-    })
+    if (!OUT.List && data.out | do.hover) {
+        OUT.List <- TRUE
+        message("'data.out' or 'do.hover' requested, outputting as a list.")
+    }
+    
+    plots <-
+        if (length(vars) > 1) {
+            
+            lapply(vars, function(X) {
+                dittoDimPlot(
+                    object, X, xlab = xlab, ylab = ylab, legend.show = legend.show, ...)
+            })
+            
+        } else {
+            
+            list(dittoDimPlot(
+                object, vars, xlab = xlab, ylab = ylab, legend.show = legend.show, ...))
+            
+        }
+            
     if (OUT.List){
         names(plots) <- vars
         return(plots)
