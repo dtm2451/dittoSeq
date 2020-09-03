@@ -1,3 +1,158 @@
+#### multi_dittoDimPlot
+#' Generates multiple dittoDimPlots arranged in a grid.
+#'
+#' @param object A Seurat or SingleCellExperiment object to work with
+#' @param vars c("var1","var2","var3",...). A list of vars from which to generate the separate plots
+#' @param ncol,nrow Integer/NULL. How many columns or rows the plots should be arranged into
+#' @param axes.labels.show Logical. Whether a axis labels should be shown. Ignored if xlab or ylab are set manually.
+#' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+#' @param legend.show,xlab,ylab,... other paramters passed to \code{\link{dittoDimPlot}}.
+#' @return Given multiple 'var' parameters to \code{vars}, this function will output a dittoDimPlot for each one, arranged into a grid, with some slight tweaks to the defaults.
+#' If \code{OUT.list} was set to TRUE, the list of individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+#' All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only parameter that can be adjusted between each is the \code{var}.
+#' @examples
+#' # dittoSeq handles bulk and single-cell data quit similarly.
+#' # The SingleCellExperiment object structure is used for both,
+#' # but all functions can be used similarly directly on Seurat
+#' # objects as well.
+#'
+#' example(importDittoBulk, echo = FALSE)
+#' myRNA
+#'
+#' genes <- getGenes(myRNA)[1:5]
+#' multi_dittoDimPlot(myRNA, c(genes, "clustering"))
+#'
+#' @author Daniel Bunis
+#' @export
+
+multi_dittoDimPlot <- function(
+    object,
+    vars,
+    legend.show = FALSE,
+    ncol = NULL,
+    nrow = NULL,
+    axes.labels.show = FALSE,
+    xlab = NA,
+    ylab = NA,
+    OUT.List = FALSE,
+    ...) {
+
+    #Interpret axes.labels.show:
+    # If axes.labels.show left as FALSE, set lab to NULL, else "make".
+    # Then pass to xlab and ylab unless these were provided.
+    lab <- if(!axes.labels.show) {
+        NULL
+    } else {
+        "make"
+    }
+    if (is.na(ylab)) {ylab <- lab}
+    if (is.na(xlab)) {xlab <- lab}
+
+    plots <- lapply(vars, function(X) {
+        dittoDimPlot(
+            object, X, xlab = xlab, ylab = ylab, legend.show = legend.show, ...)
+    })
+    if (OUT.List){
+        names(plots) <- vars
+        return(plots)
+    } else {
+        return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
+    }
+}
+
+#### multi_dittoPlot
+#' Generates multiple dittoPlots arranged into a grid.
+#'
+#' @param object the Seurat or SingleCellExperiment object to draw from
+#' @param vars c("var1","var2","var3",...). A vector of gene or metadata names from which to generate the separate plots
+#' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
+#' @param color.by String representing the name of a metadata to use for setting color. Default = \code{group.by}.
+#' @param ncol,nrow Integers which set how many plots will be arranged per column or per row.
+#' Default = 3 columns aand however many rows are required.
+#'
+#' Set both to NULL to have the grid.arrange function figure out what might be most "square" on its own.
+#' @param main,ylab String which sets whether / how plot titles or y-axis labels should be added to each individual plot
+#' \itemize{
+#' \item When set to \code{"var"}, the \code{vars} names alone will be used.
+#' \item When set to \code{"make"}, the default dittoPlot behavior will be observed: Equivalent to "make" for \code{main}, but for y-axis labels, gene vars will become "'var' expression".
+#' \item When set as any other string, that string will be used as the title / y-axis label for every plot.
+#' \item When set to \code{NULL}, titles / axes labels will not be added.
+#' }
+#' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+#' @param xlab,legend.show,... other paramters passed along to \code{\link{dittoPlot}}.
+#' @return Given multiple 'var' parameters, this function will output a dittoPlot for each one, arranged into a grid, just with some slight tweaks to the defaults.
+#' If \code{OUT.list} was set to TRUE, the list of individual plots is output instead of the combined multi-plot.
+#' All parameters that can be adjusted in dittoPlot can be adjusted here.
+#' @seealso
+#' \code{\link{dittoPlot}} for the single plot version of this function
+#' @examples
+#' # dittoSeq handles bulk and single-cell data quit similarly.
+#' # The SingleCellExperiment object structure is used for both,
+#' # but all functions can be used similarly directly on Seurat
+#' # objects as well.
+#'
+#' example(importDittoBulk, echo = FALSE)
+#' myRNA
+#'
+#' genes <- getGenes(myRNA)[1:4]
+#' multi_dittoPlot(myRNA, genes, group.by = "clustering")
+#'
+#' # violin-plots in front is often better for large single-cell datasets,
+#' # but we cn change the order with 'plots'
+#' multi_dittoPlot(myRNA, genes, "clustering",
+#'     plots = c("vlnplot","boxplot","jitter"))
+#'
+#' #To make it output a grid that is 2x2, to add y-axis labels
+#' # instead of titles, and to show legends...
+#' multi_dittoPlot(myRNA, genes, "clustering",
+#'     nrow = 2, ncol = 2,           #Make grid 2x2 (only one of these needed)
+#'     main = NULL, ylab = "make",   #Add y axis labels instead of titles
+#'     legend.show = TRUE)           #Show legends
+#'
+#' # We can also facet with 'split.by'
+#' multi_dittoPlot(myRNA, genes, "clustering",
+#'     split.by = "SNP")
+#'
+#' @author Daniel Bunis
+#' @importFrom ggridges geom_density_ridges2
+#' @export
+
+multi_dittoPlot <- function(
+    object,
+    vars,
+    group.by,
+    color.by = group.by,
+    legend.show = FALSE,
+    ncol = 3,
+    nrow = NULL,
+    main="var",
+    ylab = NULL,
+    xlab = NULL,
+    OUT.List = FALSE,
+    ...) {
+
+    plots <- lapply(vars, function(X) {
+        args <- list(object, X, group.by, color.by, xlab = xlab,
+            ylab = ylab, main = main, legend.show = legend.show, ...)
+        if (!is.null(ylab)) {
+            args$ylab <- ifelse(ylab == "var", X, ylab)
+        }
+        if (!is.null(main)) {
+            args$main <- ifelse(main == "var", X, main)
+        }
+        do.call(dittoPlot, args)
+    })
+
+    #Output
+    if (OUT.List){
+        names(plots) <- vars
+        return(plots)
+    } else {
+        return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
+    }
+}
+
+
 ##################### multi_dittoDimPlotVaryCells #######################
 #' Generates multiple dittoDimPlots, each showing different cells, arranged into a grid.
 #'
