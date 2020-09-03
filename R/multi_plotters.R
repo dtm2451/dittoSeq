@@ -26,6 +26,8 @@
 #' @seealso
 #' \code{\link{multi_dittoDimPlotVaryCells}} for an alternate \code{\link{dittoDimPlot}} multi-plotter where the cells/samples are varied between plots.
 #' 
+#' \code{\link{dittoDimPlot}} for the base dittoDimPlot plotting function and details on all accepted inputs.
+#' 
 #' @examples
 #' example(importDittoBulk, echo = FALSE)
 #' 
@@ -207,103 +209,107 @@ multi_dittoPlot <- function(
 #'
 #' @param object A Seurat or SingleCellExperiment object to work with
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
-#' This is the data that will be displayed for each cell/sample.
+#' This is the data that will be displayed, using colors, for each cell/sample.
 #'
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
-#' Discrete or continuous data both work. REQUIRED.
-#' @param vary.cells.meta String name of a metadata that should be used for selecting which cells to show in each "varycells" plot. REQUIRED.
-#' @param vary.cells.levels The values/groupings of the \code{vary.cells.meta} metadata that should get a plot.
-#' Defaults to all levels of the metadata.
+#' Discrete or continuous data both work.
+#' @param vary.cells.meta String name of a metadata that should be used for selecting which cells to show in each "VaryCells" \code{\link{dittoDimPlot}}.
+#' @param vary.cells.levels The values/groupings of the \code{vary.cells.meta} metadata that should be plotted.
 #' @param show.allcells.plot Logical which sets whether an additional plot showing all of the cells should be added.
-#' @param show.legend.plots Logical which sets whether or not legends should be plotted in varycells plot. Default = FALSE.
+#' @param show.legend.plots Logical which sets whether or not legends should be plotted in VaryCells plot. Default = FALSE.
 #' @param show.legend.allcells.plot Logical which sets whether or a legend should be plotted in the allcells plot. Default = FALSE.
 #' @param show.legend.single Logical which sets whether to add a single legend as an additional plot. Default = TRUE.
-#' @param show.titles Logical which sets whether titles should be added to the individual varycells plots
-#' @param ncol,nrow Integers which set dimensions of the plot grid.
+#' @param show.titles Logical which sets whether titles should be added to the individual VaryCells plots
+#' @param ncol,nrow Integers which set dimensions of the plot grid when \code{OUT.List = TRUE}.
 #' @param allcells.main String which adjusts the title of the allcells plot. Default = "All Cells".  Set to \code{NULL} or \code{""} to remove.
-#' @param color.panel,colors,min,max,assay,slot,adjustment,... additional parameters passed to \code{\link{dittoDimPlot}}.
-#' All parameters except for \code{cells.use}, \code{main}, and \code{legend.show} can be used.
+#' @param ...,color.panel,colors,min,max,assay,slot,adjustment additional parameters passed to \code{\link{dittoDimPlot}}.
+#' 
+#' All parameters of \code{\link{dittoDimPlot}} can be utilized and adjusted except for \code{cells.use}, \code{main}, and \code{legend.show} which are handled with alternative methods here.
 #' A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.
 #' \code{xlab} and \code{ylab} can be set to \code{NULL} to remove the axes labels and provide extra room for the data.
 #' \code{size} can be used to adjust the size of the dots.
 #' @param OUT.List Logical which controls whether the list of plots should be returned as a list instead of as a single grid arrangement of the plots.
-#' @return multiple dittoDimPlot \code{\link[ggplot2]{ggplot}}s either arranged in a grid OR as a list
-#' @details This function generates separate dittoDimPlots that show the same target data, but for distinct cells.
-#' Which cells fall into which plot is controlled with the \code{vary.cells.meta} parameter.
-#' When the quoted name of a metadata containing discrete groupings is given to \code{vary.cells.meta},
-#' the function makes separate plots containing all cells/samples of each grouping.
+#' @return A set of dittoDimPlots either arranged into a grid (default), or output as a list.
+#' @details This function generates separate dittoDimPlots that show the same target data, but each for distinct cells.
+#' 
+#' How cells are separated into distinct plots is controlled with the \code{vary.cells.meta} parameter.
+#' Individual dittoDimPlots are created for all levels of \code{var.cells.meta} groupings given to the \code{vary.cells.levels} input (default = all levels).
 #'
-#' If plots for only certain groupings of cells are wanted, names of the wanted groupings can be supplied to the \code{vary.cells.levels} input.
+#' The function then appends a plot containing all cell/samples when \code{show.allcells.plot = TRUE}, with title of this plot controlled by \code{allcells.main},
+#' as well as as single legend when \code{show.legend.single = TRUE}.
 #'
-#' The function then appends a plot containing all groupings, titled as "All Cells" (unless otherwise changed with the \code{allcells.main} parameter),
-#' as well as a single legend.  Either of these can be turned off with the \code{show.allcells.plot} and \code{show.legend.single} parameters.
-#'
-#' Plots are either  output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
-#' or alternatively as a simple list of ggplots if \code{OUT.List} is set to \code{TRUE}.
-#' In the list, the varycells plots will be named by the value of \code{vary.cells.meta} that they contain,
-#' the allcells plot will be named "allcells" and the single legend will be named "legend".
+#' By default, these elements are output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
+#' If \code{OUT.List} is set to \code{TRUE}, they aare insstead returned as a list.
+#' In the list, the varycells plots will be named by the levels of \code{vary.cells.meta} that they contain,
+#' and the optional allcells plot and single legend will be named "allcells" and "legend", respectively.
 #'
 #' Either continuous or discrete \code{var} data can be displayed.
 #' \itemize{
-#' \item For continuous data, the range of potential values is calculated at the start, and set, so that colors represent the same values accross all plots.
-#' \item For discrete data, colors used in each plot are adjusted so that colors represent the same groupings accross all plots.
+#' \item For continuous data, the range of potential values is calculated at the start, and set, so that colors represent the same value across all plots.
+#' \item For discrete data, colors used in each plot are adjusted so that colors represent the same groupings across all plots.
 #' }
 #'
-#' @seealso
-#' \code{\link{dittoDimPlot}} for the base DimPlot plotting function
+#' @seealso#'
+#' \code{\link{multi_dittoDimPlot}} for an alternate \code{\link{dittoDimPlot}} multi-plotter where \code{var}s are varied across plots rather than cells/samples
 #'
-#' \code{\link{multi_dittoDimPlot}} for plotting distinct \code{var}s accross plots instead of disctinct cells
-#'
+#' \code{\link{dittoDimPlot}} for the base dittoDimPlot plotting function and details on all accepted inputs.
+#' 
 #' @examples
-#' # dittoSeq handles bulk and single-cell data quit similarly.
-#' # The SingleCellExperiment object structure is used for both,
-#' # but all functions can be used similarly directly on Seurat
-#' # objects as well.
-#'
 #' example(importDittoBulk, echo = FALSE)
-#' myRNA
-#'
-#' multi_dittoDimPlotVaryCells(myRNA, "gene1", vary.cells.meta = "clustering")
-#'
+#' 
 #' # This function can be used to quickly scan for differences in expression
-#' #   within or accross clusters/cell types by providing a gene to 'var'
+#' #   within or across clusters/cell types.
 #' multi_dittoDimPlotVaryCells(myRNA, "gene1", vary.cells.meta = "clustering")
+#' 
+#' # Output as list instead
+#' multi_dittoDimPlotVaryCells(myRNA, "gene1", vary.cells.meta = "clustering",
+#'     OUT.List = TRUE)
 #'
 #' # This function is also great for generating separate plots of each individual
-#' #   element of a tsne/PCplot/umap. This can be useful to check for dispersion
+#' #   grouping of a tsne/PCA/umap. This can be useful to check for dispersion
 #' #   of groups that might otherwise be hidden behind other cells/samples.
+#' #   The effect is similar to faceting, but: all distinct plots are treated
+#' #   separately rather than being just a part of the whole, and with portrayal
+#' #   of all cells/samples in an additional plot by default.
+#' #
 #' #   To do so, set 'var' and 'vary.cells.meta' the same.
 #' multi_dittoDimPlotVaryCells(myRNA, "clustering", vary.cells.meta = "clustering")
 #'
 #' # The function can also be used to quickly visualize how separate clustering
 #' #   resolutions match up to each other, or perhaps how certain conditions of
-#' #   cells disperse accross clusters.
+#' #   cells disperse across clusters.
+#' # (For an alternative method of viewing, and easily quantifying, how discrete
+#' #   conditions of cells disperse across clusters, see '?dittoBarPlot')
 #' multi_dittoDimPlotVaryCells(myRNA, "groups", vary.cells.meta = "clustering")
-#'
-#'
-#' # For an alternative method of viewing, and easily quantifying, how discrete
-#' #   conditions of cells disperse accross clusters, see '?dittoBarPlot'
-#'
-#'
-#' # Note, for displaying expression or scoring of distinct genes or metadata,
-#' #   use 'multi_dittoDimPlot'.  Its split.by variable can then be used to add
-#' #   a varyCells-like effect.
 #'
 #' @author Daniel Bunis
 #' @importFrom gridExtra grid.arrange
 #' @export
 
 multi_dittoDimPlotVaryCells <- function(
-    object, var, vary.cells.meta,
+    object,
+    var,
+    vary.cells.meta,
     vary.cells.levels = metaLevels(vary.cells.meta, object),
-    assay = .default_assay(object), slot = .default_slot(object),
-    adjustment = NULL, min = NULL, max = NULL,
-    color.panel = dittoColors(), colors = seq_along(color.panel),
-    show.titles=TRUE, show.allcells.plot = TRUE, allcells.main = "All Cells",
-    show.legend.single = TRUE, show.legend.plots = FALSE,
-    show.legend.allcells.plot = FALSE, nrow = NULL, ncol = NULL,
-    OUT.List = FALSE, ...)
-{
+    show.titles=TRUE,
+    show.allcells.plot = TRUE,
+    allcells.main = "All Cells",
+    show.legend.single = TRUE,
+    show.legend.plots = FALSE,
+    show.legend.allcells.plot = FALSE,
+    nrow = NULL,
+    ncol = NULL,
+    OUT.List = FALSE,
+    ...,
+    assay = .default_assay(object),
+    slot = .default_slot(object),
+    adjustment = NULL,
+    min = NULL,
+    max = NULL,
+    color.panel = dittoColors(),
+    colors = seq_along(color.panel)
+    ) {
+    
     color.panel <- color.panel[colors]
     cells.meta <- meta(vary.cells.meta,object)
     #Determine if var is continuous vs discrete

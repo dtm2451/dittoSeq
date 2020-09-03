@@ -70,6 +70,8 @@ multi_dittoDimPlot(myRNA, c("gene1", "gene2", "clustering"),
 }
 \seealso{
 \code{\link{multi_dittoDimPlotVaryCells}} for an alternate \code{\link{dittoDimPlot}} multi-plotter where the cells/samples are varied between plots.
+
+\code{\link{dittoDimPlot}} for the base dittoDimPlot plotting function and details on all accepted inputs.
 }
 \author{
 Daniel Bunis
