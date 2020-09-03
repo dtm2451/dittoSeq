@@ -50,7 +50,7 @@ All parameters that can be adjusted in dittoDimPlot can be adjusted here, but th
 
 \itemize{
 \item axes labels are not shown by default to save space (control with \code{axes.labels.show} or \code{xlab} and \code{ylab})
-\item legends are also not shown to save space (control with \code{legens.show})
+\item legends are also not shown to save space (control with \code{legend.show})
 }
 }
 
