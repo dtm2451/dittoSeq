@@ -216,10 +216,10 @@ multi_dittoPlot <- function(
 #' @param vary.cells.meta String name of a metadata that should be used for selecting which cells to show in each "VaryCells" \code{\link{dittoDimPlot}}.
 #' @param vary.cells.levels The values/groupings of the \code{vary.cells.meta} metadata that should be plotted.
 #' @param show.allcells.plot Logical which sets whether an additional plot showing all of the cells should be added.
-#' @param show.legend.plots Logical which sets whether or not legends should be plotted in VaryCells plot. Default = FALSE.
+#' @param show.legend.plots Logical which sets whether or not legends should be plotted in inidividual VaryCell plots. Default = FALSE.
 #' @param show.legend.allcells.plot Logical which sets whether or a legend should be plotted in the allcells plot. Default = FALSE.
 #' @param show.legend.single Logical which sets whether to add a single legend as an additional plot. Default = TRUE.
-#' @param show.titles Logical which sets whether titles should be added to the individual VaryCells plots
+#' @param show.titles Logical which sets whether grouping-level titles should be added to the individual VaryCell plots
 #' @param ncol,nrow Integers which set dimensions of the plot grid when \code{OUT.List = TRUE}.
 #' @param allcells.main String which adjusts the title of the allcells plot. Default = "All Cells".  Set to \code{NULL} or \code{""} to remove.
 #' @param ...,color.panel,colors,min,max,assay,slot,adjustment additional parameters passed to \code{\link{dittoDimPlot}}.
@@ -239,8 +239,8 @@ multi_dittoPlot <- function(
 #' as well as as single legend when \code{show.legend.single = TRUE}.
 #'
 #' By default, these elements are output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
-#' If \code{OUT.List} is set to \code{TRUE}, they aare insstead returned as a list.
-#' In the list, the varycells plots will be named by the levels of \code{vary.cells.meta} that they contain,
+#' If \code{OUT.List} is set to \code{TRUE}, they are instead returned as a list.
+#' In the list, the VaryCell plots will be named by the levels of \code{vary.cells.meta} that they contain,
 #' and the optional allcells plot and single legend will be named "allcells" and "legend", respectively.
 #'
 #' Either continuous or discrete \code{var} data can be displayed.
@@ -291,7 +291,7 @@ multi_dittoDimPlotVaryCells <- function(
     var,
     vary.cells.meta,
     vary.cells.levels = metaLevels(vary.cells.meta, object),
-    show.titles=TRUE,
+    show.titles = TRUE,
     show.allcells.plot = TRUE,
     allcells.main = "All Cells",
     show.legend.single = TRUE,
@@ -311,51 +311,72 @@ multi_dittoDimPlotVaryCells <- function(
     ) {
     
     color.panel <- color.panel[colors]
-    cells.meta <- meta(vary.cells.meta,object)
-    #Determine if var is continuous vs discrete
-    numeric <- ifelse(
-        is.numeric(.var_OR_get_meta_or_gene(var, object, assay, slot, adjustment)),
-        TRUE,
-        FALSE
-    )
-    if (numeric) {
-        the.range <- range(.var_OR_get_meta_or_gene(var, object, assay, slot, adjustment))
-        min <- ifelse(is.null(min), the.range[1], min)
-        max <- ifelse(is.null(max), the.range[2], max)
-    }
-
-    ### Make Plots ###
+    
+    var.data <- .var_OR_get_meta_or_gene(var, object, assay, slot, adjustment)
+    numeric <- is.numeric(var.data)
+    
+    vary.data <- meta(vary.cells.meta, object)
+    
+    # Prep plotting args for VaryCell plots
     plot.args <- list(
-        object = object, var = var, main = NULL, min = min,
-        max = max, legend.show = show.legend.plots, assay = assay, slot = slot,
-        adjustment = adjustment, color.panel = color.panel, ...)
+        object = object, var = var,
+        legend.show = show.legend.plots,
+        color.panel = color.panel,
+        ...,
+        assay = assay, slot = slot, adjustment = adjustment,
+        min = min, max = max 
+        )
+    
     if (!is.null(plot.args$cells.use)) {
-        stop("Further subsetting with 'cells.use' is incompatible with this function.")
+        stop("Further subsetting with 'cells.use' is not supported.")
     }
+    
     if (!is.null(plot.args$main)) {
         message("Universal title adjustment through 'main' ignored. Use 'sub' instead.")
     }
-    plots <- .make_vary_cell_plots(
-        object, var, vary.cells.meta, cells.meta, vary.cells.levels,
-        plot.args, numeric, show.titles)
-    # Generate allcells.plot and legend
-    plot.args$legend.show <- TRUE
-    plot.args$main <- allcells.main
-    allcells.plot <- do.call(dittoDimPlot, plot.args)
-    legend <- .grab_legend(allcells.plot)
-    if (!show.legend.allcells.plot) {
-        allcells.plot <- .remove_legend(allcells.plot)
+    
+    # Make VaryCell plots
+    if (numeric) {
+        
+        plots <- .make_vary_cell_plots_numeric(
+            vary.data, vary.cells.levels, var.data,
+            min, max,
+            plot.args, show.titles)
+        
+    } else {
+        
+        plots <- .make_vary_cell_plots_discrete(
+            vary.data, vary.cells.levels, var.data,
+            all.var.levels = metaLevels(var, object, used.only = FALSE),
+            plot.args, show.titles)
     }
-    # Add allcells.plot and legend if wanted
-    if (show.allcells.plot) {
-        plots$allcells <- allcells.plot
-    }
-    if (show.legend.single){
-        plots$legend <- legend
+    names(plots) <- vary.cells.levels
+    
+    # Generate and add allcells.plot and legend
+    if (show.allcells.plot || show.legend.single) {
+        
+        plot.args$legend.show <- TRUE
+        plot.args$main <- allcells.main
+        allcells.plot <- do.call(dittoDimPlot, plot.args)
+        legend <- .grab_legend(allcells.plot)
+    
+        if (show.allcells.plot) {
+            
+            plots$allcells <- if (show.legend.allcells.plot) {
+                allcells.plot
+            } else {
+                .remove_legend(allcells.plot)
+            }
+        }
+        
+        if (show.legend.single){
+            plots$legend <- legend
+        }
+        
     }
 
-    #Done!  Return them.
-    if(OUT.List){
+    # Done! Return.
+    if(OUT.List) {
         return(plots)
     } else {
         if (is.null(ncol) && is.null(nrow)) {
@@ -365,38 +386,48 @@ multi_dittoDimPlotVaryCells <- function(
     }
 }
 
-.make_vary_cell_plots <- function(
-    object, var, vary.cells.meta, cells.meta, vary.cells.levels,
-    plot.args, numeric, show.titles) {
-    if (numeric) {
-        # Case1: Numeric data, colors already matched across plots in min/max
-        plots <- lapply(
-            vary.cells.levels,
-            function(level) {
-                if (show.titles) {
-                    plot.args$main <- level
-                }
-                plot.args$cells.use <- cells.meta==level
-                do.call(dittoDimPlot, plot.args)
-            })
-    } else {
-        # Case2: non-numeric, colors must be matched accross plots
-        all.var.levels <- metaLevels(var, object)
-        plots <- lapply(
-            vary.cells.levels,
-            function(level) {
-                if (show.titles) {
-                    plot.args$main <- level
-                }
-                plot.args$cells.use <- cells.meta==level
-                plot.levels <-
-                    metaLevels(var, object,
-                        cells.use = cells.meta==level)
-                plot.args$colors <-
-                    seq_along(all.var.levels)[all.var.levels %in% plot.levels]
-                do.call(dittoDimPlot, plot.args)
-            })
-    }
-    names(plots) <- vary.cells.levels
-    plots
+.make_vary_cell_plots_numeric <- function(
+    vary.data, vary.cells.levels,
+    var.data, min, max,
+    plot.args, show.titles) {
+    
+    # Set consistent range
+    the.range <- range(var.data)
+    plot.args$min <- ifelse(is.null(min), the.range[1], min)
+    plot.args$max <- ifelse(is.null(max), the.range[2], max)
+    
+    plots <- lapply(
+        vary.cells.levels,
+        function(level) {
+            
+            if (show.titles) {
+                plot.args$main <- level
+            }
+            plot.args$cells.use <- vary.data==level
+            
+            do.call(dittoDimPlot, plot.args)
+        })
+}
+
+.make_vary_cell_plots_discrete <- function(
+    vary.data, vary.cells.levels,
+    var.data, all.var.levels,
+    plot.args, show.titles) {
+    
+    plots <- lapply(
+        vary.cells.levels,
+        function(level) {
+            
+            if (show.titles) {
+                plot.args$main <- level
+            }
+            plot.args$cells.use <- vary.data==level
+            
+            # Ensure consistent colors given that levels may be missing
+            plot.levels <- levels(as.factor(var.data[vary.data==level]))
+            plot.args$colors <-
+                seq_along(all.var.levels)[all.var.levels %in% plot.levels]
+            
+            do.call(dittoDimPlot, plot.args)
+        })
 }

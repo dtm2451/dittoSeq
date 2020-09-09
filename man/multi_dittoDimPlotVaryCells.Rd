@@ -41,7 +41,7 @@ Discrete or continuous data both work.}
 
 \item{vary.cells.levels}{The values/groupings of the \code{vary.cells.meta} metadata that should be plotted.}
 
-\item{show.titles}{Logical which sets whether titles should be added to the individual VaryCells plots}
+\item{show.titles}{Logical which sets whether grouping-level titles should be added to the individual VaryCell plots}
 
 \item{show.allcells.plot}{Logical which sets whether an additional plot showing all of the cells should be added.}
 
@@ -49,7 +49,7 @@ Discrete or continuous data both work.}
 
 \item{show.legend.single}{Logical which sets whether to add a single legend as an additional plot. Default = TRUE.}
 
-\item{show.legend.plots}{Logical which sets whether or not legends should be plotted in VaryCells plot. Default = FALSE.}
+\item{show.legend.plots}{Logical which sets whether or not legends should be plotted in inidividual VaryCell plots. Default = FALSE.}
 
 \item{show.legend.allcells.plot}{Logical which sets whether or a legend should be plotted in the allcells plot. Default = FALSE.}
 
@@ -80,8 +80,8 @@ The function then appends a plot containing all cell/samples when \code{show.all
 as well as as single legend when \code{show.legend.single = TRUE}.
 
 By default, these elements are output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
-If \code{OUT.List} is set to \code{TRUE}, they aare insstead returned as a list.
-In the list, the varycells plots will be named by the levels of \code{vary.cells.meta} that they contain,
+If \code{OUT.List} is set to \code{TRUE}, they are instead returned as a list.
+In the list, the VaryCell plots will be named by the levels of \code{vary.cells.meta} that they contain,
 and the optional allcells plot and single legend will be named "allcells" and "legend", respectively.
 
 Either continuous or discrete \code{var} data can be displayed.
