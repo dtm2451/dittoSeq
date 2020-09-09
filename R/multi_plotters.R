@@ -70,22 +70,15 @@ multi_dittoDimPlot <- function(
         message("'data.out' or 'do.hover' requested, outputting as a list.")
     }
     
-    plots <-
-        if (length(vars) > 1) {
-            
-            lapply(vars, function(X) {
-                dittoDimPlot(
-                    object, X, xlab = xlab, ylab = ylab, data.out = data.out,
-                    do.hover = do.hover, legend.show = legend.show, ...)
-            })
-            
-        } else {
-            
-            list(dittoDimPlot(
-                object, vars, xlab = xlab, ylab = ylab, data.out = data.out,
-                do.hover = do.hover, legend.show = legend.show, ...))
-            
-        }
+    if (!length(vars)>=1) {
+        stop("No 'vars' provided.")
+    }
+    
+    plots <- lapply(vars, function(X) {
+        dittoDimPlot(
+            object, X, xlab = xlab, ylab = ylab, data.out = data.out,
+            do.hover = do.hover, legend.show = legend.show, ...)
+    })
             
     if (OUT.List){
         names(plots) <- vars
@@ -173,6 +166,10 @@ multi_dittoPlot <- function(
     if (!OUT.List && data.out | do.hover) {
         OUT.List <- TRUE
         message("'data.out' or 'do.hover' requested, outputting as a list.")
+    }
+    
+    if (!length(vars)>=1) {
+        stop("No 'vars' provided.")
     }
     
     # Prep dittoPlot args
