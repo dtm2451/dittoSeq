@@ -123,60 +123,34 @@
 #' \code{\link{dittoPlot}} and \code{\link{multi_dittoPlot}} for plotting of single or mutliple expression and metadata vars, each as separate plots, on a per cell/sample basis.
 #'
 #' @examples
-#' # dittoSeq handles bulk and single-cell data quit similarly.
-#' # The SingleCellExperiment object structure is used for both,
-#' # but all functions can be used similarly directly on Seurat
-#' # objects as well.
-#'
-#' ##########
-#' ### Generate some random data
-#' ##########
-#' # Zero-inflated Expression
-#' nsamples <- 60
-#' exp <- rpois(1000*nsamples, 20)
-#' exp[sample(c(TRUE,TRUE,FALSE),1000*nsamples, TRUE)] <- 0
-#' exp <- matrix(exp, ncol=nsamples)
-#' colnames(exp) <- paste0("sample", seq_len(ncol(exp)))
-#' rownames(exp) <- paste0("gene", seq_len(nrow(exp)))
-#' logexp <- log2(exp + 1)
-#'
-#' # Metadata
-#' conds <- factor(rep(c("condition1", "condition2"), each=nsamples/2))
-#' timept <- rep(c("d0", "d3", "d6", "d9"), each = 15)
-#' genome <- rep(c(rep(TRUE,7),rep(FALSE,8)), 4)
-#' grps <- sample(c("A","B","C","D"), nsamples, TRUE)
-#'
-#' # We can add these directly during import, or after.
-#' myscRNA <- importDittoBulk(x = list(counts = exp, logcounts = logexp),
-#'     metadata = data.frame(conditions = conds, timepoint = timept,
-#'         SNP = genome, groups = grps))
+#' example(importDittoBulk, echo = FALSE)
 #'
 #' # Pick a set of genes
-#' genes <- getGenes(myscRNA)[1:30]
+#' genes <- getGenes(myRNA)[1:30]
 #'
 #' dittoPlotVarsAcrossGroups(
-#'     myscRNA, genes, group.by = "timepoint")
+#'     myRNA, genes, group.by = "timepoint")
 #'
 #' # Color can be controlled separately from grouping with 'color.by'
 #' #   Just note: all groupings must map to a single color.
-#' dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint",
+#' dittoPlotVarsAcrossGroups(myRNA, genes, "timepoint",
 #'     color.by = "conditions")
 #'
 #' # To change it to have the violin plot in the back, a jitter on
 #' #  top of that, and a white boxplot with no fill in front:
-#' dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint", "conditions",
+#' dittoPlotVarsAcrossGroups(myRNA, genes, "timepoint",
 #'     plots = c("vlnplot","jitter","boxplot"),
-#'     boxplot.color = "white", boxplot.fill = FALSE)
+#'     boxplot.color = "white",
+#'     boxplot.fill = FALSE)
 #'
-#' ## Data can be summaryized in other ways by changing the summary.fxn input.
-#' #  Often, it makes sense to turn off the z-score adjustment in such cases.
+#' ## Data can be summarized in other ways by changing the summary.fxn input.
 #' #  median
-#' dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint", "conditions",
+#' dittoPlotVarsAcrossGroups(myRNA, genes, "timepoint",
 #'     summary.fxn = median,
 #'     adjustment = NULL)
-#' #  Percent non-zero expression
+#' #  Percent non-zero expression ( = boring for this fake data)
 #' percent <- function(x) {sum(x!=0)/length(x)}
-#' dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint", "conditions",
+#' dittoPlotVarsAcrossGroups(myRNA, genes, "timepoint",
 #'     summary.fxn = percent,
 #'     adjustment = NULL)
 #'
@@ -184,7 +158,7 @@
 #' # (if the plotly package is available)
 #' if (requireNamespace("plotly", quietly = TRUE)) {
 #'     dittoPlotVarsAcrossGroups(
-#'         myscRNA, genes, "timepoint", "conditions",
+#'         myRNA, genes, "timepoint",
 #'         do.hover = TRUE)
 #' }
 #'
@@ -192,54 +166,76 @@
 #' @export
 
 dittoPlotVarsAcrossGroups <- function(
-    object, vars, group.by, color.by=group.by, summary.fxn = mean,
-    cells.use = NULL, plots = c("vlnplot","jitter"),
-    assay = .default_assay(object), slot = .default_slot(object),
+    object,
+    vars,
+    group.by,
+    color.by = group.by,
+    summary.fxn = mean,
+    cells.use = NULL,
+    plots = c("vlnplot","jitter"),
+    assay = .default_assay(object),
+    slot = .default_slot(object),
     adjustment = "z-score",
-    do.hover = FALSE, main = NULL, sub = NULL,
-    ylab = "make", y.breaks = NULL, min = NULL, max = NULL, xlab = group.by,
-    x.labels = NULL, x.labels.rotate = NA, x.reorder = NULL,
-    color.panel = dittoColors(), colors = c(seq_along(color.panel)),
+    do.hover = FALSE,
+    main = NULL,
+    sub = NULL,
+    ylab = "make",
+    y.breaks = NULL,
+    min = NULL,
+    max = NULL,
+    xlab = group.by,
+    x.labels = NULL,
+    x.labels.rotate = NA,
+    x.reorder = NULL,
+    color.panel = dittoColors(),
+    colors = c(seq_along(color.panel)),
     theme = theme_classic(),
-    jitter.size=1, jitter.width=0.2, jitter.color = "black",
-    boxplot.width = 0.2, boxplot.color = "black", boxplot.show.outliers = NA,
-    boxplot.fill =TRUE,
-    vlnplot.lineweight = 1, vlnplot.width = 1, vlnplot.scaling = "area",
-    ridgeplot.lineweight = 1, ridgeplot.scale = 1.25,
-    add.line=NULL, line.linetype = "dashed", line.color = "black",
-    legend.show = TRUE, legend.title = NULL, data.out = FALSE){
+    jitter.size = 1,
+    jitter.width = 0.2,
+    jitter.color = "black",
+    boxplot.width = 0.2,
+    boxplot.color = "black",
+    boxplot.show.outliers = NA,
+    boxplot.fill = TRUE,
+    vlnplot.lineweight = 1,
+    vlnplot.width = 1,
+    vlnplot.scaling = "area",
+    ridgeplot.lineweight = 1,
+    ridgeplot.scale = 1.25,
+    add.line = NULL,
+    line.linetype = "dashed",
+    line.color = "black",
+    legend.show = TRUE,
+    legend.title = NULL,
+    data.out = FALSE) {
 
-    #Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
-    #Establish the full list of cell/sample names
     all.cells <- .all_cells(object)
-
-    #### Create data table
-    # Summarizes data and creates vars x groupings table
-    data <- .dittoPlotVarsAcrossGroups_data_gather(
-        object, vars, group.by, color.by, summary.fxn, cells.use, assay, slot,
-        adjustment, do.hover)
-    data$grouping <-
-        .rename_and_or_reorder(as.character(data$grouping),x.reorder,x.labels)
-    all.genes <- ifelse(sum(!isGene(vars, object, assay))==0, TRUE, FALSE)
+    
     ylab <- .leave_default_or_null(ylab,
         default = paste(
             deparse(substitute(summary.fxn)),
             adjustment,
-            if (all.genes) {
+            if (all(isGene(vars, object, assay))) {
                 "expression"
             }, sep = " "))
 
-    #####Start making the plot
-    p <- ggplot(
-        data,
-        aes_string(x = "grouping", y = "var.data", fill = "color")) +
+    # Create data table summarizing vars data for each group
+    data <- .dittoPlotVarsAcrossGroups_data_gather(
+        object, vars, group.by, color.by, summary.fxn, cells.use, all.cells,
+        assay, slot, adjustment, do.hover)
+    data$grouping <-
+        .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
+
+    # Start making the plot
+    p <- ggplot(data,
+            aes_string(x = "grouping", y = "value", fill = "color")) +
         theme +
         scale_fill_manual(name = legend.title, values=color.panel[colors]) +
         ggtitle(main, sub)
 
-    #Add data and x/y adjustments & labels
-    if(!("ridgeplot" %in% plots)) {
+    # Add data to plot
+    if (!("ridgeplot" %in% plots)) {
         p <- .dittoPlot_add_data_y_direction(
             p, data, plots, xlab, ylab, NULL, jitter.size, jitter.width,
             jitter.color, 16, NA, TRUE, boxplot.width, boxplot.color,
@@ -253,15 +249,16 @@ dittoPlotVarsAcrossGroups <- function(
             line.linetype, line.color, x.labels.rotate, do.hover, color.panel,
             colors, y.breaks, min, max)
     }
-    #Remove legend, if warrented
+    
     if (!legend.show) {
         p <- .remove_legend(p)
     }
-    #DONE. Return the plot or data
+    
+    # DONE. Return
     if (data.out) {
         return(list(p = p, data = data))
     } else {
-        if (do.hover & ("jitter" %in% plots)) {
+        if (do.hover && ("jitter" %in% plots)) {
             .error_if_no_plotly()
             return(plotly::ggplotly(p, tooltip = "text"))
         } else {
@@ -271,47 +268,43 @@ dittoPlotVarsAcrossGroups <- function(
 }
 
 .dittoPlotVarsAcrossGroups_data_gather <- function(
-    object, vars, group.by = "Sample", color.by = group.by,
-    summary.fxn = mean, cells.use = NULL, assay, slot, adjustment,
+    object,
+    vars,
+    group.by = "Sample",
+    color.by = group.by,
+    summary.fxn = mean,
+    cells.use = NULL,
+    all.cells,
+    assay,
+    slot,
+    adjustment,
     do.hover = FALSE) {
-
-    if (is.character(object)) {
-        object <- eval(expr = parse(text = object))
+    
+    groupings <- meta(group.by, object)[all.cells %in% cells.use]
+    colors.data <- meta(color.by, object)[all.cells %in% cells.use]
+    
+    if (color.by != group.by) {
+        .check_1color_per_group(groupings, colors.data)
     }
-    # Populate cells.use with a list of names if it was given anything else.
-    cells.use <- .which_cells(cells.use, object)
-    # Establish the full list of cell/sample names
-    all.cells <- .all_cells(object)
 
-    ### Grab vars and grouping/color data as a dataframes
+    ### Grab (and adjust) vars data per cell/sample
+    # rows = vars
+    # cols = cells/samples
     vars_data <- data.frame(
         vapply(
             vars,
             function(this)
-                .var_OR_get_meta_or_gene(this,object,assay,slot,adjustment),
+                .var_OR_get_meta_or_gene(this, object, assay, slot, adjustment),
             FUN.VALUE = numeric(length(all.cells))),
         row.names = all.cells)[cells.use,]
     names(vars_data) <- vars
 
-    groupings <- as.character(meta(group.by, object)[all.cells %in% cells.use])
-    colors.data <- as.character(meta(color.by, object)[all.cells %in% cells.use])
-    #### Ensure that there are no ambiguities between group.by and color.by
-    if (color.by != group.by) {
-        error <- sum(!vapply(
-            metaLevels(group.by, object, cells.use),
-            function (group) {
-                length(levels(as.factor(colors.data[groupings == group])))==1
-            }, FUN.VALUE = logical(1))
-            )!=0
-        if (error) {
-            stop("Unable to interpret 'color.by' input. 'group.by' sets must map within the same 'color.by' sets.")
-        }
-    }
-
-    ### Make summary data per var by cell/sample groupings
+    ### Summarize vars data per group
+    # rows = summarized vars data
+    # cols = groupings
     summary_data <- data.frame(
         vapply(
-            levels(as.factor(groupings)),
+            unique(groupings),
             function (this.group) {
                 vapply(
                     vars,
@@ -323,20 +316,32 @@ dittoPlotVarsAcrossGroups <- function(
         row.names = vars
     )
 
-    ### Vectorize the summary_data and add var.names and grouping/coloring
+    ### Vectorize the summary data
+    # rows = individual data points; each var for group1, group2, group3,...
     data <- data.frame(
         var = rep(vars, ncol(summary_data)),
         var.data = unlist(summary_data),
-        grouping = rep(
-            levels(as.factor(groupings)), each = nrow(summary_data))
+        grouping = rep(unique(groupings), each = nrow(summary_data))
     )
     data$color <- colors.data[match(data$grouping, groupings)]
 
     if (do.hover) {
         hover.data <- data
         names(hover.data)[2] <- "value"
-        data$hover.string <- .make_hover_strings_from_df(data)
+        data$hover.string <- .make_hover_strings_from_df(hover.data)
     }
 
     return(data)
+}
+
+.check_1color_per_group <- function(groupings, colors.data) {
+    any_non_1 <- !all(vapply(
+        unique(groupings),
+        function (group) {
+            length(unique(colors.data[groupings == group]))==1
+        }, FUN.VALUE = logical(1)
+        ))
+    if (any_non_1) {
+        stop("Unable to interpret 'color.by' input. Each 'group.by' set must map to a single 'color.by' set.")
+    }
 }

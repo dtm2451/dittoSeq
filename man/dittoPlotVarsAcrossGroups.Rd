@@ -216,60 +216,34 @@ Linetype and color are set with \code{line.linetype}, which is "dashed" by defau
 }
 
 \examples{
-# dittoSeq handles bulk and single-cell data quit similarly.
-# The SingleCellExperiment object structure is used for both,
-# but all functions can be used similarly directly on Seurat
-# objects as well.
-
-##########
-### Generate some random data
-##########
-# Zero-inflated Expression
-nsamples <- 60
-exp <- rpois(1000*nsamples, 20)
-exp[sample(c(TRUE,TRUE,FALSE),1000*nsamples, TRUE)] <- 0
-exp <- matrix(exp, ncol=nsamples)
-colnames(exp) <- paste0("sample", seq_len(ncol(exp)))
-rownames(exp) <- paste0("gene", seq_len(nrow(exp)))
-logexp <- log2(exp + 1)
-
-# Metadata
-conds <- factor(rep(c("condition1", "condition2"), each=nsamples/2))
-timept <- rep(c("d0", "d3", "d6", "d9"), each = 15)
-genome <- rep(c(rep(TRUE,7),rep(FALSE,8)), 4)
-grps <- sample(c("A","B","C","D"), nsamples, TRUE)
-
-# We can add these directly during import, or after.
-myscRNA <- importDittoBulk(x = list(counts = exp, logcounts = logexp),
-    metadata = data.frame(conditions = conds, timepoint = timept,
-        SNP = genome, groups = grps))
+example(importDittoBulk, echo = FALSE)
 
 # Pick a set of genes
-genes <- getGenes(myscRNA)[1:30]
+genes <- getGenes(myRNA)[1:30]
 
 dittoPlotVarsAcrossGroups(
-    myscRNA, genes, group.by = "timepoint")
+    myRNA, genes, group.by = "timepoint")
 
 # Color can be controlled separately from grouping with 'color.by'
 #   Just note: all groupings must map to a single color.
-dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint",
+dittoPlotVarsAcrossGroups(myRNA, genes, "timepoint",
     color.by = "conditions")
 
 # To change it to have the violin plot in the back, a jitter on
 #  top of that, and a white boxplot with no fill in front:
-dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint", "conditions",
+dittoPlotVarsAcrossGroups(myRNA, genes, "timepoint",
     plots = c("vlnplot","jitter","boxplot"),
-    boxplot.color = "white", boxplot.fill = FALSE)
+    boxplot.color = "white",
+    boxplot.fill = FALSE)
 
-## Data can be summaryized in other ways by changing the summary.fxn input.
-#  Often, it makes sense to turn off the z-score adjustment in such cases.
+## Data can be summarized in other ways by changing the summary.fxn input.
 #  median
-dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint", "conditions",
+dittoPlotVarsAcrossGroups(myRNA, genes, "timepoint",
     summary.fxn = median,
     adjustment = NULL)
-#  Percent non-zero expression
+#  Percent non-zero expression ( = boring for this fake data)
 percent <- function(x) {sum(x!=0)/length(x)}
-dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint", "conditions",
+dittoPlotVarsAcrossGroups(myRNA, genes, "timepoint",
     summary.fxn = percent,
     adjustment = NULL)
 
@@ -277,7 +251,7 @@ dittoPlotVarsAcrossGroups(myscRNA, genes, "timepoint", "conditions",
 # (if the plotly package is available)
 if (requireNamespace("plotly", quietly = TRUE)) {
     dittoPlotVarsAcrossGroups(
-        myscRNA, genes, "timepoint", "conditions",
+        myRNA, genes, "timepoint",
         do.hover = TRUE)
 }
 
