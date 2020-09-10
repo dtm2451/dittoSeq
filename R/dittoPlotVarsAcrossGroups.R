@@ -210,7 +210,6 @@ dittoPlotVarsAcrossGroups <- function(
     data.out = FALSE) {
 
     cells.use <- .which_cells(cells.use, object)
-    all.cells <- .all_cells(object)
     
     ylab <- .leave_default_or_null(ylab,
         default = paste(
@@ -222,7 +221,7 @@ dittoPlotVarsAcrossGroups <- function(
 
     # Create data table summarizing vars data for each group
     data <- .dittoPlotVarsAcrossGroups_data_gather(
-        object, vars, group.by, color.by, summary.fxn, cells.use, all.cells,
+        object, vars, group.by, color.by, summary.fxn, cells.use,
         assay, slot, adjustment, do.hover)
     data$grouping <-
         .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
@@ -270,34 +269,27 @@ dittoPlotVarsAcrossGroups <- function(
 .dittoPlotVarsAcrossGroups_data_gather <- function(
     object,
     vars,
-    group.by = "Sample",
-    color.by = group.by,
-    summary.fxn = mean,
-    cells.use = NULL,
-    all.cells,
+    group.by,
+    color.by,
+    summary.fxn,
+    cells.use,
     assay,
     slot,
     adjustment,
-    do.hover = FALSE) {
+    do.hover) {
     
-    groupings <- meta(group.by, object)[all.cells %in% cells.use]
-    colors.data <- meta(color.by, object)[all.cells %in% cells.use]
+    groupings <- meta(group.by, object)[cells.use]
+    colors.data <- meta(color.by, object)[cells.use]
     
     if (color.by != group.by) {
         .check_1color_per_group(groupings, colors.data)
     }
 
     ### Grab (and adjust) vars data per cell/sample
-    # rows = vars
-    # cols = cells/samples
-    vars_data <- data.frame(
-        vapply(
-            vars,
-            function(this)
-                .var_OR_get_meta_or_gene(this, object, assay, slot, adjustment),
-            FUN.VALUE = numeric(length(all.cells))),
-        row.names = all.cells)[cells.use,]
-    names(vars_data) <- vars
+    # rows = cells/samples
+    # cols = vars
+    vars_data <- .dittoPlotVarsAcrossGroups_gather_raw(
+        object, vars, assay, slot, adjustment, cells.use)
 
     ### Summarize vars data per group
     # rows = summarized vars data
@@ -332,6 +324,46 @@ dittoPlotVarsAcrossGroups <- function(
     }
 
     return(data)
+}
+
+.dittoPlotVarsAcrossGroups_gather_raw <- function(
+    object,
+    vars,
+    assay,
+    slot,
+    adjustment,
+    cells.use) {
+    
+    call_meta <- isMeta(vars, object, return.values = FALSE)
+    meta_vars <- vars[call_meta]
+    gene_vars <- isGene(vars[!call_meta], object, assay, return.values = TRUE)
+    
+    if (!all(vars %in% c(meta_vars, gene_vars))) {
+        stop("All 'vars' must be a metadata or gene")
+    }
+    
+    vars_data <- if (length(meta_vars)>0) {
+        as.matrix(getMetas(object, names.only = FALSE)[, meta_vars])
+    } else {
+        NULL
+    }
+    
+    if (length(gene_vars)>0) {
+        gene_data <- t(as.matrix(.which_data(assay,slot,object)[gene_vars, ]))
+        
+        if (!is.null(adjustment)) {
+            if (adjustment=="z-score") {
+                gene_data <- as.matrix(scale(gene_data))
+            }
+            if (adjustment=="relative.to.max") {
+                gene_data <- apply(gene_data, 2, function(x) {x/max(x)})
+            }
+        }
+        
+        vars_data <- rbind(vars_data, gene_data)
+    }
+    
+    vars_data[cells.use, vars]
 }
 
 .check_1color_per_group <- function(groupings, colors.data) {
