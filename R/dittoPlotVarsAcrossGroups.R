@@ -220,11 +220,22 @@ dittoPlotVarsAcrossGroups <- function(
             }, sep = " "))
 
     # Create data table summarizing vars data for each group
-    data <- .dittoPlotVarsAcrossGroups_data_gather(
-        object, vars, group.by, color.by, summary.fxn, cells.use,
+    data <- .data_gather_summarize_vars_by_groups(
+        object, vars, group.by, list(summary.fxn), "var.data", cells.use,
         assay, slot, adjustment, do.hover)
+    
     data$grouping <-
         .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
+    
+    data$color <- if (color.by != group.by) {
+        colors.data <- meta(color.by, object)[cells.use]
+        groupings <- meta(group.by, object)[cells.use]
+        .check_1color_per_group(groupings, colors.data)
+        
+        colors.data[match(data$grouping, groupings)]
+    } else {
+        data$grouping
+    }
 
     # Start making the plot
     p <- ggplot(data,
@@ -264,106 +275,6 @@ dittoPlotVarsAcrossGroups <- function(
             return(p)
         }
     }
-}
-
-.dittoPlotVarsAcrossGroups_data_gather <- function(
-    object,
-    vars,
-    group.by,
-    color.by,
-    summary.fxn,
-    cells.use,
-    assay,
-    slot,
-    adjustment,
-    do.hover) {
-    
-    groupings <- meta(group.by, object)[cells.use]
-    colors.data <- meta(color.by, object)[cells.use]
-    
-    if (color.by != group.by) {
-        .check_1color_per_group(groupings, colors.data)
-    }
-
-    ### Grab (and adjust) vars data per cell/sample
-    # rows = cells/samples
-    # cols = vars
-    vars_data <- .dittoPlotVarsAcrossGroups_gather_raw(
-        object, vars, assay, slot, adjustment, cells.use)
-
-    ### Summarize vars data per group
-    # rows = summarized vars data
-    # cols = groupings
-    summary_data <- data.frame(
-        vapply(
-            unique(groupings),
-            function (this.group) {
-                vapply(
-                    vars,
-                    function(this.var) {
-                        summary.fxn(vars_data[groupings == this.group, this.var])
-                    }, FUN.VALUE = numeric(1)
-                )
-            }, FUN.VALUE = numeric(length(vars))),
-        row.names = vars
-    )
-
-    ### Vectorize the summary data
-    # rows = individual data points; each var for group1, group2, group3,...
-    data <- data.frame(
-        var = rep(vars, ncol(summary_data)),
-        var.data = unlist(summary_data),
-        grouping = rep(unique(groupings), each = nrow(summary_data))
-    )
-    data$color <- colors.data[match(data$grouping, groupings)]
-
-    if (do.hover) {
-        hover.data <- data
-        names(hover.data)[2] <- "value"
-        data$hover.string <- .make_hover_strings_from_df(hover.data)
-    }
-
-    return(data)
-}
-
-.dittoPlotVarsAcrossGroups_gather_raw <- function(
-    object,
-    vars,
-    assay,
-    slot,
-    adjustment,
-    cells.use) {
-    
-    call_meta <- isMeta(vars, object, return.values = FALSE)
-    meta_vars <- vars[call_meta]
-    gene_vars <- isGene(vars[!call_meta], object, assay, return.values = TRUE)
-    
-    if (!all(vars %in% c(meta_vars, gene_vars))) {
-        stop("All 'vars' must be a metadata or gene")
-    }
-    
-    vars_data <- if (length(meta_vars)>0) {
-        as.matrix(getMetas(object, names.only = FALSE)[, meta_vars])
-    } else {
-        NULL
-    }
-    
-    if (length(gene_vars)>0) {
-        gene_data <- t(as.matrix(.which_data(assay,slot,object)[gene_vars, ]))
-        
-        if (!is.null(adjustment)) {
-            if (adjustment=="z-score") {
-                gene_data <- as.matrix(scale(gene_data))
-            }
-            if (adjustment=="relative.to.max") {
-                gene_data <- apply(gene_data, 2, function(x) {x/max(x)})
-            }
-        }
-        
-        vars_data <- rbind(vars_data, gene_data)
-    }
-    
-    vars_data[cells.use, vars]
 }
 
 .check_1color_per_group <- function(groupings, colors.data) {
