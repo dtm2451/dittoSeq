@@ -152,7 +152,14 @@ dittoDotPlot <- function(
     if (scale) {
         for (i in vars) {
             data$pre.scale <- data$color
-            data$color[data$var == i] <- scale(data$color[data$var == i])
+            
+            data$color[data$var == i] <-
+                # center, if multiple groups express this var, also scale
+                if (sum(!is.na(data$color[data$var == i]))>1) {
+                    scale(data$color[data$var == i])
+                } else {
+                    scale(data$color[data$var == i], scale = FALSE)
+                }
         }
     }
 
