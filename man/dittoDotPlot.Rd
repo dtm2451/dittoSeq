@@ -19,8 +19,8 @@ dittoDotPlot(
   max = NULL,
   summary.fxn.color = function(x) {     mean(x[x > 0]) },
   summary.fxn.size = function(x) {     mean(x > 0) },
-  assay = .default_assay_raw(object),
-  slot = .default_slot_raw(object),
+  assay = .default_assay(object),
+  slot = .default_slot(object),
   adjustment = NULL,
   do.hover = FALSE,
   main = NULL,
@@ -186,9 +186,44 @@ myRNA
 
 # These random data aren't very exciting, but we can at least add some zeros.
 counts(myRNA)[1:4,1:40] <- 0
+logcounts(myRNA)[1:4,1:40] <- 0
 
 dittoDotPlot(
-    myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering")
+    myRNA, c("gene1", "gene2", "gene3", "gene4"),
+    group.by = "clustering")
+    
+# 'size' adjusts the dot-size associated with the highest percent expression
+dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+    size = 12)
+
+# 'scale' input can be used to control / turn off scaling of avg exp values.
+dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+    scale = FALSE)
+    
+# x-axis label rotation can be controlled with 'x.labels.rotate'
+dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+    x.labels.rotate = FALSE)
+
+# Title are adjustable via various discrete inputs:
+dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+    main = "Title",
+    sub = "Subtitle",
+    ylab = "y-axis label",
+    xlab = "x-axis label",
+    legend.color.title = "Colors title",
+    legend.size.title = "Dot size title")
+    
+# For certain specialized applications, it may be helpful to adjust the
+#   functions used for summarizing the data as well. Inputs are:
+#   summary.fxn.color & summary.fxn.size
+#     Requirement for each: Any function that takes in a numeric vector &
+#     returns, as output, a single numeric value.
+dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+    summary.fxn.color = mean,
+    legend.color.title = "mean\nexpression\nincluding 0s",
+    main = "scater::plotDots() defaulting recreation",
+    x.labels.rotate = FALSE,
+    scale = FALSE)
 
 }
 \seealso{
