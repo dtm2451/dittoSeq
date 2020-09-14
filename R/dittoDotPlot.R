@@ -22,7 +22,7 @@
 #' @param xlab String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 #' Default is \code{group.by} so it defaults to the name of the grouping information.
 #' Set to \code{NULL} to remove.
-#' @param y.labels.rotate Logical which sets whether the labels should be rotated.
+#' @param x.labels.rotate Logical which sets whether the labels should be rotated.
 #' @param y.labels String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.  NOTE: you need to give at least as many labels as there are discrete values in the group.by data.
 #' @param y.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of y-axis groupings.
 #'
@@ -69,7 +69,7 @@
 #' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
 #' \item The legend can be hidden by setting \code{legend.show = TRUE}.
 #' \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
-#' \item x-axis labels and groupings can be changed / reordered using \code{y.labels} and \code{y.reorder}, and rotation of these labels can be turned off with \code{y.labels.rotate = FALSE}.
+#' \item x-axis labels and groupings can be changed / reordered using \code{y.labels} and \code{y.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
 #' \item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
 #' Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 #' }
@@ -119,9 +119,9 @@ dittoDotPlot <- function(
     sub = NULL,
     ylab = group.by,
     y.labels = NULL,
-    y.labels.rotate = TRUE,
     y.reorder = NULL,
     xlab = NULL,
+    x.labels.rotate = TRUE,
     theme = theme_classic(),
     legend.show = TRUE,
     legend.color.breaks = waiver(),
@@ -150,8 +150,10 @@ dittoDotPlot <- function(
         .rename_and_or_reorder(data$grouping, y.reorder, y.labels)
     
     if (scale) {
+        
+        data$pre.scale <- data$color
+        
         for (i in vars) {
-            data$pre.scale <- data$color
             
             data$color[data$var == i] <-
                 # center, if multiple groups express this var, also scale
@@ -165,7 +167,7 @@ dittoDotPlot <- function(
 
     # Generate Plot
     p <- .ditto_dot_plot(
-        data, do.hover, main, sub, ylab, xlab, y.labels.rotate, scale,
+        data, do.hover, main, sub, ylab, xlab, x.labels.rotate, scale,
         min.color, max.color, min, max,
         size, min.percent, max.percent, theme,
         legend.color.title, legend.color.breaks, legend.color.breaks.labels,
@@ -191,7 +193,7 @@ dittoDotPlot <- function(
     sub,
     ylab,
     xlab,
-    y.labels.rotate,
+    x.labels.rotate,
     scale,
     min.color,
     max.color,
@@ -231,7 +233,7 @@ dittoDotPlot <- function(
         p <- p + geom_point(na.rm = TRUE)
     }
     
-    if (y.labels.rotate) {
+    if (x.labels.rotate) {
         p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1))
     }
     

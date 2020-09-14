@@ -27,9 +27,9 @@ dittoDotPlot(
   sub = NULL,
   ylab = group.by,
   y.labels = NULL,
-  y.labels.rotate = TRUE,
   y.reorder = NULL,
   xlab = NULL,
+  x.labels.rotate = TRUE,
   theme = theme_classic(),
   legend.show = TRUE,
   legend.color.breaks = waiver(),
@@ -101,8 +101,6 @@ Set to \code{NULL} to remove.}
 
 \item{y.labels}{String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.  NOTE: you need to give at least as many labels as there are discrete values in the group.by data.}
 
-\item{y.labels.rotate}{Logical which sets whether the labels should be rotated.}
-
 \item{y.reorder}{Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of y-axis groupings.
 
 Method: Make a first plot without this input.
@@ -112,6 +110,8 @@ values of y.reorder should be these indices, but in the order that you would lik
 \item{xlab}{String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 Default is \code{group.by} so it defaults to the name of the grouping information.
 Set to \code{NULL} to remove.}
+
+\item{x.labels.rotate}{Logical which sets whether the labels should be rotated.}
 
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_classic()}.
@@ -169,7 +169,7 @@ Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes th
 \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
 \item The legend can be hidden by setting \code{legend.show = TRUE}.
 \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
-\item x-axis labels and groupings can be changed / reordered using \code{y.labels} and \code{y.reorder}, and rotation of these labels can be turned off with \code{y.labels.rotate = FALSE}.
+\item x-axis labels and groupings can be changed / reordered using \code{y.labels} and \code{y.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
 \item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
 Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 }
