@@ -17,8 +17,8 @@ dittoDotPlot(
   max.color = "#C51B7D",
   min = "make",
   max = NULL,
-  summary.fxn.color = function(x) {     mean(x[x > 0]) },
-  summary.fxn.size = function(x) {     mean(x > 0) },
+  summary.fxn.color = function(x) {     mean(x[x != 0]) },
+  summary.fxn.size = function(x) {     mean(x != 0) },
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -42,76 +42,63 @@ dittoDotPlot(
 \arguments{
 \item{object}{A Seurat or SingleCellExperiment object}
 
-\item{vars}{String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to extract from the object, summarize across groups, and add to the plot}
+\item{vars}{String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to show.}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
-\item{scale}{String which sets whether mean expression values per group should be centered and scaled.}
+\item{scale}{String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled.}
 
 \item{cells.use}{String vector of cells'/samples' names which should be included.
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.}
 
-\item{size}{Number which sets the dot size representing 100\% expression in every sample.}
+\item{size}{Number which sets the dot size associated with the highest value shown by dot size (default: percent non-zero expression).}
 
-\item{min.percent, max.percent}{Numbers between 0 and 1 which sets the minimum and maaximum percent expression to show.
-When set to NA, the minimum/mamximum of the data are used.}
+\item{min.percent, max.percent}{Numbers between 0 and 1 which sets the minimum and maximum percent expression to show.
+When set to NA, the minimum/maximum of the data are used.}
 
-\item{min.color}{color for lowest values of var/min.  Default = yellow}
+\item{min.color, max.color}{colors to use for minimum and maximum color values.
+Default = light grey and purple.}
 
-\item{max.color}{color for highest values of var/max.  Default = blue}
-
-\item{min}{Scalars which control the zoom of the plot.
-These inputs set the minimum / maximum values of the data to show.
-Default = set based on the limits of the data in var.}
-
-\item{max}{Scalars which control the zoom of the plot.
-These inputs set the minimum / maximum values of the data to show.
-Default = set based on the limits of the data in var.}
+\item{min, max}{Numbers which set the values associated with the minimum and maximum colors.}
 
 \item{summary.fxn.color, summary.fxn.size}{A function which sets how color or size will be used to summarize variables' data for each group.
-Defaults:
-Any function can be used as long as it takes in a numeric vector and returns a single numeric value.
-The name of the function becomes the default legned title for that parameter.
-Alternative examples: \code{\link{median}}, \code{\link{max}}, \code{function (x) sum(x!=0)/length(x)}.}
+Any function can be used as long as it takes in a numeric vector and returns a single numeric value.}
 
 \item{assay}{single strings or integer that set which data to use when plotting expressin data. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
 
 \item{slot}{single strings or integer that set which data to use when plotting expressin data. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
 
-\item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be adjusted altogether before splitting into groups?
+\item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be adjusted altogether before \code{cells.use} subsetting and splitting into groups?
 \itemize{
-\item{"relative.to.max": DEFAULT, divided by the maximum expression value to give percent of max values between [0,1]}
+\item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
-\item{NULL: no adjustment}
+\item{NULL: Default, no adjustment}
 }}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
-If set to \code{TRUE} the object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.
-The hover data works best for jitter data representations, so it is recommended to have \code{"jitter"} as the last value of the \code{plots} input when running using hover.
-
-Note: Currently, incompatible with RidgePlots as plotly does not support the geom.}
+If set to \code{TRUE} the object will be converted to an interactive plotly object in which underlying data for individual dots will be displayed when you hover your cursor over them.}
 
 \item{main}{String which sets the plot title.}
 
 \item{sub}{String which sets the plot subtitle.}
 
-\item{ylab}{String which sets the y axis label.
+\item{ylab}{String which sets the y/grouping-axis label.
+Default is \code{group.by} so it defaults to the name of the grouping information.
 Set to \code{NULL} to remove.}
 
-\item{y.labels}{String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.  NOTE: you need to give at least as many labels as there are discrete values in the group.by data.}
+\item{y.labels}{String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.}
 
-\item{y.reorder}{Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of y-axis groupings.
+\item{y.reorder}{Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of groupings.
 
 Method: Make a first plot without this input.
 Then, treating the bottom-most grouping as index 1, and the top-most as index n,
 values of y.reorder should be these indices, but in the order that you would like them rearranged to be.}
 
-\item{xlab}{String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
-Default is \code{group.by} so it defaults to the name of the grouping information.
+\item{xlab}{String which sets the x/var-axis label.
 Set to \code{NULL} to remove.}
 
-\item{x.labels.rotate}{Logical which sets whether the labels should be rotated.}
+\item{x.labels.rotate}{Logical which sets whether the var-labels should be rotated.}
 
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_classic()}.
@@ -123,15 +110,14 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 
 \item{legend.color.breaks.labels}{String vector, with same length as \code{legend.breaks}, which sets the labels for the tick marks of the color-scale.}
 
-\item{legend.color.title, legend.size.title}{String or \code{NULL}, sets the title displayed above legend keys.
-Defaults to the namee of the relevant \code{summary.fxn}.}
+\item{legend.color.title, legend.size.title}{String or \code{NULL}, sets the title displayed above legend keys.}
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
 
 Note: plotly conversion is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.}
 }
 \value{
-a ggplot object where dots of different colors and sizes summarize continuous data for multiple features (rows) per multiple groups (columns)
+a ggplot object where dots of different colors and sizes summarize continuous data for multiple features (columns) per multiple groups (rows)
 
 Alternatively when \code{data.out = TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
 
@@ -141,37 +127,34 @@ Alternatively when \code{do.hover = TRUE}, a plotly converted version of the plo
 Compact plotting of per group summaries for expression of multiple features
 }
 \details{
-FILLER 
-Generally, this function will output a dittoPlot, grouped by sample, age, cluster, etc., where each data point represents the summary (typically \code{mean}), across each group, of individual variable's expression, but variables can be genes or metadata.
+This function will output a compact summary of expression of multiple genes, or of values of multiple numeric metadata, across cell/sample groups (clusters, sample identity, conditions, etc.),
+where dot-size and dot-color are used to reflect distinct features of the data.
+Typically, and by default, size will reflect the percent of non-zero values, and color will reflect the mean of non-zero values for each var and group pairing.
 
-The data for each element of \code{vars} is obtained.
+Internally, the data for each element of \code{vars} is obtained.
 When elements are genes/features, \code{assay} and \code{slot} are utilized to determine which expression data to use,
 and \code{adjustment} determines if and how the expression data might be adjusted.
+(Note that 'adjustment' would be applied \emph{before} cells/samples subsetting, and across all groups of cells/samples.)
 
-By default, a z-score adjustment is applied to all gene/feature \code{vars}. Note that this adjustment is applied \emph{before} cells/samples subsetting.
+Groupings are determined using \code{group.by}, and then data for each variable is summarized based on \code{summary.fxn.color} & \code{summary.fxn.size}.
 
-x-axis groupings are then determined using \code{group.by}, and data for each variable is summarized using the \code{summary.fxn}.
+If \code{scale = TRUE} (default setting), the color summary values are centered and scaled.
+Doing so 1) puts values for all \code{vars} in a similar range, and 2) emphasizes relative differences between groups.
 
-Finally, data is plotted with the data representation types in \code{plots}.
+Finally, data is plotted as dots of differing colors and sizes.
 }
-\section{Plot Customization}{
-
-FILLER
-The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
-Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
-Each plot type has specific associated options which are controlled by variables that start with their associated string, ex: \code{jitter.size}.
-
-Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
+\section{Many characteristics of the plot can be adjusted using discrete inputs}{
 
 \itemize{
-\item Colors can be adjusted with \code{color.panel}.
-\item Shapes used in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
-\item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
-\item The legend can be hidden by setting \code{legend.show = TRUE}.
-\item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
-\item x-axis labels and groupings can be changed / reordered using \code{y.labels} and \code{y.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
-\item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
-Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
+\item Size of the dots can be changed with \code{size}.
+\item Subsetting to utilize only certain cells/samples can be achieved with \code{cells.use}.
+\item Colors can be adjusted with \code{min.color} and \code{max.color}.
+\item Displayed value ranges can be adjusted with \code{min} and \code{max} for color, or \code{min.percent} and \code{max.percent} for size.
+\item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, \code{legend.color.title}, and \code{legend.size.title} arguments.
+\item The legend can be hidden by setting \code{legend.show = FALSE}.
+\item The color legend tick marks and associated labels can be adjusted with \code{legend.color.breaks} and \code{legend.color.breaks.labels}, respectively.
+\item The groupings labels and order can be changed using \code{y.labels} and \code{y.reorder}
+\item Rotation of x-axis labels can be turned off with \code{x.labels.rotate = FALSE}.
 }
 }
 
@@ -184,7 +167,8 @@ Linetype and color are set with \code{line.linetype}, which is "dashed" by defau
 example(importDittoBulk, echo = FALSE)
 myRNA
 
-# These random data aren't very exciting, but we can at least add some zeros.
+# These random data aren't very exciting, but we can at least add some zeros
+#   for making slightly more interesting dot plots.
 counts(myRNA)[1:4,1:40] <- 0
 logcounts(myRNA)[1:4,1:40] <- 0
 
@@ -228,6 +212,7 @@ dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
 }
 \seealso{
 \code{\link{dittoPlotVarsAcrossGroups}} for a method of summarizing expression of multiple features across distinct groups that can be better (and more compact) when the identities of the individual genes are unimportant.
+
 \code{\link{dittoPlot}} and \code{\link{multi_dittoPlot}} for plotting of expression and metadata vars, each as separate plots, on a per cell/sample basis.
 }
 \author{
