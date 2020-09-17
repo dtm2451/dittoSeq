@@ -53,6 +53,25 @@
     }
 }
 
+.default_assay_raw <- function(object) {
+    # Decides which assay should be default on prefs or defaults
+    if (is(object, "SingleCellExperiment")) {
+        # prefer logcounts > normcounts > counts > first assay
+        return(.preferred_or_first(
+            names(SummarizedExperiment::assays(object)),
+            c("counts","logcounts","normcounts")))
+    }
+    if (is(object, "seurat")) {
+        # no assays for Seurat-v2
+        return(NA)
+    }
+    if (is(object, "Seurat")) {
+        # use default assay
+        .error_if_no_Seurat()
+        return(Seurat::DefaultAssay(object))
+    }
+}
+
 .default_slot <- function(object) {
     # Decides what slot should be by default
     if (is(object, "SingleCellExperiment")) {
@@ -61,6 +80,17 @@
     } else {
         # default to the normalized data for Seurats
         return("data")
+    }
+}
+
+.default_slot_raw <- function(object) {
+    # Decides what slot should be by default
+    if (is(object, "SingleCellExperiment")) {
+        # no slots for SCEs
+        return(NA)
+    } else {
+        # default to the normalized data for Seurats
+        return("counts")
     }
 }
 
