@@ -585,6 +585,24 @@ delta.genes <- c(
     "FXYD6", "KCNIP1", "SMOC1", "RPL10", "LRFN5")
 ```
 
+### dittoDotPlot
+
+A very succinct representation that is useful for showing differences between
+groups. The plot uses differently colored and sized dots to summarizes both
+expression level (color) and percent of cells/samples with non-zero expression
+(size) for multiple genes (or values of metadata) within different groups of
+cells/samples.
+
+By default, expression values for all groups are centered and scaled to ensure
+a similar range of values for all `vars` displayed and to emphasize differences
+between groups.
+
+```{r}
+dittoDotPlot(seurat, vars = delta.genes, group.by = "celltype")
+dittoDotPlot(seurat, vars = delta.genes, group.by = "celltype",
+    scale = FALSE)
+```
+
 ### multi_dittoPlot & dittoPlotVarsAcrossGroups
 
 `multi_dittoPlot()` creates dittoPlots for multiple genes or metadata, one
@@ -592,8 +610,8 @@ plot each.
 
 `dittoPlotVarsAcrossGroups()` creates a dittoPlot-like representation where
 instead of representing samples/cells as in typical dittoPlots, each data
-point instead represents the average expression, across each x-grouping, of a
-gene (or value of a metadata).
+point instead represents a gene (or metadata). More specifrically, the average
+expression, within each x-grouping, of a gene (or value of a metadata).
 
 ```{r}
 multi_dittoPlot(seurat, delta.genes[1:6], group.by = "celltype",
@@ -623,8 +641,6 @@ making manually customized plot arrangements when `data.out = TRUE`.
 multi_dittoDimPlot(seurat, delta.genes[1:6])
 multi_dittoDimPlotVaryCells(seurat, delta.genes[1],
     vary.cells.meta = "celltype")
-multi_dittoDimPlotVaryCells(seurat, "celltype",
-    vary.cells.meta = "celltype")
 ```
 
 # Customization via Simple Inputs 
@@ -645,16 +661,17 @@ logical vector that states whether each cell / sample should be included.
 # Original
 dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count")
 
-# String method, first 10 cells
+# First 10 cells
 dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
-    cells.use = colnames(seurat)[1:10])
+    # String method
+    cells.use = colnames(seurat)[1:10]
+    # Index method, which would achieve the same effect
+    # cells.use = 1:10
+    )
 
-# Index method, first 10 cells
+# Acinar cells only
 dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
-    cells.use = 1:10)
-
-# Logical method, only acinar cells
-dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
+    # Logical method
     cells.use = meta("celltype", seurat) == "acinar")
 ```
 
