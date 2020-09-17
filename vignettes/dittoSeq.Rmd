@@ -641,8 +641,6 @@ making manually customized plot arrangements when `data.out = TRUE`.
 multi_dittoDimPlot(seurat, delta.genes[1:6])
 multi_dittoDimPlotVaryCells(seurat, delta.genes[1],
     vary.cells.meta = "celltype")
-multi_dittoDimPlotVaryCells(seurat, "celltype",
-    vary.cells.meta = "celltype")
 ```
 
 # Customization via Simple Inputs 
@@ -663,16 +661,17 @@ logical vector that states whether each cell / sample should be included.
 # Original
 dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count")
 
-# String method, first 10 cells
+# First 10 cells
 dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
-    cells.use = colnames(seurat)[1:10])
+    # String method
+    cells.use = colnames(seurat)[1:10]
+    # Index method, which would achieve the same effect
+    # cells.use = 1:10
+    )
 
-# Index method, first 10 cells
+# Acinar cells only
 dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
-    cells.use = 1:10)
-
-# Logical method, only acinar cells
-dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
+    # Logical method
     cells.use = meta("celltype", seurat) == "acinar")
 ```
 
