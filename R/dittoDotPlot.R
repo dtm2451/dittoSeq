@@ -7,7 +7,7 @@
 #' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be adjusted altogether before \code{cells.use} subsetting and splitting into groups?
 #' \itemize{
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
-#' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+#' \item{"z-score": centered and scaled to produce a relative-to-mean z-score representation}
 #' \item{NULL: Default, no adjustment}
 #' }
 #' @param scale String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled. 

@@ -48,9 +48,9 @@ dittoDotPlot(
 
 \item{scale}{String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled.}
 
-\item{cells.use}{String vector of cells'/samples' names which should be included.
-Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.}
+\item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
+
+Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
 \item{size}{Number which sets the dot size associated with the highest value shown by dot size (default: percent non-zero expression).}
 
@@ -72,7 +72,7 @@ Any function can be used as long as it takes in a numeric vector and returns a s
 \item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be adjusted altogether before \code{cells.use} subsetting and splitting into groups?
 \itemize{
 \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
-\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+\item{"z-score": centered and scaled to produce a relative-to-mean z-score representation}
 \item{NULL: Default, no adjustment}
 }}
 

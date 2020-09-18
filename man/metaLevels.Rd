@@ -11,9 +11,9 @@ metaLevels(meta, object, cells.use = NULL, used.only = TRUE)
 
 \item{object}{A target Seurat or SingleCellExperiment object}
 
-\item{cells.use}{String vector of cells'/samples' names which should be included.
-Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-For the typically easier logical method, provide \code{USE} in \code{object@cell.names[USE]} OR \code{colnames(object)[USE]}).}
+\item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
+
+Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
 \item{used.only}{TRUE by default, whether unused levels of already}
 }

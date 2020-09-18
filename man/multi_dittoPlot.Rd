@@ -89,7 +89,7 @@ multi_dittoPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
 \seealso{
 \code{\link{dittoPlot}} for the single plot version of this function and details on all accepted inputs. 
 
-\code{\link{dittoDotPlot}} and \code{\link{multi_dittoPlotVarsAcrossGroups}} to show, in a single plot, per-group summaries of the values for multiple vars.
+\code{\link{dittoDotPlot}} and \code{\link{dittoPlotVarsAcrossGroups}} to show, in a single plot, per-group summaries of the values for multiple vars.
 }
 \author{
 Daniel Bunis

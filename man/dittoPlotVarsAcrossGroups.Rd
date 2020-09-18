@@ -2,7 +2,7 @@
 % Please edit documentation in R/dittoPlotVarsAcrossGroups.R
 \name{dittoPlotVarsAcrossGroups}
 \alias{dittoPlotVarsAcrossGroups}
-\title{Generates a dittoPlot where datapoints are genes/metadata summarizes per groups instead of individual values per cells/samples.}
+\title{Generates a dittoPlot where data points are genes/metadata summaries, per groups, instead of individual values per cells/samples.}
 \usage{
 dittoPlotVarsAcrossGroups(
   object,
@@ -60,13 +60,13 @@ dittoPlotVarsAcrossGroups(
 Great for highlighting subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
 Affects boxplot, vlnplot, and ridgeplot fills.}
 
-\item{summary.fxn}{A function which sets how variables' data will be summarized accross the groups.
+\item{summary.fxn}{A function which sets how variables' data will be summarized across the groups.
 Default is \code{\link{mean}}, which will take the average value, but any function can be used as long as it takes in a numeric vector and returns a single numeric value.
-Alternative examles: \code{\link{median}}, \code{\link{max}}, \code{function (x) sum(x!=0)/length(x)}.}
+Alternative examples: \code{\link{median}}, \code{\link{max}}, or \code{function(x) mean(x!=0)}.}
 
-\item{cells.use}{String vector of cells'/samples' names which should be included.
-Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.}
+\item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
+
+Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
 \item{plots}{String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
 Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
@@ -76,36 +76,33 @@ See details section for more info.}
 
 \item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly or should it be adjusted to be
 \itemize{
-\item{"z-score": DEFAULT, scaled with the scale() function to produce a relative-to-mean z-score representation}
+\item{"z-score": DEFAULT, centered and scaled to produce a relative-to-mean z-score representation}
 \item{NULL: no adjustment, the normal method for all other ditto expression plotting}
 \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 }}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
-If set to \code{TRUE} the object will be converted to a ggplotly object so that data about individual points will be displayed when you hover your cursor over them.
-The hover data works best for jitter data representations, so it is recommended to have \code{"jitter"} as the last value of the \code{plots} input when running using hover.
+If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.
 
-Note: Currently, incompatible with RidgePlots as plotly does not support the geom.}
+Note: Currently, plotly is incompatible with ridge plots as plotly does not support the geom_density_ridges2 geom.}
 
 \item{main}{String which sets the plot title.}
 
 \item{sub}{String which sets the plot subtitle.}
 
 \item{ylab}{String which sets the y axis label.
-Default = a combination of then name of the summary function + \code{adjustment} + "expression".
+Default = a combination of the name of the summary function + \code{adjustment} + "expression".
 Set to \code{NULL} to remove.}
 
-\item{y.breaks}{Numeric vector, a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.).}
+\item{y.breaks}{Numeric vector, a set of breaks that should be used as major grid lines. c(break1,break2,break3,etc.).}
 
 \item{min, max}{Scalars which control the zoom of the plot.
-These inputs set the minimum / maximum values of the data to show.
-Default = set based on the limits of the data in var.}
+These inputs set the minimum / maximum values of the data to show.}
 
 \item{xlab}{String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
-Default is \code{group.by} so it defaults to the name of the grouping information.
 Set to \code{NULL} to remove.}
 
-\item{x.labels}{String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.  NOTE: you need to give at least as many labels as there are discrete values in the group.by data.}
+\item{x.labels}{String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.}
 
 \item{x.labels.rotate}{Logical which sets whether the labels should be rotated.
 Default: \code{TRUE} for violin and box plots, but \code{FALSE} for ridgeplots.}
@@ -116,8 +113,7 @@ Method: Make a first plot without this input.
 Then, treating the leftmost grouping as index 1, and the rightmost as index n.
 Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.}
 
-\item{color.panel}{String vector which sets the colors to draw from for plot fills.
-Default = \code{dittoColors()}.}
+\item{color.panel}{String vector which sets the colors to draw from for plot fills.}
 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use.
 (Provides an alternative to directly modifying \code{color.panel}.)}
@@ -173,23 +169,24 @@ This input is set to \code{NULL} by default.}
 Note: plotly conversion is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.}
 }
 \value{
-a ggplot or plotly where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
+a ggplot object
 
-Alternatively when \code{data.out=TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
+Alternatively when \code{data.out = TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
 
 Alternatively when \code{do.hover = TRUE}, a plotly converted version of the plot where additional data will be displayed when the cursor is hovered over jitter points.
 }
 \description{
-Generates a dittoPlot where datapoints are genes/metadata summarizes per groups instead of individual values per cells/samples.
+Generates a dittoPlot where data points are genes/metadata summaries, per groups, instead of individual values per cells/samples.
 }
 \details{
-Generally, this function will output a dittoPlot, grouped by sample, age, cluster, etc., where each data point represents the summary (typically \code{mean}), accross each group, of individual variable's expression, but variables can be genes or metadata.
+Generally, this function will output a dittoPlot where each data point represents a gene (or metadata) rather than a cell/sample.
+Values are the summary (\code{mean} by default) of the values for each gene or metadata requested with \code{vars}, within each group set by \code{group.by}.
 
-The data for each element of \code{vars} is obtained.
+To start with, the data for each element of \code{vars} is obtained.
 When elements are genes/features, \code{assay} and \code{slot} are utilized to determine which expression data to use,
 and \code{adjustment} determines if and how the expression data might be adjusted.
-
-By default, a z-score adjustment is applied to all gene/feature \code{vars}. Note that this adjustment is applied \emph{before} cells/samples subsetting.
+By default, a z-score adjustment is applied to all gene/feature \code{vars}.
+Note that this adjustment is applied \emph{before} cells/samples subsetting.
 
 x-axis groupings are then determined using \code{group.by}, and data for each variable is summarized using the \code{summary.fxn}.
 
@@ -258,6 +255,8 @@ if (requireNamespace("plotly", quietly = TRUE)) {
 }
 \seealso{
 \code{\link{dittoPlot}} and \code{\link{multi_dittoPlot}} for plotting of single or mutliple expression and metadata vars, each as separate plots, on a per cell/sample basis.
+
+\code{\link{dittoDotPlot}} for an alternative representation of per-group summaries of multiple vars where all vars are displayed separately, but still in a single plot.
 }
 \author{
 Daniel Bunis

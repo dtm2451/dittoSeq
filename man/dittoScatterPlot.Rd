@@ -100,11 +100,9 @@ When 1 metadata is named, shape control can be achieved with \code{split.nrow} a
 
 Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
-\item{cells.use}{String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
+\item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
-Alternatively, a Logical vector, the same length as the number of cells in the object.
-
-For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .}
+Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
 \item{show.others}{Logical. TRUE by default, whether other cells should be shown in the background in light gray.}
 
@@ -133,11 +131,11 @@ For these reasons, even as a color blind person myself writing this code, I reco
 
 \item{rename.color.groups, rename.shape.groups}{String vector containing new names for the identities of the color or shape overlay groups.}
 
-\item{min.color}{color for lowest values of var/min.  Default = yellow}
+\item{min.color}{color for \code{min} value of \code{color.var} data. Default = yellow}
 
-\item{max.color}{color for highest values of var/max.  Default = blue}
+\item{max.color}{color for \code{max} value of \code{color.var} data. Default = blue}
 
-\item{min, max}{Numbers which set the values associated with the minimum and maximum colors.}
+\item{min, max}{Number which sets the values associated with the minimum or maximum colors.}
 
 \item{order}{String. If the data should be plotted based on the order of the color data, sets whether to plot in "increasing" or "decreasing" order.}
 

@@ -71,11 +71,9 @@
 #' Default labels are generated if you do not give this a specific value.
 #' To remove, set to \code{NULL}.
 #' @param show.axes.numbers Logical which controls whether the axes values should be displayed.
-#' @param cells.use String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
-#'
-#' Alternatively, a Logical vector, the same length as the number of cells in the object.
+#' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 #' 
-#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .
+#' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' @param show.others Logical. Whether other cells should be shown in the background in light gray. Default = TRUE.
 #' @param do.ellipse Logical. Whether the groups should be surrounded by median-centered ellipses.
 #' @param do.label  Logical. Whether to add text labels near the center (median) of clusters for grouping vars.

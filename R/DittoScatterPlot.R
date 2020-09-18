@@ -22,11 +22,9 @@
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom alterations \emph{after} dittoSeq plot generation.
-#' @param cells.use String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
-#'
-#' Alternatively, a Logical vector, the same length as the number of cells in the object.
+#' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 #' 
-#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .
+#' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' @param show.others Logical. TRUE by default, whether other cells should be shown in the background in light gray.
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
@@ -56,9 +54,9 @@
 #' @param legend.color.title,legend.shape.title Strings which set the title for the color or shape legends.
 #' @param legend.color.size,legend.shape.size Numbers representing the size at which shapes should be plotted in the color and shape legends (for discrete variable plotting).
 #' Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for making colors more distinguishable by color blind individuals.
-#' @param min.color color for lowest values of var/min.  Default = yellow
-#' @param max.color color for highest values of var/max.  Default = blue
-#' @param min,max Numbers which set the values associated with the minimum and maximum colors.
+#' @param min.color color for \code{min} value of \code{color.var} data. Default = yellow
+#' @param max.color color for \code{max} value of \code{color.var} data. Default = blue
+#' @param min,max Number which sets the values associated with the minimum or maximum colors.
 #' @param legend.color.breaks Numeric vector which sets the discrete values to label in the color-scale legend for continuous data.
 #' @param legend.color.breaks.labels String vector, with same length as \code{legend.breaks}, which sets the labels for the tick marks of the color-scale.
 #' @param main String, sets the plot title.

@@ -21,9 +21,9 @@
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
-#' @param cells.use String vector of cells'/samples' names which should be included.
+#' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
+#' 
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.
 #' @param plots String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
 #' Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
 #' See details section for more info.
@@ -36,7 +36,7 @@
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points,
 #'
-#' Note: Currently, hovering is incompatible with RidgePlots as plotly does not support the ggplot geom.
+#' Note: Currently, hovering is incompatible with RidgePlots as plotly does not support the geom_density_ridges2 geom.
 #' @param hover.data String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' Default = \code{dittoColors()}.
@@ -52,7 +52,6 @@
 #' Default = \code{theme_classic()}.
 #' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
 #' @param xlab String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
-#' Default is \code{group.by} so it defaults to the name of the grouping information.
 #' Set to \code{NULL} to remove.
 #' @param ylab String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
 #' Defaults to "\code{var}" or "\code{var} expression" if \code{var} is a gene.
@@ -60,7 +59,7 @@
 #' @param min,max Scalars which control the zoom of the plot.
 #' These inputs set the minimum / maximum values of the data to show.
 #' Default = set based on the limits of the data in var.
-#' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.  NOTE: you need to give at least as many labels as there are discrete values in the group.by data.
+#' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
 #'
 #' Method: Make a first plot without this input.

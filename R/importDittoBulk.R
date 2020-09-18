@@ -44,6 +44,8 @@
 #'                        2*(tsne[,1]<0&tsne[,2]>0) +
 #'                        3*(tsne[,1]>0&tsne[,2]<0) +
 #'                        4*(tsne[,1]<0&tsne[,2]<0))
+#' score1 <- seq_len(nsamples)/2
+#' score2 <- rnorm(nsamples)
 #'
 #' ### We can import the counts directly, or as a SummarizedExperiment
 #' myRNA <- importDittoBulk(
@@ -84,7 +86,9 @@
 #'         timepoint = timept,
 #'         SNP = genome,
 #'         groups = grps,
-#'         clustering = clusts),
+#'         clustering = clusts,
+#'         score1 = score1,
+#'         score2 = score2),
 #'     reductions = list(
 #'         pca = pca,
 #'         tsne = tsne))
