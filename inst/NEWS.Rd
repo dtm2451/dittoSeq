@@ -2,6 +2,13 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.1.8}{\itemize{
+\item Added `dittoDotPlot()` function for suscinct features x groups visualization.
+\item Expanded test coverage for multi-plotters.
+\item Sped up `dittoPlotVarsAcrossGroups()`
+\item Deprecated input: `OUT.List` was renamed to `list.out` in all instances (Affects: `multi_dittoPlot()`, `multi_dittoDimPlot()`, and `multi_dittoDimPlotVaryCells()`).
+}}
+
 \section{Version 1.1.7}{\itemize{
 \item Added `order` input to dittoDimPlot and dittoScatterPlot for giving control over plotting order based on the colors data.
 }}
