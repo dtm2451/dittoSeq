@@ -71,11 +71,9 @@
 #' Default labels are generated if you do not give this a specific value.
 #' To remove, set to \code{NULL}.
 #' @param show.axes.numbers Logical which controls whether the axes values should be displayed.
-#' @param cells.use String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
-#'
-#' Alternatively, a Logical vector, the same length as the number of cells in the object.
+#' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 #' 
-#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .
+#' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' @param show.others Logical. Whether other cells should be shown in the background in light gray. Default = TRUE.
 #' @param do.ellipse Logical. Whether the groups should be surrounded by median-centered ellipses.
 #' @param do.label  Logical. Whether to add text labels near the center (median) of clusters for grouping vars.
@@ -377,67 +375,5 @@ dittoDimPlot <- function(
         } else {
             return(p)
         }
-    }
-}
-
-#### multi_dittoDimPlot : a function for quickly making multiple DBDimPlots arranged in a grid.
-#' Generates multiple dittoDimPlots arranged in a grid.
-#'
-#' @param object A Seurat or SingleCellExperiment object to work with
-#' @param vars c("var1","var2","var3",...). A list of vars from which to generate the separate plots
-#' @param ncol,nrow Integer/NULL. How many columns or rows the plots should be arranged into
-#' @param axes.labels.show Logical. Whether a axis labels should be shown. Ignored if xlab or ylab are set manually.
-#' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
-#' @param legend.show,xlab,ylab,... other paramters passed to \code{\link{dittoDimPlot}}.
-#' @return Given multiple 'var' parameters to \code{vars}, this function will output a dittoDimPlot for each one, arranged into a grid, with some slight tweaks to the defaults.
-#' If \code{OUT.list} was set to TRUE, the list of individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
-#' All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only parameter that can be adjusted between each is the \code{var}.
-#' @examples
-#' # dittoSeq handles bulk and single-cell data quit similarly.
-#' # The SingleCellExperiment object structure is used for both,
-#' # but all functions can be used similarly directly on Seurat
-#' # objects as well.
-#'
-#' example(importDittoBulk, echo = FALSE)
-#' myRNA
-#'
-#' genes <- getGenes(myRNA)[1:5]
-#' multi_dittoDimPlot(myRNA, c(genes, "clustering"))
-#'
-#' @author Daniel Bunis
-#' @export
-
-multi_dittoDimPlot <- function(
-    object,
-    vars,
-    legend.show = FALSE,
-    ncol = NULL,
-    nrow = NULL,
-    axes.labels.show = FALSE,
-    xlab = NA,
-    ylab = NA,
-    OUT.List = FALSE,
-    ...) {
-
-    #Interpret axes.labels.show:
-    # If axes.labels.show left as FALSE, set lab to NULL, else "make".
-    # Then pass to xlab and ylab unless these were provided.
-    lab <- if(!axes.labels.show) {
-        NULL
-    } else {
-        "make"
-    }
-    if (is.na(ylab)) {ylab <- lab}
-    if (is.na(xlab)) {xlab <- lab}
-
-    plots <- lapply(vars, function(X) {
-        dittoDimPlot(
-            object, X, xlab = xlab, ylab = ylab, legend.show = legend.show, ...)
-    })
-    if (OUT.List){
-        names(plots) <- vars
-        return(plots)
-    } else {
-        return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
     }
 }

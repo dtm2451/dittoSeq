@@ -1,5 +1,5 @@
 # Tests for multi_dittoDimPlotVaryCells function
-# library(dittoSeq); library(testthat); source("setup.R"); source("test-VaryCells.R")
+# library(dittoSeq); library(testthat); source("setup.R"); source("test-multi_VaryCells.R")
 
 seurat$number <- as.numeric(seq_along(colnames(seurat)))
 grp <- "age"
@@ -43,14 +43,7 @@ test_that("VaryCells fxn can adjust how expression data is obtained", {
         "gtable")
 })
 
-test_that("VaryCells fxn errors as wanted when given 'cells.use'.", {
-    expect_error(
-        multi_dittoDimPlotVaryCells(cont, object=seurat, grp,
-            cells.use = colnames(seurat)[1:5]),
-        "Further subsetting with 'cells.use' is incompatible with this function.")
-})
-
-test_that("VaryCells fxn labels subsetting works", {
+test_that("VaryCells fxn levels subsetting works", {
     expect_s3_class(
         multi_dittoDimPlotVaryCells(cont, object=seurat, grp,
             vary.cells.levels = 1:2),
@@ -58,7 +51,7 @@ test_that("VaryCells fxn labels subsetting works", {
 })
 
 test_that("VaryCells 'show.' tweaks all work", {
-    # Manual Check: Removes allcells and legend, and titles
+    # Manual Check: Removes allcells & legend & titles
     expect_s3_class(
         multi_dittoDimPlotVaryCells(cont, object=seurat, grp,
             show.allcells.plot = FALSE, show.legend.single = FALSE,
@@ -71,7 +64,7 @@ test_that("VaryCells 'show.' tweaks all work", {
         "gtable")
 })
 
-test_that("VaryCells allcells title can be changed examples work", {
+test_that("VaryCells allcells title can be changed", {
     expect_s3_class(
         multi_dittoDimPlotVaryCells(cont, object=seurat, grp,
             allcells.main = "DIFFERENT"),
@@ -84,4 +77,26 @@ test_that("VaryCells color.panel can be adjusted", {
             color.panel = c("red","blue","yellow","gray50","purple"),
             colors = 5:1),
         "gtable")
+})
+
+test_that("VaryCells color.panel can be adjusted", {
+    expect_s3_class(
+        multi_dittoDimPlotVaryCells(disc, object=seurat, grp,
+            color.panel = c("red","blue","yellow","gray50","purple"),
+            colors = 5:1),
+        "gtable")
+})
+
+test_that("VaryCells fxn errors as wanted when given 'cells.use'.", {
+    expect_error(
+        multi_dittoDimPlotVaryCells(cont, object=seurat, grp,
+            cells.use = colnames(seurat)[1:5]),
+        "Further subsetting with 'cells.use'", fixed = TRUE)
+})
+
+test_that("VaryCells tells that 'main' is ignored.", {
+    expect_message(
+        multi_dittoDimPlotVaryCells(cont, object=seurat, grp,
+            main = "HELLO"),
+        "'main' ignored", fixed = TRUE)
 })

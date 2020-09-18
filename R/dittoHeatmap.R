@@ -6,11 +6,9 @@
 #' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap.
 #' If not provided, defaults to all genes of the object / assay.
 #' @param metas String vector, c("meta1","meta2","meta3",...) = the list of metadata variables to put in the heatmap.
-#' @param cells.use String vector of cells'/samples' names which should be included.
-#'
+#' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
+#' 
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#'
-#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.
 #' @param assay,slot single strings or integer that set which expression data to use. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.
 #' @param order.by Single string or numeric vector which sets the ordering of cells/samples.
 #' Can be the name of a gene, or metadata slot.

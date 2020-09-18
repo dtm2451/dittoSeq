@@ -21,9 +21,9 @@
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
-#' @param cells.use String vector of cells'/samples' names which should be included.
+#' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
+#' 
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#' For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.
 #' @param plots String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
 #' Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
 #' See details section for more info.
@@ -36,7 +36,7 @@
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points,
 #'
-#' Note: Currently, hovering is incompatible with RidgePlots as plotly does not support the ggplot geom.
+#' Note: Currently, hovering is incompatible with RidgePlots as plotly does not support the geom_density_ridges2 geom.
 #' @param hover.data String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' Default = \code{dittoColors()}.
@@ -52,7 +52,6 @@
 #' Default = \code{theme_classic()}.
 #' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
 #' @param xlab String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
-#' Default is \code{group.by} so it defaults to the name of the grouping information.
 #' Set to \code{NULL} to remove.
 #' @param ylab String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
 #' Defaults to "\code{var}" or "\code{var} expression" if \code{var} is a gene.
@@ -60,7 +59,7 @@
 #' @param min,max Scalars which control the zoom of the plot.
 #' These inputs set the minimum / maximum values of the data to show.
 #' Default = set based on the limits of the data in var.
-#' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.  NOTE: you need to give at least as many labels as there are discrete values in the group.by data.
+#' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
 #'
 #' Method: Make a first plot without this input.
@@ -312,97 +311,6 @@ dittoPlot <- function(
         } else {
             return(p)
         }
-    }
-}
-
-#' Generates multiple dittoPlots arranged into a grid.
-#'
-#' @param object the Seurat or SingleCellExperiment object to draw from
-#' @param vars c("var1","var2","var3",...). A vector of gene or metadata names from which to generate the separate plots
-#' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
-#' @param color.by String representing the name of a metadata to use for setting color. Default = \code{group.by}.
-#' @param ncol,nrow Integers which set how many plots will be arranged per column or per row.
-#' Default = 3 columns aand however many rows are required.
-#'
-#' Set both to NULL to have the grid.arrange function figure out what might be most "square" on its own.
-#' @param main,ylab String which sets whether / how plot titles or y-axis labels should be added to each individual plot
-#' \itemize{
-#' \item When set to \code{"var"}, the \code{vars} names alone will be used.
-#' \item When set to \code{"make"}, the default dittoPlot behavior will be observed: Equivalent to "make" for \code{main}, but for y-axis labels, gene vars will become "'var' expression".
-#' \item When set as any other string, that string will be used as the title / y-axis label for every plot.
-#' \item When set to \code{NULL}, titles / axes labels will not be added.
-#' }
-#' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
-#' @param xlab,legend.show,... other paramters passed along to \code{\link{dittoPlot}}.
-#' @return Given multiple 'var' parameters, this function will output a dittoPlot for each one, arranged into a grid, just with some slight tweaks to the defaults.
-#' If \code{OUT.list} was set to TRUE, the list of individual plots is output instead of the combined multi-plot.
-#' All parameters that can be adjusted in dittoPlot can be adjusted here.
-#' @seealso
-#' \code{\link{dittoPlot}} for the single plot version of this function
-#' @examples
-#' # dittoSeq handles bulk and single-cell data quit similarly.
-#' # The SingleCellExperiment object structure is used for both,
-#' # but all functions can be used similarly directly on Seurat
-#' # objects as well.
-#'
-#' example(importDittoBulk, echo = FALSE)
-#' myRNA
-#'
-#' genes <- getGenes(myRNA)[1:4]
-#' multi_dittoPlot(myRNA, genes, group.by = "clustering")
-#'
-#' # violin-plots in front is often better for large single-cell datasets,
-#' # but we cn change the order with 'plots'
-#' multi_dittoPlot(myRNA, genes, "clustering",
-#'     plots = c("vlnplot","boxplot","jitter"))
-#'
-#' #To make it output a grid that is 2x2, to add y-axis labels
-#' # instead of titles, and to show legends...
-#' multi_dittoPlot(myRNA, genes, "clustering",
-#'     nrow = 2, ncol = 2,           #Make grid 2x2 (only one of these needed)
-#'     main = NULL, ylab = "make",   #Add y axis labels instead of titles
-#'     legend.show = TRUE)           #Show legends
-#'
-#' # We can also facet with 'split.by'
-#' multi_dittoPlot(myRNA, genes, "clustering",
-#'     split.by = "SNP")
-#'
-#' @author Daniel Bunis
-#' @importFrom ggridges geom_density_ridges2
-#' @export
-
-multi_dittoPlot <- function(
-    object,
-    vars,
-    group.by,
-    color.by = group.by,
-    legend.show = FALSE,
-    ncol = 3,
-    nrow = NULL,
-    main="var",
-    ylab = NULL,
-    xlab = NULL,
-    OUT.List = FALSE,
-    ...) {
-
-    plots <- lapply(vars, function(X) {
-        args <- list(object, X, group.by, color.by, xlab = xlab,
-            ylab = ylab, main = main, legend.show = legend.show, ...)
-        if (!is.null(ylab)) {
-            args$ylab <- ifelse(ylab == "var", X, ylab)
-        }
-        if (!is.null(main)) {
-            args$main <- ifelse(main == "var", X, main)
-        }
-        do.call(dittoPlot, args)
-    })
-
-    #Output
-    if (OUT.List){
-        names(plots) <- vars
-        return(plots)
-    } else {
-        return(gridExtra::grid.arrange(grobs=plots, ncol = ncol, nrow = nrow))
     }
 }
 

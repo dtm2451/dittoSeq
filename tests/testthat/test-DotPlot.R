@@ -11,19 +11,59 @@ metas <- c("score", "score2", "score3")
 cells.names <- colnames(seurat)[1:40]
 cells.logical <- c(rep(TRUE, 40), rep(FALSE,ncells-40))
 
-test_that("dittoDotPlot can plot continuous metadata with Seurat or SCE", {
+test_that("dittoDotPlot can plot gene and meta data with Seurat or SCE", {
     expect_s3_class(
-        print(dittoDotPlot(seurat, genes, group.by = disc)),
+        print(dittoDotPlot(seurat, group.by = disc,
+            genes)),
         "ggplot")
     expect_s3_class(
-        dittoDotPlot(sce, genes, group.by = disc),
+        dittoDotPlot(sce, group.by = disc,
+            genes),
+        "ggplot")
+    
+    expect_s3_class(
+        dittoDotPlot(seurat, group.by = disc,
+            metas),
+        "ggplot")
+    expect_s3_class(
+        dittoDotPlot(sce, group.by = disc,
+            metas),
+        "ggplot")
+    
+    expect_s3_class(
+        dittoDotPlot(seurat, group.by = disc,
+            c("score", "gene1")),
+        "ggplot")
+    expect_s3_class(
+        dittoDotPlot(sce, group.by = disc,
+            c("score", "gene1")),
         "ggplot")
 })
 
-test_that("dittoDotPlot can work for metadata", {
+test_that("dittoDotPlot errors for single vars", {
+    expect_error(
+        dittoDotPlot(seurat, group.by = disc,
+            c("score")),
+        "'vars' must be a vector of at least two", fixed = TRUE)
+    
+    expect_error(
+        dittoDotPlot(seurat, group.by = disc,
+            c("gene1")),
+        "'vars' must be a vector of at least two", fixed = TRUE)
+})
+
+test_that("dittoDotPlot works with any gene adjustments", {
     expect_s3_class(
-        print(dittoDotPlot(
-            seurat, metas, disc)),
+        dittoDotPlot(seurat, genes, disc,
+            adjustment = "relative.to.max"),
+        "ggplot")
+    expect_s3_class(
+        dittoDotPlot(seurat, genes, disc,
+            adjustment = "z-score"),
+        "ggplot")
+    expect_s3_class(
+        dittoDotPlot(seurat, genes, disc,
+            adjustment = NULL),
         "ggplot")
 })
 

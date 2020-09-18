@@ -155,11 +155,9 @@ Default = the first dimensionality reduction slot inside the object with "umap",
 
 \item{dim.2}{The component number to use on the y-axis. Default = 2}
 
-\item{cells.use}{String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
+\item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
-Alternatively, a Logical vector, the same length as the number of cells in the object.
-
-For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .}
+Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
 \item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.}
 

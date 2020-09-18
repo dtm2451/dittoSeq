@@ -91,11 +91,9 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 
 \item{dim.2}{The component number to use on the y-axis. Default = 2}
 
-\item{cells.use}{String vector of cells'/samples' names, or integer vector os cells'/samples' indices, which should be included
+\item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
-Alternatively, a Logical vector, the same length as the number of cells in the object.
-
-For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]}) OR \code{object@cell.names[USE]} .}
+Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
 \item{shape.by}{Variable for setting the shape of cells/samples in the plot.  Note: must be discrete.  Can be the name of a gene or meta-data.  Alternatively, can be "ident" for clusters of a Seurat object.  Alternatively, can be a numeric of length equal to the total number of cells/samples in object.
 

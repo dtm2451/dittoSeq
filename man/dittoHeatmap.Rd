@@ -42,11 +42,9 @@ If not provided, defaults to all genes of the object / assay.}
 
 \item{metas}{String vector, c("meta1","meta2","meta3",...) = the list of metadata variables to put in the heatmap.}
 
-\item{cells.use}{String vector of cells'/samples' names which should be included.
+\item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
-Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-
-For the typically easier logical method, provide \code{USE} in \code{colnames(object)[USE]} OR \code{object@cell.names[USE]}.}
+Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
 \item{annot.by}{String name of any metadata slots containing how the cells/samples should be annotated.}
 
