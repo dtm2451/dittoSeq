@@ -313,8 +313,7 @@ dittoDotPlot <- function(
                             summary.fxn(vars_data[groupings == this.group, this.var])
                         }, FUN.VALUE = numeric(1)
                     )
-                }, FUN.VALUE = numeric(length(vars))),
-            row.names = vars)
+                }, FUN.VALUE = numeric(length(vars))))
     }
     summary_data <- lapply(summary.fxns, summarize)
 
@@ -337,6 +336,7 @@ dittoDotPlot <- function(
     return(data)
 }
 
+#' @importFrom stats sd
 .multi_var_gather_raw <- function(
     object,
     vars,
@@ -353,25 +353,29 @@ dittoDotPlot <- function(
         stop("All 'vars' must be a metadata or gene")
     }
     
+    if (length(vars) <= 1) {
+        stop("'vars' must be a vector of at least two elements for this function.")
+    }
+    
     vars_data <- if (length(meta_vars)>0) {
-        as.matrix(getMetas(object, names.only = FALSE)[, meta_vars])
+        as.matrix(getMetas(object, names.only = FALSE)[, meta_vars, drop = FALSE])
     } else {
         NULL
     }
     
     if (length(gene_vars)>0) {
-        gene_data <- t(as.matrix(.which_data(assay,slot,object)[gene_vars, ]))
+        gene_data <- t(as.matrix(.which_data(assay,slot,object)[gene_vars, , drop = FALSE]))
         
         if (!is.null(adjustment)) {
             if (adjustment=="z-score") {
-                gene_data <- as.matrix(scale(gene_data))
+                gene_data <- apply(gene_data, 2, function(x) {(x-mean(x))/sd(x)})
             }
             if (adjustment=="relative.to.max") {
                 gene_data <- apply(gene_data, 2, function(x) {x/max(x)})
             }
         }
         
-        vars_data <- rbind(vars_data, gene_data)
+        vars_data <- cbind(vars_data, gene_data)
     }
     
     vars_data[cells.use, vars]

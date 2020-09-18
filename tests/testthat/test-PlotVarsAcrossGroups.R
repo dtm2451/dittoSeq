@@ -16,7 +16,7 @@ clr2 <- "age"
 cells.names <- colnames(seurat)[1:40]
 cells.logical <- c(rep(TRUE, 40), rep(FALSE,ncells-40))
 
-test_that("dittoPlotVarsAcrossGroups can plot continuous metadata with all plot types", {
+test_that("dittoPlotVarsAcrossGroups can plot continuous data with all plot types", {
     expect_s3_class(
         dittoPlotVarsAcrossGroups(
             genes, object=seurat, group.by = grp,
@@ -32,18 +32,59 @@ test_that("dittoPlotVarsAcrossGroups can plot continuous metadata with all plot 
 test_that("dittoPlotVarsAcrossGroups can work for SE and RNAseq", {
     expect_s3_class(
         dittoPlotVarsAcrossGroups(
-            genes, object=sce, group.by = grp,
-            plots = c("vlnplot", "boxplot", "jitter")),
+            genes, object=sce, group.by = grp),
         "ggplot")
 })
 
 test_that("dittoPlotVarsAcrossGroups can work for metadata", {
     expect_s3_class(
-        dittoPlotVarsAcrossGroups(
-            c("number","number2"), object=seurat, group.by = grp,
-            plots = c("vlnplot", "boxplot", "jitter")),
+        dittoPlotVarsAcrossGroups(seurat, group.by = grp,
+            c("number","number2")),
+        "ggplot")
+    
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(seurat, group.by = grp,
+            c("number", "gene1")),
         "ggplot")
 })
+
+test_that("dittoPlotVarsAcrossGroups works with any gene adjustments", {
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, object=seurat, group.by = grp,
+            adjustment = "relative.to.max"),
+        "ggplot")
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, object=seurat, group.by = grp,
+            adjustment = "z-score"),
+        "ggplot")
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, object=seurat, group.by = grp,
+            adjustment = NULL),
+        "ggplot")
+})
+
+test_that("dittoPlotVarsAcrossGroups errors for single vars", {
+    expect_error(
+        dittoPlotVarsAcrossGroups(seurat, group.by = grp,
+            c("number")),
+        "'vars' must be a vector of at least two", fixed = TRUE)
+    
+    expect_error(
+        dittoPlotVarsAcrossGroups(seurat, group.by = grp,
+            c("gene1")),
+        "'vars' must be a vector of at least two", fixed = TRUE)
+})
+
+test_that("dittoPlotVarsAcrossGroups can work for metadata", {
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            c("number","number2"), object=seurat, group.by = grp),
+        "ggplot")
+})
+
 
 test_that("dittoPlotVarsAcrossGroups main legend can be removed", {
     expect_s3_class(
