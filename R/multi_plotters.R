@@ -1,11 +1,12 @@
-#### multi_dittoDimPlot
-#' Generates multiple dittoDimPlots.
+#' Generates dittoDimPlots for multiple features.
 #'
 #' @param object A Seurat or SingleCellExperiment object to work with
 #' @param vars c("var1","var2","var3",...). A vector of vars ('var' in regular \code{\link{dittoDimPlot}}) from which to generate the separate plots.
-#' @param ncol,nrow Integer/NULL. How many columns or rows the plots should be arranged into
-#' @param axes.labels.show Logical. Whether axis labels should be shown. Ignored if xlab or ylab are set manually.
-#' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+#' @param ncol,nrow Integer or NULL. How many columns or rows the plots should be arranged into.
+#' @param axes.labels.show Logical. Whether axis labels should be shown.
+#' Subordinate to \code{xlab} and \code{ylab}.
+#' @param list.out Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+#' @param OUT.List Deprecated. Use \code{list.out}
 #' @param ...,xlab,ylab,data.out,do.hover,legend.show other parameters passed to \code{\link{dittoDimPlot}}.
 #' @return A set of dittoDimPlots either arranged into a grid (default), or output as a list.
 #' 
@@ -13,9 +14,9 @@
 #' Given multiple 'var' parameters to \code{vars}, this function creates a \code{\link{dittoDimPlot}} for each one, with minor defaulting tweaks (see below).
 #' 
 #' By default, these dittoDimPlots are arranged into a grid.
-#' If \code{OUT.list} is set to \code{TRUE}, they are output as a list instead where names with be \code{vars} being shown in each.
+#' Alternatively, if \code{list.out} is set to \code{TRUE}, they are output as a list with each plot named as the \code{vars} being shown.
 #' 
-#' All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only parameter that will change between plots is the \code{var}.
+#' All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only input that will change between plots is \code{var}.
 #' 
 #' @section Slight tweaks to dittoDimPlot defaults:
 #' \itemize{
@@ -39,7 +40,7 @@
 #'     
 #' # Output as list instead
 #' multi_dittoDimPlot(myRNA, c("gene1", "gene2", "clustering"),
-#'     OUT.List = TRUE)
+#'     list.out = TRUE)
 #'
 #' @author Daniel Bunis
 #' @export
@@ -50,7 +51,8 @@ multi_dittoDimPlot <- function(
     ncol = NULL,
     nrow = NULL,
     axes.labels.show = FALSE,
-    OUT.List = FALSE,
+    list.out = FALSE,
+    OUT.List = NULL,
     ...,
     xlab = NA,
     ylab = NA,
@@ -64,9 +66,14 @@ multi_dittoDimPlot <- function(
     lab <- switch(axes.labels.show, "TRUE" = "make", "FALSE" = NULL)
     if (is.na(ylab)) {ylab <- lab}
     if (is.na(xlab)) {xlab <- lab}
+    
+    if (!is.null(OUT.List)) {
+        .Deprecated(msg="Using 'OUT.List', but argument 'OUT.List' is deprecated. Please use 'list.out' instead.")
+        list.out <- OUT.List
+    }
 
-    if (!OUT.List && data.out | do.hover) {
-        OUT.List <- TRUE
+    if (!list.out && data.out | do.hover) {
+        list.out <- TRUE
         message("'data.out' or 'do.hover' requested, outputting as a list.")
     }
     
@@ -80,7 +87,7 @@ multi_dittoDimPlot <- function(
             do.hover = do.hover, legend.show = legend.show, ...)
     })
             
-    if (OUT.List){
+    if (list.out){
         names(plots) <- vars
         return(plots)
     } else {
@@ -88,16 +95,12 @@ multi_dittoDimPlot <- function(
     }
 }
 
-#### multi_dittoPlot
-#' Generates multiple dittoPlots arranged into a grid.
+#' Generates dittoPlots for multiple features.
 #'
 #' @param object the Seurat or SingleCellExperiment object to draw from
 #' @param vars c("var1","var2","var3",...). A vector of gene or metadata names from which to generate the separate plots
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
-#' @param ncol,nrow Integers which set how many plots will be arranged per column or per row.
-#' Default = 3 columns aand however many rows are required.
-#'
-#' Set both to NULL to have the grid.arrange function figure out what might be most "square" on its own.
+#' @param ncol,nrow Integer or NULL. How many columns or rows the plots should be arranged into.
 #' @param main,ylab String which sets whether / how plot titles or y-axis labels should be added to each individual plot
 #' \itemize{
 #' \item When set to \code{"var"}, the \code{vars} names alone will be used.
@@ -105,7 +108,8 @@ multi_dittoDimPlot <- function(
 #' \item When set as any other string, that string will be used as the title / y-axis label for every plot.
 #' \item When set to \code{NULL}, titles / axes labels will not be added.
 #' }
-#' @param OUT.List Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
+#' @param OUT.List Deprecated. Use \code{list.out}
+#' @param list.out Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.
 #' @param ...,xlab,data.out,do.hover,legend.show other paramters passed along to \code{\link{dittoPlot}}.
 #' @return A set of dittoPlots either arranged into a grid (default), or output as a list.
 #' 
@@ -113,9 +117,9 @@ multi_dittoDimPlot <- function(
 #' Given multiple 'var' parameters to \code{vars}, this function creates a \code{\link{dittoPlot}} for each one, with minor defaulting tweaks (see below).
 #' 
 #' By default, these dittoPlots are arranged into a grid.
-#' If \code{OUT.list} is set to \code{TRUE}, they are output as a list instead where names with be \code{vars} being shown in each.
+#' Alternatively, if \code{list.out} is set to \code{TRUE}, they are output as a list with each plot named as the \code{vars} being shown.
 #' 
-#' All parameters that can be adjusted in dittoPlot can be adjusted here, but the only parameter that will change between plots is the \code{var}.
+#' All parameters that can be adjusted in dittoPlot can be adjusted here, but the only input that will change between plots is the \code{var}.
 #' 
 #' @section Slight tweaks to dittoPlot defaults:
 #' \itemize{
@@ -125,6 +129,8 @@ multi_dittoDimPlot <- function(
 #' 
 #' @seealso
 #' \code{\link{dittoPlot}} for the single plot version of this function and details on all accepted inputs. 
+#' 
+#' \code{\link{dittoDotPlot}} and \code{\link{dittoPlotVarsAcrossGroups}} to show, in a single plot, per-group summaries of the values for multiple vars.
 #' 
 #' @examples
 #' example(importDittoBulk, echo = FALSE)
@@ -143,7 +149,7 @@ multi_dittoDimPlot <- function(
 #'
 #' # Output as list instead
 #' multi_dittoPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
-#'     OUT.List = TRUE)
+#'     list.out = TRUE)
 #'
 #' @author Daniel Bunis
 #' @export
@@ -156,15 +162,21 @@ multi_dittoPlot <- function(
     nrow = NULL,
     main = "var",
     ylab = NULL,
-    OUT.List = FALSE,
+    list.out = FALSE,
+    OUT.List = NULL,
     ...,
     xlab = NULL,
     data.out = FALSE,
     do.hover = FALSE,
     legend.show = FALSE) {
 
-    if (!OUT.List && data.out | do.hover) {
-        OUT.List <- TRUE
+    if (!is.null(OUT.List)) {
+        .Deprecated(msg="Using 'OUT.List', but argument 'OUT.List' is deprecated. Please use 'list.out' instead.")
+        list.out <- OUT.List
+    }
+    
+    if (!list.out && data.out | do.hover) {
+        list.out <- TRUE
         message("'data.out' or 'do.hover' requested, outputting as a list.")
     }
     
@@ -192,7 +204,7 @@ multi_dittoPlot <- function(
     })
 
     #Output
-    if (OUT.List){
+    if (list.out){
         names(plots) <- vars
         return(plots)
     } else {
@@ -200,9 +212,7 @@ multi_dittoPlot <- function(
     }
 }
 
-
-##################### multi_dittoDimPlotVaryCells #######################
-#' Generates multiple dittoDimPlots, each showing different cells, arranged into a grid.
+#' Generates multiple dittoDimPlots, for a single feature, where each showing different cells
 #'
 #' @param object A Seurat or SingleCellExperiment object to work with
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
@@ -211,32 +221,33 @@ multi_dittoPlot <- function(
 #' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
 #' Discrete or continuous data both work.
 #' @param vary.cells.meta String name of a metadata that should be used for selecting which cells to show in each "VaryCells" \code{\link{dittoDimPlot}}.
-#' @param vary.cells.levels The values/groupings of the \code{vary.cells.meta} metadata that should be plotted.
+#' @param vary.cells.levels The values/groupings of the \code{vary.cells.meta} metadata for which to generate a plot.
 #' @param show.allcells.plot Logical which sets whether an additional plot showing all of the cells should be added.
 #' @param show.legend.plots Logical which sets whether or not legends should be plotted in inidividual VaryCell plots. Default = FALSE.
 #' @param show.legend.allcells.plot Logical which sets whether or a legend should be plotted in the allcells plot. Default = FALSE.
 #' @param show.legend.single Logical which sets whether to add a single legend as an additional plot. Default = TRUE.
-#' @param show.titles Logical which sets whether grouping-level titles should be added to the individual VaryCell plots
-#' @param ncol,nrow Integers which set dimensions of the plot grid when \code{OUT.List = TRUE}.
-#' @param allcells.main String which adjusts the title of the allcells plot. Default = "All Cells".  Set to \code{NULL} or \code{""} to remove.
-#' @param ...,color.panel,colors,min,max,assay,slot,adjustment additional parameters passed to \code{\link{dittoDimPlot}}.
+#' @param show.titles Logical which sets whether grouping-levels should be used as titles for the individual VaryCell plots. Default = TRUE.
+#' @param ncol,nrow Integers which set dimensions of the plot grid when \code{list.out = FALSE}.
+#' @param allcells.main String which adjusts the title of the allcells plot. Default = "All Cells".  Set to \code{NULL} to remove.
+#' @param ...,color.panel,colors,min,max,assay,slot,adjustment,data.out,do.hover additional parameters passed to \code{\link{dittoDimPlot}}.
 #' 
 #' All parameters of \code{\link{dittoDimPlot}} can be utilized and adjusted except for \code{cells.use}, \code{main}, and \code{legend.show} which are handled with alternative methods here.
 #' A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.
 #' \code{xlab} and \code{ylab} can be set to \code{NULL} to remove the axes labels and provide extra room for the data.
 #' \code{size} can be used to adjust the size of the dots.
-#' @param OUT.List Logical which controls whether the list of plots should be returned as a list instead of as a single grid arrangement of the plots.
+#' @param OUT.List Deprecated. Use \code{list.out}
+#' @param list.out Logical which controls whether the list of plots should be returned as a list instead of as a single grid arrangement of the plots.
 #' @return A set of dittoDimPlots either arranged into a grid (default), or output as a list.
 #' @details This function generates separate dittoDimPlots that show the same target data, but each for distinct cells.
 #' 
 #' How cells are separated into distinct plots is controlled with the \code{vary.cells.meta} parameter.
-#' Individual dittoDimPlots are created for all levels of \code{var.cells.meta} groupings given to the \code{vary.cells.levels} input (default = all levels).
+#' Individual \code{\link{dittoDimPlot}}s are created for all levels of \code{var.cells.meta} groupings given to the \code{vary.cells.levels} input (default = all).
 #'
 #' The function then appends a plot containing all cell/samples when \code{show.allcells.plot = TRUE}, with title of this plot controlled by \code{allcells.main},
 #' as well as as single legend when \code{show.legend.single = TRUE}.
 #'
-#' By default, these elements are output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
-#' If \code{OUT.List} is set to \code{TRUE}, they are instead returned as a list.
+#' By default, these dittoDimPlots are output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
+#' Alternatively, if \code{list.out} is set to \code{TRUE}, they are returned as a list.
 #' In the list, the VaryCell plots will be named by the levels of \code{vary.cells.meta} that they contain,
 #' and the optional allcells plot and single legend will be named "allcells" and "legend", respectively.
 #'
@@ -246,7 +257,7 @@ multi_dittoPlot <- function(
 #' \item For discrete data, colors used in each plot are adjusted so that colors represent the same groupings across all plots.
 #' }
 #'
-#' @seealso#'
+#' @seealso
 #' \code{\link{multi_dittoDimPlot}} for an alternate \code{\link{dittoDimPlot}} multi-plotter where \code{var}s are varied across plots rather than cells/samples
 #'
 #' \code{\link{dittoDimPlot}} for the base dittoDimPlot plotting function and details on all accepted inputs.
@@ -260,7 +271,7 @@ multi_dittoPlot <- function(
 #' 
 #' # Output as list instead
 #' multi_dittoDimPlotVaryCells(myRNA, "gene1", vary.cells.meta = "clustering",
-#'     OUT.List = TRUE)
+#'     list.out = TRUE)
 #'
 #' # This function is also great for generating separate plots of each individual
 #' #   grouping of a tsne/PCA/umap. This can be useful to check for dispersion
@@ -296,7 +307,8 @@ multi_dittoDimPlotVaryCells <- function(
     show.legend.allcells.plot = FALSE,
     nrow = NULL,
     ncol = NULL,
-    OUT.List = FALSE,
+    list.out = FALSE,
+    OUT.List = NULL,
     ...,
     assay = .default_assay(object),
     slot = .default_slot(object),
@@ -304,7 +316,9 @@ multi_dittoDimPlotVaryCells <- function(
     min = NULL,
     max = NULL,
     color.panel = dittoColors(),
-    colors = seq_along(color.panel)
+    colors = seq_along(color.panel),
+    data.out = FALSE,
+    do.hover = FALSE
     ) {
     
     color.panel <- color.panel[colors]
@@ -314,6 +328,16 @@ multi_dittoDimPlotVaryCells <- function(
     
     vary.data <- meta(vary.cells.meta, object)
     
+    if (!is.null(OUT.List)) {
+        .Deprecated(msg="Using 'OUT.List', but argument 'OUT.List' is deprecated. Please use 'list.out' instead.")
+        list.out <- OUT.List
+    }
+    
+    if (!list.out && data.out | do.hover) {
+        list.out <- TRUE
+        message("'data.out' or 'do.hover' requested, outputting as a list.")
+    }
+    
     # Prep plotting args for VaryCell plots
     plot.args <- list(
         object = object, var = var,
@@ -321,7 +345,8 @@ multi_dittoDimPlotVaryCells <- function(
         color.panel = color.panel,
         ...,
         assay = assay, slot = slot, adjustment = adjustment,
-        min = min, max = max 
+        min = min, max = max,
+        data.out = data.out, do.hover = do.hover
         )
     
     if (!is.null(plot.args$cells.use)) {
@@ -373,7 +398,7 @@ multi_dittoDimPlotVaryCells <- function(
     }
 
     # Done! Return.
-    if(OUT.List) {
+    if(list.out) {
         return(plots)
     } else {
         if (is.null(ncol) && is.null(nrow)) {

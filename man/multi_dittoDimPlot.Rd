@@ -2,7 +2,7 @@
 % Please edit documentation in R/multi_plotters.R
 \name{multi_dittoDimPlot}
 \alias{multi_dittoDimPlot}
-\title{Generates multiple dittoDimPlots.}
+\title{Generates dittoDimPlots for multiple features.}
 \usage{
 multi_dittoDimPlot(
   object,
@@ -10,7 +10,8 @@ multi_dittoDimPlot(
   ncol = NULL,
   nrow = NULL,
   axes.labels.show = FALSE,
-  OUT.List = FALSE,
+  list.out = FALSE,
+  OUT.List = NULL,
   ...,
   xlab = NA,
   ylab = NA,
@@ -24,11 +25,14 @@ multi_dittoDimPlot(
 
 \item{vars}{c("var1","var2","var3",...). A vector of vars ('var' in regular \code{\link{dittoDimPlot}}) from which to generate the separate plots.}
 
-\item{ncol, nrow}{Integer/NULL. How many columns or rows the plots should be arranged into}
+\item{ncol, nrow}{Integer or NULL. How many columns or rows the plots should be arranged into.}
 
-\item{axes.labels.show}{Logical. Whether axis labels should be shown. Ignored if xlab or ylab are set manually.}
+\item{axes.labels.show}{Logical. Whether axis labels should be shown.
+Subordinate to \code{xlab} and \code{ylab}.}
 
-\item{OUT.List}{Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.}
+\item{list.out}{Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.}
+
+\item{OUT.List}{Deprecated. Use \code{list.out}}
 
 \item{..., xlab, ylab, data.out, do.hover, legend.show}{other parameters passed to \code{\link{dittoDimPlot}}.}
 }
@@ -36,15 +40,15 @@ multi_dittoDimPlot(
 A set of dittoDimPlots either arranged into a grid (default), or output as a list.
 }
 \description{
-Generates multiple dittoDimPlots.
+Generates dittoDimPlots for multiple features.
 }
 \details{
 Given multiple 'var' parameters to \code{vars}, this function creates a \code{\link{dittoDimPlot}} for each one, with minor defaulting tweaks (see below).
 
 By default, these dittoDimPlots are arranged into a grid.
-If \code{OUT.list} is set to \code{TRUE}, they are output as a list instead where names with be \code{vars} being shown in each.
+Alternatively, if \code{list.out} is set to \code{TRUE}, they are output as a list with each plot named as the \code{vars} being shown.
 
-All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only parameter that will change between plots is the \code{var}.
+All parameters that can be adjusted in dittoDimPlot can be adjusted here, but the only input that will change between plots is \code{var}.
 }
 \section{Slight tweaks to dittoDimPlot defaults}{
 
@@ -65,7 +69,7 @@ multi_dittoDimPlot(myRNA, c("gene1", "gene2", "clustering"),
     
 # Output as list instead
 multi_dittoDimPlot(myRNA, c("gene1", "gene2", "clustering"),
-    OUT.List = TRUE)
+    list.out = TRUE)
 
 }
 \seealso{

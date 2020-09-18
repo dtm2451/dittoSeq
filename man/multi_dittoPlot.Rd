@@ -2,7 +2,7 @@
 % Please edit documentation in R/multi_plotters.R
 \name{multi_dittoPlot}
 \alias{multi_dittoPlot}
-\title{Generates multiple dittoPlots arranged into a grid.}
+\title{Generates dittoPlots for multiple features.}
 \usage{
 multi_dittoPlot(
   object,
@@ -12,7 +12,8 @@ multi_dittoPlot(
   nrow = NULL,
   main = "var",
   ylab = NULL,
-  OUT.List = FALSE,
+  list.out = FALSE,
+  OUT.List = NULL,
   ...,
   xlab = NULL,
   data.out = FALSE,
@@ -27,10 +28,7 @@ multi_dittoPlot(
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
-\item{ncol, nrow}{Integers which set how many plots will be arranged per column or per row.
-Default = 3 columns aand however many rows are required.
-
-Set both to NULL to have the grid.arrange function figure out what might be most "square" on its own.}
+\item{ncol, nrow}{Integer or NULL. How many columns or rows the plots should be arranged into.}
 
 \item{main, ylab}{String which sets whether / how plot titles or y-axis labels should be added to each individual plot
 \itemize{
@@ -40,7 +38,9 @@ Set both to NULL to have the grid.arrange function figure out what might be most
 \item When set to \code{NULL}, titles / axes labels will not be added.
 }}
 
-\item{OUT.List}{Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.}
+\item{list.out}{Logical. (Default = FALSE) When set to \code{TRUE}, a list of the individual plots, named by the \code{vars} being shown in each, is output instead of the combined multi-plot.}
+
+\item{OUT.List}{Deprecated. Use \code{list.out}}
 
 \item{..., xlab, data.out, do.hover, legend.show}{other paramters passed along to \code{\link{dittoPlot}}.}
 }
@@ -48,15 +48,15 @@ Set both to NULL to have the grid.arrange function figure out what might be most
 A set of dittoPlots either arranged into a grid (default), or output as a list.
 }
 \description{
-Generates multiple dittoPlots arranged into a grid.
+Generates dittoPlots for multiple features.
 }
 \details{
 Given multiple 'var' parameters to \code{vars}, this function creates a \code{\link{dittoPlot}} for each one, with minor defaulting tweaks (see below).
 
 By default, these dittoPlots are arranged into a grid.
-If \code{OUT.list} is set to \code{TRUE}, they are output as a list instead where names with be \code{vars} being shown in each.
+Alternatively, if \code{list.out} is set to \code{TRUE}, they are output as a list with each plot named as the \code{vars} being shown.
 
-All parameters that can be adjusted in dittoPlot can be adjusted here, but the only parameter that will change between plots is the \code{var}.
+All parameters that can be adjusted in dittoPlot can be adjusted here, but the only input that will change between plots is the \code{var}.
 }
 \section{Slight tweaks to dittoPlot defaults}{
 
@@ -83,11 +83,13 @@ multi_dittoPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
 
 # Output as list instead
 multi_dittoPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
-    OUT.List = TRUE)
+    list.out = TRUE)
 
 }
 \seealso{
-\code{\link{dittoPlot}} for the single plot version of this function and details on all accepted inputs.
+\code{\link{dittoPlot}} for the single plot version of this function and details on all accepted inputs. 
+
+\code{\link{dittoDotPlot}} and \code{\link{multi_dittoPlotVarsAcrossGroups}} to show, in a single plot, per-group summaries of the values for multiple vars.
 }
 \author{
 Daniel Bunis

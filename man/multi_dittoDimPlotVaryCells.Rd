@@ -2,7 +2,7 @@
 % Please edit documentation in R/multi_plotters.R
 \name{multi_dittoDimPlotVaryCells}
 \alias{multi_dittoDimPlotVaryCells}
-\title{Generates multiple dittoDimPlots, each showing different cells, arranged into a grid.}
+\title{Generates multiple dittoDimPlots, for a single feature, where each showing different cells}
 \usage{
 multi_dittoDimPlotVaryCells(
   object,
@@ -17,7 +17,8 @@ multi_dittoDimPlotVaryCells(
   show.legend.allcells.plot = FALSE,
   nrow = NULL,
   ncol = NULL,
-  OUT.List = FALSE,
+  list.out = FALSE,
+  OUT.List = NULL,
   ...,
   assay = .default_assay(object),
   slot = .default_slot(object),
@@ -25,7 +26,9 @@ multi_dittoDimPlotVaryCells(
   min = NULL,
   max = NULL,
   color.panel = dittoColors(),
-  colors = seq_along(color.panel)
+  colors = seq_along(color.panel),
+  data.out = FALSE,
+  do.hover = FALSE
 )
 }
 \arguments{
@@ -39,13 +42,13 @@ Discrete or continuous data both work.}
 
 \item{vary.cells.meta}{String name of a metadata that should be used for selecting which cells to show in each "VaryCells" \code{\link{dittoDimPlot}}.}
 
-\item{vary.cells.levels}{The values/groupings of the \code{vary.cells.meta} metadata that should be plotted.}
+\item{vary.cells.levels}{The values/groupings of the \code{vary.cells.meta} metadata for which to generate a plot.}
 
-\item{show.titles}{Logical which sets whether grouping-level titles should be added to the individual VaryCell plots}
+\item{show.titles}{Logical which sets whether grouping-levels should be used as titles for the individual VaryCell plots. Default = TRUE.}
 
 \item{show.allcells.plot}{Logical which sets whether an additional plot showing all of the cells should be added.}
 
-\item{allcells.main}{String which adjusts the title of the allcells plot. Default = "All Cells".  Set to \code{NULL} or \code{""} to remove.}
+\item{allcells.main}{String which adjusts the title of the allcells plot. Default = "All Cells".  Set to \code{NULL} to remove.}
 
 \item{show.legend.single}{Logical which sets whether to add a single legend as an additional plot. Default = TRUE.}
 
@@ -53,11 +56,13 @@ Discrete or continuous data both work.}
 
 \item{show.legend.allcells.plot}{Logical which sets whether or a legend should be plotted in the allcells plot. Default = FALSE.}
 
-\item{ncol, nrow}{Integers which set dimensions of the plot grid when \code{OUT.List = TRUE}.}
+\item{ncol, nrow}{Integers which set dimensions of the plot grid when \code{list.out = FALSE}.}
 
-\item{OUT.List}{Logical which controls whether the list of plots should be returned as a list instead of as a single grid arrangement of the plots.}
+\item{list.out}{Logical which controls whether the list of plots should be returned as a list instead of as a single grid arrangement of the plots.}
 
-\item{..., color.panel, colors, min, max, assay, slot, adjustment}{additional parameters passed to \code{\link{dittoDimPlot}}.
+\item{OUT.List}{Deprecated. Use \code{list.out}}
+
+\item{..., color.panel, colors, min, max, assay, slot, adjustment, data.out, do.hover}{additional parameters passed to \code{\link{dittoDimPlot}}.
 
 All parameters of \code{\link{dittoDimPlot}} can be utilized and adjusted except for \code{cells.use}, \code{main}, and \code{legend.show} which are handled with alternative methods here.
 A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.
@@ -68,19 +73,19 @@ A few suggestions: \code{reduction.use} for setting which dimensionality reducti
 A set of dittoDimPlots either arranged into a grid (default), or output as a list.
 }
 \description{
-Generates multiple dittoDimPlots, each showing different cells, arranged into a grid.
+Generates multiple dittoDimPlots, for a single feature, where each showing different cells
 }
 \details{
 This function generates separate dittoDimPlots that show the same target data, but each for distinct cells.
 
 How cells are separated into distinct plots is controlled with the \code{vary.cells.meta} parameter.
-Individual dittoDimPlots are created for all levels of \code{var.cells.meta} groupings given to the \code{vary.cells.levels} input (default = all levels).
+Individual \code{\link{dittoDimPlot}}s are created for all levels of \code{var.cells.meta} groupings given to the \code{vary.cells.levels} input (default = all).
 
 The function then appends a plot containing all cell/samples when \code{show.allcells.plot = TRUE}, with title of this plot controlled by \code{allcells.main},
 as well as as single legend when \code{show.legend.single = TRUE}.
 
-By default, these elements are output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
-If \code{OUT.List} is set to \code{TRUE}, they are instead returned as a list.
+By default, these dittoDimPlots are output in a grid (default) with \code{ncol} columns and \code{nrow} rows,
+Alternatively, if \code{list.out} is set to \code{TRUE}, they are returned as a list.
 In the list, the VaryCell plots will be named by the levels of \code{vary.cells.meta} that they contain,
 and the optional allcells plot and single legend will be named "allcells" and "legend", respectively.
 
@@ -99,7 +104,7 @@ multi_dittoDimPlotVaryCells(myRNA, "gene1", vary.cells.meta = "clustering")
 
 # Output as list instead
 multi_dittoDimPlotVaryCells(myRNA, "gene1", vary.cells.meta = "clustering",
-    OUT.List = TRUE)
+    list.out = TRUE)
 
 # This function is also great for generating separate plots of each individual
 #   grouping of a tsne/PCA/umap. This can be useful to check for dispersion
@@ -120,7 +125,6 @@ multi_dittoDimPlotVaryCells(myRNA, "groups", vary.cells.meta = "clustering")
 
 }
 \seealso{
-#'
 \code{\link{multi_dittoDimPlot}} for an alternate \code{\link{dittoDimPlot}} multi-plotter where \code{var}s are varied across plots rather than cells/samples
 
 \code{\link{dittoDimPlot}} for the base dittoDimPlot plotting function and details on all accepted inputs.
