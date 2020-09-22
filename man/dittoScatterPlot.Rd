@@ -71,7 +71,7 @@ dittoScatterPlot(
   legend.color.breaks.labels = waiver(),
   legend.shape.title = shape.by,
   legend.shape.size = 5,
-  raster = FALSE,
+  do.raster = FALSE,
   raster.dpi = 300,
   data.out = FALSE
 )
@@ -206,7 +206,7 @@ Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for
 
 \item{legend.color.breaks.labels}{String vector, with same length as \code{legend.breaks}, which sets the labels for the tick marks of the color-scale.}
 
-\item{raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).}
+\item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).}
 
 \item{raster.dpi}{Number indicating dpi to use for rasterization. Default = 300.}
 

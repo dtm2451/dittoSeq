@@ -21,3 +21,9 @@
         stop("ggplot.multistats installation required for supplying 'color.var' to dittoHex plotters.")
     }
 }
+
+.error_if_no_ggrastr <- function() {
+    if (!requireNamespace("ggrastr", quietly = TRUE)) {
+        stop("ggrastr installation required for using rasterization with dittoScatterPlot plotters.")
+    }
+}

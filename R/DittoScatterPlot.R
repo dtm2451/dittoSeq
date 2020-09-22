@@ -1,6 +1,5 @@
 #' Show RNAseq data overlayed on a scatter plot
 #' @import ggplot2
-#' @importFrom ggrastr geom_point_rast
 #'
 #' @param object A Seurat or SingleCellExperiment object
 #' @param x.var,y.var Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
@@ -68,7 +67,7 @@
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
 #' Default = \code{theme_bw()}.
 #' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
-#' @param raster Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).
+#' @param do.raster Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).
 #' @param raster.dpi Number indicating dpi to use for rasterization. Default = 300.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 #' a data.frame containing the underlying data for target cells ("Target_data"),
@@ -232,7 +231,7 @@ dittoScatterPlot <- function(
     legend.color.breaks.labels = waiver(),
     legend.shape.title = shape.by,
     legend.shape.size = 5,
-    raster = FALSE,
+    do.raster = FALSE,
     raster.dpi = 300,
     data.out = FALSE) {
 
@@ -279,7 +278,7 @@ dittoScatterPlot <- function(
         xlab, ylab, main, sub, theme,
         legend.show, legend.color.title, legend.color.size,
         legend.color.breaks, legend.color.breaks.labels, legend.shape.title,
-        legend.shape.size, raster, raster.dpi)
+        legend.shape.size, do.raster, raster.dpi)
 
     ### Add extra features
     if (!is.null(split.by)) {
@@ -349,7 +348,7 @@ dittoScatterPlot <- function(
     legend.color.breaks.labels,
     legend.shape.title,
     legend.shape.size,
-    raster,
+    do.raster,
     raster.dpi
 ) {
     
@@ -400,8 +399,9 @@ dittoScatterPlot <- function(
 
     ### Add data
     if (show.others && nrow(Others_data)>1) {
-        if (raster) {
-            p <- p + geom_point_rast(data = Others_data,
+        if (do.raster) {
+            .error_if_no_ggrastr()
+            p <- p + ggrastr::geom_point_rast(data = Others_data,
                 aes_string(x = "X", y = "Y"), size=size, color = "gray90", raster.dpi = raster.dpi)
         } else {
             p <- p + geom_point(data = Others_data,
@@ -415,8 +415,9 @@ dittoScatterPlot <- function(
         p <- p + suppressWarnings(do.call(geom_point, geom.args))
     } else {
         geom.args$mapping <- do.call(aes_string, aes.args)
-        if (raster) {
-            p <- p + do.call(geom_point_rast, geom.args)
+        if (do.raster) {
+            .error_if_no_ggrastr()
+            p <- p + do.call(ggrastr::geom_point_rast, geom.args)
         } else {
             p <- p + do.call(geom_point, geom.args)
         }

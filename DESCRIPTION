@@ -45,7 +45,8 @@ Suggests: plotly,
     ggplot.multistats,
     knitr,
     BiocStyle,
-    scRNAseq
+    scRNAseq,
+    ggrastr
 biocViews: 
     Software,
     Visualization,
