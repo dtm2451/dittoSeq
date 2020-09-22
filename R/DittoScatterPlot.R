@@ -1,5 +1,6 @@
 #' Show RNAseq data overlayed on a scatter plot
 #' @import ggplot2
+#' @importFrom ggrastr geom_point_rast
 #'
 #' @param object A Seurat or SingleCellExperiment object
 #' @param x.var,y.var Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
@@ -25,7 +26,7 @@
 #' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 #' 
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#' @param show.others Logical. TRUE by default, whether other cells should be shown in the background in light gray.
+#' @param show.others Logical. FALSE by default, whether other cells should be shown in the background in light gray.
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
 #'
@@ -67,6 +68,8 @@
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
 #' Default = \code{theme_bw()}.
 #' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
+#' @param raster Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).
+#' @param raster.dpi Number indicating dpi to use for rasterization. Default = 300.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 #' a data.frame containing the underlying data for target cells ("Target_data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
@@ -109,7 +112,7 @@
 #'
 #' \code{\link{dittoDimHex}} and \code{\link{dittoScatterHex}} for showing very similar data representations, but where nearby cells are summarized together in hexagonal bins.
 #'
-#' @author Daniel Bunis
+#' @author Daniel Bunis and Jared Andrews
 #' @export
 #' @examples
 #' # dittoSeq handles bulk and single-cell data quit similarly.
@@ -229,6 +232,8 @@ dittoScatterPlot <- function(
     legend.color.breaks.labels = waiver(),
     legend.shape.title = shape.by,
     legend.shape.size = 5,
+    raster = FALSE,
+    raster.dpi = 300,
     data.out = FALSE) {
 
     order <- match.arg(order)
@@ -274,7 +279,7 @@ dittoScatterPlot <- function(
         xlab, ylab, main, sub, theme,
         legend.show, legend.color.title, legend.color.size,
         legend.color.breaks, legend.color.breaks.labels, legend.shape.title,
-        legend.shape.size)
+        legend.shape.size, raster, raster.dpi)
 
     ### Add extra features
     if (!is.null(split.by)) {
@@ -343,7 +348,9 @@ dittoScatterPlot <- function(
     legend.color.breaks,
     legend.color.breaks.labels,
     legend.shape.title,
-    legend.shape.size
+    legend.shape.size,
+    raster,
+    raster.dpi
 ) {
     
     ### Set up plotting
@@ -393,8 +400,13 @@ dittoScatterPlot <- function(
 
     ### Add data
     if (show.others && nrow(Others_data)>1) {
-        p <- p + geom_point(data = Others_data,
-            aes_string(x = "X", y = "Y"), size=size, color = "gray90")
+        if (raster) {
+            p <- p + geom_point_rast(data = Others_data,
+                aes_string(x = "X", y = "Y"), size=size, color = "gray90", raster.dpi = raster.dpi)
+        } else {
+            p <- p + geom_point(data = Others_data,
+                aes_string(x = "X", y = "Y"), size=size, color = "gray90")
+        }
     }
 
     if (do.hover) {
@@ -403,7 +415,11 @@ dittoScatterPlot <- function(
         p <- p + suppressWarnings(do.call(geom_point, geom.args))
     } else {
         geom.args$mapping <- do.call(aes_string, aes.args)
-        p <- p + do.call(geom_point, geom.args)
+        if (raster) {
+            p <- p + do.call(geom_point_rast, geom.args)
+        } else {
+            p <- p + do.call(geom_point, geom.args)
+        }
     }
 
     if (!legend.show) {

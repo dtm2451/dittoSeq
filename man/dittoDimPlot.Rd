@@ -65,6 +65,8 @@ dittoDimPlot(
   legend.breaks.labels = waiver(),
   shape.legend.size = 5,
   shape.legend.title = shape.by,
+  raster = FALSE,
+  raster.dpi = 300,
   data.out = FALSE
 )
 }
@@ -230,6 +232,10 @@ Default = 5. *Enlarging the colors legend is incredibly helpful for making color
 \item{shape.legend.size}{Number representing the size at which shapes should be plotted in the shape legend.}
 
 \item{shape.legend.title}{String which sets the title of the shapes legend.  Default is \code{shape.by}}
+
+\item{raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).}
+
+\item{raster.dpi}{Number indicating dpi to use for rasterization. Default = 300.}
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),

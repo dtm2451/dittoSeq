@@ -71,6 +71,8 @@ dittoScatterPlot(
   legend.color.breaks.labels = waiver(),
   legend.shape.title = shape.by,
   legend.shape.size = 5,
+  raster = FALSE,
+  raster.dpi = 300,
   data.out = FALSE
 )
 }
@@ -104,7 +106,7 @@ Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
-\item{show.others}{Logical. TRUE by default, whether other cells should be shown in the background in light gray.}
+\item{show.others}{Logical. FALSE by default, whether other cells should be shown in the background in light gray.}
 
 \item{size}{Number which sets the size of data points. Default = 1.}
 
@@ -203,6 +205,10 @@ Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for
 \item{legend.color.breaks}{Numeric vector which sets the discrete values to label in the color-scale legend for continuous data.}
 
 \item{legend.color.breaks.labels}{String vector, with same length as \code{legend.breaks}, which sets the labels for the tick marks of the color-scale.}
+
+\item{raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).}
+
+\item{raster.dpi}{Number indicating dpi to use for rasterization. Default = 300.}
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
@@ -305,5 +311,5 @@ dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
 \code{\link{dittoDimHex}} and \code{\link{dittoScatterHex}} for showing very similar data representations, but where nearby cells are summarized together in hexagonal bins.
 }
 \author{
-Daniel Bunis
+Daniel Bunis and Jared Andrews
 }
