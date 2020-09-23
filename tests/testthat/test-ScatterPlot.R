@@ -139,3 +139,15 @@ test_that("dittoScatterPlot can show trajectory curves", {
             ),
         "ggplot")
 })
+
+test_that("dittoScatterPlot with and without rasterization produces identical plots", {
+    # MANUAL CHECK: Should be indentical
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, object = seurat, do.raster = TRUE),
+        "ggplot")
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, gene, object = seurat),
+        "ggplot")
+})
