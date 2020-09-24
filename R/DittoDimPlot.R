@@ -113,6 +113,8 @@
 #' you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}
 #' @param trajectory.cluster.meta String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.
 #' @param trajectory.arrow.size Number representing the size of trajectory arrows, in inches.  Default = 0.15.
+#' @param do.raster Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).
+#' @param raster.dpi Number indicating dpi to use for rasterization. Default = 300.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 #' a data.frame containing the underlying data for target cells ("Target_data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
@@ -303,6 +305,8 @@ dittoDimPlot <- function(
     legend.breaks.labels = waiver(),
     shape.legend.size = 5,
     shape.legend.title = shape.by,
+    do.raster = FALSE,
+    raster.dpi = 300,
     data.out = FALSE) {
 
     order <- match.arg(order)
@@ -348,7 +352,7 @@ dittoDimPlot <- function(
         labels.repel, labels.split.by,
         legend.show, legend.title, legend.size,
         legend.breaks, legend.breaks.labels, shape.legend.title,
-        shape.legend.size, data.out = TRUE)
+        shape.legend.size, do.raster, raster.dpi, data.out = TRUE)
     p <- p.df$plot
     Target_data <- p.df$Target_data
     Others_data <- p.df$Others_data

@@ -388,6 +388,16 @@ test_that("dittoDimPlot adding contours", {
         "ggplot")
 })
 
+test_that("dittoDimPlot with and without rasterization produces identical plots", {
+    ### Manual Check: Plots should appear identical
+    expect_s3_class(dittoDimPlot(object=seurat, disc,
+        do.raster = TRUE),
+        "ggplot")
+    
+    expect_s3_class(dittoDimPlot(object=seurat, disc),
+        "ggplot")
+})
+
 test_that("dittoDimPlot ignores do.letter/do.label/do.ellipse for continuous data", {
     expect_message(dittoDimPlot(object=seurat, cont,
         do.label = TRUE),
