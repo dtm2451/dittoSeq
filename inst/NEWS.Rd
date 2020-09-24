@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.1.9}{\itemize{
+\item Added rasterization for `dittoScatterPlot()` and `dittoDimPlot()` under control by `do.raster` and `raster.dpi` inputs. Rasterization flattens the dots layer which can make working with a plot that has many, many cells, within a vector-based graphics editor, easier.
+}}
+
 \section{Version 1.1.8}{\itemize{
 \item Added `dittoDotPlot()` function for suscinct features x groups visualization.
 \item Expanded test coverage for multi-plotters.
