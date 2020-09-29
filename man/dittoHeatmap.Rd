@@ -31,6 +31,7 @@ dittoHeatmap(
   border_color = NA,
   legend_breaks = NA,
   breaks = NA,
+  complex = FALSE,
   ...
 )
 }
@@ -87,6 +88,8 @@ but it is possible to set all or some manually. dittoSeq will just fill any left
 }}
 
 \item{cluster_cols, border_color, legend_breaks, breaks, ...}{other arguments passed to \code{\link{pheatmap}} directly.}
+
+\item{complex}{Logical which sets whether the heatmap should be generated with ComplexHeatmap (\code{TRUE}) versus pheatmap (\code{FALSE}, default).}
 }
 \value{
 A \code{pheatmap} object.

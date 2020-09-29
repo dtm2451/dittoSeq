@@ -6,6 +6,7 @@
 #' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap.
 #' If not provided, defaults to all genes of the object / assay.
 #' @param metas String vector, c("meta1","meta2","meta3",...) = the list of metadata variables to put in the heatmap.
+#' @param complex Logical which sets whether the heatmap should be generated with ComplexHeatmap (\code{TRUE}) versus pheatmap (\code{FALSE}, default).
 #' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 #' 
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -186,6 +187,7 @@ dittoHeatmap <- function(
     border_color = NA,
     legend_breaks = NA,
     breaks = NA,
+    complex = FALSE,
     ...) {
 
     # If cells.use given as logical, populate as names.
@@ -242,6 +244,8 @@ dittoHeatmap <- function(
 
     if (data.out) {
         OUT <- args
+    } else if (complex) {
+        OUT <- do.call(ComplexHeatmap::pheatmap, args)
     } else {
         OUT <- do.call(pheatmap::pheatmap, args)
     }
