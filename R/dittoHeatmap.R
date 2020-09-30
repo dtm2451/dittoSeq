@@ -245,6 +245,7 @@ dittoHeatmap <- function(
     if (data.out) {
         OUT <- args
     } else if (complex) {
+        .error_if_no_complexHm()
         OUT <- do.call(ComplexHeatmap::pheatmap, args)
     } else {
         OUT <- do.call(pheatmap::pheatmap, args)
