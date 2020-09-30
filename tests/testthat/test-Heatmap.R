@@ -141,8 +141,8 @@ test_that("Heatmap highlight genes works", {
         dittoHeatmap(
             genes = genes,
             object = seurat,
-            show.colnames = FALSE,
-            show.rownames = FALSE,
+            show_colnames = FALSE,
+            show_rownames = FALSE,
             highlight.features = "gene1"),
         "pheatmap")
 })
@@ -389,15 +389,7 @@ test_that("Coloring works for continuous column and row annotations", {
 test_that("scale and border_color pheatmap inputs function as expected", {
     expect_s3_class(
         dittoHeatmap(genes = genes, object = seurat,
-            scale = "column"),
-        "pheatmap")
-    expect_s3_class(
-        dittoHeatmap(genes = genes, object = seurat,
             scale = "none"),
-        "pheatmap")
-    expect_s3_class(
-        dittoHeatmap(genes = genes, object = seurat,
-            scale = "column"),
         "pheatmap")
     expect_s3_class(
         dittoHeatmap(genes = genes, object = seurat,
