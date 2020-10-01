@@ -203,6 +203,7 @@ dittoHeatmap <- function(
         highlight.features <- highlight.genes
     }
 
+    ### Obtain all needed data
     data <- .get_heatmap_data(object, genes, metas, assay, slot, cells.use)
     
     if (!is.null(cell.names.meta)) {
@@ -217,13 +218,12 @@ dittoHeatmap <- function(
         order_data <- NULL
     }
     
-    # Make the columns annotations data for colored annotation bars
+    # Make the columns annotations data
     if (is.null(annotation_col)) {
         annotation_col <- data.frame(row.names = cells.use)
     } else if (!all(cells.use %in% rownames(annotation_col))) {
         stop("rows of 'annotation_col' must be cell/sample names of all cells/samples being displayed")
     }
-    
     if (!is.null(annot.by)) {
         annotation_col <- rbind(
             as.data.frame(getMetas(object, names.only = FALSE)[cells.use, annot.by, drop = FALSE]),
@@ -235,22 +235,22 @@ dittoHeatmap <- function(
         main <- NA
     }
     
+    ### Prep inputs for heatmap contructor calls
     args <- .prep_ditto_heatmap(
         data, cells.use, all.cells, cell.names, order_data, main,
         heatmap.colors, scaled.to.max, heatmap.colors.max.scaled, annot.colors,
         annotation_col, annotation_colors, highlight.features, show_colnames,
         show_rownames, scale, cluster_cols, border_color, legend_breaks,
         breaks, ...)
-
+    
     if (data.out) {
-        OUT <- args
+        return(args)
     } else if (complex) {
         .error_if_no_complexHm()
-        OUT <- do.call(ComplexHeatmap::pheatmap, args)
+        return(do.call(ComplexHeatmap::pheatmap, args))
     } else {
-        OUT <- do.call(pheatmap::pheatmap, args)
+        return(do.call(pheatmap::pheatmap, args))
     }
-    OUT
 }
 
 .prep_ditto_heatmap <- function(

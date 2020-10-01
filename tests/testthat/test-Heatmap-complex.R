@@ -396,3 +396,11 @@ test_that("scale and border_color pheatmap inputs function as expected", {
             border_color = "red"),
         "Heatmap")
 })
+
+test_that("Rasterization works for ComplexHeatmap", {
+    # Manual Check: zooming in drastically should reveal unequal row/column widths.
+    expect_s4_class(
+        dittoHeatmap(complex = TRUE, genes = genes, object = seurat,
+            use_raster = TRUE, raster_quality = 1),
+        "Heatmap")
+})
