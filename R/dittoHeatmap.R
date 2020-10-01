@@ -243,14 +243,16 @@ dittoHeatmap <- function(
         show_rownames, scale, cluster_cols, border_color, legend_breaks,
         breaks, ...)
     
-    if (data.out) {
-        return(args)
-    } else if (complex) {
+    if (complex) {
         .error_if_no_complexHm()
-        return(do.call(ComplexHeatmap::pheatmap, args))
+        args <- .extra_adjustments_for_complex(args)
+        OUT <- do.call(ComplexHeatmap::pheatmap, args)
+    } else if (data.out) {
+        OUT <- args
     } else {
-        return(do.call(pheatmap::pheatmap, args))
+        OUT <- do.call(pheatmap::pheatmap, args)
     }
+    OUT
 }
 
 .prep_ditto_heatmap <- function(
@@ -334,6 +336,57 @@ dittoHeatmap <- function(
         args$breaks <- seq(0, 1, length.out = length(args$color)+1)
     }
 
+    args
+}
+
+# This function takes in a list of args formatted for pheatmap::pheatmap that
+# are to be passed on to ComplexHeatmap, and adjusts the colors input to help
+# build in utilization of breaks.
+#
+# Also adjusts the mat and scale arguments only to not duplicate the scaling
+# calculation.
+# Effectively removes breaks because it won't be used.
+.extra_adjustments_for_complex <- function(args) {
+    
+    if (is.null(args$breaks) || !is.null(args$breaks) && !is.na(args$breaks)) {
+        args$color <- circlize::colorRamp2(
+            seq(min(args$breaks), max(args$breaks), length.out = length(args$color)),
+            colors = args$color)
+        breaks_not_given_by_user <- FALSE
+    } else {
+        breaks_not_given_by_user <- TRUE
+    }
+    
+    # scale the matrix
+    if (args$scale != "none") {
+        if (args$scale == "row") {
+            if (any(is.na(args$mat))) {
+                args$mat <- (args$mat - rowMeans(args$mat, na.rm = TRUE))/rowSds(args$mat, na.rm = TRUE)
+            } else {
+                args$mat <- t(scale(t(args$mat)))
+            }
+        }
+        if (args$scale == "column") {
+            if (any(is.na(args$mat))) {
+                args$mat <- t((t(args$mat) - colMeans(args$mat, na.rm = TRUE))/colSds(args$mat, na.rm = TRUE))
+            } else {
+                args$mat <- scale(args$mat)
+            }
+        }
+        
+        if (breaks_not_given_by_user) {
+            limit <- max(abs(range(args$mat)))
+            args$color <- circlize::colorRamp2(
+                seq(-limit, limit, length.out = length(args$color)),
+                colors = args$color)
+        }
+        
+        args$scale <- "none"
+        
+    }
+    
+    args$breaks <- NA
+    
     args
 }
 

@@ -47,7 +47,8 @@ Suggests: plotly,
     BiocStyle,
     scRNAseq,
     ggrastr,
-    ComplexHeatmap
+    ComplexHeatmap,
+    circlize
 biocViews: 
     Software,
     Visualization,
