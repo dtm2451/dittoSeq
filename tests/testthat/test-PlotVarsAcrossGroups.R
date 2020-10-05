@@ -296,3 +296,16 @@ test_that("dittoPlotVarsAcrossGroups violin plot adjustments work", {
             vlnplot.scaling = "width"),
         "ggplot")
 })
+
+test_that("dittoPlotVarsAcrossGroups with and without jitter rasterization produces identical plots", {
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, object=seurat, group.by = grp,
+            plots = c("vlnplot", "boxplot", "jitter"), jitter.raster = TRUE),
+        "ggplot")
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, object=seurat, group.by = grp,
+            plots = c("vlnplot", "boxplot", "jitter")),
+        "ggplot")
+})

@@ -359,3 +359,28 @@ test_that("dittoPlot can be facted with split.by (1 or 2 vars)", {
             cells.use = cells.logical),
         "ggplot")
 })
+
+test_that("dittoPlot with and without jitter rasterization produces identical plots", {
+    # MANUAL CHECK: Should be indentical
+    expect_s3_class(
+        dittoPlot(
+            gene1, grp, grp, object = seurat,
+            jitter.raster = TRUE),
+        "ggplot")
+    expect_s3_class(
+        dittoPlot(
+            gene1, grp, grp, object = seurat),
+        "ggplot")
+    # Jitter in front.
+    expect_s3_class(
+        dittoPlot(
+            gene1, grp, grp, object = seurat,
+            jitter.raster = TRUE, 
+            plots = c("vlnplot", "jitter")),
+        "ggplot")
+    expect_s3_class(
+        dittoPlot(
+            gene1, grp, grp, object = seurat, 
+            plots = c("vlnplot", "jitter")),
+        "ggplot")
+})

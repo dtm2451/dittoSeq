@@ -77,6 +77,8 @@
 #' @param jitter.shape.legend.size Scalar which changes the size of the shape key in the legend.
 #' If set to \code{NA}, \code{jitter.size} is used.
 #' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown when its shape is determined by \code{shape.by}.
+#' @param jitter.raster Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).
+#' @param jitter.raster.dpi Number indicating dpi to use for rasterization. Default = 300.
 #' @param boxplot.width Scalar which sets the width/spread of the boxplot in the x direction
 #' @param boxplot.color String which sets the color of the lines of the boxplot
 #' @param boxplot.show.outliers Logical, whether outliers should by including in the boxplot.
@@ -231,6 +233,8 @@ dittoPlot <- function(
     jitter.color = "black",
     jitter.shape.legend.size = NA,
     jitter.shape.legend.show = TRUE,
+    jitter.raster = FALSE,
+    jitter.raster.dpi = 300,
     boxplot.width = 0.2,
     boxplot.color = "black",
     boxplot.show.outliers = NA,
@@ -281,7 +285,7 @@ dittoPlot <- function(
         p <- .dittoPlot_add_data_y_direction(
             p, Target_data, plots, xlab, ylab, shape.by, jitter.size,
             jitter.width, jitter.color, shape.panel, jitter.shape.legend.size,
-            jitter.shape.legend.show, boxplot.width, boxplot.color,
+            jitter.shape.legend.show, jitter.raster, jitter.raster.dpi, boxplot.width, boxplot.color,
             boxplot.show.outliers, boxplot.fill, vlnplot.lineweight,
             vlnplot.width, vlnplot.scaling, add.line, line.linetype,
             line.color, x.labels.rotate, do.hover, y.breaks, min, max, object)
@@ -329,7 +333,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 .dittoPlot_add_data_y_direction <- function(
     p, Target_data, plots, xlab, ylab, shape.by,
     jitter.size, jitter.width, jitter.color,shape.panel,
-    jitter.shape.legend.size, jitter.shape.legend.show,
+    jitter.shape.legend.size, jitter.shape.legend.show, jitter.raster, jitter.raster.dpi,
     boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
     vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
     line.linetype, line.color, x.labels.rotate, do.hover, y.breaks, min, max,
@@ -389,10 +393,18 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 } else {
                     aes_string(shape = shape.by)
                 }
-                p <- p + do.call(geom_jitter, jitter.args) +
-                    scale_shape_manual(
-                        values = shape.panel[seq_along(metaLevels(
-                            shape.by, object, rownames(Target_data)))])
+                if (jitter.raster) {
+                    .error_if_no_ggrastr()
+                    p <- p + do.call(ggrastr::geom_jitter_rast, jitter.args) +
+                        scale_shape_manual(
+                            values = shape.panel[seq_along(metaLevels(
+                                shape.by, object, rownames(Target_data)))])
+                } else {
+                    p <- p + do.call(geom_jitter, jitter.args) +
+                        scale_shape_manual(
+                            values = shape.panel[seq_along(metaLevels(
+                                shape.by, object, rownames(Target_data)))])
+                }
                 if (!is.na(jitter.shape.legend.size)){
                     p <- p + guides(shape = guide_legend(
                         override.aes = list(size=jitter.shape.legend.size)))
@@ -405,7 +417,13 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                     jitter.args$mapping <- aes_string(text = "hover.string")
                 }
                 jitter.args$shape <- shape.panel[1]
-                p <- p + suppressWarnings(do.call(geom_jitter, jitter.args))
+
+                if (jitter.raster) {
+                    .error_if_no_ggrastr()
+                    p <- p + suppressWarnings(do.call(ggrastr::geom_jitter_rast, jitter.args))
+                } else {
+                    p <- p + suppressWarnings(do.call(geom_jitter, jitter.args))
+                }
             }
         }
     }

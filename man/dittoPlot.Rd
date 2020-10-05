@@ -43,6 +43,8 @@ dittoPlot(
   jitter.color = "black",
   jitter.shape.legend.size = NA,
   jitter.shape.legend.show = TRUE,
+  jitter.raster = FALSE,
+  jitter.raster.dpi = 300,
   boxplot.width = 0.2,
   boxplot.color = "black",
   boxplot.show.outliers = NA,
@@ -167,6 +169,10 @@ Values of x.reorder should be these indices, but in the order that you would lik
 If set to \code{NA}, \code{jitter.size} is used.}
 
 \item{jitter.shape.legend.show}{Logical which sets whether the shapes legend will be shown when its shape is determined by \code{shape.by}.}
+
+\item{jitter.raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).}
+
+\item{jitter.raster.dpi}{Number indicating dpi to use for rasterization. Default = 300.}
 
 \item{boxplot.width}{Scalar which sets the width/spread of the boxplot in the x direction}
 
