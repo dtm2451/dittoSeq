@@ -50,12 +50,12 @@ test_that("multi Plot&DimPlot give reasonable error for no (0) vars", {
 test_that("multi Plot&DimPlot can output plots as a list", {
     expect_type(
         multi_dittoDimPlot(object=seurat, conts_3,
-            OUT.List = TRUE),
+            list.out = TRUE),
         "list")
     
     expect_type(
         multi_dittoPlot(object=seurat, conts_3, disc,
-            OUT.List = TRUE),
+            list.out = TRUE),
         "list")
 })
 

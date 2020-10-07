@@ -24,7 +24,7 @@ test_that("VaryCells works for SCE", {
 test_that("VaryCells fxn can output plots as a list", {
     expect_type(
         multi_dittoDimPlotVaryCells(cont, object=seurat, grp,
-            OUT.List = TRUE),
+            list.out = TRUE),
         "list")
 })
 
