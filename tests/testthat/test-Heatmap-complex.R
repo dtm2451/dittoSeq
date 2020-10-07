@@ -364,7 +364,7 @@ test_that("Coloring works for continuous column and row annotations", {
             annot.by = "number",
             scaled.to.max = TRUE,
             annotation_row = data.frame(
-                lab = seq_len(9),
+                lab = seq_along(genes),
                 row.names = genes),
             cluster_rows = FALSE,
             cluster_cols = FALSE),

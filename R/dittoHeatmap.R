@@ -350,7 +350,10 @@ dittoHeatmap <- function(
     
     if (is.null(args$breaks) || !is.null(args$breaks) && !is.na(args$breaks)) {
         args$color <- circlize::colorRamp2(
-            seq(min(args$breaks), max(args$breaks), length.out = length(args$color)),
+            breaks = seq(
+                min(args$breaks),
+                max(args$breaks),
+                length.out = length(args$color)),
             colors = args$color)
         breaks_not_given_by_user <- FALSE
     } else {
@@ -377,7 +380,10 @@ dittoHeatmap <- function(
         if (breaks_not_given_by_user) {
             limit <- max(abs(range(args$mat)))
             args$color <- circlize::colorRamp2(
-                seq(-limit, limit, length.out = length(args$color)),
+                breaks = seq(
+                    -1*limit,
+                    limit,
+                    length.out = length(args$color)),
                 colors = args$color)
         }
         
