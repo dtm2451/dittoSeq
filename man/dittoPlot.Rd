@@ -38,13 +38,13 @@ dittoPlot(
   x.reorder = NULL,
   split.nrow = NULL,
   split.ncol = NULL,
+  do.raster = FALSE,
+  raster.dpi = 300,
   jitter.size = 1,
   jitter.width = 0.2,
   jitter.color = "black",
   jitter.shape.legend.size = NA,
   jitter.shape.legend.show = TRUE,
-  jitter.raster = FALSE,
-  jitter.raster.dpi = 300,
   boxplot.width = 0.2,
   boxplot.color = "black",
   boxplot.show.outliers = NA,
@@ -159,6 +159,11 @@ Values of x.reorder should be these indices, but in the order that you would lik
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
+\item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
+This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.}
+
+\item{raster.dpi}{Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.}
+
 \item{jitter.size}{Scalar which sets the size of the jitter shapes.}
 
 \item{jitter.width}{Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.}
@@ -169,10 +174,6 @@ Values of x.reorder should be these indices, but in the order that you would lik
 If set to \code{NA}, \code{jitter.size} is used.}
 
 \item{jitter.shape.legend.show}{Logical which sets whether the shapes legend will be shown when its shape is determined by \code{shape.by}.}
-
-\item{jitter.raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).}
-
-\item{jitter.raster.dpi}{Number indicating dpi to use for rasterization. Default = 300.}
 
 \item{boxplot.width}{Scalar which sets the width/spread of the boxplot in the x direction}
 

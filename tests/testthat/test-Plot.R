@@ -365,7 +365,7 @@ test_that("dittoPlot with and without jitter rasterization produces identical pl
     expect_s3_class(
         dittoPlot(
             gene1, grp, grp, object = seurat,
-            jitter.raster = TRUE),
+            do.raster = TRUE),
         "ggplot")
     expect_s3_class(
         dittoPlot(
@@ -375,12 +375,20 @@ test_that("dittoPlot with and without jitter rasterization produces identical pl
     expect_s3_class(
         dittoPlot(
             gene1, grp, grp, object = seurat,
-            jitter.raster = TRUE, 
+            do.raster = TRUE, 
             plots = c("vlnplot", "jitter")),
         "ggplot")
     expect_s3_class(
         dittoPlot(
             gene1, grp, grp, object = seurat, 
+            plots = c("vlnplot", "jitter")),
+        "ggplot")
+    # Should be lower resolution
+    expect_s3_class(
+        dittoPlot(
+            gene1, grp, grp, object = seurat,
+            do.raster = TRUE,
+            raster.dpi = 10,
             plots = c("vlnplot", "jitter")),
         "ggplot")
 })

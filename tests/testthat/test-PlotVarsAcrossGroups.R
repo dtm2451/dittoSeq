@@ -301,7 +301,7 @@ test_that("dittoPlotVarsAcrossGroups with and without jitter rasterization produ
     expect_s3_class(
         dittoPlotVarsAcrossGroups(
             genes, object=seurat, group.by = grp,
-            plots = c("vlnplot", "boxplot", "jitter"), jitter.raster = TRUE),
+            plots = c("vlnplot", "boxplot", "jitter"), do.raster = TRUE),
         "ggplot")
     expect_s3_class(
         dittoPlotVarsAcrossGroups(
