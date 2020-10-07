@@ -156,6 +156,8 @@ dittoPlotVarsAcrossGroups <- function(
     jitter.size = 1,
     jitter.width = 0.2,
     jitter.color = "black",
+    do.raster = FALSE,
+    raster.dpi = 300,
     boxplot.width = 0.2,
     boxplot.color = "black",
     boxplot.show.outliers = NA,
@@ -211,7 +213,7 @@ dittoPlotVarsAcrossGroups <- function(
     if (!("ridgeplot" %in% plots)) {
         p <- .dittoPlot_add_data_y_direction(
             p, data, plots, xlab, ylab, NULL, jitter.size, jitter.width,
-            jitter.color, 16, NA, TRUE, boxplot.width, boxplot.color,
+            jitter.color, 16, NA, TRUE, do.raster, raster.dpi, boxplot.width, boxplot.color,
             boxplot.show.outliers, boxplot.fill, vlnplot.lineweight,
             vlnplot.width, vlnplot.scaling, add.line, line.linetype,
             line.color, x.labels.rotate, do.hover, y.breaks, min, max, object)

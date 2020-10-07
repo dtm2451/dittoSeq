@@ -77,6 +77,9 @@
 #' @param jitter.shape.legend.size Scalar which changes the size of the shape key in the legend.
 #' If set to \code{NA}, \code{jitter.size} is used.
 #' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown when its shape is determined by \code{shape.by}.
+#' @param do.raster Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
+#' This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.
+#' @param raster.dpi Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.
 #' @param boxplot.width Scalar which sets the width/spread of the boxplot in the x direction
 #' @param boxplot.color String which sets the color of the lines of the boxplot
 #' @param boxplot.show.outliers Logical, whether outliers should by including in the boxplot.
@@ -226,6 +229,8 @@ dittoPlot <- function(
     x.reorder = NULL,
     split.nrow = NULL,
     split.ncol = NULL,
+    do.raster = FALSE,
+    raster.dpi = 300,
     jitter.size = 1,
     jitter.width = 0.2,
     jitter.color = "black",
@@ -281,7 +286,7 @@ dittoPlot <- function(
         p <- .dittoPlot_add_data_y_direction(
             p, Target_data, plots, xlab, ylab, shape.by, jitter.size,
             jitter.width, jitter.color, shape.panel, jitter.shape.legend.size,
-            jitter.shape.legend.show, boxplot.width, boxplot.color,
+            jitter.shape.legend.show, do.raster, raster.dpi, boxplot.width, boxplot.color,
             boxplot.show.outliers, boxplot.fill, vlnplot.lineweight,
             vlnplot.width, vlnplot.scaling, add.line, line.linetype,
             line.color, x.labels.rotate, do.hover, y.breaks, min, max, object)
@@ -329,7 +334,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 .dittoPlot_add_data_y_direction <- function(
     p, Target_data, plots, xlab, ylab, shape.by,
     jitter.size, jitter.width, jitter.color,shape.panel,
-    jitter.shape.legend.size, jitter.shape.legend.show,
+    jitter.shape.legend.size, jitter.shape.legend.show, do.raster, raster.dpi,
     boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
     vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
     line.linetype, line.color, x.labels.rotate, do.hover, y.breaks, min, max,
@@ -381,18 +386,28 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 width=jitter.width,
                 height = 0,
                 color = jitter.color)
+            
+            geom_for_jitter <- geom_jitter
+            if (do.raster) {
+                .error_if_no_ggrastr()
+                geom_for_jitter <- ggrastr::geom_jitter_rast
+                jitter.args$raster.dpi <- raster.dpi
+            }
+            
+            jitter.aes.args <- list()
+            if (do.hover) {
+                jitter.aes.args$text <-  "hover.string"
+            }
+            
             #If shape.by metadata given, use it. Else, shapes[1] which = dots (16) by default
             if (!is.null(shape.by) && isMeta(shape.by, object)) {
-                #Make jitter with shapes
-                jitter.args$mapping <- if (do.hover) {
-                    aes_string(shape = shape.by, text = "hover.string")
-                } else {
-                    aes_string(shape = shape.by)
-                }
-                p <- p + do.call(geom_jitter, jitter.args) +
-                    scale_shape_manual(
-                        values = shape.panel[seq_along(metaLevels(
-                            shape.by, object, rownames(Target_data)))])
+                
+                # Set shape in aes & set scales/theming.
+                jitter.aes.args$shape <- shape.by
+                
+                p <- p + scale_shape_manual(
+                    values = shape.panel[seq_along(metaLevels(shape.by, object, rownames(Target_data)))])
+                
                 if (!is.na(jitter.shape.legend.size)){
                     p <- p + guides(shape = guide_legend(
                         override.aes = list(size=jitter.shape.legend.size)))
@@ -400,12 +415,18 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 if (jitter.shape.legend.show==FALSE){
                     p <- p + guides(shape = "none")
                 }
+                
             } else {
-                if (do.hover) {
-                    jitter.args$mapping <- aes_string(text = "hover.string")
-                }
+                # Set shape outside of aes
                 jitter.args$shape <- shape.panel[1]
-                p <- p + suppressWarnings(do.call(geom_jitter, jitter.args))
+            }
+            
+            jitter.args$mapping <- do.call(aes_string, jitter.aes.args)
+            
+            if (do.hover) {
+                p <- p + suppressWarnings(do.call(geom_for_jitter, jitter.args))
+            } else {
+                p <- p + do.call(geom_for_jitter, jitter.args)
             }
         }
     }
