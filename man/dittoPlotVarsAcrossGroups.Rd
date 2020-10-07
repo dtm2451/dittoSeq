@@ -32,6 +32,8 @@ dittoPlotVarsAcrossGroups(
   jitter.size = 1,
   jitter.width = 0.2,
   jitter.color = "black",
+  do.raster = FALSE,
+  raster.dpi = 300,
   boxplot.width = 0.2,
   boxplot.color = "black",
   boxplot.show.outliers = NA,
@@ -127,6 +129,11 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 \item{jitter.width}{Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.}
 
 \item{jitter.color}{String which sets the color of the jitter shapes}
+
+\item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
+This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.}
+
+\item{raster.dpi}{Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.}
 
 \item{boxplot.width}{Scalar which sets the width/spread of the boxplot in the x direction}
 

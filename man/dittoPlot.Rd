@@ -38,6 +38,8 @@ dittoPlot(
   x.reorder = NULL,
   split.nrow = NULL,
   split.ncol = NULL,
+  do.raster = FALSE,
+  raster.dpi = 300,
   jitter.size = 1,
   jitter.width = 0.2,
   jitter.color = "black",
@@ -156,6 +158,11 @@ Then, treating the leftmost grouping as index 1, and the rightmost as index n.
 Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
+This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.}
+
+\item{raster.dpi}{Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.}
 
 \item{jitter.size}{Scalar which sets the size of the jitter shapes.}
 

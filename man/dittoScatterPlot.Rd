@@ -206,9 +206,10 @@ Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for
 
 \item{legend.color.breaks.labels}{String vector, with same length as \code{legend.breaks}, which sets the labels for the tick marks of the color-scale.}
 
-\item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).}
+\item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot layer, changing it from individually encoded points to a flattened set of pixels.
+This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.}
 
-\item{raster.dpi}{Number indicating dpi to use for rasterization. Default = 300.}
+\item{raster.dpi}{Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.}
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
