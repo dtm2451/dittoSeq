@@ -363,7 +363,8 @@ dittoHeatmap <- function(
         # Perform scaling
         if (args$scale == "row") {
             if (any(is.na(args$mat))) {
-                args$mat <- (args$mat - rowMeans(args$mat, na.rm = TRUE))/rowSds(args$mat, na.rm = TRUE)
+                args$mat <- (args$mat - apply(args$mat, 1, function(x) mean(x, na.rm = TRUE))) /
+                    apply(args$mat, 1, function(x) sd(x, na.rm = TRUE))
             } else {
                 args$mat <- t(scale(t(args$mat)))
             }
@@ -371,7 +372,8 @@ dittoHeatmap <- function(
         
         if (args$scale == "column") {
             if (any(is.na(args$mat))) {
-                args$mat <- t((t(args$mat) - colMeans(args$mat, na.rm = TRUE))/colSds(args$mat, na.rm = TRUE))
+                args$mat <- t((t(args$mat) - apply(args$mat, 2, function(x) mean(x, na.rm = TRUE))) /
+                    apply(args$mat, 2, function(x) sd(x, na.rm = TRUE)))
             } else {
                 args$mat <- scale(args$mat)
             }
