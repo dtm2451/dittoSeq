@@ -101,10 +101,10 @@ test_that("Heatmap gives error when both highlight.genes and highlight.features 
 test_that("Heatmap title can be adjusted", {
     ### Title chould be "Hello there!"
     expect_s4_class(
-        print(dittoHeatmap(complex = TRUE,
+        dittoHeatmap(complex = TRUE,
             genes = genes,
             object = seurat,
-            main = "Hello there!")),
+            main = "Hello there!"),
         "Heatmap")
 })
 
@@ -357,17 +357,38 @@ test_that("Coloring works for discrete column and row annotations", {
 
 test_that("Coloring works for continuous column and row annotations", {
     ### column and row annotations, all numeric.
+    # expect_s4_class(
+    #     dittoHeatmap(complex = TRUE,
+    #         genes = genes,
+    #         object = seurat,
+    #         annot.by = "number",
+    #         scaled.to.max = TRUE,
+    #         annotation_row = data.frame(
+    #             lab = seq_along(genes),
+    #             row.names = genes),
+    #         cluster_rows = FALSE,
+    #         cluster_cols = FALSE),
+    #     "Heatmap")
+    # Check one at a time while CH:pheatmap has bug for numerics in both.
     expect_s4_class(
         dittoHeatmap(complex = TRUE,
-            genes = genes,
-            object = seurat,
-            annot.by = "number",
-            scaled.to.max = TRUE,
-            annotation_row = data.frame(
-                lab = seq_along(genes),
-                row.names = genes),
-            cluster_rows = FALSE,
-            cluster_cols = FALSE),
+                     genes = genes,
+                     object = seurat,
+                     annot.by = "number",
+                     scaled.to.max = TRUE,
+                     cluster_rows = FALSE,
+                     cluster_cols = FALSE),
+        "Heatmap")
+    expect_s4_class(
+        dittoHeatmap(complex = TRUE,
+                     genes = genes,
+                     object = seurat,
+                     scaled.to.max = TRUE,
+                     annotation_row = data.frame(
+                         lab = seq_along(genes),
+                         row.names = genes),
+                     cluster_rows = FALSE,
+                     cluster_cols = FALSE),
         "Heatmap")
     ### column and row annotations, all numeric.
     ### but column annotation bar flips, while legend stays the same.
@@ -378,9 +399,9 @@ test_that("Coloring works for continuous column and row annotations", {
             annot.by = "number2",
             order.by = "number",
             scaled.to.max = TRUE,
-            annotation_row = data.frame(
-                lab = seq_len(9),
-                row.names = genes),
+            # annotation_row = data.frame(
+            #     lab = seq_len(9),
+            #     row.names = genes),
             cluster_rows = FALSE,
             cluster_cols = FALSE),
         "Heatmap")
