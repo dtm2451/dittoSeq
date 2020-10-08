@@ -341,27 +341,26 @@ dittoHeatmap <- function(
 
 # This function takes in a list of args formatted for pheatmap::pheatmap that
 # are to be passed on to ComplexHeatmap, and adjusts the colors input to help
-# build in utilization of breaks.
+# remove need for the breaks input.
 #
 # Also adjusts the mat and scale arguments only to not duplicate the scaling
-# calculation.
-# Effectively removes breaks because it won't be used.
+# calculation. (scaling is run here to determine proper breaks.)
+#
+# Overall, adjusts inputs to help equalize differences between default outputs.
 .extra_adjustments_for_complex <- function(args) {
     
-    if (is.null(args$breaks) || !is.null(args$breaks) && !is.na(args$breaks)) {
+    if (!is.na(args$breaks[1])) {
+        
         args$color <- circlize::colorRamp2(
             breaks = seq(
                 min(args$breaks),
                 max(args$breaks),
                 length.out = length(args$color)),
             colors = args$color)
-        breaks_not_given_by_user <- FALSE
-    } else {
-        breaks_not_given_by_user <- TRUE
-    }
-    
-    # scale the matrix
-    if (args$scale != "none") {
+        
+    } else if (args$scale != "none") {
+        
+        # Perform scaling
         if (args$scale == "row") {
             if (any(is.na(args$mat))) {
                 args$mat <- (args$mat - rowMeans(args$mat, na.rm = TRUE))/rowSds(args$mat, na.rm = TRUE)
@@ -369,6 +368,7 @@ dittoHeatmap <- function(
                 args$mat <- t(scale(t(args$mat)))
             }
         }
+        
         if (args$scale == "column") {
             if (any(is.na(args$mat))) {
                 args$mat <- t((t(args$mat) - colMeans(args$mat, na.rm = TRUE))/colSds(args$mat, na.rm = TRUE))
@@ -377,24 +377,23 @@ dittoHeatmap <- function(
             }
         }
         
-        if (breaks_not_given_by_user) {
-            limit <- max(abs(range(args$mat)))
-            args$color <- circlize::colorRamp2(
-                breaks = seq(
-                    -1*limit,
-                    limit,
-                    length.out = length(args$color)),
-                colors = args$color)
-        }
-        
         args$scale <- "none"
         
+        # Set breaks via the color input
+        limit <- max(abs(range(args$mat)))
+        args$color <- circlize::colorRamp2(
+            breaks = seq(
+                -1*limit,
+                limit,
+                length.out = length(args$color)),
+            colors = args$color)
     }
     
     args$breaks <- NA
     
     args
 }
+
 
 # This next function creates pheatmap annotations_colors dataframe
     # list of character vectors, all named.
@@ -454,14 +453,14 @@ dittoHeatmap <- function(
     annot.colors.d, annot.colors.n
     ) {
 
-    df_colors <- NULL
+    df_colors <- list()
     for (i in seq_len(ncol(annotation_df))){
-
-        # Determine the distinct contents of the annotation
-        in.this.annot <- levels(as.factor(annotation_df[,i]))
 
         # Make new colors
         if(!is.numeric(annotation_df[,i])){
+            # Discrete, determine the distinct contents of the annotation first
+            in.this.annot <- levels(as.factor(annotation_df[,i]))
+            
             # Take colors for each, and name them.
             new.colors <- annot.colors.d[
                 seq_along(in.this.annot) + next.color.index.discrete - 1
@@ -471,23 +470,19 @@ dittoHeatmap <- function(
             next.color.index.discrete <-
                 next.color.index.discrete + length(in.this.annot)
         } else {
-            # Make a 100 color split as in pheatmap code.
-            a <- cut(
-                annotation_df[order(annotation_df[,i]),i],
-                breaks = 100)
-            # Assign to colors.
-            this.ramp <- annot.colors.n[next.color.index.numeric]
-            new.colors <-
-                grDevices::colorRampPalette(c("white",this.ramp))(100)[a]
-
+            # Numeric, just need colors for min (white) and max
+            new.colors <-c("white",annot.colors.n[next.color.index.numeric])
+            
             next.color.index.numeric <- next.color.index.numeric + 1
         }
+        
         # Add the new colors as the list
         df_colors <- c(
             df_colors,
             list(new.colors))
     }
     names(df_colors) <- names(annotation_df)
+    
     list(df_colors = df_colors,
         next.color.index.discrete = next.color.index.discrete,
         next.color.index.numeric = next.color.index.numeric)
