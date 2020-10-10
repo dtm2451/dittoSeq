@@ -4,7 +4,7 @@ author:
 - name: Daniel Bunis
   affiliation: Bakar Computational Health Sciences Institute, University of California San Francisco, San
   email: daniel.bunis@ucsf.edu
-date: "July 31st, 2020"
+date: "October 9th, 2020"
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -28,7 +28,7 @@ dittoSeq is a tool built to enable analysis and visualization of single-cell
 and bulk RNA-sequencing data by novice, experienced, and color-blind coders.
 Thus, it provides many useful visualizations, which all utilize red-green
 color-blindness optimized colors by default, and which allow sufficient
-customizations, via discrete inputs, for out-of-the-box creation of
+customization, via discrete inputs, for out-of-the-box creation of
 publication-ready figures.
 
 For single-cell data, dittoSeq works directly with data pre-processed in other
@@ -512,7 +512,7 @@ dittoBarPlot(seurat, "ident", group.by = "Sample",
 
 This function is essentially a wrapper for generating heatmaps with pheatmap,
 but with the same automatic, user-friendly, data extraction, (subsetting,) and
-metadata integrations common to other dittoSeq functions.
+metadata integration common to other dittoSeq functions.
 
 For large, many cell, single-cell datasets, it can be necessary to turn off
 clustering by cells in generating the heatmap because the process is very
@@ -553,15 +553,22 @@ dittoHeatmap(seurat, genes,
 A subset of the supplied genes can be given to the `highlight.features` input to
 have names shown for just these genes.
 
+The heatmap can also be rendered by the ComplexHeatmap package, rather than by
+the pheatmap package (default), by setting `complex` to TRUE. This package
+offers a wide variety of distinct plot customization, including rasterization
+when the heatmap would be too complex for editing software like Illustrator.
+
 ```{r}
 # Highlight certain genes
-dittoHeatmap(seurat, genes,
-    annot.by = c("celltype", "Sample"),
-    highlight.features = genes[1:3])
+dittoHeatmap(seurat, genes, annot.by = c("celltype", "Sample"),
+    highlight.features = genes[1:3],
+    complex = TRUE)
 ```
 
 Additional tweaks can be added through other built in inputs or by providing
-additional inputs that get passed along to pheatmap (see `?pheatmap`).
+additional inputs that get passed along to pheatmap::pheatmap (see `?pheatmap`)
+or to ComplexHeatmap::pheatmap (see `?ComplexHeatmap::pheatmap` and 
+`?ComplexHeatmap::Heatmap` on which the former function relies.)
 
 ## Multi-Plotters
 
@@ -570,7 +577,7 @@ multiple variables all in one plot.  They make it easier to create summaries
 for many genes or many cell types without the need for writing loops.
 
 Some setup for these, let's roughly pick out the markers of delta cells in
-this dataset
+this data set
 
 ```{r}
 # Idents(seurat) <- "celltype"
@@ -610,7 +617,7 @@ plot each.
 
 `dittoPlotVarsAcrossGroups()` creates a dittoPlot-like representation where
 instead of representing samples/cells as in typical dittoPlots, each data
-point instead represents a gene (or metadata). More specifrically, the average
+point instead represents a gene (or metadata). More specifically, the average
 expression, within each x-grouping, of a gene (or value of a metadata).
 
 ```{r}
@@ -774,9 +781,6 @@ Compatible functions (**bold** = `hover.data` input also required):
 dittoDimPlot(seurat, "INS",
     do.hover = TRUE,
     hover.data = c("celltype", "Sample", "ENO1", "ident", "nCount_RNA"))
-dittoPlot(seurat, "INS", group.by = "celltype", plots = c("vlnplot", "jitter"),
-    do.hover = TRUE,
-    hover.data = c("celltype", "Sample", "ENO1", "ident", "nCount_RNA"))
 ```
 
 When the types of underlying data possible to be shown are constrained because
@@ -787,8 +791,35 @@ dittoPlotVarsAcrossGroups), just `do.hover` is enough:
 # These can be finicky to render in knitting, but still, example code:
 dittoBarPlot(seurat, "celltype", group.by = "Sample",
     do.hover = TRUE)
-dittoPlotVarsAcrossGroups(seurat, delta.genes, group.by = "celltype",
-    do.hover = TRUE)
+```
+
+## Rasterization / flattening to pixels
+
+Often, single-cell datasets have so many cells that working with plots that
+show data points for every cell in a vector-based graphics editor, such as
+Illustrator, becomes prohibitively computationally intensive. In such
+instances, it can be helpful to have the per-cell graphics layers flattened
+to a pixel representation. Generally, dittoSeq offers this capability for via
+`do.raster` and `raster.dpi` inputs.
+
+```{r}
+# Note: dpi gets re-set by the styling code of this vignette, so this is
+#   just a code example, but the plot won't be quite matched.
+dittoDimPlot(sce, "celltype",
+    do.raster = TRUE,
+    raster.dpi = 300)
+```
+
+For `dittoHeatmap()`, where the plotting itself is handled by an external,
+the control is a bit different and we rely on `?ComplexHeatmap::Heatmap`'s
+input for this. First, set `complex = TRUE` to have the heatmap rendered by
+ComplexHeatmap, then rasterization should be turned on by default when needed,
+but it can also be turned on manually with `use_raster = TRUE`.
+
+```{r}
+dittoHeatmap(seurat, genes, scaled.to.max = TRUE,
+    complex = TRUE,
+    use_raster = TRUE)
 ```
 
 # Session information
