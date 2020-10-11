@@ -267,11 +267,14 @@ dittoHeatmap <- function(
         show_rownames, scale, cluster_cols, border_color, legend_breaks,
         breaks, ...)
     
+    if (complex) {
+        args <- .extra_adjustments_for_complex(args)
+    }
+    
     if (data.out) {
         OUT <- args
     } else if (complex) {
         .error_if_no_complexHm()
-        args <- .extra_adjustments_for_complex(args)
         OUT <- do.call(ComplexHeatmap::pheatmap, args)
     } else {
         OUT <- do.call(pheatmap::pheatmap, args)
@@ -373,16 +376,7 @@ dittoHeatmap <- function(
 # Overall, adjusts inputs to help equalize differences between default outputs.
 .extra_adjustments_for_complex <- function(args) {
     
-    if (!is.na(args$breaks[1])) {
-        
-        args$color <- circlize::colorRamp2(
-            breaks = seq(
-                min(args$breaks),
-                max(args$breaks),
-                length.out = length(args$color)),
-            colors = args$color)
-        
-    } else if (args$scale != "none") {
+    if (args$scale != "none" && identical(args$breaks[1], NA)) {
         
         # Perform scaling
         if (args$scale == "row") {
@@ -405,17 +399,13 @@ dittoHeatmap <- function(
         
         args$scale <- "none"
         
-        # Set breaks via the color input
+        # Set breaks to be bimodal, centered on zero
         limit <- max(abs(range(args$mat)))
-        args$color <- circlize::colorRamp2(
-            breaks = seq(
+        args$breaks <- seq(
                 -1*limit,
                 limit,
-                length.out = length(args$color)),
-            colors = args$color)
+                length.out = length(args$color))
     }
-    
-    args$breaks <- NA
     
     args
 }
