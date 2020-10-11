@@ -367,8 +367,8 @@ dittoHeatmap <- function(
 }
 
 # This function takes in a list of args formatted for pheatmap::pheatmap that
-# are to be passed on to ComplexHeatmap, and adjusts the colors input to help
-# remove need for the breaks input.
+# are to be passed on to ComplexHeatmap, and adjusts the breaks input to ensure
+# colors will match.
 #
 # Also adjusts the mat and scale arguments only to not duplicate the scaling
 # calculation. (scaling is run here to determine proper breaks.)
