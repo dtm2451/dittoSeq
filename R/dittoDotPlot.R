@@ -289,7 +289,8 @@ dittoDotPlot <- function(
     assay,
     slot,
     adjustment,
-    do.hover) {
+    do.hover,
+    numeric.only = TRUE) {
     
     groupings <- meta(group.by, object)[cells.use]
 
@@ -297,7 +298,7 @@ dittoDotPlot <- function(
     # rows = cells/samples
     # cols = vars
     vars_data <- .multi_var_gather_raw(
-        object, vars, assay, slot, adjustment, cells.use)
+        object, vars, assay, slot, adjustment, cells.use, numeric.only)
 
     ### Summarize vars data per group
     # rows = summarized vars data
@@ -343,7 +344,8 @@ dittoDotPlot <- function(
     assay,
     slot,
     adjustment,
-    cells.use) {
+    cells.use,
+    numeric.only) {
     
     call_meta <- isMeta(vars, object, return.values = FALSE)
     meta_vars <- vars[call_meta]
@@ -376,6 +378,14 @@ dittoDotPlot <- function(
         }
         
         vars_data <- cbind(vars_data, gene_data)
+    }
+    
+    if (numeric.only) {
+        for (ind in seq_len(ncol(vars_data))) {
+            if (!is.numeric(vars_data[,ind])) {
+                stop("All 'vars' must be numeric. ", names(vars_data)[ind], " is not numeric.")
+            }
+        }
     }
     
     vars_data[cells.use, vars]
