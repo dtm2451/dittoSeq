@@ -149,7 +149,11 @@ or based on the "max.prop"ortion of cells/samples belonging to any grouping.}
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
-Default = the first dimensionality reduction slot inside the object with "umap", "tsne", or "pca" within its name, (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.}
+Default = the first dimensionality reduction slot inside the object with "umap", "tsne", or "pca" within its name, (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.
+
+Alternatively, a matrix (or data.frame) containing the dimensionality reduction embeddings themselves.
+The matrix should have as many rows as there are cells/samples in the \code{object}.
+Note that \code{dim.1} and \code{dim.2} will still be used to select which columns to pull from, and column names will serve as the default \code{xlab} & \code{ylab}.}
 
 \item{dim.1}{The component number to use on the x-axis. Default = 1}
 

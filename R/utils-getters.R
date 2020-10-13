@@ -1,6 +1,6 @@
 .all_cells <- function(object) {
     # Retrieves all cell/sample names / barcodes from a dataset
-    if (is(object, "Seurat") || is(object,"SingleCellExperiment")) {
+    if (is(object, "Seurat") || is(object,"SummarizedExperiment")) {
         # Seurat-v3, bulk or single-cell SCE
         return(colnames(object))
     } else {
@@ -38,7 +38,7 @@
     assay = .default_assay(object), slot = .default_slot(object), object) {
     # Retrieves the required counts data from 'object'
 
-    if (is(object,"SingleCellExperiment")) {
+    if (is(object,"SummarizedExperiment")) {
         return(SummarizedExperiment::assay(object, assay))
     }
     if (is(object,"Seurat")) {
@@ -121,17 +121,24 @@
     # Extracts loadings ("embeddings") and suggested plotting label ("name")
     # for an individual dimensionality reduction dimension.
 
-    if (is(object,"seurat")) {
+    if (is.data.frame(reduction.use) || is.matrix(reduction.use)) {
+        
+        embeds <- reduction.use
+        
+    } else if (is(object,"seurat")) {
+        
         embeds <- eval(expr = parse(text = paste0(
             "object@dr$",reduction.use,"@cell.embeddings")))
         colnames(embeds) <- paste0(eval(expr = parse(text = paste0(
             "object@dr$",reduction.use,"@key"))),seq_len(ncol(embeds)))
-    }
-    if (is(object,"Seurat")) {
+        
+    } else if (is(object,"Seurat")) {
+        
         .error_if_no_Seurat()
         embeds <- Seurat::Embeddings(object, reduction = reduction.use)
-    }
-    if (is(object,"SingleCellExperiment")) {
+        
+    } else if (is(object,"SingleCellExperiment")) {
+        
         embeds <- SingleCellExperiment::reducedDim(
             object, type = reduction.use, withDimnames=TRUE)
         if (is.null(colnames(embeds))) {
@@ -139,6 +146,7 @@
                 paste0(.gen_key(reduction.use), seq_len(ncol(embeds)))
         }
     }
+    
     OUT <- list(embeds[,dim])
     OUT[2] <- colnames(embeds)[dim]
     names(OUT) <- c("embeddings","name")

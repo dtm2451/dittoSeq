@@ -21,6 +21,8 @@ isBulk <- function(object) {
                 OUT <- TRUE
             }
         }
+    } else if (is(object,"SummarizedExperiment")) {
+        OUT <- TRUE
     }
     OUT
 }
