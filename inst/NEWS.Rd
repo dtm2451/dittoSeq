@@ -2,6 +2,11 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.1.11}{\itemize{
+\item Added compatibility for SummarizedExperiments natively, rather than requiring their conversion to a SingleCellExperiment.
+\item Added rasterization & ComplexHeatmap compatibility to `dittoHeatmap()` via utilization of the ComplexHeatmap's pheatmap translation function.
+}}
+
 \section{Version 1.1.10}{\itemize{
 \item Added rasterization for `dittoPlot()` and `dittoPlotVarsAcrossGroups()` under control by `do.raster` and `raster.dpi` inputs. (Rasterization effects jitter layers only.)
 }}
