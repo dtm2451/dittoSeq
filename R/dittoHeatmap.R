@@ -267,10 +267,6 @@ dittoHeatmap <- function(
         show_rownames, scale, cluster_cols, border_color, legend_breaks,
         breaks, ...)
     
-    if (complex) {
-        args <- .extra_adjustments_for_complex(args)
-    }
-    
     if (data.out) {
         OUT <- args
     } else if (complex) {
@@ -365,51 +361,6 @@ dittoHeatmap <- function(
 
     args
 }
-
-# This function takes in a list of args formatted for pheatmap::pheatmap that
-# are to be passed on to ComplexHeatmap, and adjusts the breaks input to ensure
-# colors will match.
-#
-# Also adjusts the mat and scale arguments only to not duplicate the scaling
-# calculation. (scaling is run here to determine proper breaks.)
-#
-# Overall, adjusts inputs to help equalize differences between default outputs.
-.extra_adjustments_for_complex <- function(args) {
-    
-    if (args$scale != "none" && identical(args$breaks[1], NA)) {
-        
-        # Perform scaling
-        if (args$scale == "row") {
-            if (any(is.na(args$mat))) {
-                args$mat <- (args$mat - apply(args$mat, 1, function(x) mean(x, na.rm = TRUE))) /
-                    apply(args$mat, 1, function(x) sd(x, na.rm = TRUE))
-            } else {
-                args$mat <- t(scale(t(args$mat)))
-            }
-        }
-        
-        if (args$scale == "column") {
-            if (any(is.na(args$mat))) {
-                args$mat <- t((t(args$mat) - apply(args$mat, 2, function(x) mean(x, na.rm = TRUE))) /
-                    apply(args$mat, 2, function(x) sd(x, na.rm = TRUE)))
-            } else {
-                args$mat <- scale(args$mat)
-            }
-        }
-        
-        args$scale <- "none"
-        
-        # Set breaks to be bimodal, centered on zero
-        limit <- max(abs(range(args$mat)))
-        args$breaks <- seq(
-                -1*limit,
-                limit,
-                length.out = length(args$color))
-    }
-    
-    args
-}
-
 
 # This next function creates pheatmap annotations_colors dataframe
     # list of character vectors, all named.
