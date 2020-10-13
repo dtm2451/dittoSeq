@@ -6,6 +6,7 @@
 #' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap.
 #' If not provided, defaults to all genes of the object / assay.
 #' @param metas String vector, c("meta1","meta2","meta3",...) = the list of metadata variables to put in the heatmap.
+#' @param complex Logical which sets whether the heatmap should be generated with ComplexHeatmap (\code{TRUE}) versus pheatmap (\code{FALSE}, default).
 #' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 #' 
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -27,7 +28,7 @@
 #' (Can be useful for troubleshooting or customization.)
 #' @param highlight.features String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.
 #' @param highlight.genes Deprecated, use \code{highlight.features} instead.
-#' @param cluster_cols,border_color,legend_breaks,breaks,... other arguments passed to \code{\link{pheatmap}} directly.
+#' @param cluster_cols,border_color,legend_breaks,breaks,... other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).
 #' @param show_colnames,show_rownames,scale,annotation_col,annotation_colors arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
 #' \itemize{
 #' \item show_colnames (& labels_col): if \code{cell.names.meta} is provided, pheatmaps's \code{labels_col} is utilized to show these names and \code{show_colnames} parameter is set to \code{TRUE}.
@@ -38,15 +39,18 @@
 #' but it is possible to set all or some manually. dittoSeq will just fill any left out annotations. Format is a named (annotation_col & annotation_row colnames) character vector list where individual color values can also be named.
 #' }
 #' @description Given a set of genes, cells/samples, and metadata names for column annotations, this function will retrieve the expression data for those genes and cells, and the annotation data for those cells.
-#' It will then utilize these data to make a heatmap using the \code{\link[pheatmap]{pheatmap}} function of the \code{pheatmap} package.
+#' It will then utilize these data to make a heatmap using the \code{\link[pheatmap]{pheatmap}} function of either the \code{pheatmap} (default) or \code{ComplexHeatmap} package.
 #'
 #' @return A \code{pheatmap} object.
 #'
-#' Alternatively, if \code{data.out} was set to \code{TRUE}, a list containing all arguments that would have be passed to pheatmap to generate such a heatmap.
+#' Alternatively, if \code{complex} is set to \code{TRUE}, a \code{\link[ComplexHeatmap]{Heatmap}}
+#' 
+#' Alternatively, if \code{data.out} is set to \code{TRUE}, a list containing all arguments that would have be passed to pheatmap to generate such a heatmap.
 #'
 #' @details
-#' This function serves as a wrapper for creating heatmaps from bulk or single-cell RNAseq data with \code{\link{pheatmap}},
+#' This function serves as a wrapper for creating heatmaps from bulk or single-cell RNAseq data with pheatmap::\code{\link{pheatmap}},
 #' by essentially automating the data extraction and annotation building steps.
+#' (Or alternatively with ComplexHeatmap::\code{\link[ComplexHeatmap]{pheatmap}} if \code{complex} is set to \code{true}.
 #'
 #' The function will extract the expression matrix for a set of \code{genes} and/or an optional subset of cells / samples to use via \code{cells.use},
 #' This matrix is either left as is, default (for scaling within the ultimate call to pheatmap), or if \code{scaled.to.max = TRUE}, is scaled by dividing each row by its maximum value.
@@ -62,7 +66,7 @@
 #'
 #' Such ordering happens by default for single-cell RNAseq data when any metadata are provided to \code{annot.by} as it is often unfeasible to cluster thousands of cells.
 #' \item A plot title can be added with \strong{\code{main}}.
-#' \item \strong{Gene or cell/sample names} can be hidden with \code{show_rownames} and \code{show_colnames}, respectively, or...
+#' \item Gene or cell/sample names can be hidden with \code{show_rownames} and \code{show_colnames}, respectively, or...
 #' \itemize{
 #' \item Particular features can also be selected for labeling using the \code{highlight.features} input.
 #' \item Names of all cells/samples can be replaced with the contents of a metadata slot using the \code{cell.names.meta} input.
@@ -74,6 +78,12 @@
 #' Note: cluster_cols will always be over-written to be \code{FALSE} when the input \code{order.by} is used above.
 #' \item \code{treeheight_row} and \code{treeheight_col} for setting how large the trees on the side/top should be drawn.
 #' \item \code{cutree_col} and \code{cutree_row} for spliting the heatmap based on kmeans clustering
+#' }
+#' \item When \code{complex} is set to \code{TRUE}, additional inputs for the \code{\link[ComplexHeatmap]{Heatmap}} function can be given as well.
+#' Some examples:
+#' \itemize{
+#' \item \code{use_raster} to have the heatmap rasterized/flattened to pixels which can make working with large heatmaps in a figure editor, like Illustrator, simpler.
+#' \item \code{name} to give the heatmap color scale a custom title.
 #' }
 #' }
 #'
@@ -102,7 +112,8 @@
 #' }
 #'
 #' @seealso
-#' \code{\link[pheatmap]{pheatmap}}, for how to add additional heatmap tweaks.
+#' pheatmap::\code{\link[pheatmap]{pheatmap}}, for how to add additional heatmap tweaks,
+#' OR or ComplexHeatmap::\code{\link[ComplexHeatmap]{pheatmap}} and \code{\link[ComplexHeatmap]{Heatmap}} for when you want to turn on rasterization or any additional customizations offered by this fantastic package.
 #'
 #' \code{\link{metaLevels}} for helping to create manual annotation_colors inputs.
 #' This function universally checks the options/levels of a string, factor (filled only by default), or numerical metadata.
@@ -140,11 +151,24 @@
 #'     order.by = "clustering")
 #'
 #' # When there are many cells, showing names becomes less useful.
-#' #   Names can be turned off with the show_colnames parameter.
-#' dittoHeatmap(myRNA, genes,
+#' #   Names can be turned off with the 'show_colnames' parameter.
+#' dittoHeatmap(scRNA, genes,
 #'     annot.by = "groups",
-#'     order.by = "groups",
 #'     show_colnames = FALSE)
+#' 
+#' # When theree are many many cells & genes, rasterization can be super useful
+#' # as well.
+#' #   Rasterization, or flattening of the distinct color objects to a matrix of
+#' #   pixels, is the default for large heatmaps in the ComplexHeatmap package,
+#' #   and you can have the heatmap rendered with this package (rather than the
+#' #   pheatmap package) by setting 'complex = TRUE'.
+#' #   Our data here is too small to hit that defaulting switch, so lets give
+#' #   the direct input, 'use_raster' as well:
+#' if (require(ComplexHeatmap)) { # Checks (and loads) if you have the package.
+#'     dittoHeatmap(scRNA, genes, annot.by = "groups", show_colnames = FALSE,
+#'         complex = TRUE,
+#'         use_raster = TRUE)
+#' }
 #'
 #' # Additionally, it is recommended for single-cell data that the parameter
 #' #   scaled.to.max be set to TRUE, or scale be "none" and turned off altogether,
@@ -153,6 +177,7 @@
 #' dittoHeatmap(myRNA, genes, annot.by = "groups",
 #'     order.by = "groups", show_colnames = FALSE,
 #'     scaled.to.max = TRUE)
+#' 
 #'
 #' @author Daniel Bunis and Jared Andrews
 #' @importFrom pheatmap pheatmap
@@ -186,6 +211,7 @@ dittoHeatmap <- function(
     border_color = NA,
     legend_breaks = NA,
     breaks = NA,
+    complex = FALSE,
     ...) {
 
     # If cells.use given as logical, populate as names.
@@ -201,6 +227,7 @@ dittoHeatmap <- function(
         highlight.features <- highlight.genes
     }
 
+    ### Obtain all needed data
     data <- .get_heatmap_data(object, genes, metas, assay, slot, cells.use)
     
     if (!is.null(cell.names.meta)) {
@@ -215,13 +242,12 @@ dittoHeatmap <- function(
         order_data <- NULL
     }
     
-    # Make the columns annotations data for colored annotation bars
+    # Make the columns annotations data
     if (is.null(annotation_col)) {
         annotation_col <- data.frame(row.names = cells.use)
     } else if (!all(cells.use %in% rownames(annotation_col))) {
         stop("rows of 'annotation_col' must be cell/sample names of all cells/samples being displayed")
     }
-    
     if (!is.null(annot.by)) {
         annotation_col <- rbind(
             as.data.frame(getMetas(object, names.only = FALSE)[cells.use, annot.by, drop = FALSE]),
@@ -233,15 +259,19 @@ dittoHeatmap <- function(
         main <- NA
     }
     
+    ### Prep inputs for heatmap contructor calls
     args <- .prep_ditto_heatmap(
         data, cells.use, all.cells, cell.names, order_data, main,
         heatmap.colors, scaled.to.max, heatmap.colors.max.scaled, annot.colors,
         annotation_col, annotation_colors, highlight.features, show_colnames,
         show_rownames, scale, cluster_cols, border_color, legend_breaks,
         breaks, ...)
-
+    
     if (data.out) {
         OUT <- args
+    } else if (complex) {
+        .error_if_no_complexHm()
+        OUT <- do.call(ComplexHeatmap::pheatmap, args)
     } else {
         OUT <- do.call(pheatmap::pheatmap, args)
     }
@@ -390,14 +420,14 @@ dittoHeatmap <- function(
     annot.colors.d, annot.colors.n
     ) {
 
-    df_colors <- NULL
+    df_colors <- list()
     for (i in seq_len(ncol(annotation_df))){
-
-        # Determine the distinct contents of the annotation
-        in.this.annot <- levels(as.factor(annotation_df[,i]))
 
         # Make new colors
         if(!is.numeric(annotation_df[,i])){
+            # Discrete, determine the distinct contents of the annotation first
+            in.this.annot <- levels(as.factor(annotation_df[,i]))
+            
             # Take colors for each, and name them.
             new.colors <- annot.colors.d[
                 seq_along(in.this.annot) + next.color.index.discrete - 1
@@ -407,23 +437,19 @@ dittoHeatmap <- function(
             next.color.index.discrete <-
                 next.color.index.discrete + length(in.this.annot)
         } else {
-            # Make a 100 color split as in pheatmap code.
-            a <- cut(
-                annotation_df[order(annotation_df[,i]),i],
-                breaks = 100)
-            # Assign to colors.
-            this.ramp <- annot.colors.n[next.color.index.numeric]
-            new.colors <-
-                grDevices::colorRampPalette(c("white",this.ramp))(100)[a]
-
+            # Numeric, just need colors for min (white) and max
+            new.colors <-c("white",annot.colors.n[next.color.index.numeric])
+            
             next.color.index.numeric <- next.color.index.numeric + 1
         }
+        
         # Add the new colors as the list
         df_colors <- c(
             df_colors,
             list(new.colors))
     }
     names(df_colors) <- names(annotation_df)
+    
     list(df_colors = df_colors,
         next.color.index.discrete = next.color.index.discrete,
         next.color.index.numeric = next.color.index.numeric)

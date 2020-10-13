@@ -27,3 +27,10 @@
         stop("ggrastr installation required for using rasterization with dittoScatterPlot plotters.")
     }
 }
+
+.error_if_no_complexHm <- function() {
+    if (!requireNamespace("ComplexHeatmap", quietly = TRUE)) {
+        stop("ComplexHeatmap installation required for using `complex` in dittoHeatmap.",
+             "\nInstall with BiocManager::install('ComplexHeatmap').")
+    }
+}

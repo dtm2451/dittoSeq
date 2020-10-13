@@ -46,7 +46,8 @@ Suggests: plotly,
     knitr,
     BiocStyle,
     scRNAseq,
-    ggrastr (>= 0.2.0)
+    ggrastr (>= 0.2.0),
+    ComplexHeatmap
 biocViews: 
     Software,
     Visualization,
