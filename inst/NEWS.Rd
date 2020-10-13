@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.1.10}{\itemize{
+\item Added rasterization for `dittoPlot()` and `dittoPlotVarsAcrossGroups()` under control by `do.raster` and `raster.dpi` inputs. (Rasterization effects jitter layers only.)
+}}
+
 \section{Version 1.1.9}{\itemize{
 \item Added rasterization for `dittoScatterPlot()` and `dittoDimPlot()` under control by `do.raster` and `raster.dpi` inputs. Rasterization flattens the dots layer which can make working with a plot that has many, many cells, within a vector-based graphics editor, easier.
 }}

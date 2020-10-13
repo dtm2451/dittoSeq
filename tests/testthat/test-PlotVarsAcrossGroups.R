@@ -66,7 +66,7 @@ test_that("dittoPlotVarsAcrossGroups works with any gene adjustments", {
         "ggplot")
 })
 
-test_that("dittoPlotVarsAcrossGroups errors for single vars", {
+test_that("dittoPlotVarsAcrossGroups errors for single vars or non-numeric vars", {
     expect_error(
         dittoPlotVarsAcrossGroups(seurat, group.by = grp,
             c("number")),
@@ -76,6 +76,10 @@ test_that("dittoPlotVarsAcrossGroups errors for single vars", {
         dittoPlotVarsAcrossGroups(seurat, group.by = grp,
             c("gene1")),
         "'vars' must be a vector of at least two", fixed = TRUE)
+    expect_error(
+        dittoPlotVarsAcrossGroups(seurat, group.by = grp,
+            c("gene1", "gene2", grp)),
+        "'vars' must be numeric", fixed = TRUE)
 })
 
 test_that("dittoPlotVarsAcrossGroups can work for metadata", {
@@ -294,5 +298,18 @@ test_that("dittoPlotVarsAcrossGroups violin plot adjustments work", {
         dittoPlotVarsAcrossGroups(
             genes, object=seurat, group.by = grp,
             vlnplot.scaling = "width"),
+        "ggplot")
+})
+
+test_that("dittoPlotVarsAcrossGroups with and without jitter rasterization produces identical plots", {
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, object=seurat, group.by = grp,
+            plots = c("vlnplot", "boxplot", "jitter"), do.raster = TRUE),
+        "ggplot")
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, object=seurat, group.by = grp,
+            plots = c("vlnplot", "boxplot", "jitter")),
         "ggplot")
 })

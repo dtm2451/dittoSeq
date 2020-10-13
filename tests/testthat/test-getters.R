@@ -114,6 +114,7 @@ test_that("isBulk works properly", {
     expect_true(isBulk(bulk))
     expect_false(isBulk(sce))
     expect_false(isBulk(seurat))
+    expect_true(isBulk(as(sce, "SummarizedExperiment")))
 })
 
 test_that("setBulk works properly", {

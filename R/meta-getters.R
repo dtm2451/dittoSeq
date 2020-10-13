@@ -137,7 +137,7 @@ meta <- function(meta, object,
     }
     
     # Retrieve target metadata's values
-    if (meta=="ident" && !is(object,"SingleCellExperiment")) {
+    if (meta=="ident" && !is(object,"SummarizedExperiment")) {
         # Seurat clustering
         if (is(object, "Seurat")) {
             .error_if_no_Seurat()

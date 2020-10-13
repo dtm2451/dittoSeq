@@ -40,7 +40,7 @@ test_that("dittoDotPlot can plot gene and meta data with Seurat or SCE", {
         "ggplot")
 })
 
-test_that("dittoDotPlot errors for single vars", {
+test_that("dittoDotPlot errors for single vars or non-numeric vars", {
     expect_error(
         dittoDotPlot(seurat, group.by = disc,
             c("score")),
@@ -50,6 +50,10 @@ test_that("dittoDotPlot errors for single vars", {
         dittoDotPlot(seurat, group.by = disc,
             c("gene1")),
         "'vars' must be a vector of at least two", fixed = TRUE)
+    expect_error(
+        dittoDotPlot(seurat, group.by = disc,
+            c("gene1", "gene2", disc)),
+        "'vars' must be numeric", fixed = TRUE)
 })
 
 test_that("dittoDotPlot works with any gene adjustments", {

@@ -36,7 +36,7 @@
 #' @importFrom SummarizedExperiment assays
 .default_assay <- function(object) {
     # Decides which assay should be default on prefs or defaults
-    if (is(object, "SingleCellExperiment")) {
+    if (is(object, "SummarizedExperiment")) {
         # prefer logcounts > normcounts > counts > first assay
         return(.preferred_or_first(
             names(SummarizedExperiment::assays(object)),
@@ -55,7 +55,7 @@
 
 .default_assay_raw <- function(object) {
     # Decides which assay should be default on prefs or defaults
-    if (is(object, "SingleCellExperiment")) {
+    if (is(object, "SummarizedExperiment")) {
         # prefer logcounts > normcounts > counts > first assay
         return(.preferred_or_first(
             names(SummarizedExperiment::assays(object)),
@@ -74,7 +74,7 @@
 
 .default_slot <- function(object) {
     # Decides what slot should be by default
-    if (is(object, "SingleCellExperiment")) {
+    if (is(object, "SummarizedExperiment")) {
         # no slots for SCEs
         return(NA)
     } else {
@@ -85,7 +85,7 @@
 
 .default_slot_raw <- function(object) {
     # Decides what slot should be by default
-    if (is(object, "SingleCellExperiment")) {
+    if (is(object, "SummarizedExperiment")) {
         # no slots for SCEs
         return(NA)
     } else {
@@ -111,7 +111,7 @@
     # Capitalization-ignored, prefers umap > tsne > pca > the first reduciton.
     opts <- getReductions(object)
     if (is.null(opts)) {
-        stop("No dimensionality reduction slots in 'object'")
+        stop("No dimensionality reduction slots in 'object'. Add one, or provide embeddings directly to 'reduction.use'.")
     }
     use <- .preferred_or_first(opts, c("umap","tsne","pca"))
     use
