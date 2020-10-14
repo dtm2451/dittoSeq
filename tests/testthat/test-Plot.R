@@ -284,6 +284,12 @@ test_that("dittoPlot boxplot adjustments work", {
             boxplot.width = 1, boxplot.color = "blue", boxplot.fill = FALSE,
             boxplot.show.outliers = TRUE),
         "ggplot")
+    # Manual Check: boxplots that overlap
+    expect_s3_class(
+        dittoPlot(
+            "number", object=seurat, group.by = grp, plots = c("jitter","boxplot"),
+            color.by = clr, boxplot.width = 0.3, boxplot.position.dodge = 0.2),
+        "ggplot")
 })
 
 test_that("dittoPlot violin plot adjustments work", {

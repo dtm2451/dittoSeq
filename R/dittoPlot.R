@@ -86,6 +86,7 @@
 #' Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is no jitter.
 #' @param boxplot.fill Logical, whether the boxplot should be filled in or not.
 #' Known bug: when boxplot fill is turned off, outliers do not render.
+#' @param boxplot.position.dodge Scalar which adjusts the distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
 #' @param vlnplot.lineweight Scalar which sets the thickness of the line that outlines the violin plots.
 #' @param vlnplot.width Scalar which sets the width/spread of the jitter in the x direction
 #' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to eachother.
@@ -239,7 +240,8 @@ dittoPlot <- function(
     boxplot.width = 0.2,
     boxplot.color = "black",
     boxplot.show.outliers = NA,
-    boxplot.fill =TRUE,
+    boxplot.fill = TRUE,
+    boxplot.position.dodge = vlnplot.width,
     vlnplot.lineweight = 1,
     vlnplot.width = 1,
     vlnplot.scaling = "area",
@@ -270,7 +272,7 @@ dittoPlot <- function(
     legend.title <- .leave_default_or_null(legend.title, var,
         null.if = is.null(shape.by))
 
-    #Grab the data
+    # Grab the data
     Target_data <- .dittoPlot_data_gather(object, var, group.by, color.by,
         c(shape.by,split.by,extra.vars), cells.use, assay, slot, adjustment,
         do.hover, hover.data)$Target_data
@@ -286,10 +288,12 @@ dittoPlot <- function(
         p <- .dittoPlot_add_data_y_direction(
             p, Target_data, plots, xlab, ylab, shape.by, jitter.size,
             jitter.width, jitter.color, shape.panel, jitter.shape.legend.size,
-            jitter.shape.legend.show, do.raster, raster.dpi, boxplot.width, boxplot.color,
-            boxplot.show.outliers, boxplot.fill, vlnplot.lineweight,
-            vlnplot.width, vlnplot.scaling, add.line, line.linetype,
-            line.color, x.labels.rotate, do.hover, y.breaks, min, max, object)
+            jitter.shape.legend.show, do.raster, raster.dpi,
+            boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
+            boxplot.position.dodge,
+            vlnplot.lineweight, vlnplot.width, vlnplot.scaling,
+            add.line, line.linetype, line.color,
+            x.labels.rotate, do.hover, y.breaks, min, max, object)
     } else {
         p <- .dittoPlot_add_data_x_direction(
             p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
@@ -336,6 +340,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     jitter.size, jitter.width, jitter.color,shape.panel,
     jitter.shape.legend.size, jitter.shape.legend.show, do.raster, raster.dpi,
     boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
+    boxplot.position.dodge,
     vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
     line.linetype, line.color, x.labels.rotate, do.hover, y.breaks, min, max,
     object) {
@@ -370,6 +375,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 width = boxplot.width,
                 color = boxplot.color,
                 alpha = ifelse(boxplot.fill, 1, 0),
+                position = position_dodge(width = boxplot.position.dodge),
                 na.rm = TRUE)
             if (is.na(boxplot.show.outliers)) {
                 boxplot.show.outliers <- ifelse("jitter" %in% plots, FALSE, TRUE)
