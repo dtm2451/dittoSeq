@@ -263,7 +263,7 @@ dittoDotPlot <- function(
     
     if (do.hover) {
         p <- p + suppressWarnings(
-            geom_point(aes(text = "hover.string"), na.rm = TRUE))
+            geom_point(aes_string(text = "hover.string"), na.rm = TRUE))
     } else {
         p <- p + geom_point(na.rm = TRUE)
     }
