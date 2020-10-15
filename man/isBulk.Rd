@@ -2,20 +2,22 @@
 % Please edit documentation in R/bulk-get-and-set.R
 \name{isBulk}
 \alias{isBulk}
-\title{Retrieve whether a SingleCellExperiment object would be treated as bulk versus single-cell by dittoSeq}
+\title{Retrieve whether a given object would be treated as bulk versus single-cell by dittoSeq}
 \usage{
 isBulk(object)
 }
 \arguments{
-\item{object}{A target SingleCellExperiment object
-
-Alternatively, anything else, but then the result will always be \code{FALSE}}
+\item{object}{A target Seurat, SingleCellExperiment, or SummarizedExperiment object}
 }
 \value{
-Logical: whether the provided object would be treated as bulk data by dittoSeq
+Logical: whether the provided object would be treated as bulk data by dittoSeq.
+\itemize{
+\item TRUE for SummarizedExperiments that are not SCEs, and for SCEs with \code{$bulk = TRUE} in their internal metadata.
+\item FALSE for any other object type and for SCEs without such internal metadata
+}
 }
 \description{
-Retrieve whether a SingleCellExperiment object would be treated as bulk versus single-cell by dittoSeq
+Retrieve whether a given object would be treated as bulk versus single-cell by dittoSeq
 }
 \examples{
 example(importDittoBulk, echo = FALSE)
@@ -25,4 +27,7 @@ isBulk(myRNA)
 
 scRNA <- setBulk(myRNA, FALSE)
 isBulk(scRNA)
+}
+\seealso{
+\code{\link{setBulk}} to (add to and) set the internal metadata of an SCE to say whether the object repressents bulk data.
 }

@@ -161,7 +161,7 @@ All functions will work the same for either the Seurat or SCE version.
 
 ## Single-cell RNAseq data
 
-dittoSeq works directly with Seurat and SingleCellExperiment objects.  Nothing
+dittoSeq works natively with Seurat and SingleCellExperiment objects.  Nothing
 special is needed. Just load in your data if it isn't already loaded, then go!
 
 ```{r}
@@ -172,10 +172,14 @@ dittoBarPlot(sce, "celltype", group.by = "Sample")
 
 ## Bulk RNAseq data
 
-Bulk RNAseq data is handled by dittoSeq using the SingleCellExperiment
-structure. This structure is essentially very similar to the
-SummarizedExperiment, just with room added for storing calculated
-dimensionality reductions.
+dittoSeq works natively with bulk RNAseq data stored as a
+SummarizedExperiment object. For bulk data stored in other forms, namely as
+a DGEList or as raw matrices, one can use the `importDittoBulk()` function to
+convert it into the SingleCellExperiment structure.
+
+Some brief details on this structure: The SingleCellEExperiment class is very
+similar to the SummarizedExperiment class, just with room added for storing
+pre-calculated dimensionality reductions.
 
 ```{r}
 # First, let's make some mock expression and conditions data
@@ -239,14 +243,15 @@ dittoHeatmap(myRNA, getGenes(myRNA)[1:10],
 
 #### Additional details on bulk data import:
 
-The SCE object created by `importDittoBulk()` will contain an internal metadata
-slot which tells dittoSeq that the object holds bulk data. Functions like
-`dittoBarPlot()` and `dittoHeatmap()` have 
+By default, sample-associated data from original objects are retained. But
+metadata provided to the `metadata` input will replace any similarly named
+slots from the original object. The `combine_metadata` input can additionally
+be used to turn retention of previous metadata slots off.
 
-By default, metadata from original objects are retained. But metadata provided
-to the `metadata` input will replace any similarly named slots from the
-original object. The `combine_metadata` input can additionally be used to
-turn retention of previous metadata slots off.
+DGEList note: The import function attempts to pull in all information stored in
+common DGEList slots (\$counts, \$samples, \$genes, \$AveLogCPM,
+\$common.dispersion, \$trended.dispersion, \$tagwise.dispersion, and \$offset),
+but any other slots are ignored.
 
 When providing `x` a list of a single or multiple matrices, it is recommended
 that matrices containing raw feature counts data be named `counts`,
@@ -257,10 +262,12 @@ requirement, but the default assay used in dittoSeq functions will be one of:
 1) "logcounts" if it exists, 2) "normcounts" if it exists, 3) "counts" if it
 exists, or 4) whatever the first assay is in the object.
 
-DGEList note: The import function attempts to pull in all information stored in
-common DGEList slots (\$counts, \$samples, \$genes, \$AveLogCPM,
-\$common.dispersion, \$trended.dispersion, \$tagwise.dispersion, and \$offset),
-but any other slots are ignored.
+The SCE object created by `importDittoBulk()` will contain an internal metadata
+slot which tells dittoSeq that the object holds bulk data. Knowledge of whether
+a dataset is single-cell versus bulk is used to aadjust parameter defaults for
+in few functions; "samples" vs "cells" in the y-axis label of `dittoBarPlot()`,
+and whether cells (no) versus samples (yes) should be clustered by default for
+`dittoHeatmap()`.
 
 # Helper Functions
 
@@ -301,11 +308,11 @@ getReductions(seurat)
 
 These are what can be provided to `reduction.use` for `dittoDimPlot()`.
 
-## Bulk versus single-cell
+## Characteristic: Bulk versus single-cell
 
-Because dittoSeq utilizes the SingleCellExperiment structure to handle bulk
-RNAseq data, there is a getter and setter for the internal metadata which tells
-dittoSeq functions which resolution of data a target SCE holds.
+Because dittoSeq utilizes the SingleCellExperiment structure to handle some
+bulk RNAseq data, there is a getter and setter for the internal metadata which
+tells dittoSeq functions which resolution of data a target SCE holds.
 
 ```{r}
 # Getter
@@ -316,8 +323,6 @@ isBulk(myRNA)
 mock_bulk <- setBulk(sce) # to bulk
 mock_sc <- setBulk(myRNA, set = FALSE) # to single-cell
 ```
-
-NOTE: for any non-SCE objects, `isBulk()` will always return FALSE
 
 # Visualizations
 
@@ -335,7 +340,7 @@ of `dittoDimPlot()` being dimensionality reductions like tsne, pca, umap or
 similar.
 
 ```{r, results = "hold"}
-dittoDimPlot(seurat, "celltype")
+dittoDimPlot(seurat, "celltype", reduction.use = "pca")
 dittoDimPlot(sce, "ENO1")
 ```
 
@@ -766,29 +771,15 @@ about each data point when the user hovers their cursor on top.
 Generally, a second input, `hover.data`, is used to tell dittoSeq what extra
 data to display. This input takes in a vector of gene or metadata names (or
 "ident" for Seurat object clustering) in the order you wish for them to be
-displayed.
-
-Compatible functions (**bold** = `hover.data` input also required):
-
-- **`dittoDimPlot()`**
-- **`dittoScatterPlot()`**
-- **`dittoPlot()`**
-- `dittoPlotVarsAcrossGroups()`
-- `dittoBarPlot()`
+displayed. However, when the types of underlying data possible to be shown are
+constrained because the plot pieces represent summary data (dittoBarPlot and
+dittoPlotVarsAcrossGroups), the `hover.data` input is not used.
 
 ```{r, eval = FALSE}
 # These can be finicky to render in knitting, but still, example code:
 dittoDimPlot(seurat, "INS",
     do.hover = TRUE,
     hover.data = c("celltype", "Sample", "ENO1", "ident", "nCount_RNA"))
-```
-
-When the types of underlying data possible to be shown are constrained because
-the plot pieces represent summary data (dittoBarPlot and
-dittoPlotVarsAcrossGroups), just `do.hover` is enough: 
-
-```{r, eval = FALSE}
-# These can be finicky to render in knitting, but still, example code:
 dittoBarPlot(seurat, "celltype", group.by = "Sample",
     do.hover = TRUE)
 ```
