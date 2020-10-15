@@ -181,6 +181,7 @@ dittoDotPlot <- function(
         list(summary.fxn.color, summary.fxn.size),
         c("color", "size"),
         cells.use, assay, slot, adjustment, do.hover)
+    data$var <- factor(data$var, levels = vars)
     data$grouping <-
         .rename_and_or_reorder(data$grouping, y.reorder, y.labels)
     
