@@ -315,11 +315,6 @@ Arrow size is controlled with the \code{trajectory.arrow.size} input.
 }
 
 \examples{
-# dittoSeq handles bulk and single-cell data quit similarly.
-# The SingleCellExperiment object structure is used for both,
-# but all functions can be used similarly directly on Seurat
-# objects as well.
-
 example(importDittoBulk, echo = FALSE)
 myRNA
 

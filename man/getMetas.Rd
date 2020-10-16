@@ -18,7 +18,6 @@ A string vector of the names of all metadata slots of the \code{object}, or alte
 Returns the names of all meta.data slots of a target object.
 }
 \examples{
-
 example(importDittoBulk, echo = FALSE)
 
 # To see all metadata slots of an object

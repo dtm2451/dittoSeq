@@ -129,11 +129,6 @@ Then, a vertical bar plot is generated (\code{ggplot2::geom_col()}) showing eith
 }
 
 \examples{
-# dittoSeq handles bulk and single-cell data quit similarly.
-# The SingleCellExperiment object structure is used for both,
-# but all functions can be used similarly directly on Seurat
-# objects as well.
-
 example(importDittoBulk, echo = FALSE)
 myRNA
 

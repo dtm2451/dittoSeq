@@ -15,7 +15,6 @@
 #' \code{\link{meta}} for obtaining the contants of metadata slots
 #'
 #' @examples
-#'
 #' example(importDittoBulk, echo = FALSE)
 #'
 #' # To check if something is a metadata slot
@@ -61,7 +60,6 @@ isMeta <- function(test, object, return.values=FALSE){
 #' \code{\link{meta}} for obtaining the contants of metadata slots
 #'
 #' @examples
-#'
 #' example(importDittoBulk, echo = FALSE)
 #'
 #' # To see all metadata slots of an object
@@ -117,7 +115,6 @@ getMetas <- function(object, names.only = TRUE){
 #'
 #' \code{\link{isMeta}} for testing whether something is the name of a metadata slot
 #' @examples
-#'
 #' example(importDittoBulk, echo = FALSE)
 #' meta("groups", object = myRNA)
 #' 
@@ -190,12 +187,6 @@ meta <- function(meta, object,
 #'
 #' \code{\link{isMeta}} for testing whether something is the name of a metadata slot
 #' @examples
-#'
-#' # dittoSeq handles bulk and single-cell data quit similarly.
-#' # The SingleCellExperiment object structure is used for both,
-#' # but all functions can be used similarly directly on Seurat
-#' # objects as well.
-#'
 #' example(importDittoBulk, echo = FALSE)
 #'
 #' metaLevels("clustering", object = myRNA)

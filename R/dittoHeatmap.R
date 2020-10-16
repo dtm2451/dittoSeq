@@ -119,14 +119,12 @@
 #' This function universally checks the options/levels of a string, factor (filled only by default), or numerical metadata.
 #'
 #' @examples
-#' # dittoSeq handles bulk and single-cell data quit similarly.
-#' # The SingleCellExperiment object structure is used for both,
-#' # but all functions can be used similarly directly on Seurat
-#' # objects as well.
-#'
 #' example(importDittoBulk, echo = FALSE)
-#' myRNA
 #' scRNA <- setBulk(myRNA, FALSE)
+#' 
+#' # We now have two SCEs for our example purposes:
+#'   # 'myRNA' will be treated as a bulk RNAseq dataset
+#'   # 'scRNA' will be treated as a single-cell RNAseq dataset
 #'
 #' # Pick a set of genes
 #' genes <- getGenes(myRNA)[1:30]

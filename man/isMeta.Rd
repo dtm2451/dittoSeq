@@ -24,7 +24,6 @@ Tests if an input is the name of a meta.data slot in a target object.
 For Seurat objects, also returns TRUE for the input \code{"ident"} because, for all dittoSeq visualiztions, \code{"ident"} will retrieve a Seurat objects' clustering slot.
 }
 \examples{
-
 example(importDittoBulk, echo = FALSE)
 
 # To check if something is a metadata slot

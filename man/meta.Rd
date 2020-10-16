@@ -38,7 +38,6 @@ Note: Alterations via \code{adjustment} are only applied when metadata is numeri
 Lastly, outputs these values are named as the cells'/samples' names.
 }
 \examples{
-
 example(importDittoBulk, echo = FALSE)
 meta("groups", object = myRNA)
 

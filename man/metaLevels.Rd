@@ -25,12 +25,6 @@ Returns the distinct values of a metadata slot (factor or not) among to all cell
 Gives the distinct values of a meta.data slot (or ident)
 }
 \examples{
-
-# dittoSeq handles bulk and single-cell data quit similarly.
-# The SingleCellExperiment object structure is used for both,
-# but all functions can be used similarly directly on Seurat
-# objects as well.
-
 example(importDittoBulk, echo = FALSE)
 
 metaLevels("clustering", object = myRNA)

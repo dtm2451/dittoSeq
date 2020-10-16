@@ -148,11 +148,6 @@
 #' \code{\link{dittoRidgePlot}}, \code{\link{dittoRidgeJitter}}, and \code{\link{dittoBoxPlot}} for shortcuts to a few 'plots' input shortcuts
 #'
 #' @examples
-#' # dittoSeq handles bulk and single-cell data quit similarly.
-#' # The SingleCellExperiment object structure is used for both,
-#' # but all functions can be used similarly directly on Seurat
-#' # objects as well.
-#'
 #' example(importDittoBulk, echo = FALSE)
 #' myRNA
 #'
