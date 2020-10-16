@@ -3,7 +3,7 @@
 #' Plots continuous data for cutomizable cells'/samples' groupings on a y-axis
 #' @import ggplot2
 #'
-#' @param object A Seurat or SingleCellExperiment object to work with
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var Single string representing the name of a metadata or gene, OR a vector with length equal to the total number of cells/samples in the dataset.
 #' This is the data that will be displayed.
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.

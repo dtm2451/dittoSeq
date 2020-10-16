@@ -7,7 +7,7 @@
 getGenes(object, assay = .default_assay(object))
 }
 \arguments{
-\item{object}{A target Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{assay}{single string or integer that sets which set of seq data inside the object to check.}
 }

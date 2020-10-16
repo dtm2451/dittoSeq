@@ -130,7 +130,7 @@ dittoScatterHex(
 )
 }
 \arguments{
-\item{object}{A Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{color.var}{Single string giving a gene or metadata that will set the color of cells/samples in the plot.
 

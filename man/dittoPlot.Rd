@@ -70,7 +70,7 @@ dittoRidgeJitter(..., plots = c("ridgeplot", "jitter"))
 dittoBoxPlot(..., plots = c("boxplot", "jitter"))
 }
 \arguments{
-\item{object}{A Seurat or SingleCellExperiment object to work with}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{var}{Single string representing the name of a metadata or gene, OR a vector with length equal to the total number of cells/samples in the dataset.
 This is the data that will be displayed.}

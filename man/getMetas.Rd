@@ -7,7 +7,7 @@
 getMetas(object, names.only = TRUE)
 }
 \arguments{
-\item{object}{A target Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{names.only}{Logical, \code{TRUE} by default, which sets whether just the names should be output versus the entire metadata dataframe.}
 }

@@ -32,7 +32,7 @@ multi_dittoDimPlotVaryCells(
 )
 }
 \arguments{
-\item{object}{A Seurat or SingleCellExperiment object to work with}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{var}{String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 This is the data that will be displayed, using colors, for each cell/sample.

@@ -5,7 +5,7 @@
 #' @import ggplot2
 #' @importFrom ggrepel geom_text_repel geom_label_repel
 #'
-#' @param object A Seurat or SingleCellExperiment object to work with
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 #' This is the data that will be displayed for each cell/sample. Discrete or continuous data both work.
 #'

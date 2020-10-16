@@ -21,7 +21,7 @@ multi_dittoDimPlot(
 )
 }
 \arguments{
-\item{object}{A Seurat or SingleCellExperiment object to work with}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{vars}{c("var1","var2","var3",...). A vector of vars ('var' in regular \code{\link{dittoDimPlot}}) from which to generate the separate plots.}
 

@@ -22,7 +22,7 @@ multi_dittoPlot(
 )
 }
 \arguments{
-\item{object}{the Seurat or SingleCellExperiment object to draw from}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{vars}{c("var1","var2","var3",...). A vector of gene or metadata names from which to generate the separate plots}
 

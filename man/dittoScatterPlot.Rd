@@ -77,7 +77,7 @@ dittoScatterPlot(
 )
 }
 \arguments{
-\item{object}{A Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{x.var, y.var}{Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
 Note: must be continuous.

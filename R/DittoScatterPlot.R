@@ -1,7 +1,7 @@
 #' Show RNAseq data overlayed on a scatter plot
 #' @import ggplot2
 #'
-#' @param object A Seurat or SingleCellExperiment object
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param x.var,y.var Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
 #' Note: must be continuous.
 #'

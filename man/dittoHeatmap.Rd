@@ -36,7 +36,7 @@ dittoHeatmap(
 )
 }
 \arguments{
-\item{object}{A Seurat or SingleCellExperiment object to work with}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{genes}{String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap.
 If not provided, defaults to all genes of the object / assay.}

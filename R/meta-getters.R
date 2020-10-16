@@ -2,7 +2,7 @@
 #' Tests if an input is the name of a meta.data slot in a target object.
 #'
 #' @param test String or vector of strings, the "potential.metadata.name"(s) to check for.
-#' @param object A target Seurat or SingleCellExperiment object
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param return.values Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
 #' @return Returns a logical or logical vector indicating whether each instance in \code{test} is a meta.data slot within the \code{object}.
 #' Alternatively, returns the values of \code{test} that were indeed metadata slots if \code{return.values = TRUE}.
@@ -52,7 +52,7 @@ isMeta <- function(test, object, return.values=FALSE){
 #### getMetas: prints the names of all the metadata lists for the object ####
 #' Returns the names of all meta.data slots of a target object.
 #'
-#' @param object A target Seurat or SingleCellExperiment object
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param names.only Logical, \code{TRUE} by default, which sets whether just the names should be output versus the entire metadata dataframe.
 #' @return A string vector of the names of all metadata slots of the \code{object}, or alternatively the entire dataframe of metadatas if \code{names.only} is set to \code{FALSE}
 #' @seealso
@@ -91,7 +91,7 @@ getMetas <- function(object, names.only = TRUE){
 #' Returns the values of a meta.data  for all cells/samples
 #'
 #' @param meta String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.
-#' @param object A target Seurat or SingleCellExperiment object
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param adjustment A recognized string indicating whether numeric metadata should be used directly (default) versus adjusted to be
 #' \itemize{
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
@@ -176,7 +176,7 @@ meta <- function(meta, object,
 #' Gives the distinct values of a meta.data slot (or ident)
 #'
 #' @param meta quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.
-#' @param object A target Seurat or SingleCellExperiment object
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param used.only TRUE by default, whether unused levels of already
 #' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 #' 

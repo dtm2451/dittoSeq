@@ -1,6 +1,6 @@
 #' Returns the names of all dimensionality reduction slots of a target object.
 #'
-#' @param object A target Seurat or SingleCellExperiment object
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @return A string vector of the names of all dimensionality reduction slots of the \code{object}.
 #' These represent the options for the \code{reduction.use} input of \code{\link{dittoDimPlot}}.
 #'

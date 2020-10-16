@@ -7,7 +7,7 @@
 getReductions(object)
 }
 \arguments{
-\item{object}{A target Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 }
 \value{
 A string vector of the names of all dimensionality reduction slots of the \code{object}.

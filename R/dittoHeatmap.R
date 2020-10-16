@@ -2,7 +2,7 @@
 #' Outputs a heatmap of given genes
 #' @importFrom grDevices colorRampPalette
 #'
-#' @param object A Seurat or SingleCellExperiment object to work with
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap.
 #' If not provided, defaults to all genes of the object / assay.
 #' @param metas String vector, c("meta1","meta2","meta3",...) = the list of metadata variables to put in the heatmap.

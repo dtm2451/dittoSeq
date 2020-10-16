@@ -9,7 +9,7 @@ isMeta(test, object, return.values = FALSE)
 \arguments{
 \item{test}{String or vector of strings, the "potential.metadata.name"(s) to check for.}
 
-\item{object}{A target Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{return.values}{Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}}
 }

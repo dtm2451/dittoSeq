@@ -15,7 +15,7 @@ gene(
 \arguments{
 \item{gene}{quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.}
 
-\item{object}{A target Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{assay, slot}{single strings or integer that set which data to use.
 Seurat and SingleCellExperiments deal with these differently, so be sure to check the documentation for whichever object you are using.

@@ -9,7 +9,7 @@ isGene(test, object, assay = .default_assay(object), return.values = FALSE)
 \arguments{
 \item{test}{String or vector of strings, the "potential.gene.name"(s) to check for.}
 
-\item{object}{A target Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{assay}{single string or integer that sets which set of seq data inside the object to check.}
 

@@ -9,7 +9,7 @@ meta(meta, object, adjustment = NULL, adj.fxn = NULL)
 \arguments{
 \item{meta}{String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.}
 
-\item{object}{A target Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{adjustment}{A recognized string indicating whether numeric metadata should be used directly (default) versus adjusted to be
 \itemize{

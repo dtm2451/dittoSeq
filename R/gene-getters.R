@@ -2,7 +2,7 @@
 #' Tests if input is the name of a gene in a target object.
 #'
 #' @param test String or vector of strings, the "potential.gene.name"(s) to check for.
-#' @param object A target Seurat or SingleCellExperiment object
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param assay single string or integer that sets which set of seq data inside the object to check.
 #' @param return.values Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
@@ -49,7 +49,7 @@ isGene <- function(test, object, assay = .default_assay(object),
 
 #' Returns the names of all genes of a target object.
 #'
-#' @param object A target Seurat or SingleCellExperiment object
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param assay single string or integer that sets which set of seq data inside the object to check.
 #' @return A string vector, returns the names of all genes of the \code{object} for the requested \code{assay}.
 #' @seealso
@@ -81,7 +81,7 @@ getGenes <- function(object, assay = .default_assay(object)){
 #' Returns the expression values of a gene for all cells/samples
 #'
 #' @param gene quoted "gene" name = REQUIRED. the gene whose expression data should be retrieved.
-#' @param object A target Seurat or SingleCellExperiment object
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param assay,slot single strings or integer that set which data to use.
 #' Seurat and SingleCellExperiments deal with these differently, so be sure to check the documentation for whichever object you are using.
 #' When not provided, these typical defaults for the provided \code{object} class are used:

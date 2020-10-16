@@ -1,6 +1,6 @@
 #' Generates a dittoPlot where data points are genes/metadata summaries, per groups, instead of individual values per cells/samples.
 #'
-#' @param object A Seurat or SingleCellExperiment object
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param vars String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to extract from the object, summarize across groups, and add to the plot
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
 #' @param color.by String representing the name of a metadata to use for setting fills.

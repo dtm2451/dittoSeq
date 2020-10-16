@@ -53,7 +53,7 @@ dittoPlotVarsAcrossGroups(
 )
 }
 \arguments{
-\item{object}{A Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{vars}{String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to extract from the object, summarize across groups, and add to the plot}
 

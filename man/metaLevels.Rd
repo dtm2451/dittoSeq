@@ -9,7 +9,7 @@ metaLevels(meta, object, cells.use = NULL, used.only = TRUE)
 \arguments{
 \item{meta}{quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.}
 
-\item{object}{A target Seurat or SingleCellExperiment object}
+\item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 

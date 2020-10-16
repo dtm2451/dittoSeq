@@ -1,6 +1,6 @@
 #' Generates dittoDimPlots for multiple features.
 #'
-#' @param object A Seurat or SingleCellExperiment object to work with
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param vars c("var1","var2","var3",...). A vector of vars ('var' in regular \code{\link{dittoDimPlot}}) from which to generate the separate plots.
 #' @param ncol,nrow Integer or NULL. How many columns or rows the plots should be arranged into.
 #' @param axes.labels.show Logical. Whether axis labels should be shown.
@@ -97,7 +97,7 @@ multi_dittoDimPlot <- function(
 
 #' Generates dittoPlots for multiple features.
 #'
-#' @param object the Seurat or SingleCellExperiment object to draw from
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param vars c("var1","var2","var3",...). A vector of gene or metadata names from which to generate the separate plots
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
 #' @param ncol,nrow Integer or NULL. How many columns or rows the plots should be arranged into.
@@ -214,7 +214,7 @@ multi_dittoPlot <- function(
 
 #' Generates multiple dittoDimPlots, for a single feature, where each showing different cells
 #'
-#' @param object A Seurat or SingleCellExperiment object to work with
+#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 #' This is the data that will be displayed, using colors, for each cell/sample.
 #'
