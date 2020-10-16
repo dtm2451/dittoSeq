@@ -2,6 +2,13 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.1.12}{\itemize{
+\item `dittoDotPlot()` `vars` ordering is now set based on the order given (adds user control compared the the previous alphabetical ordering.)
+\item Bug fix: `do.hover` in `dittoDotPlot()` now shows actual hover info rather than "hover.string".
+\item Bug fix: Corrected the alignment mismatch for `dittoPlot()` box and violin plots when `group.by` != `color.by`
+\item Vignette & documentation updates
+}}
+
 \section{Version 1.1.11}{\itemize{
 \item Added compatibility for SummarizedExperiments natively, rather than requiring their conversion to a SingleCellExperiment.
 \item Added rasterization & ComplexHeatmap compatibility to `dittoHeatmap()` via utilization of the ComplexHeatmap's pheatmap translation function.
