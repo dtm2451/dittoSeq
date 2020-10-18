@@ -309,6 +309,10 @@ dittoHeatmap <- function(
     # Adjust data
     if (!is.null(order_data)){
         args$mat <- args$mat[,order(order_data[all.cells %in% cells.use])]
+        
+        if (!identical(annotation_col, NULL)) {
+            annotation_col <- annotation_col[colnames(args$mat),, drop = FALSE]
+        }
     }
     if (scaled.to.max) {
         args <- .scale_to_max(args, heatmap.colors.max.scaled)
