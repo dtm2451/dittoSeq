@@ -2,6 +2,11 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.1.13}{\itemize{
+\item Documentation Updates
+\item Bug Fix: `dittoHeatmap(complex=TRUE)` annotation ordering
+}}
+
 \section{Version 1.1.12}{\itemize{
 \item `dittoDotPlot()` `vars` ordering is now set based on the order given (adds user control compared the the previous alphabetical ordering.)
 \item Bug fix: `do.hover` in `dittoDotPlot()` now shows actual hover info rather than "hover.string".
