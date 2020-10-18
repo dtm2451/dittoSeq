@@ -29,6 +29,10 @@
 #' Method: Make a first plot without this input.
 #' Then, treating the bottom-most grouping as index 1, and the top-most as index n,
 #' values of y.reorder should be these indices, but in the order that you would like them rearranged to be.
+#' 
+#' Recommendation for advanced users: If you find yourself coming back to this input too many times, an alternative solution that can be easier long-term
+#' is to make the target data into a factor, and to put its levels in the desired order: \code{factor(data, levels = c("level1", "level2", ...))}.
+#' \code{\link{metaLevels}} can be used to quickly get the identities that need to be part of this 'levels' input.
 #' @param legend.color.title,legend.size.title String or \code{NULL}, sets the title displayed above legend keys.
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} the object will be converted to an interactive plotly object in which underlying data for individual dots will be displayed when you hover your cursor over them.

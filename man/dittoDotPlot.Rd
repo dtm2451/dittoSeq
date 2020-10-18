@@ -93,7 +93,11 @@ Set to \code{NULL} to remove.}
 
 Method: Make a first plot without this input.
 Then, treating the bottom-most grouping as index 1, and the top-most as index n,
-values of y.reorder should be these indices, but in the order that you would like them rearranged to be.}
+values of y.reorder should be these indices, but in the order that you would like them rearranged to be.
+
+Recommendation for advanced users: If you find yourself coming back to this input too many times, an alternative solution that can be easier long-term
+is to make the target data into a factor, and to put its levels in the desired order: \code{factor(data, levels = c("level1", "level2", ...))}.
+\code{\link{metaLevels}} can be used to quickly get the identities that need to be part of this 'levels' input.}
 
 \item{xlab}{String which sets the x/var-axis label.
 Set to \code{NULL} to remove.}

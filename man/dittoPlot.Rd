@@ -156,7 +156,11 @@ Default: \code{TRUE} for violin and box plots, but \code{FALSE} for ridgeplots.}
 
 Method: Make a first plot without this input.
 Then, treating the leftmost grouping as index 1, and the rightmost as index n.
-Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.}
+Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.
+
+Recommendation for advanced users: If you find yourself coming back to this input too many times, an alternative solution that can be easier long-term
+is to make the target data into a factor, and to put its levels in the desired order: \code{factor(data, levels = c("level1", "level2", ...))}.
+\code{\link{metaLevels}} can be used to quickly get the identities that need to be part of this 'levels' input.}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
