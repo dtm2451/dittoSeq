@@ -20,7 +20,7 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 ### News: Updates in dittoSeq v1.2:
 
-- Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimScatter()` & `dittoDimHex()`.
+- Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimHex()` & `dittoScatterHex()`.
 - Expanded SummarizedExperiment compatibility across the entire toolset.
 - Added ComplexHeatmap integration to `dittoHeatmap()`, controlled by a new input, `complex`.
 - Added Rasterization for improved image editor compatibility of complex plots. (See the dedicated section in the vignette for details.)
