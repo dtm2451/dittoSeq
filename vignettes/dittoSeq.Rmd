@@ -801,7 +801,7 @@ dittoDimPlot(sce, "celltype",
     raster.dpi = 300)
 ```
 
-For `dittoHeatmap()`, where the plotting itself is handled by an external,
+For `dittoHeatmap()`, where the plotting itself is handled externally,
 the control is a bit different and we rely on `?ComplexHeatmap::Heatmap`'s
 input for this. First, set `complex = TRUE` to have the heatmap rendered by
 ComplexHeatmap, then rasterization should be turned on by default when needed,
