@@ -28,7 +28,7 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 - Added `order` input to scatter/dim-plots for control of plotting order.
 - Added `metas` input for displaying such data with `dittoHeatmap()`.
 - Replaced (deprecated) `highlight.genes` input with `highlight.features` in `dittoHeatmap()`.
-- Replaced (deprecated) `OUT.List` input with `list.out` for all `multi_*` plotters. (dittoHeatmap())
+- Replaced (deprecated) `OUT.List` input with `list.out` for all `multi_*` plotters.
 
 ### Color Blindness Compatibility:
 
