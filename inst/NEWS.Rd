@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 
 \section{Version 1.2}{\itemize{
-\item Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimScatter()` & `dittoDimHex()`.
+\item Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimHex()` & `dittoScatterHex()`.
 \item Expanded SummarizedExperiment compatibility across the entire toolset.
 \item Added ComplexHeatmap integration to `dittoHeatmap()`, controlled by a new input, `complex`.
 \item Added Rasterization for improved image editor compatibility of complex plots. (See the dedicated section in the vignette for details.)
