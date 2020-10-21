@@ -440,7 +440,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     p <- p + aes_string(x = "grouping", y = "var.data") +
         xlab(xlab) + ylab(ylab)
     if (is.na(x.labels.rotate) || x.labels.rotate) {
-        p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1, size=12))
+        p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1))
     }
     if (!is.null(add.line)) {
         p <- p + geom_hline(yintercept=add.line, linetype= line.linetype, color = line.color)
@@ -487,7 +487,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab) +
         scale_y_discrete(expand = expansion(mult=c(0, 0.68)))
     if (!is.na(x.labels.rotate) && x.labels.rotate) {
-        p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1, size=12))
+        p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1))
     }
     if (!is.null(add.line)) {
         p <- p + geom_vline(xintercept=add.line, linetype= line.linetype, color = line.color)

@@ -184,7 +184,7 @@ dittoBarPlot <- function(
         scale_fill_manual(name = legend.title, values = color.panel[colors]) +
         if (x.labels.rotate) {
             theme(axis.text.x= element_text(
-                angle=45, hjust = 1, vjust = 1, size=12))
+                angle=45, hjust = 1, vjust = 1))
         }
         #Add the bars.
         if(do.hover){
