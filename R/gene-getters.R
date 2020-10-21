@@ -95,13 +95,22 @@ getGenes <- function(object, assay = .default_assay(object)){
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 #' }
+#' 
+#' @param adj.fxn A function which takes a vector (of metadata values) and returns a vector of the same length.
+#' 
+#' For example, \code{function(x) \{log2(x)\}} or \code{as.factor}
 #' @return Returns the expression values of a gene for all cells/samples.
 #' @examples
 #' example(importDittoBulk, echo = FALSE)
 #' gene("gene1", object = myRNA, assay = "counts")
 #'
 #' # z-scored
-#' gene("gene1", object = myRNA, assay = "counts", adjustment = "z-score")
+#' gene("gene1", object = myRNA, assay = "counts",
+#'     adjustment = "z-score")
+#' 
+#' # Log2'd
+#' gene("gene1", object = myRNA, assay = "counts",
+#'     adj.fxn = function(x) \{log2(x)\})
 #'
 #' # To see expression of the gene for the default assay that dittoSeq would use
 #' # leave out the assay input
@@ -119,23 +128,30 @@ getGenes <- function(object, assay = .default_assay(object)){
 gene <- function(
     gene, object,
     assay = .default_assay(object), slot = .default_slot(object),
-    adjustment = NULL){
+    adjustment = NULL, adj.fxn = NULL){
 
     if (!isGene(gene, object, assay)) {
         stop(dQuote(gene)," is not a gene of 'object'")
     }
-    # Recursive functions for adjustments
+    
+    # Retrieve target values
+    exp <- as.vector(.which_data(assay, slot, object)[gene,])
+    
+    # Add adjustments
     if (!is.null(adjustment) && !is.na(adjustment)) {
         if (adjustment=="z-score") {
-            return(as.numeric(scale(gene(gene,object,assay,slot))))
+            exp <- as.numeric(scale(exp))
         }
         if (adjustment=="relative.to.max") {
-            exp <- gene(gene,object,assay,slot)
-            return(exp/max(exp))
+            exp <- exp/max(exp)
         }
     }
+        
+    if (!is.null(adj.fxn)) {
+        exp <- adj.fxn(exp)
+    }
 
-    exp <- as.vector(.which_data(assay, slot, object)[gene,])
+    # Add names
     names(exp) <- .all_cells(object)
 
     exp

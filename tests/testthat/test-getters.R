@@ -83,6 +83,8 @@ test_that("gene works for different data types for Seurat and SCE", {
         "double")
     expect_equal(0:1, range(
         gene("gene1", seurat, adjustment = "relative.to.max")))
+    expect_equal(gene("gene1", seurat)+1,
+        gene("gene1", seurat, adj.fxn = function(x) {x+1}))
 })
 
 test_that("gene gives error when given a non-meta", {
