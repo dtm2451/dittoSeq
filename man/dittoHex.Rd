@@ -232,13 +232,14 @@ Defaults to \code{split.by}, so generally there is no need to adjust this except
 
 \item{add.trajectory.lineages}{List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 
-If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}.}
+If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
+you can provide \code{add.trajectory.lineages = slingLineages('object')}.}
 
 \item{add.trajectory.curves}{List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x (\code{dim.1}) and y (\code{dim.2}) coordinates of the paths.
 
 Alternatively, (for dittoDimHex only, but not dittoScatterHex) a list of lists(/princurve objects) can be provided.
 Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
-you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}}
+you can provide \code{add.trajectory.curves = slingCurves('object')}}
 
 \item{trajectory.cluster.meta}{String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.}
 

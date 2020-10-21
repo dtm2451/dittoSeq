@@ -38,7 +38,7 @@
 #'
 #' Alternatively, (for dittoDimHex only, but not dittoScatterHex) a list of lists(/princurve objects) can be provided.
 #' Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
-#' you can provide \code{add.trajectory.curves = SlingshotDataSet(SCE_with_slingshot)$curves}
+#' you can provide \code{add.trajectory.curves = slingCurves('object')}
 #' @inheritParams dittoScatterPlot
 #' @inheritParams dittoDimPlot
 #' 

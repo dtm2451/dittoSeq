@@ -169,7 +169,8 @@ Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
 
 \item{add.trajectory.lineages}{List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 
-If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis, you can use \code{add.trajectory.lineages = SlingshotDataSet(SCE_with_slingshot)$lineages}.}
+If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
+you can provide \code{add.trajectory.lineages = slingLineages('object')}.}
 
 \item{add.trajectory.curves}{List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x and y coordinates of the paths.}
 
