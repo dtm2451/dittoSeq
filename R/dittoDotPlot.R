@@ -165,14 +165,6 @@ dittoDotPlot <- function(
     data.out = FALSE) {
 
     cells.use <- .which_cells(cells.use, object)
-    
-    # Fill defaults
-    legend.color.title <- .leave_default_or_null(
-        legend.color.title,
-        default = ifelse(scale,"relative\nexpression","average\nexpression"))
-    min <- .leave_default_or_null(
-        min,
-        default = if (scale) {NULL} else {0})
 
     # Create data table summarizing vars data for each group
     data <- .data_gather_summarize_vars_by_groups(
@@ -183,6 +175,14 @@ dittoDotPlot <- function(
     data$var <- factor(data$var, levels = vars)
     data$grouping <-
         .rename_and_or_reorder(data$grouping, y.reorder, y.labels)
+    
+    # Fill defaults
+    legend.color.title <- .leave_default_or_null(
+        legend.color.title,
+        default = ifelse(scale,"relative\nexpression","average\nexpression"))
+    min <- .leave_default_or_null(
+        min,
+        default = if (scale) {NULL} else {min(0, min(data$color))})
     
     if (scale) {
         
@@ -367,16 +367,6 @@ dittoDotPlot <- function(
     
     if (length(gene_vars)>0) {
         gene_data <- t(as.matrix(.which_data(assay,slot,object)[gene_vars, , drop = FALSE]))
-        
-        if (!is.null(adjustment)) {
-            if (adjustment=="z-score") {
-                gene_data <- apply(gene_data, 2, function(x) {(x-mean(x))/sd(x)})
-            }
-            if (adjustment=="relative.to.max") {
-                gene_data <- apply(gene_data, 2, function(x) {x/max(x)})
-            }
-        }
-        
         vars_data <- cbind(vars_data, gene_data)
     }
     
@@ -385,6 +375,19 @@ dittoDotPlot <- function(
             if (!is.numeric(vars_data[,ind])) {
                 stop("All 'vars' must be numeric. ", names(vars_data)[ind], " is not numeric.")
             }
+        }
+    }
+    
+    if (!is.null(adjustment)) {
+        if (adjustment=="z-score") {
+            vars_data <- apply(vars_data, 2, function(x) {
+                if (is.numeric(x)) {(x-mean(x))/sd(x)} else {x}
+                })
+        }
+        if (adjustment=="relative.to.max") {
+            vars_data <- apply(vars_data, 2, function(x) {
+                if (is.numeric(x)) {x/max(x)} else {x}
+                })
         }
     }
     

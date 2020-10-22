@@ -61,7 +61,7 @@
     cells <- .all_cells(object)
     if (length(var)==1 && is.character(var)) {
         if (isMeta(var, object)) {
-            OUT <- meta(var, object)
+            OUT <- meta(var, object, adjustment)
         } else if (isGene(var, object, assay)) {
             OUT <- gene(var, object, assay, slot, adjustment)
         }
