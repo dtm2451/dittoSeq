@@ -27,6 +27,8 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 - Added `labels.split.by` input & `do.contour`, `contour.color`, and `contour.linetype` inputs to scatter/dim-plots.
 - Added `order` input to scatter/dim-plots for control of plotting order.
 - Added `metas` input for displaying such data with `dittoHeatmap()`.
+- Added `adjustment` input to `meta()`, which works exactly as in `gene()` (but this is not yet implemented within data grab of visualization functions).
+- Added `adj.fxn` input to `meta()` and `gene()` for added control of how data might be adjusted (but this is not yet implemented within data grab of visualization functions).
 - Replaced (deprecated) `highlight.genes` input with `highlight.features` in `dittoHeatmap()`.
 - Replaced (deprecated) `OUT.List` input with `list.out` for all `multi_*` plotters.
 
