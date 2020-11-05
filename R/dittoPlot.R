@@ -484,8 +484,8 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     }
 
     # Add labels and, if requested, lines
-    p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab) +
-        scale_y_discrete(expand = expansion(mult=c(0, 0.68)))
+    p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab)# +
+        # scale_y_discrete(expand = expansion(mult=c(0, 0.68)))
     if (!is.na(x.labels.rotate) && x.labels.rotate) {
         p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1))
     }
