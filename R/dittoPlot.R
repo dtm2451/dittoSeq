@@ -100,6 +100,9 @@
 #' @param ridgeplot.scale Scalar which sets the distance/overlap between ridgeplots.
 #' A value of 1 means the tallest density curve just touches the baseline of the next higher one.
 #' Higher numbers lead to greater overlap.  Default = 1.25
+#' @param ridgeplot.ymax.expansion Scalar which adjusts the minimal space between the topmost grouping and the top of the plot in order to ensure the curve is not cut off by the plotting grid.
+#' The larger the value, the greater the space requested.
+#' When left as NA, dittoSeq will attempt to determine an ideal value itself based on the number of groups & linear interpolation between these goal posts: #groups of 3 or fewer: 0.6; #groups=12: 0.1; #groups or 34 or greater: 0.05.
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
 #' @param legend.title String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
 #' This input is set to \code{NULL} by default.
@@ -246,6 +249,7 @@ dittoPlot <- function(
     vlnplot.scaling = "area",
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
+    ridgeplot.ymax.expansion = NA,
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
@@ -297,7 +301,8 @@ dittoPlot <- function(
         p <- .dittoPlot_add_data_x_direction(
             p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
             jitter.shape.legend.size, jitter.shape.legend.show,
-            ridgeplot.lineweight, ridgeplot.scale, add.line, line.linetype,
+            ridgeplot.lineweight, ridgeplot.scale, ridgeplot.ymax.expansion,
+            add.line, line.linetype,
             line.color, x.labels.rotate, do.hover, color.panel, colors,
             y.breaks, min, max)
     }
@@ -454,12 +459,13 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                             jitter.size=1, jitter.color = "black",
                             jitter.shape.legend.size, jitter.shape.legend.show,
                             ridgeplot.lineweight = 1, ridgeplot.scale = 1.25,
+                            ridgeplot.ymax.expansion = NA,
                             add.line=NULL, line.linetype = "dashed", line.color = "black",
                             x.labels.rotate = FALSE, do.hover, color.panel, colors, y.breaks, min, max) {
     #This function takes in a partial dittoPlot ggplot object without any data overlay, and parses adding the main data visualizations.
     # It adds plots based on what is requested in plots, *ordered by their order*
 
-    # Now that we know the plot's direction, set y-axis limits
+    # Now that we know the plot's direction, set "y"-axis limits
     if (!is.null(y.breaks)) {
         p <- p + scale_x_continuous(breaks = y.breaks)
     }
@@ -470,6 +476,17 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
         max <- max(Target_data$var.data)
     }
     p <- p + coord_cartesian(xlim=c(min,max))
+    
+    # For stylistic issues with plotting defaults, also adjust grouping-axis limits
+    if (is.na(ridgeplot.ymax.expansion)) {
+        num_groups <- length(unique(Target_data$grouping))
+        # From 0.6 to 0.1 between 4 to 12 groups and 0.05 by 34 groups.
+        set_exp <- stats::approxfun(
+            x=c(3,12,34), y=c(0.6, 0.1, 0.05), yleft = 0.6, yright = 0.05)
+        ridgeplot.ymax.expansion <- set_exp(num_groups)
+    }
+    p <- p + 
+        scale_y_discrete(expand = expansion(mult=c(0, ridgeplot.ymax.expansion)))
 
     # Add ridgeplot (and jitter) data
     p <- p + ggridges::geom_density_ridges2(
@@ -484,8 +501,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     }
 
     # Add labels and, if requested, lines
-    p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab)# +
-        # scale_y_discrete(expand = expansion(mult=c(0, 0.68)))
+    p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab)
     if (!is.na(x.labels.rotate) && x.labels.rotate) {
         p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1))
     }
