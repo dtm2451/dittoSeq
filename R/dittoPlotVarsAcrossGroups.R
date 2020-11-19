@@ -168,6 +168,7 @@ dittoPlotVarsAcrossGroups <- function(
     vlnplot.scaling = "area",
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
+    ridgeplot.ymax.expansion = NA,
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
@@ -222,8 +223,9 @@ dittoPlotVarsAcrossGroups <- function(
     } else {
         p <- .dittoPlot_add_data_x_direction(
             p, data, plots, xlab, ylab, jitter.size, jitter.color,
-            NA, TRUE, ridgeplot.lineweight, ridgeplot.scale, add.line,
-            line.linetype, line.color, x.labels.rotate, do.hover, color.panel,
+            NA, TRUE, ridgeplot.lineweight, ridgeplot.scale,
+            ridgeplot.ymax.expansion, add.line, line.linetype, line.color,
+            x.labels.rotate, do.hover, color.panel,
             colors, y.breaks, min, max)
     }
     
