@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.1}{\itemize{
+\item Bug Fix: Better y-axis expansion for `dittoPlots()` with many ridgeplots
+}}
+
 \section{Version 1.2}{\itemize{
 \item Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimHex()` & `dittoScatterHex()`.
 \item Expanded SummarizedExperiment compatibility across the entire toolset.
