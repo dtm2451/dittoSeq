@@ -7,7 +7,6 @@ dittoSeq includes universal plotting and helper functions for working with (sc)R
 - single-cell:
   - Seurat (versions 2 & 3), *Seurat* data structure
   - scran / scater / other Bioconductor packages that utilize the *SingleCellExperiment* data structure
-  - (Compatibility is planned for Monocle in a future version.)
 - bulk:
   - edgeR, *DGEList* data structure
   - DESeq2 / other Bioconductor packages that utilize the *SummarizedExperiment* data structure
