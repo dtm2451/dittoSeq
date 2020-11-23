@@ -141,7 +141,7 @@ test_that("dittoScatterPlot can show trajectory curves", {
 })
 
 test_that("dittoScatterPlot with and without rasterization produces identical plots", {
-    # MANUAL CHECK: Should be indentical
+    # MANUAL CHECK: Should be identical
     expect_s3_class(
         dittoScatterPlot(
             gene, cont, object = seurat, do.raster = TRUE),
@@ -149,5 +149,37 @@ test_that("dittoScatterPlot with and without rasterization produces identical pl
     expect_s3_class(
         dittoScatterPlot(
             gene, gene, object = seurat),
+        "ggplot")
+})
+
+test_that("do.label doesn't cause ignorance of split.by factor level ordering", {
+    
+    # Set two metadata as factors with non-default levels ordering
+    seurat$groups_rev <- factor(seurat$groups, levels = rev(unique(seurat$groups)))
+    seurat$clusters_rev <- factor(seurat$clusters, levels = 4:1)
+    
+    ### MANUAL CHECK: Should be identical aside from the lack of labels in #2 and #4
+    # One `split.by`
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, disc, object = seurat,
+            split.by = "groups_rev", do.label = FALSE),
+        "ggplot")
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, disc, object = seurat,
+            split.by = "groups_rev", do.label = TRUE),
+        "ggplot")
+    
+    # Two `split.by`
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, disc, object = seurat,
+            split.by = c("groups_rev", "clusters_rev"), do.label = FALSE),
+        "ggplot")
+    expect_s3_class(
+        dittoScatterPlot(
+            gene, cont, disc, object = seurat,
+            split.by = c("groups_rev", "clusters_rev"), do.label = TRUE),
         "ggplot")
 })

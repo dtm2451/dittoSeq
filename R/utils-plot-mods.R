@@ -86,9 +86,11 @@
     # Add text labels at/near the median x and y values for each group
     # (Dim and Scatter plots)
 
-    #Determine medians
+    # Determine medians
     if (is.null(split.by)) {
+        
         median.data <- .calc_center_medians(Target_data, col.use)
+        
     } else if (length(split.by)==1) {
         
         median.data <- NULL
@@ -104,6 +106,11 @@
             
             median.data <- rbind(median.data, level.med.dat)
         }
+        
+        # Ensure retention of factor level ordering
+        median.data[,split.by] <- .retain_factor_level_order(
+            median.data[,split.by], possible_factor = Target_data[,split.by])
+        
     } else if (length(split.by)==2) {
         
         median.data <- NULL
@@ -125,6 +132,12 @@
                 }
             }
         }
+        
+        # Ensure retention of factor level ordering
+        median.data[,split.by[1]] <- .retain_factor_level_order(
+            median.data[,split.by[1]], possible_factor = Target_data[,split.by[1]])
+        median.data[,split.by[2]] <- .retain_factor_level_order(
+            median.data[,split.by[2]], possible_factor = Target_data[,split.by[2]])
     }
 
     #Add labels
@@ -147,6 +160,14 @@
             }
         }
     p + do.call(geom.use, args)
+}
+
+.retain_factor_level_order <- function(new_data, possible_factor) {
+    if (is.factor(possible_factor)) {
+        factor(new_data, levels = levels(possible_factor))
+    } else {
+        new_data
+    }
 }
 
 .calc_center_medians <- function(x.y.group.df, group.col) {
