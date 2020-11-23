@@ -1,7 +1,7 @@
 Package: dittoSeq
 Type: Package
 Title: User Friendly Single-Cell and Bulk RNA Sequencing Visualization
-Version: 1.3.1
+Version: 1.3.2
 Authors@R: c(person("Daniel", "Bunis", email = "daniel.bunis@ucsf.edu", role=c("aut", "cre")),
     person("Jared", "Andrews", email = "jared.andrews07@gmail.com", role=c("aut", "ctb")))
 Description: A universal, user friendly, single-cell and bulk RNA sequencing

@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.2}{\itemize{
+\item Bug Fix: keep `split.by` factor level ordering when used with `do.label`
+}}
+
 \section{Version 1.3.1}{\itemize{
 \item Bug Fix: Better y-axis expansion for `dittoPlots()` with many ridgeplots
 }}
