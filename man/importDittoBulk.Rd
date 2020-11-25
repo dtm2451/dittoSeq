@@ -2,27 +2,16 @@
 % Please edit documentation in R/importDittoBulk.R
 \name{importDittoBulk}
 \alias{importDittoBulk}
-\alias{importDittoBulk,SummarizedExperiment-method}
-\alias{importDittoBulk,DGEList-method}
-\alias{importDittoBulk,list-method}
 \title{import bulk sequencing data into a SingleCellExperiment format that will work with other dittoSeq functions.}
 \usage{
-importDittoBulk(x, ...)
-
-\S4method{importDittoBulk}{SummarizedExperiment}(x, reductions = NULL, metadata = NULL, combine_metadata = TRUE)
-
-\S4method{importDittoBulk}{DGEList}(x, reductions = NULL, metadata = NULL, combine_metadata = TRUE)
-
-\S4method{importDittoBulk}{list}(x, reductions = NULL, metadata = NULL)
+importDittoBulk(x, reductions = NULL, metadata = NULL, combine_metadata = TRUE)
 }
 \arguments{
-\item{x}{A \code{\linkS4class{DGEList}}, or \code{\linkS4class{SummarizedExperiment}} (includes \code{DESeqDataSet}) class object containing the sequencing data to be imported.
+\item{x}{A \code{DGEList}, or \code{\linkS4class{SummarizedExperiment}} (includes \code{DESeqDataSet}) class object containing the sequencing data to be imported.
 
 Alternatively, for import from a raw matrix format, a named list of matrices (or matrix-like objects) where names will become the assay names of the eventual SCE.
 
 NOTE: As of dittoSeq version 1.1.11, all dittoSeq functions can work directly with SummarizedExperiment objects, so this import function is nolonger required for such data.}
-
-\item{...}{For the generic, additional arguments passed to specific methods.}
 
 \item{reductions}{A named list of dimensionality reduction embeddings matrices.
 Names will become the names of the dimensionality reductions and how each will be used with the \code{reduction.use} input of \code{dittoDimPlot} and \code{dittoDimHex}.

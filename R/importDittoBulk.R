@@ -1,7 +1,5 @@
 #' import bulk sequencing data into a SingleCellExperiment format that will work with other dittoSeq functions.
-#' @rdname importDittoBulk
-#' @param ... For the generic, additional arguments passed to specific methods.
-#' @param x A \code{\linkS4class{DGEList}}, or \code{\linkS4class{SummarizedExperiment}} (includes \code{DESeqDataSet}) class object containing the sequencing data to be imported.
+#' @param x A \code{DGEList}, or \code{\linkS4class{SummarizedExperiment}} (includes \code{DESeqDataSet}) class object containing the sequencing data to be imported.
 #' 
 #' Alternatively, for import from a raw matrix format, a named list of matrices (or matrix-like objects) where names will become the assay names of the eventual SCE.
 #' 
@@ -124,20 +122,29 @@
 #'
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
-#' @importClassesFrom edgeR DGEList
 #' @importFrom methods is as
 #' @importFrom SummarizedExperiment SummarizedExperiment "colData<-" colData rowData
 #' @importFrom utils packageVersion
 #' @importFrom SingleCellExperiment "int_metadata<-" int_metadata "reducedDim<-"
 #' @importFrom S4Vectors DataFrame
 #' @export
-setGeneric("importDittoBulk", function(x, ...) standardGeneric("importDittoBulk"))
 
-#' @rdname importDittoBulk
-setMethod("importDittoBulk", "SummarizedExperiment", function(
+importDittoBulk <- function(
     x, reductions = NULL, metadata = NULL, combine_metadata = TRUE) {
 
+    # Turn x into a SummarizedExperiment
+    if (is(x, "DGEList")) {
+        x <- .creat_SE_from_DGEList(x, reductions, metadata, combine_metadata)
+    }
+    if (is(x, "list")) {
+        x <- .create_SE_from_raw(x, reductions, metadata)
+        # Ignore this input:
+        combine_metadata <- TRUE
+    }
+    
+    # Convert from SE to SCE
     object <- as(x, "SingleCellExperiment")
+    
     # Use SCE int_metadata to store dittoSeq version and that dataset is bulk
     SingleCellExperiment::int_metadata(object) <- c(
         SingleCellExperiment::int_metadata(object),
@@ -171,19 +178,21 @@ setMethod("importDittoBulk", "SummarizedExperiment", function(
             object <- addDimReduction(object,reductions[[i]],i)
         }
     }
+    
     object
-})
+}
 
-#' @rdname importDittoBulk
-setMethod("importDittoBulk", "DGEList", function(
+.creat_SE_from_DGEList <- function(
     x, reductions = NULL, metadata = NULL, combine_metadata = TRUE) {
 
     ### Convert DGEList to Summarized Experiment while preserving as many
     ### optional slots as possible
+    
     # Grab essential slots
     args <- list(
         assays = list(counts=x$counts),
         colData = data.frame(x$samples))
+    
     # Add optional rowData
     rowData <- list()
     add_if_slot <- function(i, out = rowData) {
@@ -201,21 +210,18 @@ setMethod("importDittoBulk", "DGEList", function(
     if (length(rowData)>0) {
         args$rowData <- data.frame(rowData)
     }
+    
     # Add optional assay: offset
     if (!is.null(x$offset)) {
         args$assays <- list(counts = x$counts,
                             offset = x$offset)
     }
+    
     # Make SE
-    se <- do.call(SummarizedExperiment::SummarizedExperiment, args)
+    do.call(SummarizedExperiment::SummarizedExperiment, args)
+}
 
-    # Import as if the DGEList was always an SE
-    importDittoBulk(se, reductions, metadata, combine_metadata)
-})
-
-#' @rdname importDittoBulk
-setMethod("importDittoBulk", "list", function(
-    x, reductions = NULL, metadata = NULL) {
+.create_SE_from_raw <- function(x, reductions = NULL, metadata = NULL) {
 
     # Check that the elements of x are named matrices with equal ncols
     ncol1 <- ncol(x[[1]])
@@ -228,8 +234,5 @@ setMethod("importDittoBulk", "list", function(
     }
 
     # Create SummarizedExperiment
-    se <- SummarizedExperiment::SummarizedExperiment(assays = x)
-
-    # Import as if the DGEList was always an SE
-    importDittoBulk(se, reductions, metadata, combine_metadata = TRUE)
-})
+    SummarizedExperiment::SummarizedExperiment(assays = x)
+}
