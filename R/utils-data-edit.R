@@ -70,3 +70,19 @@
     }
     do.call(factor, args = rename.args)
 }
+
+.swap_rownames <- function(object, swap.rownames = NULL) {
+    
+    if (!identical(swap.rownames, NULL) && is(object, "SummarizedExperiment")) {
+        
+        if (!swap.rownames %in% names(SummarizedExperiment::rowData(object))) {
+            stop("'swap.rownames' is not a column of 'rowData(object)'")
+        }
+        
+        rownames(object) <- rowData(object)[,swap.rownames]
+    }
+    
+    object
+}
+
+

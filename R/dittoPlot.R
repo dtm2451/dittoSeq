@@ -33,6 +33,7 @@
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 #' }
+#' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points,
 #'
@@ -214,6 +215,7 @@ dittoPlot <- function(
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
+    swap.rownames = NULL,
     do.hover = FALSE,
     hover.data = var,
     color.panel = dittoColors(),
@@ -278,7 +280,7 @@ dittoPlot <- function(
     # Grab the data
     Target_data <- .dittoPlot_data_gather(object, var, group.by, color.by,
         c(shape.by,split.by,extra.vars), cells.use, assay, slot, adjustment,
-        do.hover, hover.data)$Target_data
+        swap.rownames, do.hover, hover.data)$Target_data
     Target_data$grouping <-
         .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
 
@@ -513,7 +515,10 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 }
 
 .dittoPlot_data_gather <- function(
-    object, main.var, group.by = "Sample", color.by = group.by, extra.vars = NULL, cells.use = NULL, assay, slot, adjustment,
+    object, main.var, group.by = "Sample", color.by = group.by,
+    extra.vars = NULL, cells.use = NULL,
+    assay, slot, adjustment,
+    swap.rownames = FALSE,
     do.hover = FALSE, hover.data = c(main.var, extra.vars)) {
 
     # Populate cells.use with a list of names if it was given anything else.
@@ -523,7 +528,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     ### Make dataframe for storing the plotting data:
     full_data <- data.frame(
         var.data = .var_OR_get_meta_or_gene(
-            main.var, object, assay, slot, adjustment),
+            main.var, object, assay, slot, adjustment, swap.rownames),
         grouping = meta(group.by, object),
         color = meta(color.by, object),
         row.names = all.cells)

@@ -10,7 +10,8 @@ gene(
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
-  adj.fxn = NULL
+  adj.fxn = NULL,
+  swap.rownames = NULL
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ When not provided, these typical defaults for the provided \code{object} class a
 \item{adj.fxn}{A function which takes a vector (of metadata values) and returns a vector of the same length.
 
 For example, \code{function(x) \{log2(x)\}} or \code{as.factor}}
+
+\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 }
 \value{
 Returns the expression values of a gene for all cells/samples.
