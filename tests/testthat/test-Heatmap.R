@@ -396,3 +396,18 @@ test_that("scale and border_color pheatmap inputs function as expected", {
             border_color = "red"),
         "pheatmap")
 })
+
+test_that("dittoHeatmap swap.rownames works", {
+    swap_genes <- paste(genes, "symb", sep = "_")
+    
+    expect_s3_class(
+        dittoHeatmap(genes = swap_genes, object = sce, swap.rownames = "symbol"),
+        "pheatmap")
+    expect_equivalent(
+        rownames(
+            dittoHeatmap(
+                genes = swap_genes, object = sce, swap.rownames = "symbol",
+                data.out = TRUE
+            )$mat),
+        swap_genes)
+})

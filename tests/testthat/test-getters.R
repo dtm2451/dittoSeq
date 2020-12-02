@@ -92,6 +92,24 @@ test_that("gene gives error when given a non-meta", {
         "is not a gene of 'object'", fixed = TRUE)
 })
 
+test_that("gene, isGene, and getGenes work with swap.rownames",{
+    
+    swap_genes <- paste(rownames(sce), "symb", sep = "_")
+    
+    expect_equal(
+        getGenes(sce, swap.rownames = "symbol"),
+        swap_genes)
+    
+    expect_true(
+        isGene("gene1_symb", sce, swap.rownames = "symbol"))
+    
+    expect_type(
+        gene("gene1_symb", sce, swap.rownames = "symbol"),
+        "double"
+    )
+    
+})
+
 test_that("getReductions works for Seurat and SCE", {
     expect_type(reductions <- getReductions(seurat),
         "character")
@@ -138,7 +156,3 @@ test_that(".which_cells errors when logical 'cells.use' is the wrong length", {
         "'cells.use' length must equal the number of cells/samples in 'object' when given in logical form",
         fixed = TRUE)
 })
-
-
-
-

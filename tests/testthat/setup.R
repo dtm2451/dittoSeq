@@ -45,7 +45,10 @@ sce <- SingleCellExperiment(
                         age = age,
                         score = score,
                         score2 = score2,
-                        score3 = score3)
+                        score3 = score3),
+    rowData = DataFrame(
+        rows = rownames(exp),
+        symbol = paste(rownames(exp), "symb", sep = "_"))
 )
 
 # Remove the unneeded external data

@@ -395,3 +395,13 @@ test_that("dittoScatterHex gene display can utilize different data.types (exclud
     expect_equal(
         max(p$data$Y), 1)
 })
+
+test_that("dittoScatterHex swap.rownames works", {
+    expect_s3_class(
+        dittoDimHex(sce, "gene1_symb", swap.rownames = "symbol"),
+        "ggplot")
+    expect_s3_class(
+        dittoScatterHex(sce, "gene1_symb", "gene2_symb", "gene3_symb",
+            swap.rownames = "symbol"),
+        "ggplot")
+})

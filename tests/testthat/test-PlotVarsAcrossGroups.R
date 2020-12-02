@@ -313,3 +313,24 @@ test_that("dittoPlotVarsAcrossGroups with and without jitter rasterization produ
             plots = c("vlnplot", "boxplot", "jitter")),
         "ggplot")
 })
+
+test_that("dittoPlotVarsAcrossGroups swap.rownames works", {
+    
+    swap_genes <- paste(genes, "symb", sep = "_")
+    
+    no_swap <- dittoPlotVarsAcrossGroups(sce, genes, grp, data.out = TRUE)
+    swap <- dittoPlotVarsAcrossGroups(
+        sce, swap_genes, grp, data.out = TRUE,
+        swap.rownames = "symbol")
+    
+    expect_equivalent(no_swap$data$color, swap$data$color)
+    expect_equivalent(swap$data$var,
+                      paste(no_swap$data$var, "symb", sep = "_"))
+    
+    expect_s3_class(
+        no_swap$p,
+        "ggplot")
+    expect_s3_class(
+        swap$p,
+        "ggplot")
+})

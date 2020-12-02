@@ -398,3 +398,9 @@ test_that("dittoPlot with and without jitter rasterization produces identical pl
             plots = c("vlnplot", "jitter")),
         "ggplot")
 })
+
+test_that("dittoPlot swap.rownames works", {
+    expect_s3_class(
+        dittoPlot(sce, "gene1_symb", grp, swap.rownames = "symbol"),
+        "ggplot")
+})

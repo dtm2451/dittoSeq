@@ -226,3 +226,23 @@ test_that("dittoDotPlot assay, slot, adjustment work", {
     expect_true(all(
         d_raw$data$color >= d_log$data$color))
 })
+
+test_that("dittoDotPlot swap.rownames works", {
+    
+    swap_genes <- paste(genes, "symb", sep = "_")
+    
+    no_swap <- dittoDotPlot(sce, genes, disc, data.out = TRUE)
+    swap <- dittoDotPlot(sce, swap_genes, disc, data.out = TRUE,
+                         swap.rownames = "symbol")
+    
+    expect_equivalent(no_swap$data$color, swap$data$color)
+    expect_equivalent(swap$data$var,
+                      factor(paste(no_swap$data$var, "symb", sep = "_")))
+    
+    expect_s3_class(
+        no_swap$p,
+        "ggplot")
+    expect_s3_class(
+        swap$p,
+        "ggplot")
+})
