@@ -1,10 +1,9 @@
 #### isGene: Is this the name of a gene in my dataset? ####
 #' Tests if input is the name of a gene in a target object.
 #'
+#' @inheritParams gene
 #' @param test String or vector of strings, the "potential.gene.name"(s) to check for.
-#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param assay single string or integer that sets which set of seq data inside the object to check.
-#' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @param return.values Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
 #' @return Returns a logical vector indicating whether each instance in \code{test} is a rowname within the requested \code{assay} of the \code{object}.
@@ -55,9 +54,8 @@ isGene <- function(
 
 #' Returns the names of all genes of a target object.
 #'
-#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
+#' @inheritParams gene
 #' @param assay Single string or integer that sets which set of seq data inside the object to check.
-#' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @return A string vector, returns the names of all genes of the \code{object} for the requested \code{assay}.
 #' @seealso
 #' \code{\link{isGene}} for returning all genes in an \code{object}
