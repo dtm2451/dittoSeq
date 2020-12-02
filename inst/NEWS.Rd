@@ -2,6 +2,11 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.3}{\itemize{
+\item Adds a `swap.rownames` input, to allow utilization of SE/SCE rowData values, in all visualizations that can target feature data, as well as in the `gene()`, `isGene()`, and `getGenes()` helper functions.
+\item Update the `importDittoBulk()` function to remove the edgeR package dependency.
+}}
+
 \section{Version 1.3.2}{\itemize{
 \item Bug Fix: keep `split.by` factor level ordering when used with `do.label`
 }}
