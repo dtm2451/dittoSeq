@@ -32,6 +32,7 @@ dittoScatterPlot(
   assay.extra = .default_assay(object),
   slot.extra = .default_slot(object),
   adjustment.extra = NULL,
+  swap.rownames = NULL,
   shape.panel = c(16, 15, 17, 23, 25, 8),
   rename.color.groups = NULL,
   rename.shape.groups = NULL,
@@ -122,6 +123,8 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
+
+\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 
 \item{shape.panel}{Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes.

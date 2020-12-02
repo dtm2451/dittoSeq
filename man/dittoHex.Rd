@@ -24,6 +24,7 @@ dittoDimHex(
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
+  swap.rownames = NULL,
   assay.extra = assay,
   slot.extra = slot,
   adjustment.extra = adjustment,
@@ -92,6 +93,7 @@ dittoScatterHex(
   assay.extra = .default_assay(object),
   slot.extra = .default_slot(object),
   adjustment.extra = NULL,
+  swap.rownames = NULL,
   min.density = NA,
   max.density = NA,
   min.color = "#F0E442",
@@ -180,6 +182,8 @@ Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{assay, slot, adjustment, assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
+
+\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 
 \item{show.axes.numbers}{Logical which controls whether the axes values should be displayed.}
 

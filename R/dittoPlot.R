@@ -518,7 +518,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     object, main.var, group.by = "Sample", color.by = group.by,
     extra.vars = NULL, cells.use = NULL,
     assay, slot, adjustment,
-    swap.rownames = FALSE,
+    swap.rownames = NULL,
     do.hover = FALSE, hover.data = c(main.var, extra.vars)) {
 
     # Populate cells.use with a list of names if it was given anything else.

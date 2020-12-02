@@ -22,6 +22,7 @@ dittoDotPlot(
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
+  swap.rownames = NULL,
   do.hover = FALSE,
   main = NULL,
   sub = NULL,
@@ -75,6 +76,8 @@ Any function can be used as long as it takes in a numeric vector and returns a s
 \item{"z-score": centered and scaled to produce a relative-to-mean z-score representation}
 \item{NULL: Default, no adjustment}
 }}
+
+\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE} the object will be converted to an interactive plotly object in which underlying data for individual dots will be displayed when you hover your cursor over them.}

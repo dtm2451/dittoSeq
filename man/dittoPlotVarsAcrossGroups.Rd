@@ -15,6 +15,7 @@ dittoPlotVarsAcrossGroups(
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = "z-score",
+  swap.rownames = NULL,
   do.hover = FALSE,
   main = NULL,
   sub = NULL,
@@ -84,6 +85,8 @@ See details section for more info.}
 \item{NULL: no adjustment, the normal method for all other ditto expression plotting}
 \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 }}
+
+\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.

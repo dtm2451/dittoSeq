@@ -188,6 +188,7 @@ dittoScatterPlot <- function(
     assay.extra = .default_assay(object),
     slot.extra = .default_slot(object),
     adjustment.extra = NULL,
+    swap.rownames = NULL,
     shape.panel = c(16,15,17,23,25,8),
     rename.color.groups = NULL,
     rename.shape.groups = NULL,
@@ -248,6 +249,7 @@ dittoScatterPlot <- function(
         adjustment.color = adjustment.color,
         assay.extra = assay.extra, slot.extra = slot.extra,
         adjustment.extra = adjustment.extra,
+        swap.rownames = swap.rownames,
         do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
         rename.color.groups, rename.shape.groups)
 

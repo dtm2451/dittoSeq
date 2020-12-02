@@ -11,6 +11,7 @@
 #' 
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' @param assay,slot single strings or integer that set which expression data to use. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.
+#' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @param order.by Single string or numeric vector which sets the ordering of cells/samples.
 #' Can be the name of a gene, or metadata slot.
 #' Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.
@@ -193,6 +194,7 @@ dittoHeatmap <- function(
     cell.names.meta = NULL,
     assay = .default_assay(object),
     slot = .default_slot(object),
+    swap.rownames = NULL,
     heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
     scaled.to.max = FALSE,
     heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
@@ -226,6 +228,8 @@ dittoHeatmap <- function(
     }
 
     ### Obtain all needed data
+    object <- .swap_rownames(object, swap.rownames)
+    
     data <- .get_heatmap_data(object, genes, metas, assay, slot, cells.use)
     
     if (!is.null(cell.names.meta)) {

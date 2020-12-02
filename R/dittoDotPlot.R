@@ -148,6 +148,7 @@ dittoDotPlot <- function(
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
+    swap.rownames = NULL,
     do.hover = FALSE,
     main = NULL,
     sub = NULL,
@@ -179,7 +180,7 @@ dittoDotPlot <- function(
         object, vars, group.by,
         list(summary.fxn.color, summary.fxn.size),
         c("color", "size"),
-        cells.use, assay, slot, adjustment, do.hover)
+        cells.use, assay, slot, adjustment, swap.rownames, do.hover)
     data$var <- factor(data$var, levels = vars)
     data$grouping <-
         .rename_and_or_reorder(data$grouping, y.reorder, y.labels)
@@ -289,9 +290,11 @@ dittoDotPlot <- function(
     assay,
     slot,
     adjustment,
+    swap.rownames,
     do.hover,
     numeric.only = TRUE) {
     
+    object <- .swap_rownames(object, swap.rownames)
     groupings <- meta(group.by, object)[cells.use]
 
     ### Grab (and adjust) vars data per cell/sample

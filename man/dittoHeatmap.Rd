@@ -15,6 +15,7 @@ dittoHeatmap(
   cell.names.meta = NULL,
   assay = .default_assay(object),
   slot = .default_slot(object),
+  swap.rownames = NULL,
   heatmap.colors = colorRampPalette(c("blue", "white", "red"))(50),
   scaled.to.max = FALSE,
   heatmap.colors.max.scaled = colorRampPalette(c("white", "red"))(25),
@@ -58,6 +59,8 @@ Alternatively, can be a numeric vector of length equal to the total number of ce
 \item{cell.names.meta}{quoted "name" of a meta.data slot to use for naming the columns instead of using the raw cell/sample names.}
 
 \item{assay, slot}{single strings or integer that set which expression data to use. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
+
+\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 
 \item{heatmap.colors}{the colors to use within the heatmap when (default setting) \code{scaled.to.max} is set to \code{FALSE}.
 Default is a ramp from navy to white to red with 50 slices.}
