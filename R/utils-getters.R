@@ -35,11 +35,8 @@
 
 #' @importFrom SummarizedExperiment assay
 .which_data <- function(
-    assay = .default_assay(object), slot = .default_slot(object), object,
-    swap.rownames = NULL) {
+    assay = .default_assay(object), slot = .default_slot(object), object) {
     # Retrieves the required counts data from 'object'
-    
-    object <- .swap_rownames(object, swap.rownames)
 
     if (is(object,"SummarizedExperiment")) {
         return(SummarizedExperiment::assay(object, assay))
@@ -84,7 +81,7 @@
 .add_by_cell <- function(df = NULL, target, name, object,
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL, reorder = NULL, relabels = NULL,
-    swap.rownames = NULL, mult = FALSE) {
+    mult = FALSE) {
 
     # Extracts metadata or gene expression if 'target' is the name of one,
     # or if length('target') = ncol(object), its values are used directly.
@@ -105,8 +102,6 @@
     if (is.null(df)) {
         df <- data.frame(row.names = .all_cells(object))
     }
-    
-    object <- .swap_rownames(object, swap.rownames)
 
     if (mult) {
         for (i in seq_along(target)) {
