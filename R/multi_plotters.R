@@ -229,7 +229,7 @@ multi_dittoPlot <- function(
 #' @param show.titles Logical which sets whether grouping-levels should be used as titles for the individual VaryCell plots. Default = TRUE.
 #' @param ncol,nrow Integers which set dimensions of the plot grid when \code{list.out = FALSE}.
 #' @param allcells.main String which adjusts the title of the allcells plot. Default = "All Cells".  Set to \code{NULL} to remove.
-#' @param ...,color.panel,colors,min,max,assay,slot,adjustment,data.out,do.hover additional parameters passed to \code{\link{dittoDimPlot}}.
+#' @param ...,color.panel,colors,min,max,assay,slot,adjustment,data.out,do.hover,swap.rownames additional parameters passed to \code{\link{dittoDimPlot}}.
 #' 
 #' All parameters of \code{\link{dittoDimPlot}} can be utilized and adjusted except for \code{cells.use}, \code{main}, and \code{legend.show} which are handled with alternative methods here.
 #' A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.
@@ -318,12 +318,13 @@ multi_dittoDimPlotVaryCells <- function(
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
     data.out = FALSE,
-    do.hover = FALSE
+    do.hover = FALSE,
+    swap.rownames = NULL
     ) {
     
     color.panel <- color.panel[colors]
     
-    var.data <- .var_OR_get_meta_or_gene(var, object, assay, slot, adjustment)
+    var.data <- .var_OR_get_meta_or_gene(var, object, assay, slot, adjustment, swap.rownames)
     numeric <- is.numeric(var.data)
     
     vary.data <- meta(vary.cells.meta, object)
@@ -346,8 +347,8 @@ multi_dittoDimPlotVaryCells <- function(
         ...,
         assay = assay, slot = slot, adjustment = adjustment,
         min = min, max = max,
-        data.out = data.out, do.hover = do.hover
-        )
+        data.out = data.out, do.hover = do.hover,
+        swap.rownames = swap.rownames)
     
     if (!is.null(plot.args$cells.use)) {
         stop("Further subsetting with 'cells.use' is not supported.")

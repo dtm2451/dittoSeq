@@ -1,8 +1,8 @@
 #### isGene: Is this the name of a gene in my dataset? ####
 #' Tests if input is the name of a gene in a target object.
 #'
+#' @inheritParams gene
 #' @param test String or vector of strings, the "potential.gene.name"(s) to check for.
-#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param assay single string or integer that sets which set of seq data inside the object to check.
 #' @param return.values Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
 #' REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.
@@ -37,9 +37,14 @@
 #' @author Daniel Bunis
 #' @export
 
-isGene <- function(test, object, assay = .default_assay(object),
-    return.values = FALSE) {
+isGene <- function(
+    test, object,
+    assay = .default_assay(object),
+    return.values = FALSE,
+    swap.rownames = NULL) {
 
+    object <- .swap_rownames(object, swap.rownames)
+    
     if (return.values) {
         return(test[isGene(test, object, assay, return.values=FALSE)])
     } else {
@@ -49,8 +54,8 @@ isGene <- function(test, object, assay = .default_assay(object),
 
 #' Returns the names of all genes of a target object.
 #'
-#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
-#' @param assay single string or integer that sets which set of seq data inside the object to check.
+#' @inheritParams gene
+#' @param assay Single string or integer that sets which set of seq data inside the object to check.
 #' @return A string vector, returns the names of all genes of the \code{object} for the requested \code{assay}.
 #' @seealso
 #' \code{\link{isGene}} for returning all genes in an \code{object}
@@ -73,7 +78,11 @@ isGene <- function(test, object, assay = .default_assay(object),
 #' @author Daniel Bunis
 #' @export
 
-getGenes <- function(object, assay = .default_assay(object)){
+getGenes <- function(
+    object, assay = .default_assay(object), swap.rownames = NULL) {
+    
+    object <- .swap_rownames(object, swap.rownames)
+    
     rownames(.which_data(object=object,assay = assay))
 }
 
@@ -99,6 +108,7 @@ getGenes <- function(object, assay = .default_assay(object)){
 #' @param adj.fxn A function which takes a vector (of metadata values) and returns a vector of the same length.
 #' 
 #' For example, \code{function(x) \{log2(x)\}} or \code{as.factor}
+#' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @return Returns the expression values of a gene for all cells/samples.
 #' @examples
 #' example(importDittoBulk, echo = FALSE)
@@ -128,7 +138,10 @@ getGenes <- function(object, assay = .default_assay(object)){
 gene <- function(
     gene, object,
     assay = .default_assay(object), slot = .default_slot(object),
-    adjustment = NULL, adj.fxn = NULL){
+    adjustment = NULL, adj.fxn = NULL,
+    swap.rownames = NULL) {
+    
+    object <- .swap_rownames(object, swap.rownames)
 
     if (!isGene(gene, object, assay)) {
         stop(dQuote(gene)," is not a gene of 'object'")

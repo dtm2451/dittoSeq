@@ -20,6 +20,7 @@ dittoPlot(
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
+  swap.rownames = NULL,
   do.hover = FALSE,
   hover.data = var,
   color.panel = dittoColors(),
@@ -109,6 +110,8 @@ See details section for more info.}
 \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 }}
+
+\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points,

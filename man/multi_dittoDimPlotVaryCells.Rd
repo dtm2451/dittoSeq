@@ -28,7 +28,8 @@ multi_dittoDimPlotVaryCells(
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
   data.out = FALSE,
-  do.hover = FALSE
+  do.hover = FALSE,
+  swap.rownames = NULL
 )
 }
 \arguments{
@@ -62,7 +63,7 @@ Discrete or continuous data both work.}
 
 \item{OUT.List}{Deprecated. Use \code{list.out}}
 
-\item{..., color.panel, colors, min, max, assay, slot, adjustment, data.out, do.hover}{additional parameters passed to \code{\link{dittoDimPlot}}.
+\item{..., color.panel, colors, min, max, assay, slot, adjustment, data.out, do.hover, swap.rownames}{additional parameters passed to \code{\link{dittoDimPlot}}.
 
 All parameters of \code{\link{dittoDimPlot}} can be utilized and adjusted except for \code{cells.use}, \code{main}, and \code{legend.show} which are handled with alternative methods here.
 A few suggestions: \code{reduction.use} for setting which dimensionality reduction space to use.

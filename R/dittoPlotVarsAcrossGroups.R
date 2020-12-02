@@ -139,6 +139,7 @@ dittoPlotVarsAcrossGroups <- function(
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = "z-score",
+    swap.rownames = NULL,
     do.hover = FALSE,
     main = NULL,
     sub = NULL,
@@ -189,7 +190,7 @@ dittoPlotVarsAcrossGroups <- function(
     # Create data table summarizing vars data for each group
     data <- .data_gather_summarize_vars_by_groups(
         object, vars, group.by, list(summary.fxn), "var.data", cells.use,
-        assay, slot, adjustment, do.hover)
+        assay, slot, adjustment, swap.rownames, do.hover)
     
     data$grouping <-
         .rename_and_or_reorder(data$grouping, x.reorder, x.labels)

@@ -165,6 +165,7 @@ dittoDimHex <- function(
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
+    swap.rownames = NULL,
     assay.extra = assay,
     slot.extra = slot,
     adjustment.extra = adjustment,
@@ -231,6 +232,7 @@ dittoDimHex <- function(
         extra.vars, cells.use, color.panel, colors,
         split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
+        swap.rownames,
         min.density, max.density, min.color, max.color,
         min.opacity, max.opacity, min, max,
         rename.color.groups, xlab, ylab, main, sub, theme,
@@ -290,6 +292,7 @@ dittoScatterHex <- function(
     assay.extra = .default_assay(object),
     slot.extra = .default_slot(object),
     adjustment.extra = NULL,
+    swap.rownames = NULL,
     min.density = NA,
     max.density = NA,
     min.color = "#F0E442",
@@ -334,8 +337,8 @@ dittoScatterHex <- function(
         object, cells.use, x.var, y.var, color.var, shape.by=NULL, split.by,
         extra.vars, assay.x, slot.x, adjustment.x, assay.y, slot.y,
         adjustment.y, assay.color, slot.color, adjustment.color, assay.extra,
-        slot.extra, adjustment.extra, rename.color.groups = rename.color.groups
-    )
+        slot.extra, adjustment.extra, swap.rownames = swap.rownames,
+        rename.color.groups = rename.color.groups)
     data <- all_data[cells.use,]
 
     # Parse coloring methods
@@ -547,6 +550,7 @@ dittoScatterHex <- function(
     assay.extra,
     slot.extra,
     adjustment.extra,
+    swap.rownames = NULL,
     do.hover = FALSE,
     hover.data = NULL,
     hover.assay = NULL,
@@ -557,6 +561,7 @@ dittoScatterHex <- function(
     ) {
 
     all.cells <- .all_cells(object)
+    object <- .swap_rownames(object, swap.rownames)
     
     # Make dataframe
     vars <- list(x.var, y.var, color.var, shape.by)

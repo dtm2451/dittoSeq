@@ -100,3 +100,10 @@ test_that("VaryCells tells that 'main' is ignored.", {
             main = "HELLO"),
         "'main' ignored", fixed = TRUE)
 })
+
+test_that("VaryCells swap.rownames works", {
+    expect_s3_class(
+        multi_dittoDimPlotVaryCells(
+            sce, "gene1_symb", grp, swap.rownames = "symbol"),
+        "gtable")
+})

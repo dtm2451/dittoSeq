@@ -53,12 +53,16 @@
 
 .var_OR_get_meta_or_gene <- function(var, object,
     assay = .default_assay(object), slot = .default_slot(object),
-    adjustment = NULL) {
+    adjustment = NULL,
+    swap.rownames = NULL) {
     # Turns 'var' strings refering to genes or metadata into their associated data
     # Otherwise, returns 'var' with cellname names added.
 
     OUT <- var
+    
     cells <- .all_cells(object)
+    object <- .swap_rownames(object, swap.rownames)
+    
     if (length(var)==1 && is.character(var)) {
         if (isMeta(var, object)) {
             OUT <- meta(var, object)
@@ -76,7 +80,8 @@
 
 .add_by_cell <- function(df = NULL, target, name, object,
     assay = .default_assay(object), slot = .default_slot(object),
-    adjustment = NULL, reorder = NULL, relabels = NULL, mult = FALSE) {
+    adjustment = NULL, reorder = NULL, relabels = NULL,
+    mult = FALSE) {
 
     # Extracts metadata or gene expression if 'target' is the name of one,
     # or if length('target') = ncol(object), its values are used directly.

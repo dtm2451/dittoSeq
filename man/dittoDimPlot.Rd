@@ -21,6 +21,7 @@ dittoDimPlot(
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
+  swap.rownames = NULL,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
   shape.panel = c(16, 15, 17, 23, 25, 8),
@@ -127,6 +128,8 @@ See \code{\link{gene}} for more information.}
 \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 }}
+
+\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 
 \item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.}
 

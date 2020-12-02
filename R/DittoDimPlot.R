@@ -68,6 +68,7 @@
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 #' }
+#' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @param main String, sets the plot title.
 #' Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.
 #' @param sub String, sets the plot subtitle
@@ -261,6 +262,7 @@ dittoDimPlot <- function(
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
+    swap.rownames = NULL,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
     shape.panel = c(16,15,17,23,25,8),
@@ -340,7 +342,7 @@ dittoDimPlot <- function(
         extra.vars, cells.use,
         show.others, size, opacity, color.panel, colors,
         split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
-        assay, slot, adjustment, assay, slot, adjustment,
+        assay, slot, adjustment, assay, slot, adjustment, swap.rownames,
         shape.panel, rename.var.groups, rename.shape.groups,
         min.color, max.color, min, max, order,
         xlab, ylab, main, sub, theme,

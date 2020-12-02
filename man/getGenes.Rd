@@ -4,12 +4,14 @@
 \alias{getGenes}
 \title{Returns the names of all genes of a target object.}
 \usage{
-getGenes(object, assay = .default_assay(object))
+getGenes(object, assay = .default_assay(object), swap.rownames = NULL)
 }
 \arguments{
 \item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
-\item{assay}{single string or integer that sets which set of seq data inside the object to check.}
+\item{assay}{Single string or integer that sets which set of seq data inside the object to check.}
+
+\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 }
 \value{
 A string vector, returns the names of all genes of the \code{object} for the requested \code{assay}.

@@ -4,7 +4,13 @@
 \alias{isGene}
 \title{Tests if input is the name of a gene in a target object.}
 \usage{
-isGene(test, object, assay = .default_assay(object), return.values = FALSE)
+isGene(
+  test,
+  object,
+  assay = .default_assay(object),
+  return.values = FALSE,
+  swap.rownames = NULL
+)
 }
 \arguments{
 \item{test}{String or vector of strings, the "potential.gene.name"(s) to check for.}
@@ -15,6 +21,8 @@ isGene(test, object, assay = .default_assay(object), return.values = FALSE)
 
 \item{return.values}{Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
 REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
+
+\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 }
 \value{
 Returns a logical vector indicating whether each instance in \code{test} is a rowname within the requested \code{assay} of the \code{object}.

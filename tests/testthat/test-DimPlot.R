@@ -538,3 +538,10 @@ test_that("dittoDimPlot added features work with double-metadata faceting", {
                     c(5:10,9:5,6:10))))),
         NA)
 })
+
+test_that("dittoDimPlot swap.rownames works", {
+    expect_s3_class(
+        dittoDimPlot(sce, "gene1_symb", swap.rownames = "symbol"),
+        "ggplot")
+})
+
