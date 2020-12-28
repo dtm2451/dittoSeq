@@ -230,6 +230,7 @@ dittoScatterPlot <- function(
     legend.shape.size = 5,
     do.raster = FALSE,
     raster.dpi = 300,
+    add.spatial.images = NULL,
     data.out = FALSE) {
 
     order <- match.arg(order)
@@ -267,9 +268,15 @@ dittoScatterPlot <- function(
     # Set title if "make"
     main <- .leave_default_or_null(main,
         paste0(c(color.var, shape.by), collapse = " and "))
+    
+    # Obtain spatial tissue images if requested
+    spatial.data <- NULL
+    if (!is.null(add.spatial.images)) {
+        # spatial.data <- PullImages(object, add.spatial.images, cells.use, split.by)
+    }
 
     # Make the plot
-    p <- .ditto_scatter_plot(Target_data, Others_data,
+    p <- .ditto_scatter_plot(Target_data, Others_data, spatial.data,
         color.var, shape.by, show.others, size, opacity,
         color.panel, colors, do.hover, shape.panel,
         min.color, max.color, min, max,
@@ -321,6 +328,7 @@ dittoScatterPlot <- function(
 .ditto_scatter_plot <- function(
     Target_data,
     Others_data,
+    spatial.data,
     color.var,
     shape.by,
     show.others,
@@ -396,6 +404,10 @@ dittoScatterPlot <- function(
     }
 
     ### Add data
+    # Spatial images first
+    p <- p + geom_spatial_img
+    
+    # Data points
     if (show.others && nrow(Others_data)>1) {
         if (do.raster) {
             .error_if_no_ggrastr()

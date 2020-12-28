@@ -74,6 +74,7 @@ dittoScatterPlot(
   legend.shape.size = 5,
   do.raster = FALSE,
   raster.dpi = 300,
+  add.spatial.images = NULL,
   data.out = FALSE
 )
 }
