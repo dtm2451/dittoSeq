@@ -186,9 +186,7 @@ Defaults to "dashed", but any ggplot linetype will work.}
 \item{legend.title}{String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
 This input is set to \code{NULL} by default.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
-
-Note: plotly conversion is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).}
 }
 \value{
 a ggplot object

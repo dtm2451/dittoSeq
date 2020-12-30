@@ -35,9 +35,9 @@
 #' }
 #' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @param do.hover Logical. Default = \code{FALSE}.
-#' If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points,
+#' If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),
 #'
-#' Note: Currently, hovering is incompatible with RidgePlots as plotly does not support the geom_density_ridges2 geom.
+#' Note: Hovering is incompatible with RidgePlots as plotly does not support the geom_density_ridges2 geom.
 #' @param hover.data String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' Default = \code{dittoColors()}.
@@ -108,15 +108,13 @@
 #' @param legend.title String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
 #' This input is set to \code{NULL} by default.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
-#'
-#' Note: plotly conversion is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.
 #' @param ... arguments passed to dittoPlot by dittoRidgePlot, dittoRidgeJitter, and dittoBoxPlot wrappers.
 #' Options are all the ones above.
-#' @return a ggplot or plotly where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
+#' @return a ggplot where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
 #' Alternatively when \code{data.out=TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
 #'
-#' Alternatively when \code{do.hover = TRUE}, a plotly converted version of the plot where additional data will be displayed when the cursor is hovered over jitter points.
+#' Alternatively when \code{do.hover = TRUE}, a plotly converted version of the ggplot where additional data will be displayed when the cursor is hovered over jitter points.
 #' @details
 #' The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided, that data).
 #' On the discrete axis, data will be grouped by the metadata given to \code{group.by} and colored by the metadata given to \code{color.by}.
@@ -316,16 +314,27 @@ dittoPlot <- function(
     if (!legend.show) {
         p <- .remove_legend(p)
     }
-    #DONE. Return the plot or data
+    
+    # Handle hover.
+    if (do.hover) {
+        if ("ridgeplot" %in% plots) {
+            warning("'do.hover = TRUE' request ignored because plotly does not support ridgeplots.")
+        } else {
+            .error_if_no_plotly()
+            # Add hover.text to jitter, else just convert.
+            if ("jitter" %in% plots) {
+                p <- plotly::ggplotly(p, tooltip = "text")
+            } else {
+                p <- plotly::ggplotly(p)
+            }
+        }
+    }
+    
+    # DONE. Return the plot +/- data
     if (data.out) {
         return(list(p = p, data = Target_data))
     } else {
-        if (do.hover & ("jitter" %in% plots)) {
-            .error_if_no_plotly()
-            return(plotly::ggplotly(p, tooltip = "text"))
-        } else {
-            return(p)
-        }
+        return(p)
     }
 }
 

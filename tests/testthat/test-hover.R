@@ -98,7 +98,7 @@ test_that("Showing hover.data works for Plot (with cells.use)", {
     }
 })
 
-test_that("Expected hover.data issue for dittoRidgePlot (if plotly available)",{
+test_that("Expected hover.data warning for dittoRidgePlot (if plotly available)",{
     if (requireNamespace("plotly", quietly = TRUE)) {
         expect_warning(
             dittoRidgePlot(
@@ -106,7 +106,7 @@ test_that("Expected hover.data issue for dittoRidgePlot (if plotly available)",{
                 group.by = meta2, color.by = meta2,
                 do.hover = TRUE,
                 hover.data = c(gene1,meta1,"ident")),
-            NULL)
+            "'do.hover = TRUE' request ignored because plotly does not support ridgeplots.", fixed = TRUE)
     }
 })
 
