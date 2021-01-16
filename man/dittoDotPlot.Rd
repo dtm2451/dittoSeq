@@ -119,9 +119,7 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 
 \item{legend.color.title, legend.size.title}{String or \code{NULL}, sets the title displayed above legend keys.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
-
-Note: plotly conversion is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).}
 }
 \value{
 a ggplot object where dots of different colors and sizes summarize continuous data for multiple features (columns) per multiple groups (rows)

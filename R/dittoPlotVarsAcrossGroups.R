@@ -234,16 +234,26 @@ dittoPlotVarsAcrossGroups <- function(
         p <- .remove_legend(p)
     }
     
-    # DONE. Return
+    # Handle hover.
+    if (do.hover) {
+        if ("ridgeplot" %in% plots) {
+            warning("'do.hover = TRUE' request ignored because plotly does not support ridgeplots.")
+        } else {
+            .error_if_no_plotly()
+            # Add hover.text to jitter, else just convert.
+            if ("jitter" %in% plots) {
+                p <- plotly::ggplotly(p, tooltip = "text")
+            } else {
+                p <- plotly::ggplotly(p)
+            }
+        }
+    }
+    
+    # DONE. Return the plot +/- data
     if (data.out) {
         return(list(p = p, data = data))
     } else {
-        if (do.hover && ("jitter" %in% plots)) {
-            .error_if_no_plotly()
-            return(plotly::ggplotly(p, tooltip = "text"))
-        } else {
-            return(p)
-        }
+        return(p)
     }
 }
 
