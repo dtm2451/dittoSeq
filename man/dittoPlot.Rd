@@ -114,9 +114,9 @@ See details section for more info.}
 \item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
-If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points,
+If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),
 
-Note: Currently, hovering is incompatible with RidgePlots as plotly does not support the geom_density_ridges2 geom.}
+Note: Hovering is incompatible with RidgePlots as plotly does not support the geom_density_ridges2 geom.}
 
 \item{hover.data}{String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.}
 
@@ -226,19 +226,17 @@ Defaults to "dashed", but any ggplot linetype will work.}
 \item{legend.title}{String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
 This input is set to \code{NULL} by default.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
-
-Note: plotly conversion is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).}
 
 \item{...}{arguments passed to dittoPlot by dittoRidgePlot, dittoRidgeJitter, and dittoBoxPlot wrappers.
 Options are all the ones above.}
 }
 \value{
-a ggplot or plotly where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
+a ggplot where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 
 Alternatively when \code{data.out=TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
 
-Alternatively when \code{do.hover = TRUE}, a plotly converted version of the plot where additional data will be displayed when the cursor is hovered over jitter points.
+Alternatively when \code{do.hover = TRUE}, a plotly converted version of the ggplot where additional data will be displayed when the cursor is hovered over jitter points.
 }
 \description{
 Plots continuous data for cutomizable cells'/samples' groupings on a y-axis
