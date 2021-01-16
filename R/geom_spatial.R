@@ -2,14 +2,7 @@
 # https://support.10xgenomics.com/spatial-gene-expression/software/pipelines/latest/rkit
 # January 13, 2021
 
-library(ggplot2)
-library(Matrix)
-library(grid)
-library(readbitmap)
-library(Seurat)
-library(data.table)
-
-geom_spatial <-  function(mapping = NULL,
+.geom_spatial <-  function(mapping = NULL,
                          data = NULL,
                          stat = "identity",
                          position = "identity",
