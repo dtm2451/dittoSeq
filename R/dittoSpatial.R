@@ -18,10 +18,11 @@
 dittoSpatial <- function(
     object,
     var = NULL,
-    split.by = "sample_id",
+    samples.meta = "sample_id",
     samples.use = NULL,
     images.use = if (is(object, "VisiumExperiment")) {
         imagePaths(object)[1] } else { NULL },
+    split.by = samples.meta,
     cells.use = NULL,
     size = 1,
     opacity = 1,
@@ -105,16 +106,20 @@ dittoSpatial <- function(
         ydat <- coords$y
     }
 
-    # Retrieve image data
-    image_paths <- images.use
+    ### Interpret samples.meta & subset by samples.use
+    # cells.use
     
+    ### Interpret images.use & retrieve needed image data
     # Determine relevant images per sample if given as a type.
     # if images.use %in% c()
+    # image_suffix <- switch(images.use)
+    # image_paths <- 
     
     images <- lapply(image_paths, function(x) {
         readbitmap::read.bitmap(x)
         })
     
+    # Turn into tibble for easy ggplot compatibility.
     images_tibble <- dplyr::tibble(
         height = lapply(images, nrow),
         width = lapply(images, ncol),
@@ -122,10 +127,6 @@ dittoSpatial <- function(
             grid::rasterGrob(x, width=unit(1,"npc"), height=unit(1,"npc"))
         })
     )
-    
-    ### Subset by sample_id
-    # cells.use
-    # images_tibble
     
     # Edit theme.
     if (!show.grid.lines) {
