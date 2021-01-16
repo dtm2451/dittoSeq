@@ -74,7 +74,7 @@ dittoScatterPlot(
   legend.shape.size = 5,
   do.raster = FALSE,
   raster.dpi = 300,
-  add.spatial.images = NULL,
+  spatial.image.data = NULL,
   data.out = FALSE
 )
 }
@@ -216,6 +216,8 @@ This can be useful for editing in external programs (e.g. Illustrator) when ther
 
 \item{raster.dpi}{Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.}
 
+\item{spatial.image.data}{A tibble, normally passed in from \code{\link{dittoSpatial}}, that contains image grobs, their height, their width, and optionally also a column for \code{split.by}.}
+
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
 and a data.frame containing the underlying data for non-target cells ("Others_data").
@@ -227,7 +229,7 @@ a ggplot scatterplot where colored dots and/or shapes represent individual cells
 
 Alternatively, if \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
 
-Alternatively, if \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly &
+Alternatively, if \code{do.hover} is set to \code{TRUE}, the plot is converted from ggplot to plotly &
 cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed upon hovering the cursor over the plot.
 }
 \description{

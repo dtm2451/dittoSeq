@@ -47,7 +47,11 @@ Suggests: plotly,
     BiocStyle,
     scRNAseq,
     ggrastr (>= 0.2.0),
-    ComplexHeatmap
+    ComplexHeatmap,
+    SpatialExperiment,
+    grid,
+    dplyr,
+    readbitmap
 biocViews: 
     Software,
     Visualization,
