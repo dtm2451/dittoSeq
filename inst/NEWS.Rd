@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.5}{\itemize{
+\item Unit test correction
+}}
+
 \section{Version 1.3.4}{\itemize{
 \item Adds citation for the Advance Access version of the dittoSeq Applications Note published with Bioinformatics.
 \item Updates the `do.hover` logic for dittoPlot & dittoPlotVarsAcrossGroups so that plotly conversion is skipped for ridgeplots, yet otherwise is now performed even when `data.out = TRUE` or when no jitter is requested.
