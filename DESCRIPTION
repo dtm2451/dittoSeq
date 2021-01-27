@@ -49,9 +49,9 @@ Suggests: plotly,
     ggrastr (>= 0.2.0),
     ComplexHeatmap,
     SpatialExperiment,
+    magick,
     grid,
     dplyr,
-    readbitmap
 biocViews: 
     Software,
     Visualization,

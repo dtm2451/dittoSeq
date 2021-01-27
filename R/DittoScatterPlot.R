@@ -269,15 +269,9 @@ dittoScatterPlot <- function(
     # Set title if "make"
     main <- .leave_default_or_null(main,
         paste0(c(color.var, shape.by), collapse = " and "))
-    
-    # Obtain spatial tissue images if requested
-    spatial.data <- NULL
-    if (!is.null(add.spatial.images)) {
-        # spatial.data <- PullImages(object, add.spatial.images, cells.use, split.by)
-    }
 
     # Make the plot
-    p <- .ditto_scatter_plot(Target_data, Others_data, spatial.data,
+    p <- .ditto_scatter_plot(Target_data, Others_data,
         color.var, shape.by, show.others, size, opacity,
         color.panel, colors, do.hover, shape.panel,
         min.color, max.color, min, max,
@@ -329,7 +323,6 @@ dittoScatterPlot <- function(
 .ditto_scatter_plot <- function(
     Target_data,
     Others_data,
-    spatial.data,
     color.var,
     shape.by,
     show.others,
@@ -357,7 +350,7 @@ dittoScatterPlot <- function(
     legend.shape.size,
     do.raster,
     raster.dpi,
-    spatial.image.data
+    spatial.image.data = NULL
 ) {
     
     ### Set up plotting
@@ -412,7 +405,7 @@ dittoScatterPlot <- function(
         
         p <- p + .geom_spatial(
                 data=spatial.image.data,
-                aes(grob=grob),
+                aes_string(grob="grob"),
                 x=0.5, y=0.5) +
             # Set X/Y limits
             coord_cartesian(expand=FALSE) +

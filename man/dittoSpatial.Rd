@@ -7,11 +7,12 @@
 dittoSpatial(
   object,
   var = NULL,
-  split.by = "sample_id",
+  samples.meta = "sample_id",
   samples.use = NULL,
-  images.use = if (is(object, "VisiumExperiment")) {     imagePaths(object)[1] } else {
-        NULL },
   cells.use = NULL,
+  split.by = samples.meta,
+  images.id = "lowres",
+  image.paths = NULL,
   size = 1,
   opacity = 1,
   shape.by = NULL,
@@ -27,8 +28,7 @@ dittoSpatial(
   shape.panel = c(16, 15, 17, 23, 25, 8),
   show.others = TRUE,
   show.axes.numbers = TRUE,
-  show.grid.lines = if (is.character(reduction.use)) {     !grepl("umap|tsne",
-    tolower(reduction.use)) } else {     TRUE },
+  show.grid.lines = FALSE,
   min.color = "#F0E442",
   max.color = "#0072B2",
   min = NULL,
@@ -54,7 +54,6 @@ dittoSpatial(
   hover.slot = .default_slot(object),
   hover.adjustment = NULL,
   add.trajectory.lineages = NULL,
-  add.trajectory.curves = NULL,
   trajectory.cluster.meta,
   trajectory.arrow.size = 0.15,
   do.contour = FALSE,
@@ -80,15 +79,31 @@ This is the data that will be displayed for each cell/sample. Discrete or contin
 
 Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.}
 
-\item{split.by}{...}
+\item{samples.meta}{String naming the metadata that contains tissue slice (+ image) linkage information.}
 
-\item{samples.use}{...}
+\item{samples.use}{String vector (or NULL meaning 'use all') for subsetting to certain tissue slices.
+It's elements should be the options of \code{samples.meta} values that should be retained.}
 
-\item{images.use}{...}
+\item{cells.use}{An additional method for subsetting cells to show, the retained cells/locations/spots will be in intersect of those indicated by this input & \code{samples.use}.
+Otherwise, this input works exactly the same here as in other dittoSeq functions:
 
-\item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
+String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
+
+\item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
+*Defaults here to \code{samples.meta}, but otherwise works the ssame as in other functions:
+
+When 2 metadata are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+
+When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
+
+\item{images.id}{Single string, a value of \code{imgData(object)$image_id} when \code{object} is a \code{\linkS4class{VisiumExperiment}}, for selecting a set of tissue images to use.}
+
+\item{image.paths}{Alternative to \code{images.id} which takes precedence when given.
+A single string, or string vector, specifying file path(s) of tissue image(s).
+If a particular tissue slice should not have an image displayed, use the value NA.
+Order is assumed to be the same as that of \code{samples.use}.}
 
 \item{size}{Number which sets the size of data points. Default = 1.}
 
@@ -211,12 +226,6 @@ Defaults to \code{split.by}, so generally there is no need to adjust this except
 If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
 you can provide \code{add.trajectory.lineages = slingLineages('object')}.}
 
-\item{add.trajectory.curves}{List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x (\code{dim.1}) and y (\code{dim.2}) coordinates of the paths.
-
-Alternatively, a list of lists(/princurve objects) can be provided.
-Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
-you can provide \code{add.trajectory.curves = slingCurves('object')}}
-
 \item{trajectory.cluster.meta}{String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.}
 
 \item{trajectory.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
@@ -265,7 +274,7 @@ cell/sample information, determined by the \code{hover.data} input, is retrieved
 Plot spatial transcriptomics data by spatial coordinates
 }
 \details{
-X/Y are extracted...
+X/Y are extracted... Remember to update notes on defaults for these inputs: show.gridlines
 }
 \author{
 Daniel Bunis
