@@ -150,18 +150,20 @@ test_that("dittoDotPlot colors, sizes, ranges, legends are adjustable", {
 
 test_that("dittoDotPlot can be subset to show only certain cells/samples with any cells.use method", {
     expect_s3_class(
-        c1 <- dittoDotPlot(seurat, genes, disc,
-            cells.use = cells.names),
+        {c1 <- dittoDotPlot(seurat, genes, disc, data.out = TRUE,
+            cells.use = cells.names)
+        c1$p},
         "ggplot")
     expect_s3_class(
-        c2 <- dittoDotPlot(seurat, genes, disc,
-            cells.use = cells.logical),
+        {c2 <- dittoDotPlot(seurat, genes, disc, data.out = TRUE,
+            cells.use = cells.logical)
+        c2$p},
         "ggplot")
     expect_s3_class(
         dittoDotPlot(seurat, genes, disc,
             cells.use = 1:40),
         "ggplot")
-    expect_equal(c1,c2)
+    expect_equal(c1$data,c2$data)
     # And if we remove an entire grouping...
     expect_s3_class(
         dittoDotPlot(seurat, genes, disc,

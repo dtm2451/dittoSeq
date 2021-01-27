@@ -45,25 +45,28 @@ test_that("dittoPlot can plot gene expression data with all plot types", {
 
 test_that("dittoPlots can be subset to show only certain cells/samples with any cells.use method", {
     expect_s3_class(
-        c1 <- dittoPlot(
-            "number", object=seurat, group.by = grp,
+        {c1 <- dittoPlot(
+            "number", object=seurat, group.by = grp, data.out = TRUE,
             plots = c("vlnplot", "boxplot"),
-            cells.use = cells.names),
+            cells.use = cells.names)
+        c1$p},
         "ggplot")
     expect_s3_class(
-        c2 <- dittoPlot(
-            "number", object=seurat, group.by = grp,
+        {c2 <- dittoPlot(
+            "number", object=seurat, group.by = grp, data.out = TRUE,
             plots = c("vlnplot", "boxplot"),
-            cells.use = cells.logical),
+            cells.use = cells.logical)
+        c2$p},
         "ggplot")
     expect_s3_class(
-        c3 <- dittoPlot(
-            "number", object=seurat, group.by = grp,
+        {c3 <- dittoPlot(
+            "number", object=seurat, group.by = grp, data.out = TRUE,
             plots = c("vlnplot", "boxplot"),
-            cells.use = 1:40),
+            cells.use = 1:40)
+        c3$p},
         "ggplot")
-    expect_equal(c1,c2)
-    expect_equal(c1,c3)
+    expect_equal(c1$data,c2$data)
+    expect_equal(c1$data,c3$data)
     # And if we remove an entire grouping...
     expect_s3_class(
         dittoPlot(

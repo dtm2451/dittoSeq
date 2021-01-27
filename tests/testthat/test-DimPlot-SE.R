@@ -35,22 +35,23 @@ test_that("dittoDimPlot can plot continuous or discrete data & raw or normalized
 
 test_that("dittoDimPlots can be subset to show only certain cells/samples with any cells.use method, for SEs", {
     expect_s3_class(
-        c1 <- dittoDimPlot(
-            disc, object = se, reduction.use = embeds,
-            cells.use = cells.names),
+        {c1 <- dittoDimPlot(
+            disc, object = se, reduction.use = embeds, data.out = TRUE,
+            cells.use = cells.names)
+        c1$p},
         "ggplot")
     expect_s3_class(
-        c2 <- dittoDimPlot(
-            disc, object = se, reduction.use = embeds,
-            cells.use = cells.logical),
+        {c2 <- dittoDimPlot(
+            disc, object = se, reduction.use = embeds, data.out = TRUE,
+            cells.use = cells.logical)
+        c2$p},
         "ggplot")
-    expect_equal(c1,c2)
     c3 <- dittoDimPlot(
         disc, object = se, reduction.use = embeds,
         cells.use = 1:40,
         data.out = TRUE)
-    expect_equal(c1,c2)
-    expect_equal(c1,c3$p)
+    expect_equal(c1$Target_data, c2$Target_data)
+    expect_equal(c1$Target_data, c3$Target_data)
     expect_equal(nrow(c3$Target_data), 40)
     # And if we remove an entire grouping...
     expect_s3_class(
