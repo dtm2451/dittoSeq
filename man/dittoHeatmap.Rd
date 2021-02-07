@@ -50,9 +50,11 @@ Alternatively, a Logical vector, the same length as the number of cells in the o
 
 \item{annot.by}{String name of any metadata slots containing how the cells/samples should be annotated.}
 
-\item{order.by}{Single string or numeric vector which sets the ordering of cells/samples.
-Can be the name of a gene, or metadata slot.
-Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.}
+\item{order.by}{Single string, string vector, or numeric vector which sets how cells/samples (columns) will be ordered when \code{cluster_cols = FALSE}.
+
+Strings should be the name of a gene, or metadata slot, but can also be multiple such values in order of priority.
+
+Alternatively, can be a numeric vector which gives the column index order directly.}
 
 \item{main}{String that sets the title for the heatmap.}
 
@@ -195,13 +197,21 @@ dittoHeatmap(scRNA, genes,
     annot.by = "clustering")
 
 # Using the 'order.by' input:
-#   ordering by a useful metadata or gene is generally more helpful
+#   Ordering by a useful metadata or gene is often helpful.
 #   For single-cell data, order.by defaults to the first element given to
 #     annot.by.
 #   For bulk data, order.by must be set separately.
 dittoHeatmap(myRNA, genes,
     annot.by = "clustering",
-    order.by = "clustering")
+    order.by = "clustering",
+    cluster_cols = FALSE)
+# 'order.by' can be multiple metadata/genes, or a vector of indexes directly 
+dittoHeatmap(scRNA, genes,
+    annot.by = "clustering",
+    order.by = c("clustering", "timepoint"))
+dittoHeatmap(scRNA, genes,
+    annot.by = "clustering",
+    order.by = ncol(scRNA):1)
 
 # When there are many cells, showing names becomes less useful.
 #   Names can be turned off with the 'show_colnames' parameter.
@@ -217,7 +227,7 @@ dittoHeatmap(scRNA, genes,
 #   pheatmap package) by setting 'complex = TRUE'.
 #   Our data here is too small to hit that defaulting switch, so lets give
 #   the direct input, 'use_raster' as well:
-if (require(ComplexHeatmap)) { # Checks (and loads) if you have the package.
+if (requireNamespace("ComplexHeatmap")) { # Checks if you have the package.
     dittoHeatmap(scRNA, genes, annot.by = "groups", show_colnames = FALSE,
         complex = TRUE,
         use_raster = TRUE)
