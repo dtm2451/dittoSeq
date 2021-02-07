@@ -239,9 +239,23 @@ dittoHeatmap <- function(
     }
     
     if (!is.null(order.by)) {
-        order_data <- .var_OR_get_meta_or_gene(order.by, object, assay, slot)
-    } else {
-        order_data <- NULL
+        
+        if (is.numeric(order.by)) {
+            ordering <- order.by
+            # Trim by cells.use if longer than cells.use
+            if (length(ordering) > length(cells.use)){
+                ordering <- ordering[all.cells %in% cells.use]
+            }
+        } else {
+            order_data <- lapply(
+                order.by,
+                function(x) {
+                    .var_OR_get_meta_or_gene(x, object, assay, slot)[all.cells %in% cells.use]
+                })
+            ordering <- do.call(order, order_data)
+        }
+        
+        data <- data[, ordering]
     }
     
     # Make the columns annotations data
@@ -263,7 +277,7 @@ dittoHeatmap <- function(
     
     ### Prep inputs for heatmap contructor calls
     args <- .prep_ditto_heatmap(
-        data, cells.use, all.cells, cell.names, order_data, main,
+        data, cells.use, all.cells, cell.names, main,
         heatmap.colors, scaled.to.max, heatmap.colors.max.scaled, annot.colors,
         annotation_col, annotation_colors, highlight.features, show_colnames,
         show_rownames, scale, cluster_cols, border_color, legend_breaks,
@@ -285,7 +299,6 @@ dittoHeatmap <- function(
     cells.use,
     all.cells,
     cell.names,
-    order_data,
     main,
     heatmap.colors,
     scaled.to.max,
@@ -311,13 +324,7 @@ dittoHeatmap <- function(
         scale = scale, breaks = breaks, legend_breaks = legend_breaks, ...)
     
     # Adjust data
-    if (!is.null(order_data)){
-        args$mat <- args$mat[,order(order_data[all.cells %in% cells.use])]
-        
-        if (!identical(annotation_col, NULL)) {
-            annotation_col <- annotation_col[colnames(args$mat),, drop = FALSE]
-        }
-    }
+    
     if (scaled.to.max) {
         args <- .scale_to_max(args, heatmap.colors.max.scaled)
     }
@@ -325,7 +332,7 @@ dittoHeatmap <- function(
     # Add annotation_col / annotation_colors only if needed
     if (ncol(annotation_col)>0 || !is.null(args$annotation_row)) {
         if (ncol(annotation_col)>0) {
-            args$annotation_col <- annotation_col
+            args$annotation_col <- annotation_col[colnames(args$mat),, drop = FALSE]
         }
         args$annotation_colors <- annotation_colors
         # Add any missing annotation colors

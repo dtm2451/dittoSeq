@@ -202,6 +202,24 @@ test_that("Heatmap annotations can be given & heatmaps can be ordered by metadat
             annot.by = "number2",
             order.by = seq_along(colnames(seurat))),
         "pheatmap")
+    ### Ordered in REVERSE of number2, with out of order cells FIRST
+    expect_s3_class(
+        dittoHeatmap(
+            genes = genes,
+            object = seurat,
+            annot.by = "number2",
+            order.by = c(30:26, 1:25,31:ncol(seurat))),
+        "pheatmap")
+    
+    # ordered by multiple metadata
+    ### By groups, but then by number2
+    expect_s3_class(
+        dittoHeatmap(
+            genes = genes,
+            object = seurat,
+            order.by = c("groups","number2"),
+            annot.by = c("groups","number2")),
+        "pheatmap")
 })
 
 test_that("Heatmap annotations can be given & ordering can be adjusted and follows defaults", {
