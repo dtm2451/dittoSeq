@@ -320,6 +320,33 @@ test_that("dittoPlot violin plot adjustments work", {
         "ggplot")
 })
 
+test_that("dittoPlot ridgeplot adjustments work", {
+    # Manuel Check: Almost non-existent lines, with quite overlapping ridges.
+    expect_s3_class(
+        dittoRidgePlot(
+            "number", object=seurat, group.by = grp,
+            ridgeplot.lineweight = 0.1, ridgeplot.scale = 5),
+        "ggplot")
+    # Manual Check: Lots of space at the top.
+    expect_s3_class(
+        dittoRidgePlot(
+            "number", object=seurat, group.by = grp,
+            ridgeplot.ymax.expansion = 5),
+        "ggplot")
+    # Manual Check: Histogram
+    expect_s3_class(
+        dittoRidgePlot(
+            "number", object=seurat, group.by = grp,
+            ridgeplot.shape = "count"),
+        "ggplot")
+    # Manual Check: Hist with narrower bins
+    expect_s3_class(
+        dittoRidgePlot(
+            "number", object=seurat, group.by = grp,
+            ridgeplot.shape = "count", ridgeplot.bins = 60),
+        "ggplot")
+})
+
 test_that("dittoPlot can add extra vars to dataframe", {
     df1 <- dittoPlot(
             gene1, grp, grp, object = seurat,

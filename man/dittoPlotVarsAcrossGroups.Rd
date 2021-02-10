@@ -46,6 +46,8 @@ dittoPlotVarsAcrossGroups(
   ridgeplot.lineweight = 1,
   ridgeplot.scale = 1.25,
   ridgeplot.ymax.expansion = NA,
+  ridgeplot.shape = c("density", "count"),
+  ridgeplot.bins = 30,
   add.line = NULL,
   line.linetype = "dashed",
   line.color = "black",
@@ -173,6 +175,10 @@ Higher numbers lead to greater overlap.  Default = 1.25}
 \item{ridgeplot.ymax.expansion}{Scalar which adjusts the minimal space between the topmost grouping and the top of the plot in order to ensure the curve is not cut off by the plotting grid.
 The larger the value, the greater the space requested.
 When left as NA, dittoSeq will attempt to determine an ideal value itself based on the number of groups & linear interpolation between these goal posts: #groups of 3 or fewer: 0.6; #groups=12: 0.1; #groups or 34 or greater: 0.05.}
+
+\item{ridgeplot.shape}{Either "density" or "count", sets whether ridges will be smoothed (the typical, and default) versus rectangular like a histogram.}
+
+\item{ridgeplot.bins}{Integer which sets how many chunks to break the x-axis into when \code{ridgeplot.shape = "count"}}
 
 \item{add.line}{numeric value(s) where one or multiple line should be added}
 
