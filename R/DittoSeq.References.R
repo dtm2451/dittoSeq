@@ -23,7 +23,7 @@ NULL
 #' @description A dataframe containing mock demuxlet information for the 80-cell Seurat::pbmc_small dataset
 #' @return A dataframe
 #' @details This data was created based on the structure of real demuxlet.best output files.
-#' Barcodes from the \code{\link[Seurat]{pbmc_small}} dataset were used as the BARCODES column.
+#' Barcodes from Seurat's pbmc_small example data were used as the BARCODES column.
 #' Cells were then assigned randomly as either SNG (singlets), DBL (doublets), or AMB (ambiguous).
 #' Cells were then randomly assign to sample1-10 (or multiple samples for doublets), and this information was combined using the \code{paste} function into the typical structure of a demuxlet CALL column.
 #' Random sampling of remaining data from a separate, actual, demuxlet daatset was used for remaining columns.
