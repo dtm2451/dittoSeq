@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.7}{\itemize{
+\item Bug Fix, minor: Remove link to Seurat's `pbmc_small` object which moved to their SeuratObject package.
+}}
+
 \section{Version 1.3.6}{\itemize{
 \item Bug Fix: numeric vectors given to `dittoHeatmap()` `order.by` input are now used directly to set order of heatmap columns, as originally intended.
 \item Feature Update: `dittoHeatmap()`'s `order.by` can also now, alternatively, accept multiple gene/metadata names, rather than just one.
