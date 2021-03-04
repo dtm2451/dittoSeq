@@ -1,6 +1,7 @@
 #' Outputs a stacked bar plot to show the percent composition of samples, groups, clusters, or other groupings
 #' @import ggplot2
 #'
+#' @inheritParams dittoPlot
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}.
 #' @param group.by String name of a metadata to use for separating the cells/samples into discrete groups.

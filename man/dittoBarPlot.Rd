@@ -43,6 +43,12 @@ dittoBarPlot(
 
 \item{scale}{"count" or "percent". Sets whether data should be shown as raw counts or scaled to 1 and shown as a percentage.}
 
+\item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
+
+When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+
+When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
+
 \item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
@@ -59,6 +65,10 @@ Note: plotly output is turned off in the \code{data.out = TRUE} setting, but hov
 
 \item{colors}{Integer vector, which sets the indexes / order, of colors from color.panel to actually use.
 (Provides an alternative to directly modifying \code{color.panel}.)}
+
+\item{split.nrow}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{y.breaks}{Numeric vector which sets the plot's tick marks / major gridlines. c(break1,break2,break3,etc.)}
 
