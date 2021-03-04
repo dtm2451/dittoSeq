@@ -101,11 +101,14 @@ dittoBarPlot <- function(
     var,
     group.by,
     scale = c("percent", "count"),
+    split.by = NULL,
     cells.use = NULL,
     data.out = FALSE,
     do.hover = FALSE,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
+    split.nrow = NULL,
+    split.ncol = NULL,
     y.breaks = NA,
     min = 0,
     max = NULL,
@@ -121,16 +124,8 @@ dittoBarPlot <- function(
     sub = NULL,
     legend.show = TRUE,
     legend.title = NULL) {
-
-    cells.use <- .which_cells(cells.use, object)
-    all.cells <- .all_cells(object)
+    
     scale = match.arg(scale)
-
-    # Extract x.grouping and y.labels data
-    y.var <- as.character(
-        .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use])
-    x.var <- as.character(
-        .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use])
 
     # Decide titles
     if (!(is.null(ylab))) {
@@ -150,30 +145,15 @@ dittoBarPlot <- function(
             main <- NULL
         }
     }
-
-    # Create dataframe
-    data <- data.frame(
-        count = as.vector(data.frame(table(y.var, x.var))))
-    names(data) <- c("label", "grouping", "count")
-    data$label.count.total <- rep(
-        as.vector(table(x.var)),
-        each = length(levels(as.factor(y.var))))
-    data$percent <- data$count / data$label.count.total
-    data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
-    data$label <- .rename_and_or_reorder(
-        data$label, var.labels.reorder, var.labels.rename)
+    
+    # Gather data
+    data <- .dittoBarPlot_data_gather(
+        object, var, group.by, split.by, cells.use, x.reorder, x.labels,
+        var.labels.reorder, var.labels.rename, do.hover)
     if (scale == "percent") {
         y.show <- "percent"
     } else {
         y.show <- "count"
-    }
-
-    # Add hover info
-    if (do.hover) {
-        hover.data <- data[,names(data) %in% c("label", "count", "percent")]
-        names(hover.data)[1] <- var
-        # Make hover srtings, "data.type: data" \n "data.type: data"
-        data$hover.string <- .make_hover_strings_from_df(hover.data)
     }
 
     #Build Plot
@@ -204,10 +184,17 @@ dittoBarPlot <- function(
         max <- ifelse(scale == "percent", 1, max(data$label.count.total))
     }
     p <- p + coord_cartesian(ylim=c(min,max))
+    
+    ### Add extra features
+    if (!is.null(split.by)) {
+        p <- .add_splitting(
+            p, split.by, split.nrow, split.ncol, object, cells.use)
+    }
 
     if (!legend.show) {
         p <- .remove_legend(p)
     }
+    
     #DONE. Return the plot
     if (data.out) {
         return(list(p = p, data = data))
@@ -219,4 +206,70 @@ dittoBarPlot <- function(
             return(p)
         }
     }
+}
+
+.dittoBarPlot_data_gather <- function(
+    object, var, group.by, split.by, cells.use,
+    x.reorder, x.labels,
+    var.labels.reorder, var.labels.rename,
+    do.hover
+) {
+    
+    cells.use <- .which_cells(cells.use, object)
+    all.cells <- .all_cells(object)
+    
+    # Extract x.grouping and y.labels data
+    y.var <- as.character(
+        .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use])
+    x.var <- as.character(
+        .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use])
+    
+    # Extract or negate-away split.by data
+    facet <- "filler"
+    split.data <- list()
+    if (!is.null(split.by)) {
+        for (by in seq_along(split.by)) {
+            split.data[[by]] <- meta(split.by[by], object)[all.cells %in% cells.use]
+        }
+        facet <- do.call(paste0, split.data)
+    }
+    
+    # Create dataframe (per split.by group)
+    data <- NULL
+    for (i in unique(facet)) {
+        
+        new <- data.frame(
+            count = as.vector(data.frame(table(y.var[i==facet], x.var[i==facet]))))
+        names(new) <- c("label", "grouping", "count")
+        
+        new$label.count.total.per.facet <- rep(
+            as.vector(table(x.var[i==facet])),
+            each = length(levels(as.factor(y.var[i==facet]))))
+        new$percent <- new$count / new$label.count.total.per.facet
+        
+        # Catch 0/0
+        new$percent[is.nan(new$percent)] <- 0
+        
+        # Add facet info
+        for (by in seq_along(split.by)) {
+            new[[split.by[by]]] <- (split.data[[by]][i==facet])[1]
+        }
+        
+        data <- rbind(data, new)
+    }
+    
+    # Rename/reorder
+    data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
+    data$label <- .rename_and_or_reorder(
+        data$label, var.labels.reorder, var.labels.rename)
+
+    # Add hover info
+    if (do.hover) {
+        hover.data <- data[,names(data) %in% c("label", "count", "percent")]
+        names(hover.data)[1] <- var
+        # Make hover srtings, "data.type: data" \n "data.type: data"
+        data$hover.string <- .make_hover_strings_from_df(hover.data)
+    }
+    
+    data
 }
