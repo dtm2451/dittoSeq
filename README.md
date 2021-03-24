@@ -17,6 +17,9 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 ![Overview](vignettes/dittoSeq.gif)
 
+### News: Noticeable updates in github/Bioc-devel and the next v1.4-release:
+- Factor level ordering will be retained in dittoBarPlot for `var` and `group.by` data.
+
 ### News: Updates in dittoSeq v1.2:
 
 - Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimHex()` & `dittoScatterHex()`.
