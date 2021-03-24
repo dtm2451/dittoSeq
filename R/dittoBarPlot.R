@@ -220,10 +220,8 @@ dittoBarPlot <- function(
     all.cells <- .all_cells(object)
     
     # Extract x.grouping and y.labels data
-    y.var <- as.character(
-        .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use])
-    x.var <- as.character(
-        .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use])
+    y.var <- .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use]
+    x.var <- .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use]
     
     # Extract or negate-away split.by data
     facet <- "filler"
