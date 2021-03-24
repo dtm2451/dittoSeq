@@ -207,7 +207,7 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 \item{contour.color}{String that sets the color(s) of the \code{do.contour} contours.}
 
 \item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.
-Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
+Defaults to "solid", but see \code{\link[ggplot2]{aes_linetype_size_shape}} for other options.}
 
 \item{min.density, max.density}{Number which sets the min/max values used for the density scale.
 Used no matter whether density is represented through opacity or color.}

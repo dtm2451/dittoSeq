@@ -103,7 +103,7 @@
 #' @param do.contour Logical. Whether density-based contours should be displayed.
 #' @param contour.color String that sets the color(s) of the \code{do.contour} contours.
 #' @param contour.linetype String or numeric which sets the type of line used for \code{do.contour} contours.
-#' Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.
+#' Defaults to "solid", but see \code{\link[ggplot2]{aes_linetype_size_shape}} for other options.
 #' @param do.hover Logical which controls whether the output will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 #' \code{hover.data} argument is used to determine what data to use.
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.

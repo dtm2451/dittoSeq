@@ -225,7 +225,7 @@ you can provide \code{add.trajectory.curves = slingCurves('object')}}
 \item{contour.color}{String that sets the color(s) of the \code{do.contour} contours.}
 
 \item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.
-Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
+Defaults to "solid", but see \code{\link[ggplot2]{aes_linetype_size_shape}} for other options.}
 
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 

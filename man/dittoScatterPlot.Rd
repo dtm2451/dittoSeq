@@ -168,7 +168,7 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 \item{contour.color}{String that sets the color(s) of the \code{do.contour} contours.}
 
 \item{contour.linetype}{String or numeric which sets the type of line used for \code{do.contour} contours.
-Defaults to "solid", but see \code{\link[ggplot2]{linetype}} for other options.}
+Defaults to "solid", but see \code{\link[ggplot2]{aes_linetype_size_shape}} for other options.}
 
 \item{add.trajectory.lineages}{List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 
