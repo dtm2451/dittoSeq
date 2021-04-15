@@ -57,8 +57,9 @@ dittoPlot(
   ridgeplot.lineweight = 1,
   ridgeplot.scale = 1.25,
   ridgeplot.ymax.expansion = NA,
-  ridgeplot.shape = c("density", "count"),
+  ridgeplot.shape = c("smooth", "hist"),
   ridgeplot.bins = 30,
+  ridgeplot.binwidth = NULL,
   add.line = NULL,
   line.linetype = "dashed",
   line.color = "black",
@@ -216,9 +217,11 @@ Higher numbers lead to greater overlap.  Default = 1.25}
 The larger the value, the greater the space requested.
 When left as NA, dittoSeq will attempt to determine an ideal value itself based on the number of groups & linear interpolation between these goal posts: #groups of 3 or fewer: 0.6; #groups=12: 0.1; #groups or 34 or greater: 0.05.}
 
-\item{ridgeplot.shape}{Either "density" or "count", sets whether ridges will be smoothed (the typical, and default) versus rectangular like a histogram.}
+\item{ridgeplot.bins}{Integer which set how many chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
+Overridden by \code{ridgeplot.binwidth} when that input is provided.}
 
-\item{ridgeplot.bins}{Integer which sets how many chunks to break the x-axis into when \code{ridgeplot.shape = "count"}}
+\item{ridgeplot.binwidth}{Integer which sets the width of chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
+Takes precedence over \code{ridgeplot.bins} when provided.}
 
 \item{add.line}{numeric value(s) where one or multiple line should be added}
 
