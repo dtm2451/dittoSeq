@@ -51,6 +51,8 @@
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.
 #'
 #' Note: plotly output is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.
+#' @param retain.factor.levels Logical (for older version compatibility) which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
+#' Set this to FALSE to recreate data order of older ditto-plots.
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
 #'
 #' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
@@ -94,6 +96,21 @@
 #'         do.hover = TRUE)
 #'     }
 #'
+#' ### Previous Version Compatibility
+#' # Mistakenly, dittoBarPlot used to remove factor identities entirely from the
+#' #  data it used. This manifests as ignorance of a user's set orderings for
+#' #  their data. That is nolonger done by default, but to recreate old plots,
+#' #  restoring this behavior can be achieved with 'retain.factor.levels = FALSE'
+#' # Set factor level ordering for a metadata we'll give to 'group.by'
+#' myRNA$groups_reverse_levels <- factor(
+#'     myRNA$groups,
+#'     levels = c("D", "C", "B", "A"))
+#' # dittoBarPlot will now respect this level order by default. 
+#' dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels")
+#' # But that respect can be turned off...
+#' dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels",
+#'     retain.factor.levels = FALSE)
+#' 
 #' @author Daniel Bunis
 #' @export
 
@@ -124,7 +141,8 @@ dittoBarPlot <- function(
     main = "make",
     sub = NULL,
     legend.show = TRUE,
-    legend.title = NULL) {
+    legend.title = NULL,
+    retain.factor.levels = TRUE) {
     
     scale = match.arg(scale)
 
@@ -150,7 +168,7 @@ dittoBarPlot <- function(
     # Gather data
     data <- .dittoBarPlot_data_gather(
         object, var, group.by, split.by, cells.use, x.reorder, x.labels,
-        var.labels.reorder, var.labels.rename, do.hover)
+        var.labels.reorder, var.labels.rename, do.hover, retain.factor.levels)
     if (scale == "percent") {
         y.show <- "percent"
     } else {
@@ -213,7 +231,7 @@ dittoBarPlot <- function(
     object, var, group.by, split.by, cells.use,
     x.reorder, x.labels,
     var.labels.reorder, var.labels.rename,
-    do.hover
+    do.hover, retain.factor.levels
 ) {
     
     cells.use <- .which_cells(cells.use, object)
@@ -222,6 +240,12 @@ dittoBarPlot <- function(
     # Extract x.grouping and y.labels data
     y.var <- .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use]
     x.var <- .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use]
+    
+    # For pre-v1.4 compatibility
+    if(!retain.factor.levels) {
+        y.var <- as.character(y.var)
+        x.var <- as.character(x.var)
+    }
     
     # Extract or negate-away split.by data
     facet <- "filler"

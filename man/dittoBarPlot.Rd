@@ -31,7 +31,8 @@ dittoBarPlot(
   main = "make",
   sub = NULL,
   legend.show = TRUE,
-  legend.title = NULL
+  legend.title = NULL,
+  retain.factor.levels = TRUE
 )
 }
 \arguments{
@@ -116,6 +117,9 @@ Set to \code{NULL} to remove.}
 \item{legend.show}{Logical which sets whether the legend should be displayed.}
 
 \item{legend.title}{String which adds a title to the legend.}
+
+\item{retain.factor.levels}{Logical (for older version compatibility) which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
+Set this to FALSE to recreate data order of older ditto-plots.}
 }
 \value{
 A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
@@ -166,6 +170,21 @@ if (requireNamespace("plotly", quietly = TRUE)) {
     dittoBarPlot(myRNA, "clustering", group.by = "groups",
         do.hover = TRUE)
     }
+
+### Previous Version Compatibility
+# Mistakenly, dittoBarPlot used to remove factor identities entirely from the
+#  data it used. This manifests as ignorance of a user's set orderings for
+#  their data. That is nolonger done by default, but to recreate old plots,
+#  restoring this behavior can be achieved with 'retain.factor.levels = FALSE'
+# Set factor level ordering for a metadata we'll give to 'group.by'
+myRNA$groups_reverse_levels <- factor(
+    myRNA$groups,
+    levels = c("D", "C", "B", "A"))
+# dittoBarPlot will now respect this level order by default. 
+dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels")
+# But that respect can be turned off...
+dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels",
+    retain.factor.levels = FALSE)
 
 }
 \author{
