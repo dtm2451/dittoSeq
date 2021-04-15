@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.8}{\itemize{
+\item Build-side Bug Fix, minor: Added `rmarkdown` to the list of `Suggests:` packages.
+}}
+
 \section{Version 1.3.7}{\itemize{
 \item Bug Fix, minor: Remove link to Seurat's `pbmc_small` object which moved to their SeuratObject package.
 }}
