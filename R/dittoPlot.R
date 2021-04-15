@@ -104,8 +104,12 @@
 #' @param ridgeplot.ymax.expansion Scalar which adjusts the minimal space between the topmost grouping and the top of the plot in order to ensure the curve is not cut off by the plotting grid.
 #' The larger the value, the greater the space requested.
 #' When left as NA, dittoSeq will attempt to determine an ideal value itself based on the number of groups & linear interpolation between these goal posts: #groups of 3 or fewer: 0.6; #groups=12: 0.1; #groups or 34 or greater: 0.05.
-#' @param ridgeplot.shape Either "density" or "count", sets whether ridges will be smoothed (the typical, and default) versus rectangular like a histogram.
-#' @param ridgeplot.bins Integer which sets how many chunks to break the x-axis into when \code{ridgeplot.shape = "count"}
+#' @param ridgeplot.shape Either "smooth" or "hist", sets whether ridges will be smoothed (the typical, and default) versus rectangular like a histogram.
+#' (Note, as of the time shape "hist" was added, combination of jittered points is not supported by the \code{\link[ggridges]{{stat_binline}} that dittoSeq relies on.
+#' @param ridgeplot.bins Integer which set how many chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
+#' Overridden by \code{ridgeplot.binwidth} when that input is provided.
+#' @param ridgeplot.binwidth Integer which sets the width of chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
+#' Takes precedence over \code{ridgeplot.bins} when provided.
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
 #' @param legend.title String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
 #' This input is set to \code{NULL} by default.
@@ -256,8 +260,9 @@ dittoPlot <- function(
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
     ridgeplot.ymax.expansion = NA,
-    ridgeplot.shape = c("density", "count"),
+    ridgeplot.shape = c("smooth", "hist"),
     ridgeplot.bins = 30,
+    ridgeplot.binwidth = NULL,
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
@@ -312,9 +317,9 @@ dittoPlot <- function(
             p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
             jitter.shape.legend.size, jitter.shape.legend.show,
             ridgeplot.lineweight, ridgeplot.scale, ridgeplot.ymax.expansion,
-            ridgeplot.shape, ridgeplot.bins, add.line, line.linetype,
-            line.color, x.labels.rotate, do.hover, color.panel, colors,
-            y.breaks, min, max)
+            ridgeplot.shape, ridgeplot.bins, ridgeplot.binwidth, add.line,
+            line.linetype, line.color, x.labels.rotate, do.hover, color.panel,
+            colors, y.breaks, min, max)
     }
     # Extra tweaks
     if (!is.null(split.by)) {
@@ -481,7 +486,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     jitter.shape.legend.size, jitter.shape.legend.show,
     ridgeplot.lineweight, ridgeplot.scale,
     ridgeplot.ymax.expansion, ridgeplot.shape, ridgeplot.bins,
-    add.line, line.linetype, line.color,
+    ridgeplot.binwidth, add.line, line.linetype, line.color,
     x.labels.rotate, do.hover, color.panel, colors, y.breaks, min, max) {
     #This function takes in a partial dittoPlot ggplot object without any data overlay, and parses adding the main data visualizations.
 
@@ -510,9 +515,10 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 
     # Add ridgeplot and jitter data
     ridge.args <- list(size = ridgeplot.lineweight, scale = ridgeplot.scale)
-    if (ridgeplot.shape == "count") {
+    if (ridgeplot.shape == "hist") {
         ridge.args$stat <- "binline"
         ridge.args$bins <- ridgeplot.bins
+        ridge.args$binwidth <- ridgeplot.binwidth
     }
     if ("jitter" %in% plots) {
         ridge.args <- c(ridge.args, jittered_points = TRUE,

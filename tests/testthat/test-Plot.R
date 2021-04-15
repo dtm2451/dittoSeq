@@ -337,13 +337,20 @@ test_that("dittoPlot ridgeplot adjustments work", {
     expect_s3_class(
         dittoRidgePlot(
             "number", object=seurat, group.by = grp,
-            ridgeplot.shape = "count"),
+            ridgeplot.shape = "hist"),
         "ggplot")
     # Manual Check: Hist with narrower bins
     expect_s3_class(
         dittoRidgePlot(
             "number", object=seurat, group.by = grp,
-            ridgeplot.shape = "count", ridgeplot.bins = 60),
+            ridgeplot.shape = "hist", ridgeplot.bins = 60),
+        "ggplot")
+    # Manual Check: Hist with even narrower bins
+    expect_s3_class(
+        dittoRidgePlot(
+            "number", object=seurat, group.by = grp,
+            ridgeplot.shape = "hist", ridgeplot.bins = 60,
+            ridgeplot.binwidth = 1),
         "ggplot")
 })
 

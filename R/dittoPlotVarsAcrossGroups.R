@@ -170,8 +170,9 @@ dittoPlotVarsAcrossGroups <- function(
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
     ridgeplot.ymax.expansion = NA,
-    ridgeplot.shape = c("density", "count"),
+    ridgeplot.shape = c("smooth", "hist"),
     ridgeplot.bins = 30,
+    ridgeplot.binwidth = NULL,
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
@@ -230,7 +231,7 @@ dittoPlotVarsAcrossGroups <- function(
             p, data, plots, xlab, ylab, jitter.size, jitter.color,
             NA, TRUE, ridgeplot.lineweight, ridgeplot.scale,
             ridgeplot.ymax.expansion, ridgeplot.shape, ridgeplot.bins,
-            add.line, line.linetype, line.color,
+            ridgeplot.binwidth, add.line, line.linetype, line.color,
             x.labels.rotate, do.hover, color.panel,
             colors, y.breaks, min, max)
     }
