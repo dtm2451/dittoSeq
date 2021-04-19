@@ -11,17 +11,17 @@ test_that("Heatmap can be plotted for Seurat or SCE", {
         dittoHeatmap(complex = TRUE,
             genes = genes,
             object = seurat),
-        "Heatmap")
+        "HeatmapList")
     expect_s4_class(
         dittoHeatmap(complex = TRUE,
             genes = genes,
             object = sce),
-        "Heatmap")
+        "HeatmapList")
     expect_s4_class(
         dittoHeatmap(complex = TRUE,
             metas = metas,
             object = sce),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap data type can be adjusted", {
@@ -30,7 +30,7 @@ test_that("Heatmap data type can be adjusted", {
             genes = genes,
             object = seurat,
             slot = "counts"), # normally raw.data, but as.Seurat......
-        "Heatmap")
+        "HeatmapList")
 })
 
 # Set genes1:5 to have all zeros in logcounts in a new object
@@ -105,7 +105,7 @@ test_that("Heatmap title can be adjusted", {
             genes = genes,
             object = seurat,
             main = "Hello there!"),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap sample renaming by metadata works", {
@@ -115,7 +115,7 @@ test_that("Heatmap sample renaming by metadata works", {
             genes = genes,
             object = seurat,
             cell.names.meta = "number"),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap can hide rownames/colnames", {
@@ -125,14 +125,14 @@ test_that("Heatmap can hide rownames/colnames", {
             genes = genes,
             object = seurat,
             show_colnames = TRUE),
-        "Heatmap")
+        "HeatmapList")
     ### No rownames
     expect_s4_class(
         dittoHeatmap(complex = TRUE,
             genes = genes,
             object = seurat,
             show_rownames = FALSE),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap highlight genes works", {
@@ -144,7 +144,7 @@ test_that("Heatmap highlight genes works", {
             show_colnames = FALSE,
             show_rownames = FALSE,
             highlight.features = "gene1"),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap can be scaled to max", {
@@ -154,7 +154,7 @@ test_that("Heatmap can be scaled to max", {
             genes = genes,
             object = seurat,
             scaled.to.max = TRUE),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap colors can be adjusted", {
@@ -164,7 +164,7 @@ test_that("Heatmap colors can be adjusted", {
             genes = genes,
             object = seurat,
             heatmap.colors = colorRampPalette(c("yellow", "black", "red"))(50)),
-        "Heatmap")
+        "HeatmapList")
     ### black to yellow, 0:1
     expect_s4_class(
         dittoHeatmap(complex = TRUE,
@@ -172,7 +172,7 @@ test_that("Heatmap colors can be adjusted", {
             object = seurat,
             scaled.to.max = TRUE,
             heatmap.colors.max.scaled = colorRampPalette(c("black", "yellow"))(25)),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap annotations can be given & heatmaps can be ordered by metadata, expression, or user-input vector", {
@@ -183,7 +183,7 @@ test_that("Heatmap annotations can be given & heatmaps can be ordered by metadat
             genes = genes,
             object = seurat,
             order.by = "gene1"),
-        "Heatmap")
+        "HeatmapList")
     # Works for metadata
     ### ordered by groups
     expect_s4_class(
@@ -192,7 +192,7 @@ test_that("Heatmap annotations can be given & heatmaps can be ordered by metadat
             object = seurat,
             order.by = "groups",
             annot.by = "groups"),
-        "Heatmap")
+        "HeatmapList")
     # Works with vectors provided
     ### Ordered in REVERSE of number2
     expect_s4_class(
@@ -201,7 +201,7 @@ test_that("Heatmap annotations can be given & heatmaps can be ordered by metadat
             object = seurat,
             annot.by = "number2",
             order.by = seq_along(colnames(seurat))),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap annotations can be given & ordering can be adjusted and follows defaults", {
@@ -212,7 +212,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
             genes = genes,
             object = seurat,
             annot.by = "clusters"),
-        "Heatmap")
+        "HeatmapList")
     # Samples should not be ordered by this (bulk)
     ### CLustered
     expect_s4_class(
@@ -220,7 +220,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
             genes = genes,
             object = bulk,
             annot.by = "clusters"),
-        "Heatmap")
+        "HeatmapList")
     # Clusters even though an order.by would be given
     ### Clustered!
     expect_s4_class(
@@ -229,7 +229,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
             object = seurat,
             annot.by = "clusters",
             cluster_cols = TRUE),
-        "Heatmap")
+        "HeatmapList")
     # Ordering, but distinct from the first annotation
     ### ordered by groups.
     expect_s4_class(
@@ -238,7 +238,7 @@ test_that("Heatmap annotations can be given & ordering can be adjusted and follo
             object = seurat,
             annot.by = c("clusters", "groups"),
             order.by = "groups"),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap can be ordered when also subset to certain cells", {
@@ -250,7 +250,7 @@ test_that("Heatmap can be ordered when also subset to certain cells", {
             object = seurat,
             order.by = "gene1",
             cells.use = meta("number", seurat)<20),
-        "Heatmap")
+        "HeatmapList")
     # Works for metadata
     ### ordered by groups metadata
     expect_s4_class(
@@ -259,7 +259,7 @@ test_that("Heatmap can be ordered when also subset to certain cells", {
             object = seurat,
             annot.by = "groups",
             cells.use = colnames(seurat)[meta("number", seurat)<20]),
-        "Heatmap")
+        "HeatmapList")
     # Works with vectors provided
     ### ordered in REVERSE of the number annotations
     expect_s4_class(
@@ -269,7 +269,7 @@ test_that("Heatmap can be ordered when also subset to certain cells", {
             annot.by = "number2",
             order.by = seq_along(colnames(seurat)),
             cells.use = colnames(seurat)[meta("number", seurat)<20]),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap can be subset to certain cells by any method", {
@@ -280,7 +280,7 @@ test_that("Heatmap can be subset to certain cells by any method", {
             genes = genes,
             object = seurat,
             cells.use = meta("number", seurat)<10), # Logical method
-        "Heatmap")
+        "HeatmapList")
     # By names
     ### Same few cells
     expect_s4_class(
@@ -288,7 +288,7 @@ test_that("Heatmap can be subset to certain cells by any method", {
             genes = genes,
             object = seurat,
             cells.use = colnames(seurat)[meta("number", seurat)<10]), # names method
-        "Heatmap")
+        "HeatmapList")
     # By indices
     ### Same few cells
     expect_s4_class(
@@ -296,7 +296,7 @@ test_that("Heatmap can be subset to certain cells by any method", {
             genes = genes,
             object = seurat,
             cells.use = 1:9), # names method
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap annotation colors can be adjusted via annot.colors", {
@@ -309,7 +309,7 @@ test_that("Heatmap annotation colors can be adjusted via annot.colors", {
             object = seurat,
             annot.by = c("number","clusters"),
             annot.colors = c("red", "yellow", "blue", "purple", "green3")),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Heatmap annotation colors can be adjusted via annotation_colors", {
@@ -326,7 +326,7 @@ test_that("Heatmap annotation colors can be adjusted via annotation_colors", {
             object = seurat,
             annot.by = c("number","clusters"),
             annotation_colors = color_list),
-        "Heatmap")
+        "HeatmapList")
     ### When annotation_colors provides all colors for annotation_col.
     color_list <- list(clusters = c('1' = "red",
                                     '2' = "yellow",
@@ -338,7 +338,7 @@ test_that("Heatmap annotation colors can be adjusted via annotation_colors", {
             object = seurat,
             annot.by = c("clusters"),
             annotation_colors = color_list),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Coloring works for discrete column and row annotations", {
@@ -352,7 +352,7 @@ test_that("Coloring works for discrete column and row annotations", {
             annotation_row = data.frame(
                 genes,
                 row.names = genes)),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Coloring works for continuous column and row annotations", {
@@ -368,7 +368,7 @@ test_that("Coloring works for continuous column and row annotations", {
                 row.names = genes),
             cluster_rows = FALSE,
             cluster_cols = FALSE),
-        "Heatmap")
+        "HeatmapList")
     ### column and row annotations, all numeric.
     ### but column annotation bar flips, while legend stays the same.
     expect_s4_class(
@@ -383,18 +383,18 @@ test_that("Coloring works for continuous column and row annotations", {
                 row.names = genes),
             cluster_rows = FALSE,
             cluster_cols = FALSE),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("scale and border_color pheatmap inputs function as expected", {
     expect_s4_class(
         dittoHeatmap(complex = TRUE,genes = genes, object = seurat,
             scale = "none"),
-        "Heatmap")
+        "HeatmapList")
     expect_s4_class(
         dittoHeatmap(complex = TRUE,genes = genes, object = seurat,
             border_color = "red"),
-        "Heatmap")
+        "HeatmapList")
 })
 
 test_that("Rasterization works for ComplexHeatmap", {
@@ -402,5 +402,5 @@ test_that("Rasterization works for ComplexHeatmap", {
     expect_s4_class(
         dittoHeatmap(complex = TRUE, genes = genes, object = seurat,
             use_raster = TRUE, raster_quality = 1),
-        "Heatmap")
+        "HeatmapList")
 })
