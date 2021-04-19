@@ -336,3 +336,30 @@ test_that("dittoPlotVarsAcrossGroups swap.rownames works", {
         swap$p,
         "ggplot")
 })
+
+test_that("dittoPlotVarsAcrossGroups split.by works", {
+    
+    swap_genes <- paste(genes, "symb", sep = "_")
+    
+    none <- dittoPlotVarsAcrossGroups(
+        sce, genes, grp, data.out = TRUE)
+    split1 <- dittoPlotVarsAcrossGroups(
+        sce, genes, grp, data.out = TRUE,
+        split.by = clr)
+    split2 <- dittoPlotVarsAcrossGroups(
+        sce, genes, grp, data.out = TRUE,
+        split.by = c(clr, clr2))
+    
+    expect_equivalent(
+        ncol(none$data)+2,
+        ncol(split1$data)+1,
+        ncol(split2$data)
+    )
+    
+    expect_s3_class(
+        split1$p,
+        "ggplot")
+    expect_s3_class(
+        split2$p,
+        "ggplot")
+})

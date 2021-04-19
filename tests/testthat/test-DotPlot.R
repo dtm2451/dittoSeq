@@ -4,7 +4,7 @@
 seurat$number <- as.numeric(seq_along(colnames(seurat)))
 seurat$number2 <- rev(seurat$number)
 disc <- "clusters"
-disc2 <- "timepoint"
+disc2 <- "groups"
 disc3 <- "age"
 genes <- getGenes(seurat)[1:5]
 metas <- c("score", "score2", "score3")
@@ -246,5 +246,32 @@ test_that("dittoDotPlot swap.rownames works", {
         "ggplot")
     expect_s3_class(
         swap$p,
+        "ggplot")
+})
+
+test_that("dittoDotPlot split.by works", {
+    
+    swap_genes <- paste(genes, "symb", sep = "_")
+    
+    none <- dittoDotPlot(
+        sce, genes, disc, data.out = TRUE)
+    split1 <- dittoDotPlot(
+        sce, genes, disc, data.out = TRUE,
+        split.by = disc2)
+    split2 <- dittoDotPlot(
+        sce, genes, disc, data.out = TRUE,
+        split.by = c(disc2,disc3))
+    
+    expect_equivalent(
+        ncol(none$data)+2,
+        ncol(split1$data)+1,
+        ncol(split2$data)
+        )
+    
+    expect_s3_class(
+        split1$p,
+        "ggplot")
+    expect_s3_class(
+        split2$p,
         "ggplot")
 })

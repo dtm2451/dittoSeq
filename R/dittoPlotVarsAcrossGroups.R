@@ -133,6 +133,7 @@ dittoPlotVarsAcrossGroups <- function(
     vars,
     group.by,
     color.by = group.by,
+    split.by = NULL,
     summary.fxn = mean,
     cells.use = NULL,
     plots = c("vlnplot","jitter"),
@@ -173,6 +174,8 @@ dittoPlotVarsAcrossGroups <- function(
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
+    split.nrow = NULL,
+    split.ncol = NULL,
     legend.show = TRUE,
     legend.title = NULL,
     data.out = FALSE) {
@@ -189,7 +192,8 @@ dittoPlotVarsAcrossGroups <- function(
 
     # Create data table summarizing vars data for each group
     data <- .data_gather_summarize_vars_by_groups(
-        object, vars, group.by, list(summary.fxn), "var.data", cells.use,
+        object, vars, group.by, split.by,
+        list(summary.fxn), "var.data", cells.use,
         assay, slot, adjustment, swap.rownames, do.hover)
     
     data$grouping <-
@@ -230,11 +234,16 @@ dittoPlotVarsAcrossGroups <- function(
             colors, y.breaks, min, max)
     }
     
+    ### Add extra features
+    if (!is.null(split.by)) {
+        p <- .add_splitting(
+            p, split.by, split.nrow, split.ncol, object, cells.use)
+    }
+    
     if (!legend.show) {
         p <- .remove_legend(p)
     }
     
-    # Handle hover.
     if (do.hover) {
         if ("ridgeplot" %in% plots) {
             warning("'do.hover = TRUE' request ignored because plotly does not support ridgeplots.")

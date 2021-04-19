@@ -254,32 +254,42 @@ dittoBarPlot <- function(
         for (by in seq_along(split.by)) {
             split.data[[by]] <- meta(split.by[by], object)[all.cells %in% cells.use]
         }
-        facet <- do.call(paste0, split.data)
+        facet <- do.call(paste, split.data)
     }
     
     # Create dataframe (per split.by group)
-    data <- NULL
-    for (i in unique(facet)) {
-        
-        new <- data.frame(
-            count = as.vector(data.frame(table(y.var[i==facet], x.var[i==facet]))))
-        names(new) <- c("label", "grouping", "count")
-        
-        new$label.count.total.per.facet <- rep(
-            as.vector(table(x.var[i==facet])),
-            each = length(levels(as.factor(y.var[i==facet]))))
-        new$percent <- new$count / new$label.count.total.per.facet
-        
-        # Catch 0/0
-        new$percent[is.nan(new$percent)] <- 0
-        
-        # Add facet info
-        for (by in seq_along(split.by)) {
-            new[[split.by[by]]] <- (split.data[[by]][i==facet])[1]
-        }
-        
-        data <- rbind(data, new)
-    }
+    data <- do.call(
+        rbind,
+        lapply(
+            unique(facet),
+            function(this_facet) {
+                
+                # Subset data per facet
+                y.var <- y.var[facet==this_facet]
+                x.var <- x.var[facet==this_facet]
+                
+                # Create data frame
+                new <- data.frame(
+                    count = as.vector(data.frame(table(y.var, x.var))))
+                names(new) <- c("label", "grouping", "count")
+                
+                new$label.count.total.per.facet <- rep(
+                    as.vector(table(x.var)),
+                    each = length(levels(as.factor(y.var))))
+                new$percent <- new$count / new$label.count.total.per.facet
+                
+                # Catch 0/0
+                new$percent[is.nan(new$percent)] <- 0
+                
+                # Add facet info
+                for (by in seq_along(split.by)) {
+                    new[[split.by[by]]] <- (split.data[[by]][facet==this_facet])[1]
+                }
+                
+                new
+            }
+        )
+    )
     
     # Rename/reorder
     data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
@@ -290,7 +300,7 @@ dittoBarPlot <- function(
     if (do.hover) {
         hover.data <- data[,names(data) %in% c("label", "count", "percent")]
         names(hover.data)[1] <- var
-        # Make hover srtings, "data.type: data" \n "data.type: data"
+        # Make hover strings, "data.type: data" \n "data.type: data"
         data$hover.string <- .make_hover_strings_from_df(hover.data)
     }
     

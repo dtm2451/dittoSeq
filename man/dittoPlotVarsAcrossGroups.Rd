@@ -9,6 +9,7 @@ dittoPlotVarsAcrossGroups(
   vars,
   group.by,
   color.by = group.by,
+  split.by = NULL,
   summary.fxn = mean,
   cells.use = NULL,
   plots = c("vlnplot", "jitter"),
@@ -49,6 +50,8 @@ dittoPlotVarsAcrossGroups(
   add.line = NULL,
   line.linetype = "dashed",
   line.color = "black",
+  split.nrow = NULL,
+  split.ncol = NULL,
   legend.show = TRUE,
   legend.title = NULL,
   data.out = FALSE
@@ -64,6 +67,12 @@ dittoPlotVarsAcrossGroups(
 \item{color.by}{String representing the name of a metadata to use for setting fills.
 Great for highlighting subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
 Affects boxplot, vlnplot, and ridgeplot fills.}
+
+\item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
+
+When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+
+When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
 
 \item{summary.fxn}{A function which sets how variables' data will be summarized across the groups.
 Default is \code{\link{mean}}, which will take the average value, but any function can be used as long as it takes in a numeric vector and returns a single numeric value.
@@ -180,6 +189,10 @@ When left as NA, dittoSeq will attempt to determine an ideal value itself based 
 Defaults to "dashed", but any ggplot linetype will work.}
 
 \item{line.color}{String that sets the color(s) of the \code{add.line} line(s)}
+
+\item{split.nrow}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 
