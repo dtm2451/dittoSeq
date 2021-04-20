@@ -105,8 +105,8 @@
 #' The larger the value, the greater the space requested.
 #' When left as NA, dittoSeq will attempt to determine an ideal value itself based on the number of groups & linear interpolation between these goal posts: #groups of 3 or fewer: 0.6; #groups=12: 0.1; #groups or 34 or greater: 0.05.
 #' @param ridgeplot.shape Either "smooth" or "hist", sets whether ridges will be smoothed (the typical, and default) versus rectangular like a histogram.
-#' (Note, as of the time shape "hist" was added, combination of jittered points is not supported by the \code{\link[ggridges]{{stat_binline}} that dittoSeq relies on.
-#' @param ridgeplot.bins Integer which set how many chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
+#' (Note: as of the time shape "hist" was added, combination of jittered points is not supported by the \code{\link[ggridges]{stat_binline}} that dittoSeq relies on.)
+#' @param ridgeplot.bins Integer which sets how many chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
 #' Overridden by \code{ridgeplot.binwidth} when that input is provided.
 #' @param ridgeplot.binwidth Integer which sets the width of chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
 #' Takes precedence over \code{ridgeplot.bins} when provided.
