@@ -31,10 +31,10 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
     - Better use of white space (via adjustments to default plot grid expansion & exposure of a `ridgeplot.ymax.expansion` input to allow user override.)
 - Expanded ordering capability for `dittoHeatmap()`:
     - You can now give many metadata to `order.by` and it will use them all, prioritizing earliest items
-- Added interaction with `colData` of SE and SCEs:
-    - `swap.rownames` input allows, for example, giving `var = "<gene_symbol>"`
 - Other quality of life improvements
     - \*\*Standardized `data.out` & `do.hover` interplay to allow both plotly conversion and data output.
+    - Added interaction with `colData` of SE and SCEs:
+        - `swap.rownames` input allows indication of genes/rows by non-default rownames. E.g. for an `object` with Ensembl_IDs as the default and a colData column named 'symbol' that contains gene symbols, those symbols can be used via `dittoFunction(..., var = "<gene_symbol>", swap.rownames = "symbol"`).
 
 \* = Largely completed but not yet pushed through to Bioc-devel
 
