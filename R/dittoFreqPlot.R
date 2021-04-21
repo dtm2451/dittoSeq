@@ -42,6 +42,7 @@
 #' @examples
 #' example(importDittoBulk, echo = FALSE)
 #' myRNA1 <- myRNA
+#' colnames(myRNA) <- paste0(colnames(myRNA),"_1")
 #' example(importDittoBulk, echo = FALSE)
 #' myRNA <- cbind(myRNA, myRNA1)
 #' myRNA <- setBulk(myRNA, FALSE) 
@@ -56,15 +57,15 @@
 #' #  group.by = how to group group the data on the x-axis (y-axis for ridgeplots)
 #' dittoFreqPlot(myRNA,
 #'     var = "clustering",
-#'     group.by = "groups",
-#'     sample.by = "sample")
+#'     sample.by = "sample",
+#'     group.by = "groups")
 #'     
 #' # color.by can also be set differently from group.by to have the effect of
 #' #  adding subgroupings:
 #' dittoFreqPlot(myRNA, "clustering",
 #'     group.by = "groups",
-#'     color.by = "subgroups",
-#'     sample.by = "sample")
+#'     sample.by = "sample",
+#'     color.by = "subgroups")
 #' 
 #' @author Daniel Bunis
 #' @export
