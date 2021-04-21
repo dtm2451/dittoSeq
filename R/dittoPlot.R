@@ -82,6 +82,9 @@
 #' @param jitter.shape.legend.size Scalar which changes the size of the shape key in the legend.
 #' If set to \code{NA}, \code{jitter.size} is used.
 #' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown when its shape is determined by \code{shape.by}.
+#' @param jitter.position.dodge Scalar which adjusts the relative distance between jitter widths when multiple subgroups exist per \code{group.by} grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+#' Similar to \code{boxplot.position.dodge} input & defaults to the value of that input so that BOTH will actually be adjusted when only, say, \code{boxplot.position.dodge = 0.3} is given.
+#' @param do.raster Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 #' @param do.raster Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 #' This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.
 #' @param raster.dpi Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.
@@ -91,7 +94,8 @@
 #' Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is no jitter.
 #' @param boxplot.fill Logical, whether the boxplot should be filled in or not.
 #' Known bug: when boxplot fill is turned off, outliers do not render.
-#' @param boxplot.position.dodge Scalar which adjusts the distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+#' @param boxplot.position.dodge Scalar which adjusts the relative distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+#' By default, this input actually controls the value of \code{jitter.position.dodge} unless the \code{jitter} version is provided separately.
 #' @param vlnplot.lineweight Scalar which sets the thickness of the line that outlines the violin plots.
 #' @param vlnplot.width Scalar which sets the width/spread of the jitter in the x direction
 #' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to eachother.
@@ -239,6 +243,7 @@ dittoPlot <- function(
     jitter.color = "black",
     jitter.shape.legend.size = NA,
     jitter.shape.legend.show = TRUE,
+    jitter.position.dodge = boxplot.position.dodge,
     boxplot.width = 0.2,
     boxplot.color = "black",
     boxplot.show.outliers = NA,
@@ -291,7 +296,8 @@ dittoPlot <- function(
         p <- .dittoPlot_add_data_y_direction(
             p, Target_data, plots, xlab, ylab, shape.by, jitter.size,
             jitter.width, jitter.color, shape.panel, jitter.shape.legend.size,
-            jitter.shape.legend.show, do.raster, raster.dpi,
+            jitter.shape.legend.show, jitter.position.dodge,
+            do.raster, raster.dpi,
             boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
             boxplot.position.dodge,
             vlnplot.lineweight, vlnplot.width, vlnplot.scaling,
@@ -353,7 +359,8 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 .dittoPlot_add_data_y_direction <- function(
     p, Target_data, plots, xlab, ylab, shape.by,
     jitter.size, jitter.width, jitter.color,shape.panel,
-    jitter.shape.legend.size, jitter.shape.legend.show, do.raster, raster.dpi,
+    jitter.shape.legend.size, jitter.shape.legend.show, jitter.position.dodge,
+    do.raster, raster.dpi,
     boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
     boxplot.position.dodge,
     vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
@@ -363,7 +370,9 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     # overlay, and parses adding the main data visualizations.
     # Adds plots based on what is requested in plots, ordered by their order.
 
-    # Now that we know the plot's direction, set y-axis limits
+    # Now that we know the plot's direction, set direction & y-axis limits
+    p <- p + aes_string(x = "grouping", y = "var.data")
+    
     if (!is.null(y.breaks)) {
         p <- p + scale_y_continuous(breaks = y.breaks)
     }
@@ -402,10 +411,21 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
         }
 
         if (plots[i] == "jitter") {
+            
+            if (jitter.width > jitter.position.dodge) {
+                message("Requested 'jitter.width' is greater than half of 'jitter.position.dodge', so it will be ignored to prevent overlap of groups.")
+                jitter.width <- jitter.position.dodge/2
+            }
+            
+            # Create geom_jitter() arguments
             jitter.args <- list(
+                position = position_jitterdodge(
+                      jitter.width = jitter.width*2, # *2 to keep widths in line with previous code
+                      jitter.height = 0,
+                      dodge.width = jitter.position.dodge,
+                      seed = NA
+                ),
                 size=jitter.size,
-                width=jitter.width,
-                height = 0,
                 color = jitter.color)
             
             geom_for_jitter <- geom_jitter
@@ -453,8 +473,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     }
 
     # Add labels and, if requested, lines
-    p <- p + aes_string(x = "grouping", y = "var.data") +
-        xlab(xlab) + ylab(ylab)
+    p <- p + xlab(xlab) + ylab(ylab)
     if (is.na(x.labels.rotate) || x.labels.rotate) {
         p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1))
     }
@@ -476,7 +495,9 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     #This function takes in a partial dittoPlot ggplot object without any data overlay, and parses adding the main data visualizations.
     # It adds plots based on what is requested in plots, *ordered by their order*
 
-    # Now that we know the plot's direction, set "y"-axis limits
+    # Now that we know the plot's direction, set direction & "y"-axis limits
+    p <- p + aes_string(x = "var.data", y = "grouping")
+    
     if (!is.null(y.breaks)) {
         p <- p + scale_x_continuous(breaks = y.breaks)
     }
@@ -512,7 +533,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     }
 
     # Add labels and, if requested, lines
-    p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab)
+    p <- p + xlab(ylab) + ylab(xlab)
     if (!is.na(x.labels.rotate) && x.labels.rotate) {
         p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1))
     }

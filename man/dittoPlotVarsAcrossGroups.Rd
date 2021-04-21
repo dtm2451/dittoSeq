@@ -34,6 +34,7 @@ dittoPlotVarsAcrossGroups(
   jitter.size = 1,
   jitter.width = 0.2,
   jitter.color = "black",
+  jitter.position.dodge = boxplot.position.dodge,
   do.raster = FALSE,
   raster.dpi = 300,
   boxplot.width = 0.2,
@@ -148,6 +149,9 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 
 \item{jitter.color}{String which sets the color of the jitter shapes}
 
+\item{jitter.position.dodge}{Scalar which adjusts the relative distance between jitter widths when multiple subgroups exist per \code{group.by} grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+Similar to \code{boxplot.position.dodge} input & defaults to the value of that input so that BOTH will actually be adjusted when only, say, \code{boxplot.position.dodge = 0.3} is given.}
+
 \item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.}
 
@@ -163,7 +167,8 @@ Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is 
 \item{boxplot.fill}{Logical, whether the boxplot should be filled in or not.
 Known bug: when boxplot fill is turned off, outliers do not render.}
 
-\item{boxplot.position.dodge}{Scalar which adjusts the distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).}
+\item{boxplot.position.dodge}{Scalar which adjusts the relative distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+By default, this input actually controls the value of \code{jitter.position.dodge} unless the \code{jitter} version is provided separately.}
 
 \item{vlnplot.lineweight}{Scalar which sets the thickness of the line that outlines the violin plots.}
 

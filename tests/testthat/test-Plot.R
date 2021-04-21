@@ -265,7 +265,7 @@ test_that("dittoPlot can have lines added", {
 })
 
 test_that("dittoPlot jitter adjustments work", {
-    # Manuel Check: Large blue dots that, in the yplot, look continuous accross groups.
+    # Manuel Check: Large blue dots that, in the y-plot, look continuous across groups.
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp, plots = "jitter",
@@ -276,6 +276,23 @@ test_that("dittoPlot jitter adjustments work", {
             "number", object=seurat, group.by = grp, plots = c("jitter","ridgeplot"),
             jitter.size = 10, jitter.color = "blue", jitter.width = 1),
         "ggplot")
+    
+    # Manual Check: 1. jitters that nearly touch / align with vlnplot widths.
+    #               2. jitters that far from touch.
+    #               3. jitters that far from touch. Tests control, by default, by the boxplot input.
+    #               4. jitters that far from touch. Tests control, by default, by the vlnplot input via the boxplot input.
+    expect_s3_class(
+        dittoPlot(
+            "number", object=seurat, group.by = grp, plots = c("vlnplot", "jitter"),
+            shape.panel = 21, vlnplot.scaling = "width", cells.use = seurat[[grp]]==1,
+            color.by = clr2),
+        "ggplot")
+    expect_message(
+        dittoPlot(
+            "number", object=seurat, group.by = grp, plots = c("vlnplot", "jitter"),
+            shape.panel = 21, vlnplot.scaling = "width", cells.use = seurat[[grp]]==1,
+            color.by = clr2, jitter.position.dodge = 0.8, jitter.width = 1),
+        "Requested 'jitter.width' is greater than", fixed = TRUE)
 })
 
 test_that("dittoPlot boxplot adjustments work", {

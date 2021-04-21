@@ -46,6 +46,7 @@ dittoPlot(
   jitter.color = "black",
   jitter.shape.legend.size = NA,
   jitter.shape.legend.show = TRUE,
+  jitter.position.dodge = boxplot.position.dodge,
   boxplot.width = 0.2,
   boxplot.color = "black",
   boxplot.show.outliers = NA,
@@ -184,6 +185,9 @@ If set to \code{NA}, \code{jitter.size} is used.}
 
 \item{jitter.shape.legend.show}{Logical which sets whether the shapes legend will be shown when its shape is determined by \code{shape.by}.}
 
+\item{jitter.position.dodge}{Scalar which adjusts the relative distance between jitter widths when multiple subgroups exist per \code{group.by} grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+Similar to \code{boxplot.position.dodge} input & defaults to the value of that input so that BOTH will actually be adjusted when only, say, \code{boxplot.position.dodge = 0.3} is given.}
+
 \item{boxplot.width}{Scalar which sets the width/spread of the boxplot in the x direction}
 
 \item{boxplot.color}{String which sets the color of the lines of the boxplot}
@@ -194,7 +198,8 @@ Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is 
 \item{boxplot.fill}{Logical, whether the boxplot should be filled in or not.
 Known bug: when boxplot fill is turned off, outliers do not render.}
 
-\item{boxplot.position.dodge}{Scalar which adjusts the distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).}
+\item{boxplot.position.dodge}{Scalar which adjusts the relative distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+By default, this input actually controls the value of \code{jitter.position.dodge} unless the \code{jitter} version is provided separately.}
 
 \item{vlnplot.lineweight}{Scalar which sets the thickness of the line that outlines the violin plots.}
 
