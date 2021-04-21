@@ -5,6 +5,8 @@
 #' @inheritParams dittoPlot
 #' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}.
 #' @param sample.by String name of a metadata containing which samples each cell belongs to.
+#' 
+#' Note that when this is not provided, there will only be one data point per grouping. Warning can be expected then for all \code{plot} options except \code{"jitter"}.
 #' @param nrow,ncol Integers which set the dimensions of the facet grid.
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
@@ -39,40 +41,30 @@
 #'
 #' @examples
 #' example(importDittoBulk, echo = FALSE)
+#' myRNA1 <- myRNA
+#' example(importDittoBulk, echo = FALSE)
+#' myRNA <- cbind(myRNA, myRNA1)
+#' myRNA <- setBulk(myRNA, FALSE) 
+#' myRNA$sample <- rep(1:12, each = 10)
+#' myRNA$groups <- rep(c("A", "B"), each = 60)
+#' myRNA$subgroups <- rep(as.character(c(1:3,1:3,1:3,1:3)), each = 10)
 #' myRNA
-#'
-#' dittoBarPlot(myRNA, "clustering", group.by = "groups")
-#' dittoBarPlot(myRNA, "clustering", group.by = "groups",
-#'     scale = "count")
-#'
-#' # Reordering the x-axis groupings to have "C" (#3) come first
-#' dittoBarPlot(myRNA, "clustering", group.by = "groups",
-#'     x.reorder = c(3,1,2,4))
-#'
-#' ### Accessing underlying data:
-#' # as dataframe
-#' dittoBarPlot(myRNA, "clustering", group.by = "groups",
-#'     data.out = TRUE)
-#' # through hovering the cursor over the relevant parts of the plot
-#' if (requireNamespace("plotly", quietly = TRUE)) {
-#'     dittoBarPlot(myRNA, "clustering", group.by = "groups",
-#'         do.hover = TRUE)
-#'     }
-#'
-#' ### Previous Version Compatibility
-#' # Mistakenly, dittoBarPlot used to remove factor identities entirely from the
-#' #  data it used. This manifests as ignorance of a user's set orderings for
-#' #  their data. That is nolonger done by default, but to recreate old plots,
-#' #  restoring this behavior can be achieved with 'retain.factor.levels = FALSE'
-#' # Set factor level ordering for a metadata we'll give to 'group.by'
-#' myRNA$groups_reverse_levels <- factor(
-#'     myRNA$groups,
-#'     levels = c("D", "C", "B", "A"))
-#' # dittoBarPlot will now respect this level order by default. 
-#' dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels")
-#' # But that respect can be turned off...
-#' dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels",
-#'     retain.factor.levels = FALSE)
+#' 
+#' # There are three necessary inputs for this function.
+#' #  var = typically this will be cell types annotations or clustering
+#' #  sample.by = the name of a metadata containing sample assignment of cells.
+#' #  group.by = how to group group the data on the x-axis (y-axis for ridgeplots)
+#' dittoFreqPlot(myRNA,
+#'     var = "clustering",
+#'     group.by = "groups",
+#'     sample.by = "sample")
+#'     
+#' # color.by can also be set differently from group.by to have the effect of
+#' #  adding subgroupings:
+#' dittoFreqPlot(myRNA, "clustering",
+#'     group.by = "groups",
+#'     color.by = "subgroups",
+#'     sample.by = "sample")
 #' 
 #' @author Daniel Bunis
 #' @export
@@ -80,11 +72,11 @@
 dittoFreqPlot <- function(
     object,
     var,
+    sample.by = NULL,
     group.by,
-    sample.by,
     color.by = group.by, # <-- think on if this makes sense!
     scale = c("percent", "count"),
-    plots = c("vlnplot","jitter"),
+    plots = c("boxplot","jitter"),
     nrow = NULL,
     ncol = NULL,
     cells.use = NULL,
@@ -125,8 +117,7 @@ dittoFreqPlot <- function(
     line.linetype = "dashed",
     line.color = "black",
     legend.show = TRUE,
-    legend.title = NULL,
-    retain.factor.levels = TRUE) {
+    legend.title = color.by) {
     
     scale = match.arg(scale)
 
@@ -149,11 +140,17 @@ dittoFreqPlot <- function(
         }
     }
     
+    # Check that sample definitions are 1:1 with groupings/colorings
+    samps <- meta(sample.by, object)
+    .check_1value_per_group(samps, group.by, object)
+    .check_1value_per_group(samps, color.by, object)
+    
     # Gather data (use split.by to ensure per- color.by & sample.by calculation)
     data <- .dittoBarPlot_data_gather(
-        object, var, group.by, split.by = c(color.by, sample.by),
+        object, var, group.by, split.by = c(sample.by, color.by),
         cells.use, x.reorder, x.labels,
-        var.labels.reorder, var.labels.rename, do.hover, retain.factor.levels)
+        var.labels.reorder, var.labels.rename, do.hover,
+        retain.factor.levels = TRUE)
     
     # Adjust BarPlot-ready data for dittoPlot plotter expectation
     if (scale == "percent") {
@@ -224,5 +221,19 @@ dittoFreqPlot <- function(
         return(list(p = p, data = data))
     } else {
         return(p)
+    }
+}
+
+.check_1value_per_group <- function(groupings, check, object) {
+    
+    values <- meta(check, object)
+    any_non_1 <- !all(vapply(
+        unique(groupings),
+        function (group) {
+            length(unique(values[groupings == group]))==1
+        }, FUN.VALUE = logical(1)
+        ))
+    if (any_non_1) {
+        stop("Unable to interpret ",check," input. It's data does not map 1:1 per sample.")
     }
 }
