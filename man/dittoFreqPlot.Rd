@@ -35,9 +35,10 @@ dittoFreqPlot(
   jitter.size = 1,
   jitter.width = 0.2,
   jitter.color = "black",
+  jitter.position.dodge = boxplot.position.dodge,
   do.raster = FALSE,
   raster.dpi = 300,
-  boxplot.width = 0.2,
+  boxplot.width = 0.4,
   boxplot.color = "black",
   boxplot.show.outliers = NA,
   boxplot.fill = TRUE,
@@ -144,9 +145,15 @@ Set to \code{NULL} to remove.}
 
 \item{jitter.size}{Scalar which sets the size of the jitter shapes.}
 
-\item{jitter.width}{Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.}
+\item{jitter.width}{Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.
+
+Note for when \code{color.by} is used to split x-axis groupings into additional bins: ggplot does not shrink jitter widths accordingly, so be sure to do so yourself!
+Ideally, needs to be 0.5/num_subgroups.}
 
 \item{jitter.color}{String which sets the color of the jitter shapes}
+
+\item{jitter.position.dodge}{Scalar which adjusts the relative distance between jitter widths when multiple subgroups exist per \code{group.by} grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+Similar to \code{boxplot.position.dodge} input & defaults to the value of that input so that BOTH will actually be adjusted when only, say, \code{boxplot.position.dodge = 0.3} is given.}
 
 \item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.}
@@ -163,7 +170,8 @@ Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is 
 \item{boxplot.fill}{Logical, whether the boxplot should be filled in or not.
 Known bug: when boxplot fill is turned off, outliers do not render.}
 
-\item{boxplot.position.dodge}{Scalar which adjusts the distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).}
+\item{boxplot.position.dodge}{Scalar which adjusts the relative distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+By default, this input actually controls the value of \code{jitter.position.dodge} unless the \code{jitter} version is provided separately.}
 
 \item{vlnplot.lineweight}{Scalar which sets the thickness of the line that outlines the violin plots.}
 
@@ -229,12 +237,16 @@ Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes th
 \item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
 \item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
 Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
+\item \code{color.by} can be utilized to split major \code{group.by} groupings into subgroups.
+When this is done in y-axis plotting, dittoSeq automatically ensures the centers of all geoms will align,
+but users will need to manually adjust \code{jitter.width} to less than 0.5/num_subgroups to avoid overlaps.
 }
 }
 
 \examples{
 example(importDittoBulk, echo = FALSE)
 myRNA1 <- myRNA
+colnames(myRNA) <- paste0(colnames(myRNA),"_1")
 example(importDittoBulk, echo = FALSE)
 myRNA <- cbind(myRNA, myRNA1)
 myRNA <- setBulk(myRNA, FALSE) 
@@ -249,15 +261,15 @@ myRNA
 #  group.by = how to group group the data on the x-axis (y-axis for ridgeplots)
 dittoFreqPlot(myRNA,
     var = "clustering",
-    group.by = "groups",
-    sample.by = "sample")
+    sample.by = "sample",
+    group.by = "groups")
     
 # color.by can also be set differently from group.by to have the effect of
 #  adding subgroupings:
 dittoFreqPlot(myRNA, "clustering",
     group.by = "groups",
-    color.by = "subgroups",
-    sample.by = "sample")
+    sample.by = "sample",
+    color.by = "subgroups")
 
 }
 \author{

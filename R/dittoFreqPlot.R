@@ -37,6 +37,9 @@
 #' \item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
 #' \item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
 #' Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
+#' \item \code{color.by} can be utilized to split major \code{group.by} groupings into subgroups.
+#' When this is done in y-axis plotting, dittoSeq automatically ensures the centers of all geoms will align,
+#' but users will need to manually adjust \code{jitter.width} to less than 0.5/num_subgroups to avoid overlaps.
 #' }
 #'
 #' @examples

@@ -78,6 +78,9 @@
 #' @param line.color String that sets the color(s) of the \code{add.line} line(s)
 #' @param jitter.size Scalar which sets the size of the jitter shapes.
 #' @param jitter.width Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.
+#' 
+#' Note for when \code{color.by} is used to split x-axis groupings into additional bins: ggplot does not shrink jitter widths accordingly, so be sure to do so yourself!
+#' Ideally, needs to be 0.5/num_subgroups.
 #' @param jitter.color String which sets the color of the jitter shapes
 #' @param jitter.shape.legend.size Scalar which changes the size of the shape key in the legend.
 #' If set to \code{NA}, \code{jitter.size} is used.
@@ -149,6 +152,9 @@
 #' Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 #' \item Single or multiple additional per-cell features can be retrieved and stashed within the underlying data using \code{extra.vars}.
 #' This can be very useful for making manual additional alterations \emph{after} dittoSeq plot generation.
+#' \item \code{color.by} can be utilized to split major \code{group.by} groupings into subgroups.
+#' When this is done in y-axis plotting, dittoSeq automatically ensures the centers of all geoms will align,
+#' but users will need to manually adjust \code{jitter.width} to less than 0.5/num_subgroups to avoid overlaps.
 #' }
 #' @seealso
 #' \code{\link{multi_dittoPlot}} for easy creation of multiple dittoPlots each focusing on a different \code{var}.
@@ -412,15 +418,10 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 
         if (plots[i] == "jitter") {
             
-            if (jitter.width > jitter.position.dodge) {
-                message("Requested 'jitter.width' is greater than half of 'jitter.position.dodge', so it will be ignored to prevent overlap of groups.")
-                jitter.width <- jitter.position.dodge/2
-            }
-            
             # Create geom_jitter() arguments
             jitter.args <- list(
                 position = position_jitterdodge(
-                      jitter.width = jitter.width*2, # *2 to keep widths in line with previous code
+                      jitter.width = jitter.width,
                       jitter.height = 0,
                       dodge.width = jitter.position.dodge,
                       seed = NA

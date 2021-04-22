@@ -145,7 +145,10 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 
 \item{jitter.size}{Scalar which sets the size of the jitter shapes.}
 
-\item{jitter.width}{Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.}
+\item{jitter.width}{Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.
+
+Note for when \code{color.by} is used to split x-axis groupings into additional bins: ggplot does not shrink jitter widths accordingly, so be sure to do so yourself!
+Ideally, needs to be 0.5/num_subgroups.}
 
 \item{jitter.color}{String which sets the color of the jitter shapes}
 
@@ -247,6 +250,9 @@ Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes th
 \item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
 \item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
 Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
+\item \code{color.by} can be utilized to split major \code{group.by} groupings into subgroups.
+When this is done in y-axis plotting, dittoSeq automatically ensures the centers of all geoms will align,
+but users will need to manually adjust \code{jitter.width} to less than 0.5/num_subgroups to avoid overlaps.
 }
 }
 

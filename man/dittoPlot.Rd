@@ -176,7 +176,10 @@ This can be useful for editing in external programs (e.g. Illustrator) when ther
 
 \item{jitter.size}{Scalar which sets the size of the jitter shapes.}
 
-\item{jitter.width}{Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.}
+\item{jitter.width}{Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.
+
+Note for when \code{color.by} is used to split x-axis groupings into additional bins: ggplot does not shrink jitter widths accordingly, so be sure to do so yourself!
+Ideally, needs to be 0.5/num_subgroups.}
 
 \item{jitter.color}{String which sets the color of the jitter shapes}
 
@@ -286,6 +289,9 @@ For example, all jitter adjustments, like \code{jitter.size}, start with "\code{
 Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 \item Single or multiple additional per-cell features can be retrieved and stashed within the underlying data using \code{extra.vars}.
 This can be very useful for making manual additional alterations \emph{after} dittoSeq plot generation.
+\item \code{color.by} can be utilized to split major \code{group.by} groupings into subgroups.
+When this is done in y-axis plotting, dittoSeq automatically ensures the centers of all geoms will align,
+but users will need to manually adjust \code{jitter.width} to less than 0.5/num_subgroups to avoid overlaps.
 }
 }
 
