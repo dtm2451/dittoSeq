@@ -7,6 +7,11 @@
 #' @param sample.by String name of a metadata containing which samples each cell belongs to.
 #' 
 #' Note that when this is not provided, there will only be one data point per grouping. Warning can be expected then for all \code{plot} options except \code{"jitter"}.
+#' @param vars.use A subset of the values of \code{var}-data which should be shown.
+#' If left as \code{NULL}, all values will be shown.
+#' Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess options.
+#' @param max.normalize Logical which sets whether the data for each var-data value (each facet) should be normalized to have the same maximum value.
+#' When set to \code{TRUE}, lower frequency vars will make use of just as much plot space as higher frequency vars.
 #' @param nrow,ncol Integers which set the dimensions of the facet grid.
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
@@ -70,6 +75,16 @@
 #'     sample.by = "sample",
 #'     color.by = "subgroups")
 #' 
+#' # The var-values shown can be subset with vars.use
+#' dittoFreqPlot(myRNA, "clustering",
+#'     group.by = "groups", sample.by = "sample", color.by = "subgroups",
+#'     vars.use = 1:2)
+#' 
+#' # Lower frequency groups can be 
+#' dittoFreqPlot(myRNA, "clustering",
+#'     group.by = "groups", sample.by = "sample", color.by = "subgroups",
+#'     max.normalize = TRUE)
+#' 
 #' @author Daniel Bunis
 #' @export
 
@@ -78,8 +93,10 @@ dittoFreqPlot <- function(
     var,
     sample.by = NULL,
     group.by,
-    color.by = group.by, # <-- think on if this makes sense!
+    color.by = group.by,
+    vars.use = NULL,
     scale = c("percent", "count"),
+    max.normalize = FALSE,
     plots = c("boxplot","jitter"),
     nrow = NULL,
     ncol = NULL,
@@ -155,7 +172,12 @@ dittoFreqPlot <- function(
         object, var, group.by, split.by = c(sample.by, color.by),
         cells.use, x.reorder, x.labels,
         var.labels.reorder, var.labels.rename, do.hover,
-        retain.factor.levels = TRUE)
+        retain.factor.levels = TRUE, max.normalize)
+    
+    # Subset to vars.use
+    if (!is.null(vars.use)) {
+        data <- data[data$label %in% vars.use,]
+    }
     
     # Adjust BarPlot-ready data for dittoPlot plotter expectation
     if (scale == "percent") {
@@ -163,10 +185,15 @@ dittoFreqPlot <- function(
     } else {
         y.show <- "count"
     }
+    if (max.normalize) {
+        y.show <- paste0(y.show, ".norm")
+        y.breaks = NULL
+        ylab <- paste("Normalized", ylab)
+    }
     data$var.data <- data[[y.show]]
     
-    # Set y-axis ticks & scaling
-    y.breaks <- if (is.na(y.breaks[1]) && scale == "percent") {
+    # Set y-axis ticks
+    y.breaks <- if (identical(y.breaks, NA) && scale == "percent") {
         c(0,0.5,1)
     } else {
         NULL

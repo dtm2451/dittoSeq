@@ -10,7 +10,9 @@ dittoFreqPlot(
   sample.by = NULL,
   group.by,
   color.by = group.by,
+  vars.use = NULL,
   scale = c("percent", "count"),
+  max.normalize = FALSE,
   plots = c("boxplot", "jitter"),
   nrow = NULL,
   ncol = NULL,
@@ -71,7 +73,14 @@ Note that when this is not provided, there will only be one data point per group
 Great for highlighting subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
 Affects boxplot, vlnplot, and ridgeplot fills.}
 
+\item{vars.use}{A subset of the values of \code{var}-data which should be shown.
+If left as \code{NULL}, all values will be shown.
+Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess options.}
+
 \item{scale}{"count" or "percent". Sets whether data should be shown as raw counts or scaled to 1 and shown as a percentage.}
+
+\item{max.normalize}{Logical which sets whether the data for each var-data value (each facet) should be normalized to have the same maximum value.
+When set to \code{TRUE}, lower frequency vars will make use of just as much plot space as higher frequency vars.}
 
 \item{plots}{String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
 Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
@@ -270,6 +279,16 @@ dittoFreqPlot(myRNA, "clustering",
     group.by = "groups",
     sample.by = "sample",
     color.by = "subgroups")
+
+# The var-values shown can be subset with vars.use
+dittoFreqPlot(myRNA, "clustering",
+    group.by = "groups", sample.by = "sample", color.by = "subgroups",
+    vars.use = 1:2)
+
+# Lower frequency groups can be 
+dittoFreqPlot(myRNA, "clustering",
+    group.by = "groups", sample.by = "sample", color.by = "subgroups",
+    max.normalize = TRUE)
 
 }
 \author{

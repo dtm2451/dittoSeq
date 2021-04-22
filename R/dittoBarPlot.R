@@ -231,7 +231,7 @@ dittoBarPlot <- function(
     object, var, group.by, split.by, cells.use,
     x.reorder, x.labels,
     var.labels.reorder, var.labels.rename,
-    do.hover, retain.factor.levels
+    do.hover, retain.factor.levels, max.normalize = FALSE
 ) {
     
     cells.use <- .which_cells(cells.use, object)
@@ -290,6 +290,20 @@ dittoBarPlot <- function(
             }
         )
     )
+    
+    # max.normalization per var-label
+    if (max.normalize) {
+        data$count.norm <- 0
+        data$percent.norm <- 0
+        
+        for (i in unique(data$label)) {
+            this_lab <- data$label == i
+            data$count.norm[this_lab] <- 
+                data$count[this_lab]/max(data$count[this_lab])
+            data$percent.norm[this_lab] <- 
+                data$percent[this_lab]/max(data$percent[this_lab])
+        }
+    }
     
     # Rename/reorder
     data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
