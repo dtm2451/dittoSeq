@@ -155,6 +155,8 @@
 #' \item \code{color.by} can be utilized to split major \code{group.by} groupings into subgroups.
 #' When this is done in y-axis plotting, dittoSeq automatically ensures the centers of all geoms will align,
 #' but users will need to manually adjust \code{jitter.width} to less than 0.5/num_subgroups to avoid overlaps.
+#' There are also three inputs through which one can use to control geom-center placement, but the easiest way to do all at once so is to just adjust \code{vlnplot.width}!
+#' The other two: \code{boxplot.position.dodge}, and \code{jitter.position.dodge}.
 #' }
 #' @seealso
 #' \code{\link{multi_dittoPlot}} for easy creation of multiple dittoPlots each focusing on a different \code{var}.
