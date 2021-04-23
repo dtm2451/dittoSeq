@@ -257,7 +257,7 @@ If a set of cells to use is indicated with the \code{cells.use} input, the data 
 
 The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
 Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
-Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
+Inclusion of \code{"ridgeplot"} overrides \code{"boxplot"} and \code{"vlnplot"} presence and changes the plot to be horizontal.
 
 When \code{split.by} is provided the name of a metadata containing discrete data, separate plots will be produced representing each of the distinct groupings of the split.by data.
 
@@ -276,24 +276,32 @@ to make such plots even easier to produce.
 
 \section{Many characteristics of the plot can be adjusted using discrete inputs}{
 
+The \code{plots} argument determines the types of \strong{data representation} that will be generated, as well as their order from back to front.
+Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
+
+Each plot type has specific associated options which are controlled by variables that start with their associated string.
+For example, all jitter adjustments start with "\code{jitter.}", such as \code{jitter.size} and \code{jitter.width}.
+
+Inclusion of \code{"ridgeplot"} overrides \code{"boxplot"} and \code{"vlnplot"} presence and changes the plot to be horizontal.
+
+Additionally:
+
 \itemize{
-\item Each data representation has options which are controlled by variables that start with their associated string.
-For example, all jitter adjustments, like \code{jitter.size}, start with "\code{jitter.}".
-\item Colors can be adjusted with \code{color.panel}.
-\item Shapes used in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
-\item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
-\item The legend can be hidden by setting \code{legend.show = TRUE}.
-\item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
-\item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
-\item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
-Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
-\item Single or multiple additional per-cell features can be retrieved and stashed within the underlying data using \code{extra.vars}.
-This can be very useful for making manual additional alterations \emph{after} dittoSeq plot generation.
-\item \code{color.by} can be utilized to split major \code{group.by} groupings into subgroups.
+\item \strong{Colors can be adjusted} with \code{color.panel}.
+\item \strong{Subgroupings:} \code{color.by} can be utilized to split major \code{group.by} groupings into subgroups.
 When this is done in y-axis plotting, dittoSeq automatically ensures the centers of all geoms will align,
 but users will need to manually adjust \code{jitter.width} to less than 0.5/num_subgroups to avoid overlaps.
 There are also three inputs through which one can use to control geom-center placement, but the easiest way to do all at once so is to just adjust \code{vlnplot.width}!
 The other two: \code{boxplot.position.dodge}, and \code{jitter.position.dodge}.
+\item \strong{Line(s) can be added} at single or multiple value(s) by providing these values to \code{add.line}.
+Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
+\item \strong{Titles and axes labels} can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+\item The \strong{legend can be hidden} by setting \code{legend.show = TRUE}.
+\item \strong{y-axis zoom and tick marks} can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
+\item \strong{x-axis labels and groupings} can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
+\item \strong{Shapes used} in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
+\item Single or multiple \strong{additional per-cell features can be retrieved} and stashed within the underlying data using \code{extra.vars}.
+This can be very useful for making manual additional alterations \emph{after} dittoSeq plot generation.
 }
 }
 
