@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.9}{\itemize{
+\item Adds an alternative histogram-shaping to ridge-plots via 3 new inputs: `ridgeplot.shape = "hist"` to turn it on, and `ridgeplot.bins` and `ridgeplot.binwidth` to adjust the look.
+}}
+
 \section{Version 1.3.8}{\itemize{
 \item Build-side Bug Fix, minor: Added `rmarkdown` to the list of `Suggests:` packages.
 }}
