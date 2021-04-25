@@ -368,18 +368,19 @@ dittoDimPlot <- function(
     if (!legend.show) {
         p <- .remove_legend(p)
     }
+    
+    if (do.hover) {
+        .error_if_no_plotly()
+        p <- plotly::ggplotly(p, tooltip = "text")
+    }
+    
     ### RETURN the PLOT ###
     if (data.out) {
-        return(list(
+        list(
             plot = p,
             Target_data = Target_data,
-            Others_data = Others_data))
+            Others_data = Others_data)
     } else {
-        if (do.hover) {
-            .error_if_no_plotly()
-            return(plotly::ggplotly(p, tooltip = "text"))
-        } else {
-            return(p)
-        }
+        p
     }
 }

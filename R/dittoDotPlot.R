@@ -209,16 +209,18 @@ dittoDotPlot <- function(
         legend.color.title, legend.color.breaks, legend.color.breaks.labels,
         legend.size.title, legend.show)
     
+    if (do.hover) {
+        .error_if_no_plotly()
+        p <- plotly::ggplotly(p, tooltip = "text")
+    }
+    
     # DONE. Return
     if (data.out) {
-        return(list(p = p, data = data))
+        list(
+            p = p,
+            data = data)
     } else {
-        if (do.hover) {
-            .error_if_no_plotly()
-            return(plotly::ggplotly(p, tooltip = "text"))
-        } else {
-            return(p)
-        }
+        p
     }
 }
 
