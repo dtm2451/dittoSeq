@@ -332,11 +332,11 @@ test_that("dittoDimPlot can remove axes numbers", {
 
 test_that("dittoDimPlot plotting order can be ordered by the data", {
     out <- dittoDimPlot(disc, object=seurat, data.out = TRUE, size = 10, order = "decreasing")
-    ### Manual Check: Orange aalways in front
+    ### Manual Check: Orange always in front
     expect_s3_class(
         out$p,
         "ggplot")
-    ### Manual Check: Dark blue aalways in front
+    ### Manual Check: Dark blue always in front
     expect_equal(
         out$Target_data$color,
         rev(
