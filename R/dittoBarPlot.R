@@ -208,15 +208,18 @@ dittoBarPlot <- function(
     if (!legend.show) {
         p <- .remove_legend(p)
     }
+    
+    if (do.hover) {
+        .error_if_no_plotly()
+        p <- plotly::ggplotly(p, tooltip = "text")
+    }
+    
     #DONE. Return the plot
     if (data.out) {
-        return(list(p = p, data = data))
+        list(
+            p = p,
+            data = data)
     } else {
-        if (do.hover) {
-            .error_if_no_plotly()
-            return(plotly::ggplotly(p, tooltip = "text"))
-        } else {
-            return(p)
-        }
+        p
     }
 }
