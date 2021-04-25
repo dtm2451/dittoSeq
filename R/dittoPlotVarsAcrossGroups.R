@@ -257,9 +257,11 @@ dittoPlotVarsAcrossGroups <- function(
     
     # DONE. Return the plot +/- data
     if (data.out) {
-        return(list(p = p, data = data))
+        list(
+            p = p,
+            data = data)
     } else {
-        return(p)
+        p
     }
 }
 

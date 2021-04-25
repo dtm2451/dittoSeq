@@ -347,9 +347,11 @@ dittoPlot <- function(
     
     # DONE. Return the plot +/- data
     if (data.out) {
-        return(list(p = p, data = Target_data))
+        list(
+            p = p,
+            data = Target_data)
     } else {
-        return(p)
+        p
     }
 }
 

@@ -304,17 +304,20 @@ dittoScatterPlot <- function(
         p <- .add_trajectory_curves(
             p, add.trajectory.curves, trajectory.arrow.size)
     }
+    
+    if (do.hover) {
+        .error_if_no_plotly()
+        p <- plotly::ggplotly(p, tooltip = "text")
+    }
 
     ### RETURN the PLOT ###
     if (data.out) {
-        return(list(plot = p, Target_data = Target_data, Others_data = Others_data))
+        list(
+            plot = p,
+            Target_data = Target_data,
+            Others_data = Others_data)
     } else{
-        if (do.hover) {
-            .error_if_no_plotly()
-            return(plotly::ggplotly(p, tooltip = "text"))
-        } else {
-            return(p)
-        }
+        p
     }
 }
 
