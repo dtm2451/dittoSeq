@@ -337,19 +337,8 @@ dittoPlot <- function(
         p <- .remove_legend(p)
     }
     
-    # Handle hover.
     if (do.hover) {
-        if ("ridgeplot" %in% plots) {
-            warning("'do.hover = TRUE' request ignored because plotly does not support ridgeplots.")
-        } else {
-            .error_if_no_plotly()
-            # Add hover.text to jitter, else just convert.
-            if ("jitter" %in% plots) {
-                p <- plotly::ggplotly(p, tooltip = "text")
-            } else {
-                p <- plotly::ggplotly(p)
-            }
-        }
+        p <- .warn_or_jitter_plotly(p, plots)
     }
     
     # DONE. Return the plot +/- data
@@ -552,6 +541,21 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
         p <- p + geom_vline(xintercept=add.line, linetype= line.linetype, color = line.color)
     }
 
+    p
+}
+
+.warn_or_jitter_plotly <- function(p, plots) {
+    if ("ridgeplot" %in% plots) {
+        warning("'do.hover = TRUE' request ignored because plotly does not support ridgeplots.")
+    } else {
+        .error_if_no_plotly()
+        # Add hover.text to jitter, else just convert.
+        if ("jitter" %in% plots) {
+            p <- plotly::ggplotly(p, tooltip = "text")
+        } else {
+            p <- plotly::ggplotly(p)
+        }
+    }
     p
 }
 
