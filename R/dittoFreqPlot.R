@@ -141,6 +141,9 @@ dittoFreqPlot <- function(
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
     ridgeplot.ymax.expansion = NA,
+    ridgeplot.shape = c("smooth", "hist"),
+    ridgeplot.bins = 30,
+    ridgeplot.binwidth = NULL,
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
@@ -148,6 +151,7 @@ dittoFreqPlot <- function(
     legend.title = color.by) {
     
     scale = match.arg(scale)
+    ridgeplot.shape <- match.arg(ridgeplot.shape)
 
     # Decide titles
     if (!(is.null(ylab))) {
@@ -225,9 +229,10 @@ dittoFreqPlot <- function(
             line.color, x.labels.rotate, do.hover, y.breaks, min, max, object)
     } else {
         p <- .dittoPlot_add_data_x_direction(
-            p, data, plots, xlab, ylab, jitter.size, jitter.color,
-            NA, TRUE, ridgeplot.lineweight, ridgeplot.scale,
-            ridgeplot.ymax.expansion, add.line, line.linetype, line.color,
+            p, data, plots, xlab, ylab, jitter.size, jitter.color, NA, TRUE,
+            ridgeplot.lineweight, ridgeplot.scale, ridgeplot.ymax.expansion,
+            ridgeplot.shape, ridgeplot.bins, ridgeplot.binwidth,
+            add.line, line.linetype, line.color,
             x.labels.rotate, do.hover, color.panel,
             colors, y.breaks, min, max)
     }
