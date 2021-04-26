@@ -25,20 +25,18 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
     - \*Added `split.by` to functions which did not have it: `dittoBarPlot()`, `dittoDotPlot()`, and `dittoPlotVarsAcrossGroups()` 
     - Better compatibility with other features
         - works with labeling of Dim/Scatter plots
-        - \*\*new `split.show.others` input now controls whether the full spectrum of points will be shown as light gray in the background of Dim/Scatter facets.
+        - \*new `split.show.others` input now controls whether the full spectrum of points will be shown as light gray in the background of Dim/Scatter facets.
 - Improved ridge-plotting:
     - \*Added alternative histogram-shaping option (Try adding `ridgeplot.shape = "hist"`!)
     - Better use of white space (via adjustments to default plot grid expansion & exposure of a `ridgeplot.ymax.expansion` input to allow user override.)
 - Expanded ordering capability for `dittoHeatmap()`:
     - You can now give many metadata to `order.by` and it will use them all, prioritizing earliest items
 - Other quality of life improvements
-    - \*\*Standardized `data.out` & `do.hover` interplay to allow both plotly conversion and data output.
+    - Standardized `data.out` & `do.hover` interplay to allow both plotly conversion and data output.
     - Added interaction with `colData` of SE and SCEs:
         - `swap.rownames` input allows indication of genes/rows by non-default rownames. E.g. for an `object` with Ensembl_IDs as the default and a colData column named 'symbol' that contains gene symbols, those symbols can be used via `dittoFunction(..., var = "<gene_symbol>", swap.rownames = "symbol"`).
 
 \* = Largely completed but not yet pushed through to Bioc-devel
-
-\*\* = Not yet coded, but planned for before the May release.
 
 #### Previous updates:
 
