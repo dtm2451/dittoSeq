@@ -14,6 +14,7 @@ dittoScatterPlot(
   extra.vars = NULL,
   cells.use = NULL,
   show.others = FALSE,
+  split.show.all.others = TRUE,
   size = 1,
   opacity = 1,
   color.panel = dittoColors(),
@@ -108,6 +109,8 @@ Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
 \item{show.others}{Logical. FALSE by default, whether other cells should be shown in the background in light gray.}
+
+\item{split.show.all.others}{Logical which sets whether gray "others" cells of facets should include all cells of other facets (\code{TRUE}) versus just cells left out by \code{cell.use} (\code{FALSE}).}
 
 \item{size}{Number which sets the size of data points. Default = 1.}
 

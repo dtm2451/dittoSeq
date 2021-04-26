@@ -170,6 +170,7 @@ dittoScatterPlot <- function(
     extra.vars = NULL,
     cells.use = NULL,
     show.others = FALSE,
+    split.show.all.others = TRUE,
     size = 1,
     opacity = 1,
     color.panel = dittoColors(),
@@ -276,7 +277,8 @@ dittoScatterPlot <- function(
         xlab, ylab, main, sub, theme,
         legend.show, legend.color.title, legend.color.size,
         legend.color.breaks, legend.color.breaks.labels, legend.shape.title,
-        legend.shape.size, do.raster, raster.dpi, split.by)
+        legend.shape.size, do.raster, raster.dpi,
+        split.by, split.show.all.others)
 
     ### Add extra features
     if (!is.null(split.by)) {
@@ -348,7 +350,8 @@ dittoScatterPlot <- function(
     legend.shape.size,
     do.raster,
     raster.dpi,
-    split.by
+    split.by,
+    split.show.all.others
 ) {
     
     ### Set up plotting
@@ -399,7 +402,7 @@ dittoScatterPlot <- function(
     ### Add data
     # Others_data
     if (show.others) {
-        if (!is.null(split.by)) {
+        if (!is.null(split.by) && split.show.all.others) {
             Others_data <- .rep_all_data_per_facet(
                 Target_data, Others_data, split.by)
         }

@@ -443,12 +443,40 @@ test_that("dittoDimPlot can be faceted with split.by (1 or 2 vars)", {
             disc, object=seurat,
             split.by = c(disc2,disc)),
         "ggplot")
-    # Works with cells.use (should have grey cells)
+})
+
+test_that("dittoDimPlot faceting and cell.use and split.show.all.others work together", {
+    # MANUAL: Works with cells.use (should have grey cells)
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2),
+            cells.use = cells.logical,
+            split.show.all.others = FALSE),
+        "ggplot")
     expect_s3_class(
         dittoDimPlot(
             disc, object=seurat,
             split.by = c(disc2,disc),
-            cells.use = cells.logical),
+            cells.use = cells.logical,
+            split.show.all.others = FALSE),
+        "ggplot")
+    
+    # MANUAL: Works with split.show.all.others on (should even more grey cells)
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc),
+            cells.use = cells.logical,
+            split.show.all.others = TRUE),
+        "ggplot")
+    # MANUAL: Works with split.show.all.others on (should even more grey cells)
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=seurat,
+            split.by = c(disc2,disc),
+            cells.use = cells.logical,
+            split.show.all.others = TRUE),
         "ggplot")
 })
 
@@ -457,25 +485,29 @@ test_that("dittoDimPlot added features work with single-metadata faceting", {
         print(dittoDimPlot(
             disc, object=seurat,
             split.by = disc2,
-            do.label = TRUE)),
+            do.label = TRUE,
+            split.show.all.others = FALSE)),
         NA)
     expect_error(
         print(dittoDimPlot(
             disc, object=seurat,
             split.by = disc2,
-            do.ellipse = TRUE)),
+            do.ellipse = TRUE,
+            split.show.all.others = FALSE)),
         NA)
     expect_error(
         print(dittoDimPlot(
             disc, object=seurat,
             split.by = disc2,
-            do.letter = TRUE)),
+            do.letter = TRUE,
+            split.show.all.others = FALSE)),
         NA)
     expect_error(
         print(dittoDimPlot(
             disc, object=seurat,
             split.by = disc2,
-            do.contour = TRUE)),
+            do.contour = TRUE,
+            split.show.all.others = FALSE)),
         NA)
     expect_error(
         print(dittoDimPlot(
@@ -483,7 +515,8 @@ test_that("dittoDimPlot added features work with single-metadata faceting", {
             split.by = disc2,
             add.trajectory.lineages = list(
                     c("C","A")),
-            trajectory.cluster.meta = disc)),
+            trajectory.cluster.meta = disc,
+            split.show.all.others = FALSE)),
         NA)
     expect_error(
         print(dittoDimPlot(
@@ -495,7 +528,8 @@ test_that("dittoDimPlot added features work with single-metadata faceting", {
                     c(-20,-10,0)),
                 data.frame(
                     c(5:20),
-                    c(5:10,9:5,6:10))))),
+                    c(5:10,9:5,6:10))),
+            split.show.all.others = FALSE)),
         NA)
 })
 
@@ -504,19 +538,22 @@ test_that("dittoDimPlot added features work with double-metadata faceting", {
         print(dittoDimPlot(
             disc, object=seurat,
             split.by = c(disc2,disc),
-            do.label = TRUE)),
+            do.label = TRUE,
+            split.show.all.others = FALSE)),
         NA)
     expect_error(
         print(dittoDimPlot(
             disc, object=seurat,
             split.by = c(disc2,disc),
-            do.ellipse = TRUE)),
+            do.ellipse = TRUE,
+            split.show.all.others = FALSE)),
         NA)
     expect_error(
         print(dittoDimPlot(
             disc, object=seurat,
             split.by = c(disc2,disc),
-            do.letter = TRUE)),
+            do.letter = TRUE,
+            split.show.all.others = FALSE)),
         NA)
     expect_error(
         print(dittoDimPlot(
@@ -524,7 +561,8 @@ test_that("dittoDimPlot added features work with double-metadata faceting", {
             split.by = c(disc2,disc),
             add.trajectory.lineages = list(
                     c("C","A")),
-            trajectory.cluster.meta = disc)),
+            trajectory.cluster.meta = disc,
+            split.show.all.others = FALSE)),
         NA)
     expect_error(
         print(dittoDimPlot(
@@ -536,7 +574,8 @@ test_that("dittoDimPlot added features work with double-metadata faceting", {
                     c(-20,-10,0)),
                 data.frame(
                     c(5:20),
-                    c(5:10,9:5,6:10))))),
+                    c(5:10,9:5,6:10))),
+            split.show.all.others = FALSE)),
         NA)
 })
 

@@ -29,7 +29,7 @@
 #' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
 #' @param show.grid.lines Logical which sets whether gridlines of the plot should be shown.
 #' They are removed when set to FALSE.
-#' Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.
+#' Default = FALSE for umap and tsne \code{reduction.use}, TRUE otherwise.
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default, see \code{\link{dittoColors}} for contents.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
 #'
@@ -45,6 +45,7 @@
 #' When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
 #'
 #' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
+#' @param split.show.all.others Logical which sets whether gray "others" cells of facets should include all cells of other facets (\code{TRUE}) versus just cells left out by \code{cell.use} (\code{FALSE}).
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom splitting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
@@ -257,6 +258,8 @@ dittoDimPlot <- function(
     shape.by = NULL,
     split.by = NULL,
     extra.vars = NULL,
+    show.others = TRUE,
+    split.show.all.others = TRUE,
     split.nrow = NULL,
     split.ncol = NULL,
     assay = .default_assay(object),
@@ -266,9 +269,6 @@ dittoDimPlot <- function(
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
     shape.panel = c(16,15,17,23,25,8),
-    show.others = TRUE,
-    show.axes.numbers = TRUE,
-    show.grid.lines = if (is.character(reduction.use)) { !grepl("umap|tsne", tolower(reduction.use)) } else {TRUE},
     min.color = "#F0E442",
     max.color = "#0072B2",
     min = NULL,
@@ -281,6 +281,8 @@ dittoDimPlot <- function(
     rename.var.groups = NULL,
     rename.shape.groups = NULL,
     theme = theme_bw(),
+    show.axes.numbers = TRUE,
+    show.grid.lines = if (is.character(reduction.use)) { !grepl("umap|tsne", tolower(reduction.use)) } else {TRUE},
     do.letter = FALSE,
     do.ellipse = FALSE,
     do.label = FALSE,
@@ -339,8 +341,8 @@ dittoDimPlot <- function(
     # Make dataframes and plot
     p.df <- dittoScatterPlot(
         object, xdat$embeddings, ydat$embeddings, var, shape.by, split.by,
-        extra.vars, cells.use,
-        show.others, size, opacity, color.panel, colors,
+        extra.vars, cells.use, show.others, split.show.all.others,
+        size, opacity, color.panel, colors,
         split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay, slot, adjustment, swap.rownames,
         shape.panel, rename.var.groups, rename.shape.groups,
