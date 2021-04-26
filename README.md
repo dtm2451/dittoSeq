@@ -21,20 +21,23 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 #### Updates coming in dittoSeq v1.4:
 
+- \*Added a new visualization: `dittoFreqPlot()`:
+  - Combines the population frequency summarization of `dittoBarPlot` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons!
 - Improved & expanded faceting capabilities with `split.by` inputs:
     - \*Added `split.by` to functions which did not have it: `dittoBarPlot()`, `dittoDotPlot()`, and `dittoPlotVarsAcrossGroups()` 
     - Better compatibility with other features
         - works with labeling of Dim/Scatter plots
         - \*new `split.show.others` input now controls whether the full spectrum of points will be shown as light gray in the background of Dim/Scatter facets.
 - Improved ridge-plotting:
-    - \*Added alternative histogram-shaping option (Try adding `ridgeplot.shape = "hist"`!)
+    - Added an alternative histogram-shaping option (Try adding `ridgeplot.shape = "hist"`!)
     - Better use of white space (via adjustments to default plot grid expansion & exposure of a `ridgeplot.ymax.expansion` input to allow user override.)
 - Expanded ordering capability for `dittoHeatmap()`:
     - You can now give many metadata to `order.by` and it will use them all, prioritizing earliest items
-- Other quality of life improvements
+- Added interaction with `colData` of SE and SCEs:
+    - `swap.rownames` input allows indication of genes/rows by non-default rownames. E.g. for an `object` with Ensembl_IDs as the default and a colData column named 'symbol' that contains gene symbols, those symbols can be used via `dittoFunction(..., var = "<gene_symbol>", swap.rownames = "symbol"`).
+- Quality of Life improvements:
     - Standardized `data.out` & `do.hover` interplay to allow both plotly conversion and data output.
-    - Added interaction with `colData` of SE and SCEs:
-        - `swap.rownames` input allows indication of genes/rows by non-default rownames. E.g. for an `object` with Ensembl_IDs as the default and a colData column named 'symbol' that contains gene symbols, those symbols can be used via `dittoFunction(..., var = "<gene_symbol>", swap.rownames = "symbol"`).
+    - Documentation Updates
 
 \* = Largely completed but not yet pushed through to Bioc-devel
 
