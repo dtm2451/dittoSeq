@@ -92,9 +92,7 @@ See details section for more info.}
 \item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
-If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.
-
-Note: Currently, plotly is incompatible with ridge plots as plotly does not support the geom_density_ridges2 geom.}
+If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.}
 
 \item{main}{String which sets the plot title.}
 

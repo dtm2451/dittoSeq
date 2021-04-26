@@ -74,7 +74,6 @@
 #' a data.frame containing the underlying data for target cells ("Target_data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
 #' 
-#' Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.
 #' @inheritParams dittoDimPlot
 #' @return a ggplot scatterplot where colored dots and/or shapes represent individual cells/samples. X and Y axes can be gene expression, numeric metadata, or manually supplied values.
 #'

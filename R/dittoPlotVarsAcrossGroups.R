@@ -24,8 +24,6 @@
 #' }
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.
-#' 
-#' Note: Currently, plotly is incompatible with ridge plots as plotly does not support the geom_density_ridges2 geom.
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
 #' (Provides an alternative to directly modifying \code{color.panel}.)

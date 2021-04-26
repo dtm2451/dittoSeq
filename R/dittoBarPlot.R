@@ -49,7 +49,6 @@
 #' @param legend.title String which adds a title to the legend.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.
 #'
-#' Note: plotly output is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
 #'
 #' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
