@@ -529,66 +529,6 @@ dittoScatterHex <- function(
     p
 }
 
-.scatter_data_gather <- function(
-    object,
-    cells.use,
-    x.var,
-    y.var,
-    color.var,
-    shape.by,
-    split.by,
-    extra.vars,
-    assay.x,
-    slot.x,
-    adjustment.x,
-    assay.y,
-    slot.y,
-    adjustment.y,
-    assay.color,
-    slot.color,
-    adjustment.color,
-    assay.extra,
-    slot.extra,
-    adjustment.extra,
-    swap.rownames = NULL,
-    do.hover = FALSE,
-    hover.data = NULL,
-    hover.assay = NULL,
-    hover.slot = NULL,
-    hover.adjustment = NULL,
-    rename.color.groups = NULL,
-    rename.shape.groups = NULL
-    ) {
-
-    all.cells <- .all_cells(object)
-    object <- .swap_rownames(object, swap.rownames)
-    
-    # Make dataframe
-    vars <- list(x.var, y.var, color.var, shape.by)
-    names <- list("X", "Y", "color", "shape")
-    assays <- list(assay.x, assay.y, assay.color, NA)
-    slots <- list(slot.x, slot.y, slot.color, NA)
-    adjustments <- list(adjustment.x, adjustment.y, adjustment.color, NA)
-    relabels <- list(NULL, NULL, rename.color.groups, rename.shape.groups)
-
-    dat <- data.frame(row.names = all.cells)
-    for (i in seq_along(vars)) {
-        dat <- .add_by_cell(dat, vars[[i]], names[[i]], object, assays[[i]],
-            slots[[i]], adjustments[[i]], NULL, relabels[[i]])
-    }
-
-    extra.vars <- unique(c(split.by, extra.vars))
-    dat <- .add_by_cell(dat, extra.vars, extra.vars, object, assay.extra,
-        slot.extra, adjustment.extra, mult = TRUE)
-
-    if (do.hover) {
-        dat$hover.string <- .make_hover_strings_from_vars(
-            hover.data, object, hover.assay, hover.slot, hover.adjustment)
-    }
-    
-    dat
-}
-
 .check_color.method <- function(color.method, discrete) {
     
     valid <- FALSE

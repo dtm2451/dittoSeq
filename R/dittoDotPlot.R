@@ -361,7 +361,8 @@ dittoDotPlot <- function(
                 }
                 
                 new_data
-            })
+            }
+        )
     )
 
     if (do.hover) {
