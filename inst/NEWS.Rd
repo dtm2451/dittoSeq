@@ -2,6 +2,11 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.11}{\itemize{
+\item Adds `split.by` faceting to functions which did not have it: `dittoBarPlot()`, `dittoDotPlot()`, and `dittoPlotVarsAcrossGroups()`.
+\item Improves `split.by` for `dittoDimPlot()` and `dittoScatterPlot()` by adding a `split.show.all.others` input. The input controls whether the full spectrum of points, versus just points excluded with `cells.use`, will be shown as light gray in the background of plots facets.
+}}
+
 \section{Version 1.3.10}{\itemize{
 \item Standardizes `data.out` & `do.hover` interplay, for all visualizations with `do.hover`, to allow both plotly conversion and data output.
 }}
