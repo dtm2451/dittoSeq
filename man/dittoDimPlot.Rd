@@ -251,9 +251,7 @@ Default = 5. *Enlarging the colors legend is incredibly helpful for making color
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
-and a data.frame containing the underlying data for non-target cells ("Others_data").
-
-Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.}
+and a data.frame containing the underlying data for non-target cells ("Others_data").}
 }
 \value{
 A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.

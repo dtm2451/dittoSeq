@@ -126,7 +126,6 @@
 #' a data.frame containing the underlying data for target cells ("Target_data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
 #' 
-#' Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.
 #' @return A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
 #'
 #' Alternatively, if \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
@@ -370,18 +369,19 @@ dittoDimPlot <- function(
     if (!legend.show) {
         p <- .remove_legend(p)
     }
+    
+    if (do.hover) {
+        .error_if_no_plotly()
+        p <- plotly::ggplotly(p, tooltip = "text")
+    }
+    
     ### RETURN the PLOT ###
     if (data.out) {
-        return(list(
+        list(
             plot = p,
             Target_data = Target_data,
-            Others_data = Others_data))
+            Others_data = Others_data)
     } else {
-        if (do.hover) {
-            .error_if_no_plotly()
-            return(plotly::ggplotly(p, tooltip = "text"))
-        } else {
-            return(p)
-        }
+        p
     }
 }

@@ -217,7 +217,7 @@ dittoDotPlot <- function(
         p <- .add_splitting(
             p, split.by, split.nrow, split.ncol, object, cells.use)
     }
-    
+
     if (do.hover) {
         .error_if_no_plotly()
         p <- plotly::ggplotly(p, tooltip = "text")
@@ -225,9 +225,11 @@ dittoDotPlot <- function(
     
     # DONE. Return
     if (data.out) {
-        return(list(p = p, data = data))
+        list(
+            p = p,
+            data = data)
     } else {
-        return(p)
+        p
     }
 }
 

@@ -36,8 +36,6 @@
 #' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),
-#'
-#' Note: Hovering is incompatible with RidgePlots as plotly does not support the geom_density_ridges2 geom.
 #' @param hover.data String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' Default = \code{dittoColors()}.
@@ -104,6 +102,12 @@
 #' @param ridgeplot.ymax.expansion Scalar which adjusts the minimal space between the topmost grouping and the top of the plot in order to ensure the curve is not cut off by the plotting grid.
 #' The larger the value, the greater the space requested.
 #' When left as NA, dittoSeq will attempt to determine an ideal value itself based on the number of groups & linear interpolation between these goal posts: #groups of 3 or fewer: 0.6; #groups=12: 0.1; #groups or 34 or greater: 0.05.
+#' @param ridgeplot.shape Either "smooth" or "hist", sets whether ridges will be smoothed (the typical, and default) versus rectangular like a histogram.
+#' (Note: as of the time shape "hist" was added, combination of jittered points is not supported by the \code{\link[ggridges]{stat_binline}} that dittoSeq relies on.)
+#' @param ridgeplot.bins Integer which sets how many chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
+#' Overridden by \code{ridgeplot.binwidth} when that input is provided.
+#' @param ridgeplot.binwidth Integer which sets the width of chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
+#' Takes precedence over \code{ridgeplot.bins} when provided.
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
 #' @param legend.title String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
 #' This input is set to \code{NULL} by default.
@@ -167,6 +171,8 @@
 #' # Update the 'plots' input to change / reorder the data representations
 #' dittoPlot(myRNA, "gene1", "timepoint",
 #'     plots = c("vlnplot", "boxplot", "jitter"))
+#' dittoPlot(myRNA, "gene1", "timepoint",
+#'     plots = c("ridgeplot", "jitter"))
 #'
 #' # Modify the look with intuitive inputs
 #' dittoPlot(myRNA, "gene1", "timepoint",
@@ -191,11 +197,13 @@
 #'     plots = c("vlnplot", "boxplot", "jitter"),
 #'     extra.var = "SNP") + facet_wrap("SNP", ncol = 1, strip.position = "left")
 #'
-#' # Quickly make a Ridgeplot
-#' dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
-#'
+#' ### Provided wrappers enable certain easy adjustments of the 'plots' parameter.
 #' # Quickly make a Boxplot
 #' dittoBoxPlot(myRNA, "gene1", group.by = "timepoint")
+#' 
+#' # Quickly make a Ridgeplot, with or without jitter
+#' dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
+#' dittoRidgeJitter(myRNA, "gene1", group.by = "timepoint")
 #'
 #' @author Daniel Bunis
 #' @export
@@ -250,6 +258,9 @@ dittoPlot <- function(
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
     ridgeplot.ymax.expansion = NA,
+    ridgeplot.shape = c("smooth", "hist"),
+    ridgeplot.bins = 30,
+    ridgeplot.binwidth = NULL,
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
@@ -257,6 +268,8 @@ dittoPlot <- function(
     legend.title = "make",
     data.out = FALSE) {
 
+    ridgeplot.shape <- match.arg(ridgeplot.shape)
+    
     #Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
     #Establish the full list of cell/sample names
@@ -302,9 +315,9 @@ dittoPlot <- function(
             p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
             jitter.shape.legend.size, jitter.shape.legend.show,
             ridgeplot.lineweight, ridgeplot.scale, ridgeplot.ymax.expansion,
-            add.line, line.linetype,
-            line.color, x.labels.rotate, do.hover, color.panel, colors,
-            y.breaks, min, max)
+            ridgeplot.shape, ridgeplot.bins, ridgeplot.binwidth, add.line,
+            line.linetype, line.color, x.labels.rotate, do.hover, color.panel,
+            colors, y.breaks, min, max)
     }
     # Extra tweaks
     if (!is.null(split.by)) {
@@ -332,9 +345,11 @@ dittoPlot <- function(
     
     # DONE. Return the plot +/- data
     if (data.out) {
-        return(list(p = p, data = Target_data))
+        list(
+            p = p,
+            data = Target_data)
     } else {
-        return(p)
+        p
     }
 }
 
@@ -466,15 +481,14 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 }
 
 #' @importFrom ggridges geom_density_ridges2
-.dittoPlot_add_data_x_direction <- function(p, Target_data, plots, xlab, ylab,
-                            jitter.size=1, jitter.color = "black",
-                            jitter.shape.legend.size, jitter.shape.legend.show,
-                            ridgeplot.lineweight = 1, ridgeplot.scale = 1.25,
-                            ridgeplot.ymax.expansion = NA,
-                            add.line=NULL, line.linetype = "dashed", line.color = "black",
-                            x.labels.rotate = FALSE, do.hover, color.panel, colors, y.breaks, min, max) {
+.dittoPlot_add_data_x_direction <- function(
+    p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
+    jitter.shape.legend.size, jitter.shape.legend.show,
+    ridgeplot.lineweight, ridgeplot.scale,
+    ridgeplot.ymax.expansion, ridgeplot.shape, ridgeplot.bins,
+    ridgeplot.binwidth, add.line, line.linetype, line.color,
+    x.labels.rotate, do.hover, color.panel, colors, y.breaks, min, max) {
     #This function takes in a partial dittoPlot ggplot object without any data overlay, and parses adding the main data visualizations.
-    # It adds plots based on what is requested in plots, *ordered by their order*
 
     # Now that we know the plot's direction, set "y"-axis limits
     if (!is.null(y.breaks)) {
@@ -496,14 +510,23 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
             x=c(3,12,34), y=c(0.6, 0.1, 0.05), yleft = 0.6, yright = 0.05)
         ridgeplot.ymax.expansion <- set_exp(num_groups)
     }
-    p <- p + 
+    p <- p + scale_color_manual(values=color.panel[colors]) +
         scale_y_discrete(expand = expansion(mult=c(0, ridgeplot.ymax.expansion)))
 
-    # Add ridgeplot (and jitter) data
-    p <- p + ggridges::geom_density_ridges2(
-        size = ridgeplot.lineweight, scale = ridgeplot.scale,
-        jittered_points = "jitter" %in% plots, point_size = jitter.size, point_color = jitter.color) +
-        scale_color_manual(values=color.panel[colors])
+    # Add ridgeplot and jitter data
+    ridge.args <- list(size = ridgeplot.lineweight, scale = ridgeplot.scale)
+    if (ridgeplot.shape == "hist") {
+        ridge.args$stat <- "binline"
+        ridge.args$bins <- ridgeplot.bins
+        ridge.args$binwidth <- ridgeplot.binwidth
+    }
+    if ("jitter" %in% plots) {
+        ridge.args <- c(ridge.args, jittered_points = TRUE,
+            point_size = jitter.size, point_color = jitter.color)
+    }
+    
+    p <- p + do.call(ggridges::geom_density_ridges2, ridge.args)
+        
     if (!is.na(jitter.shape.legend.size)) {
         p <- p + guides(shape = guide_legend(override.aes = list(size=jitter.shape.legend.size)))
     }
