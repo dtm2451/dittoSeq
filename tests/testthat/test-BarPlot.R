@@ -184,3 +184,30 @@ test_that("dittoBarPlots x-labels can be adjusted", {
             x.labels = 4:7, x.labels.rotate = FALSE),
         "ggplot")
 })
+
+test_that("dittoBarPlot can be faceted with 'split.by'", {
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            split.by = grp1),
+        "ggplot")
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            split.by = c(grp1,grp3)),
+        "ggplot")
+    
+    # Work with cells.use
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            split.by = grp1,
+            cells.use = seurat$number<50),
+        "ggplot")
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            split.by = c(grp1,grp3),
+            cells.use = seurat$number<50),
+        "ggplot")
+})

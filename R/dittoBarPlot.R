@@ -1,6 +1,7 @@
 #' Outputs a stacked bar plot to show the percent composition of samples, groups, clusters, or other groupings
 #' @import ggplot2
 #'
+#' @inheritParams dittoPlot
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}.
 #' @param group.by String name of a metadata to use for separating the cells/samples into discrete groups.
@@ -48,6 +49,8 @@
 #' @param legend.show Logical which sets whether the legend should be displayed.
 #' @param legend.title String which adds a title to the legend.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.
+#' @param retain.factor.levels Logical (for older version compatibility) which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
+#' Set this to FALSE to recreate data order of older ditto-plots.
 #'
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
 #'
@@ -92,6 +95,21 @@
 #'         do.hover = TRUE)
 #'     }
 #'
+#' ### Previous Version Compatibility
+#' # Mistakenly, dittoBarPlot used to remove factor identities entirely from the
+#' #  data it used. This manifests as ignorance of a user's set orderings for
+#' #  their data. That is nolonger done by default, but to recreate old plots,
+#' #  restoring this behavior can be achieved with 'retain.factor.levels = FALSE'
+#' # Set factor level ordering for a metadata we'll give to 'group.by'
+#' myRNA$groups_reverse_levels <- factor(
+#'     myRNA$groups,
+#'     levels = c("D", "C", "B", "A"))
+#' # dittoBarPlot will now respect this level order by default. 
+#' dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels")
+#' # But that respect can be turned off...
+#' dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels",
+#'     retain.factor.levels = FALSE)
+#' 
 #' @author Daniel Bunis
 #' @export
 
@@ -100,11 +118,14 @@ dittoBarPlot <- function(
     var,
     group.by,
     scale = c("percent", "count"),
+    split.by = NULL,
     cells.use = NULL,
     data.out = FALSE,
     do.hover = FALSE,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
+    split.nrow = NULL,
+    split.ncol = NULL,
     y.breaks = NA,
     min = 0,
     max = NULL,
@@ -119,17 +140,10 @@ dittoBarPlot <- function(
     main = "make",
     sub = NULL,
     legend.show = TRUE,
-    legend.title = NULL) {
-
-    cells.use <- .which_cells(cells.use, object)
-    all.cells <- .all_cells(object)
+    legend.title = NULL,
+    retain.factor.levels = TRUE) {
+    
     scale = match.arg(scale)
-
-    # Extract x.grouping and y.labels data
-    y.var <- as.character(
-        .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use])
-    x.var <- as.character(
-        .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use])
 
     # Decide titles
     if (!(is.null(ylab))) {
@@ -149,30 +163,15 @@ dittoBarPlot <- function(
             main <- NULL
         }
     }
-
-    # Create dataframe
-    data <- data.frame(
-        count = as.vector(data.frame(table(y.var, x.var))))
-    names(data) <- c("label", "grouping", "count")
-    data$label.count.total <- rep(
-        as.vector(table(x.var)),
-        each = length(levels(as.factor(y.var))))
-    data$percent <- data$count / data$label.count.total
-    data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
-    data$label <- .rename_and_or_reorder(
-        data$label, var.labels.reorder, var.labels.rename)
+    
+    # Gather data
+    data <- .dittoBarPlot_data_gather(
+        object, var, group.by, split.by, cells.use, x.reorder, x.labels,
+        var.labels.reorder, var.labels.rename, do.hover, retain.factor.levels)
     if (scale == "percent") {
         y.show <- "percent"
     } else {
         y.show <- "count"
-    }
-
-    # Add hover info
-    if (do.hover) {
-        hover.data <- data[,names(data) %in% c("label", "count", "percent")]
-        names(hover.data)[1] <- var
-        # Make hover srtings, "data.type: data" \n "data.type: data"
-        data$hover.string <- .make_hover_strings_from_df(hover.data)
     }
 
     #Build Plot
@@ -203,6 +202,12 @@ dittoBarPlot <- function(
         max <- ifelse(scale == "percent", 1, max(data$label.count.total))
     }
     p <- p + coord_cartesian(ylim=c(min,max))
+    
+    ### Add extra features
+    if (!is.null(split.by)) {
+        p <- .add_splitting(
+            p, split.by, split.nrow, split.ncol, object, cells.use)
+    }
 
     if (!legend.show) {
         p <- .remove_legend(p)
@@ -212,7 +217,7 @@ dittoBarPlot <- function(
         .error_if_no_plotly()
         p <- plotly::ggplotly(p, tooltip = "text")
     }
-    
+
     #DONE. Return the plot
     if (data.out) {
         list(
@@ -221,4 +226,84 @@ dittoBarPlot <- function(
     } else {
         p
     }
+}
+
+.dittoBarPlot_data_gather <- function(
+    object, var, group.by, split.by, cells.use,
+    x.reorder, x.labels,
+    var.labels.reorder, var.labels.rename,
+    do.hover, retain.factor.levels
+) {
+    
+    cells.use <- .which_cells(cells.use, object)
+    all.cells <- .all_cells(object)
+    
+    # Extract x.grouping and y.labels data
+    y.var <- .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use]
+    x.var <- .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use]
+    
+    # For pre-v1.4 compatibility
+    if(!retain.factor.levels) {
+        y.var <- as.character(y.var)
+        x.var <- as.character(x.var)
+    }
+    
+    # Extract or negate-away split.by data
+    facet <- "filler"
+    split.data <- list()
+    if (!is.null(split.by)) {
+        for (by in seq_along(split.by)) {
+            split.data[[by]] <- meta(split.by[by], object)[all.cells %in% cells.use]
+        }
+        facet <- do.call(paste, split.data)
+    }
+    
+    # Create dataframe (per split.by group)
+    data <- do.call(
+        rbind,
+        lapply(
+            unique(facet),
+            function(this_facet) {
+                
+                # Subset data per facet
+                y.var <- y.var[facet==this_facet]
+                x.var <- x.var[facet==this_facet]
+                
+                # Create data frame
+                new <- data.frame(
+                    count = as.vector(data.frame(table(y.var, x.var))))
+                names(new) <- c("label", "grouping", "count")
+                
+                new$label.count.total.per.facet <- rep(
+                    as.vector(table(x.var)),
+                    each = length(levels(as.factor(y.var))))
+                new$percent <- new$count / new$label.count.total.per.facet
+                
+                # Catch 0/0
+                new$percent[is.nan(new$percent)] <- 0
+                
+                # Add facet info
+                for (by in seq_along(split.by)) {
+                    new[[split.by[by]]] <- (split.data[[by]][facet==this_facet])[1]
+                }
+                
+                new
+            }
+        )
+    )
+    
+    # Rename/reorder
+    data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
+    data$label <- .rename_and_or_reorder(
+        data$label, var.labels.reorder, var.labels.rename)
+
+    # Add hover info
+    if (do.hover) {
+        hover.data <- data[,names(data) %in% c("label", "count", "percent")]
+        names(hover.data)[1] <- var
+        # Make hover strings, "data.type: data" \n "data.type: data"
+        data$hover.string <- .make_hover_strings_from_df(hover.data)
+    }
+    
+    data
 }

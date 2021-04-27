@@ -9,6 +9,7 @@ dittoDotPlot(
   vars,
   group.by,
   scale = TRUE,
+  split.by = NULL,
   cells.use = NULL,
   size = 6,
   min.percent = 0.01,
@@ -31,6 +32,8 @@ dittoDotPlot(
   y.reorder = NULL,
   xlab = NULL,
   x.labels.rotate = TRUE,
+  split.nrow = NULL,
+  split.ncol = NULL,
   theme = theme_classic(),
   legend.show = TRUE,
   legend.color.breaks = waiver(),
@@ -48,6 +51,12 @@ dittoDotPlot(
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
 \item{scale}{String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled.}
+
+\item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
+
+When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+
+When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
 
 \item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
@@ -106,6 +115,10 @@ is to make the target data into a factor, and to put its levels in the desired o
 Set to \code{NULL} to remove.}
 
 \item{x.labels.rotate}{Logical which sets whether the var-labels should be rotated.}
+
+\item{split.nrow}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_classic()}.

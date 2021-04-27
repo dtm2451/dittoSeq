@@ -9,11 +9,14 @@ dittoBarPlot(
   var,
   group.by,
   scale = c("percent", "count"),
+  split.by = NULL,
   cells.use = NULL,
   data.out = FALSE,
   do.hover = FALSE,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
+  split.nrow = NULL,
+  split.ncol = NULL,
   y.breaks = NA,
   min = 0,
   max = NULL,
@@ -28,7 +31,8 @@ dittoBarPlot(
   main = "make",
   sub = NULL,
   legend.show = TRUE,
-  legend.title = NULL
+  legend.title = NULL,
+  retain.factor.levels = TRUE
 )
 }
 \arguments{
@@ -39,6 +43,12 @@ dittoBarPlot(
 \item{group.by}{String name of a metadata to use for separating the cells/samples into discrete groups.}
 
 \item{scale}{"count" or "percent". Sets whether data should be shown as raw counts or scaled to 1 and shown as a percentage.}
+
+\item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
+
+When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+
+When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
 
 \item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
@@ -54,6 +64,10 @@ Note: When \code{cells.use} is combined with \code{scale = "percent"}, left out 
 
 \item{colors}{Integer vector, which sets the indexes / order, of colors from color.panel to actually use.
 (Provides an alternative to directly modifying \code{color.panel}.)}
+
+\item{split.nrow}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{y.breaks}{Numeric vector which sets the plot's tick marks / major gridlines. c(break1,break2,break3,etc.)}
 
@@ -101,6 +115,9 @@ Set to \code{NULL} to remove.}
 \item{legend.show}{Logical which sets whether the legend should be displayed.}
 
 \item{legend.title}{String which adds a title to the legend.}
+
+\item{retain.factor.levels}{Logical (for older version compatibility) which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
+Set this to FALSE to recreate data order of older ditto-plots.}
 }
 \value{
 A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
@@ -151,6 +168,21 @@ if (requireNamespace("plotly", quietly = TRUE)) {
     dittoBarPlot(myRNA, "clustering", group.by = "groups",
         do.hover = TRUE)
     }
+
+### Previous Version Compatibility
+# Mistakenly, dittoBarPlot used to remove factor identities entirely from the
+#  data it used. This manifests as ignorance of a user's set orderings for
+#  their data. That is nolonger done by default, but to recreate old plots,
+#  restoring this behavior can be achieved with 'retain.factor.levels = FALSE'
+# Set factor level ordering for a metadata we'll give to 'group.by'
+myRNA$groups_reverse_levels <- factor(
+    myRNA$groups,
+    levels = c("D", "C", "B", "A"))
+# dittoBarPlot will now respect this level order by default. 
+dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels")
+# But that respect can be turned off...
+dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels",
+    retain.factor.levels = FALSE)
 
 }
 \author{

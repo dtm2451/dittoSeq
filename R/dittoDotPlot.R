@@ -135,6 +135,7 @@ dittoDotPlot <- function(
     vars,
     group.by,
     scale = TRUE,
+    split.by = NULL,
     cells.use = NULL,
     size = 6,
     min.percent = 0.01,
@@ -157,6 +158,8 @@ dittoDotPlot <- function(
     y.reorder = NULL,
     xlab = NULL,
     x.labels.rotate = TRUE,
+    split.nrow = NULL,
+    split.ncol = NULL,
     theme = theme_classic(),
     legend.show = TRUE,
     legend.color.breaks = waiver(),
@@ -177,7 +180,7 @@ dittoDotPlot <- function(
 
     # Create data table summarizing vars data for each group
     data <- .data_gather_summarize_vars_by_groups(
-        object, vars, group.by,
+        object, vars, group.by, split.by,
         list(summary.fxn.color, summary.fxn.size),
         c("color", "size"),
         cells.use, assay, slot, adjustment, swap.rownames, do.hover)
@@ -209,6 +212,12 @@ dittoDotPlot <- function(
         legend.color.title, legend.color.breaks, legend.color.breaks.labels,
         legend.size.title, legend.show)
     
+    ### Add extra features
+    if (!is.null(split.by)) {
+        p <- .add_splitting(
+            p, split.by, split.nrow, split.ncol, object, cells.use)
+    }
+
     if (do.hover) {
         .error_if_no_plotly()
         p <- plotly::ggplotly(p, tooltip = "text")
@@ -286,6 +295,7 @@ dittoDotPlot <- function(
     object,
     vars,
     group.by,
+    split.by,
     summary.fxns, # list of summaries to make
     names,        # vector of what to call those summaries
     cells.use,
@@ -303,43 +313,85 @@ dittoDotPlot <- function(
     # rows = cells/samples
     # cols = vars
     vars_data <- .multi_var_gather_raw(
-        object, vars, assay, slot, adjustment, cells.use, numeric.only)
+        object, vars, assay, slot, adjustment, cells.use, numeric.only, split.by)
 
-    ### Summarize vars data per group
-    # rows = summarized vars data
-    # cols = groupings
-    summarize <- function(summary.fxn) {
-        data.frame(
-            vapply(
-                unique(groupings),
-                function (this.group) {
-                    vapply(
-                        vars,
-                        function(this.var) {
-                            summary.fxn(vars_data[groupings == this.group, this.var])
-                        }, FUN.VALUE = numeric(1)
-                    )
-                }, FUN.VALUE = numeric(length(vars))))
+    # Extract or negate-away split.by data
+    facet <- if (is.null(split.by)) {
+        "filler"
+    } else {
+        do.call(paste, vars_data[,split.by, drop = FALSE])
     }
-    summary_data <- lapply(summary.fxns, summarize)
-
-    ### Vectorize the summary data
-    # rows = individual data points; each var for group1, group2, group3,...
-    data <- data.frame(
-        var = rep(vars, ncol(summary_data[[1]])),
-        grouping = rep(unique(groupings), each = nrow(summary_data[[1]]))
-    )
     
-    for (i in seq_along(summary_data)) {
-        data <- cbind(data, unlist(summary_data[[i]]))
-    }
-    names(data) <- c("var", "grouping", names)
+    ### Transformed summary data
+    # rows = individual data points; each var for group1, group2, group3,...
+    data <- do.call(
+        rbind,
+        lapply(
+            unique(facet),
+            function(this_facet) {
+                
+                # Subset data per facet
+                vars_data <- vars_data[facet==this_facet, , drop = FALSE]
+                groupings <- groupings[facet==this_facet]
+                
+                # Start the data frame
+                new_data <- data.frame(
+                    var = rep(vars, length(unique(groupings))),
+                    grouping = rep(
+                        unique(groupings), each = length(vars))
+                )
+                
+                ### Summarize vars data per group
+                # rows = vars
+                # cols = groupings
+                summary_data <- lapply(
+                    summary.fxns, function(f) {
+                        .summarize_set_by_fxn(
+                            f, .data = vars_data, grps = groupings, vrs = vars)
+                        })
+                # Transform to 1 row per point
+                for (i in seq_along(summary_data)) {
+                    new_data <- cbind(new_data, unlist(summary_data[[i]]))
+                }
+                names(new_data) <- c("var", "grouping", names)
+                
+                # Add facet info
+                if (!is.null(split.by)) {
+                    for (by in split.by) {
+                        new_data[[by]] <- vars_data[1,by]
+                    }
+                }
+                
+                new_data
+            }
+        )
+    )
 
     if (do.hover) {
         data$hover.string <- .make_hover_strings_from_df(data)
     }
 
     return(data)
+}
+
+### Summarize vars data per group
+# rows = summarized vars data (1 row per element of vars)
+# cols = groupings
+.summarize_set_by_fxn <- function(summary.fxn, .data, grps, vrs) {
+    
+    data.frame(
+        vapply(
+            unique(grps),
+            function (this_group) {
+                vapply(
+                    vrs,
+                    function(this_var) {
+                        summary.fxn(.data[grps == this_group, this_var])
+                    }, FUN.VALUE = numeric(1)
+                )
+            }, FUN.VALUE = numeric(length(vrs))
+        )
+    )
 }
 
 #' @importFrom stats sd
@@ -350,28 +402,31 @@ dittoDotPlot <- function(
     slot,
     adjustment,
     cells.use,
-    numeric.only) {
+    numeric.only,
+    split.by) {
     
-    call_meta <- isMeta(vars, object, return.values = FALSE)
-    meta_vars <- vars[call_meta]
-    gene_vars <- isGene(vars[!call_meta], object, assay, return.values = TRUE)
+    gets <- c(vars, split.by)
     
-    if (!all(vars %in% c(meta_vars, gene_vars))) {
-        stop("All 'vars' must be a metadata or gene")
+    call_meta <- isMeta(gets, object, return.values = FALSE)
+    meta_gets <- gets[call_meta]
+    gene_gets <- isGene(gets[!call_meta], object, assay, return.values = TRUE)
+    
+    if (!all(gets %in% c(meta_gets, gene_gets))) {
+        stop("All 'vars' and 'split.by' must be a metadata or gene")
     }
     
     if (length(vars) <= 1) {
         stop("'vars' must be a vector of at least two elements for this function.")
     }
     
-    vars_data <- if (length(meta_vars)>0) {
-        as.matrix(getMetas(object, names.only = FALSE)[, meta_vars, drop = FALSE])
+    gets_data <- if (length(meta_gets)>0) {
+        getMetas(object, names.only = FALSE)[, meta_gets, drop = FALSE]
     } else {
-        NULL
+        data.frame(row.names = .all_cells(object))
     }
     
-    if (length(gene_vars)>0) {
-        gene_data <- t(as.matrix(.which_data(assay,slot,object)[gene_vars, , drop = FALSE]))
+    if (length(gene_gets)>0) {
+        gene_data <- t(as.matrix(.which_data(assay,slot,object)[gene_gets, , drop = FALSE]))
         
         if (!is.null(adjustment)) {
             if (adjustment=="z-score") {
@@ -382,16 +437,18 @@ dittoDotPlot <- function(
             }
         }
         
-        vars_data <- cbind(vars_data, gene_data)
+        gets_data <- cbind(as.data.frame(gene_data), gets_data)
     }
     
     if (numeric.only) {
-        for (ind in seq_len(ncol(vars_data))) {
-            if (!is.numeric(vars_data[,ind])) {
-                stop("All 'vars' must be numeric. ", names(vars_data)[ind], " is not numeric.")
+        # Only check vars, not split.by
+        for (var in vars) {
+            if (!is.numeric(gets_data[,var])) {
+                stop("All 'vars' must be numeric. ", var, " is not numeric.")
             }
         }
     }
     
-    vars_data[cells.use, vars]
+    # Trim by cells use and ensure ordering with split.by last
+    gets_data[cells.use, gets]
 }
