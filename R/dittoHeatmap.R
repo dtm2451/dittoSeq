@@ -297,7 +297,7 @@ dittoHeatmap <- function(
         OUT <- args
     } else if (complex) {
         .error_if_no_complexHm()
-        OUT <- do.call(ComplexHeatmap::pheatmap, args)
+        OUT <- do.call("pheatmap", args, envir = asNamespace("ComplexHeatmap"))
     } else {
         OUT <- do.call(pheatmap::pheatmap, args)
     }

@@ -24,8 +24,6 @@
 #' }
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.
-#' 
-#' Note: Currently, plotly is incompatible with ridge plots as plotly does not support the geom_density_ridges2 geom.
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
 #' (Provides an alternative to directly modifying \code{color.panel}.)
@@ -171,6 +169,9 @@ dittoPlotVarsAcrossGroups <- function(
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
     ridgeplot.ymax.expansion = NA,
+    ridgeplot.shape = c("smooth", "hist"),
+    ridgeplot.bins = 30,
+    ridgeplot.binwidth = NULL,
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
@@ -179,6 +180,8 @@ dittoPlotVarsAcrossGroups <- function(
     legend.show = TRUE,
     legend.title = NULL,
     data.out = FALSE) {
+    
+    ridgeplot.shape <- match.arg(ridgeplot.shape)
 
     cells.use <- .which_cells(cells.use, object)
     
@@ -229,7 +232,8 @@ dittoPlotVarsAcrossGroups <- function(
         p <- .dittoPlot_add_data_x_direction(
             p, data, plots, xlab, ylab, jitter.size, jitter.color,
             NA, TRUE, ridgeplot.lineweight, ridgeplot.scale,
-            ridgeplot.ymax.expansion, add.line, line.linetype, line.color,
+            ridgeplot.ymax.expansion, ridgeplot.shape, ridgeplot.bins,
+            ridgeplot.binwidth, add.line, line.linetype, line.color,
             x.labels.rotate, do.hover, color.panel,
             colors, y.breaks, min, max)
     }
@@ -260,9 +264,11 @@ dittoPlotVarsAcrossGroups <- function(
     
     # DONE. Return the plot +/- data
     if (data.out) {
-        return(list(p = p, data = data))
+        list(
+            p = p,
+            data = data)
     } else {
-        return(p)
+        p
     }
 }
 

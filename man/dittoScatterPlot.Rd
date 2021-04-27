@@ -220,9 +220,7 @@ This can be useful for editing in external programs (e.g. Illustrator) when ther
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
-and a data.frame containing the underlying data for non-target cells ("Others_data").
-
-Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.}
+and a data.frame containing the underlying data for non-target cells ("Others_data").}
 }
 \value{
 a ggplot scatterplot where colored dots and/or shapes represent individual cells/samples. X and Y axes can be gene expression, numeric metadata, or manually supplied values.

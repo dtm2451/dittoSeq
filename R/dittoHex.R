@@ -256,11 +256,11 @@ dittoDimHex <- function(
     
     ### RETURN the PLOT ###
     if (data.out) {
-        return(list(
+        list(
             plot = p,
-            data = data))
+            data = data)
     } else {
-        return(p)
+        p
     }
 }
 
