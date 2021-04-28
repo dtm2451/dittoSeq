@@ -329,11 +329,13 @@ test_that("dittoPlot boxplot adjustments work", {
             boxplot.width = 1, boxplot.color = "blue", boxplot.fill = FALSE,
             boxplot.show.outliers = TRUE),
         "ggplot")
-    # Manual Check: boxplots that overlap
+    # Manual Check: boxplots that overlap, with thick lines
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp, plots = c("jitter","boxplot"),
-            color.by = clr, boxplot.width = 0.3, boxplot.position.dodge = 0.2),
+            color.by = clr,
+            boxplot.width = 0.4, boxplot.position.dodge = 0.2,
+            boxplot.lineweight = 2),
         "ggplot")
 })
 

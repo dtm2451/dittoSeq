@@ -42,6 +42,7 @@ dittoPlotVarsAcrossGroups(
   boxplot.show.outliers = NA,
   boxplot.fill = TRUE,
   boxplot.position.dodge = vlnplot.width,
+  boxplot.lineweight = 1,
   vlnplot.lineweight = 1,
   vlnplot.width = 1,
   vlnplot.scaling = "area",
@@ -173,6 +174,8 @@ Known bug: when boxplot fill is turned off, outliers do not render.}
 
 \item{boxplot.position.dodge}{Scalar which adjusts the relative distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
 By default, this input actually controls the value of \code{jitter.position.dodge} unless the \code{jitter} version is provided separately.}
+
+\item{boxplot.lineweight}{Scalar which adjusts the thickness of boxplot lines.}
 
 \item{vlnplot.lineweight}{Scalar which sets the thickness of the line that outlines the violin plots.}
 

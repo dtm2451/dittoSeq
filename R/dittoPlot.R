@@ -97,6 +97,7 @@
 #' Known bug: when boxplot fill is turned off, outliers do not render.
 #' @param boxplot.position.dodge Scalar which adjusts the relative distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
 #' By default, this input actually controls the value of \code{jitter.position.dodge} unless the \code{jitter} version is provided separately.
+#' @param boxplot.lineweight Scalar which adjusts the thickness of boxplot lines.
 #' @param vlnplot.lineweight Scalar which sets the thickness of the line that outlines the violin plots.
 #' @param vlnplot.width Scalar which sets the width/spread of the jitter in the x direction
 #' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to eachother.
@@ -273,6 +274,7 @@ dittoPlot <- function(
     boxplot.show.outliers = NA,
     boxplot.fill = TRUE,
     boxplot.position.dodge = vlnplot.width,
+    boxplot.lineweight = 1,
     vlnplot.lineweight = 1,
     vlnplot.width = 1,
     vlnplot.scaling = "area",
@@ -328,7 +330,7 @@ dittoPlot <- function(
             jitter.shape.legend.show, jitter.position.dodge,
             do.raster, raster.dpi,
             boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
-            boxplot.position.dodge,
+            boxplot.position.dodge, boxplot.lineweight,
             vlnplot.lineweight, vlnplot.width, vlnplot.scaling,
             add.line, line.linetype, line.color,
             x.labels.rotate, do.hover, y.breaks, min, max, object)
@@ -382,7 +384,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     jitter.shape.legend.size, jitter.shape.legend.show, jitter.position.dodge,
     do.raster, raster.dpi,
     boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
-    boxplot.position.dodge,
+    boxplot.position.dodge, boxplot.lineweight,
     vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
     line.linetype, line.color, x.labels.rotate, do.hover, y.breaks, min, max,
     object) {
@@ -418,6 +420,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
             boxplot.args <- list(
                 width = boxplot.width,
                 color = boxplot.color,
+                lwd = boxplot.lineweight,
                 alpha = ifelse(boxplot.fill, 1, 0),
                 position = position_dodge(width = boxplot.position.dodge),
                 na.rm = TRUE)
