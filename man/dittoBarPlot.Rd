@@ -56,9 +56,7 @@ Alternatively, a Logical vector, the same length as the number of cells in the o
 
 Note: When \code{cells.use} is combined with \code{scale = "percent"}, left out cells are not considered in calculating percentages. Percents will always total to 1.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.
-
-Note: plotly output is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.}
 
 \item{do.hover}{Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.}
 

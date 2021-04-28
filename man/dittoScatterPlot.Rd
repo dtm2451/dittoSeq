@@ -14,6 +14,7 @@ dittoScatterPlot(
   extra.vars = NULL,
   cells.use = NULL,
   show.others = FALSE,
+  split.show.all.others = TRUE,
   size = 1,
   opacity = 1,
   color.panel = dittoColors(),
@@ -108,6 +109,8 @@ Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
 \item{show.others}{Logical. FALSE by default, whether other cells should be shown in the background in light gray.}
+
+\item{split.show.all.others}{Logical which sets whether gray "others" cells of facets should include all cells of other facets (\code{TRUE}) versus just cells left out by \code{cell.use} (\code{FALSE}).}
 
 \item{size}{Number which sets the size of data points. Default = 1.}
 
@@ -217,9 +220,7 @@ This can be useful for editing in external programs (e.g. Illustrator) when ther
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
-and a data.frame containing the underlying data for non-target cells ("Others_data").
-
-Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.}
+and a data.frame containing the underlying data for non-target cells ("Others_data").}
 }
 \value{
 a ggplot scatterplot where colored dots and/or shapes represent individual cells/samples. X and Y axes can be gene expression, numeric metadata, or manually supplied values.

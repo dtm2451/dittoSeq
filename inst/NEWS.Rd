@@ -2,6 +2,23 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.11}{\itemize{
+\item Adds `split.by` faceting to functions which did not have it: `dittoBarPlot()`, `dittoDotPlot()`, and `dittoPlotVarsAcrossGroups()`.
+\item Improves `split.by` for `dittoDimPlot()` and `dittoScatterPlot()` by adding a `split.show.all.others` input. The input controls whether the full spectrum of points, versus just points excluded with `cells.use`, will be shown as light gray in the background of plots facets.
+}}
+
+\section{Version 1.3.10}{\itemize{
+\item Standardizes `data.out` & `do.hover` interplay, for all visualizations with `do.hover`, to allow both plotly conversion and data output.
+}}
+
+\section{Version 1.3.9}{\itemize{
+\item Adds an alternative histogram-shaping to ridge-plots via 3 new inputs: `ridgeplot.shape = "hist"` to turn it on, and `ridgeplot.bins` and `ridgeplot.binwidth` to adjust the look.
+}}
+
+\section{Version 1.3.8}{\itemize{
+\item Build-side Bug Fix, minor: Added `rmarkdown` to the list of `Suggests:` packages.
+}}
+
 \section{Version 1.3.7}{\itemize{
 \item Bug Fix, minor: Remove link to Seurat's `pbmc_small` object which moved to their SeuratObject package.
 }}

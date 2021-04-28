@@ -189,7 +189,7 @@ Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
 \item{show.grid.lines}{Logical which sets whether gridlines of the plot should be shown.
 They are removed when set to FALSE.
-Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.}
+Default = FALSE for umap and tsne \code{reduction.use}, TRUE otherwise.}
 
 \item{main}{String, sets the plot title. The default title is either "Density", \code{color.var}, or NULL, depending on the identity of \code{color.var}.
 To remove, set to \code{NULL}.}
