@@ -121,7 +121,7 @@ dittoFreqPlot <- function(
     do.hover = FALSE,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
-    y.breaks = NA,
+    y.breaks = NULL,
     min = 0,
     max = NULL,
     var.labels.rename = NULL,
@@ -184,9 +184,11 @@ dittoFreqPlot <- function(
     }
     
     # Check that sample definitions are 1:1 with groupings/colorings
-    samps <- meta(sample.by, object)
-    .check_1value_per_group(samps, group.by, object)
-    .check_1value_per_group(samps, color.by, object)
+    if (!is.null(sample.by)) {
+        samps <- meta(sample.by, object)
+        .check_1value_per_group(samps, group.by, "group.by", object)
+        .check_1value_per_group(samps, color.by, "color.by", object)
+    }
     
     # Gather data (use split.by to ensure per- color.by & sample.by calculation)
     data <- .dittoBarPlot_data_gather(
@@ -212,13 +214,6 @@ dittoFreqPlot <- function(
         ylab <- paste("Normalized", ylab)
     }
     data$var.data <- data[[y.show]]
-    
-    # Set y-axis ticks
-    y.breaks <- if (identical(y.breaks, NA) && scale == "percent") {
-        c(0,0.5,1)
-    } else {
-        NULL
-    }
 
     #Build Plot
     p <- ggplot(
@@ -269,7 +264,7 @@ dittoFreqPlot <- function(
     }
 }
 
-.check_1value_per_group <- function(groupings, check, object) {
+.check_1value_per_group <- function(groupings, check, input.name, object) {
     
     values <- meta(check, object)
     any_non_1 <- !all(vapply(
@@ -279,6 +274,7 @@ dittoFreqPlot <- function(
         }, FUN.VALUE = logical(1)
         ))
     if (any_non_1) {
-        stop("Unable to interpret ",check," input. It's data does not map 1:1 per sample.")
+        stop("Unable to interpret '", input.name,"' with 'samples.by'. '",
+             check, "' data does not map 1:1 per sample.")
     }
 }

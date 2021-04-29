@@ -21,7 +21,7 @@ dittoFreqPlot(
   do.hover = FALSE,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
-  y.breaks = NA,
+  y.breaks = NULL,
   min = 0,
   max = NULL,
   var.labels.rename = NULL,
