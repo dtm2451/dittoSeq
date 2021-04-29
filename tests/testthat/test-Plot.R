@@ -2,6 +2,7 @@
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-Plot.R")
 
 seurat$number <- as.numeric(seq_along(colnames(seurat)))
+seurat$all <- "A"
 grp <- "clusters"
 clr <- "age"
 clr2 <- "groups"
@@ -265,7 +266,7 @@ test_that("dittoPlot can have lines added", {
 })
 
 test_that("dittoPlot jitter adjustments work", {
-    # Manuel Check: Large blue dots that, in the yplot, look continuous accross groups.
+    # Manuel Check: Large blue dots that, in the y-plot, look continuous across groups.
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp, plots = "jitter",
@@ -275,6 +276,47 @@ test_that("dittoPlot jitter adjustments work", {
         dittoRidgePlot(
             "number", object=seurat, group.by = grp, plots = c("jitter","ridgeplot"),
             jitter.size = 10, jitter.color = "blue", jitter.width = 1),
+        "ggplot")
+    
+    # Manual Check: 1. jitters that touch / align with vlnplot widths.
+    #               2. jitters that far from touch, NOT aligned properly
+    #               3. jitters that far from touch. Tests control, by default, by the boxplot input.
+    #               4. jitters that far from touch. Tests control, by default, by the vlnplot input via the boxplot input.
+    
+    # 1. Defaults
+    expect_s3_class(
+        print(dittoPlot(
+            "number", object=seurat, group.by = "all",
+            color.by = clr2, plots = c("vlnplot", "boxplot", "jitter"),
+            shape.panel = 21, jitter.size = 2, vlnplot.scaling = "width")),
+        "ggplot")
+    
+    # 2. jitters further apart
+    expect_s3_class(
+        print(dittoPlot(
+            "number", object=seurat, group.by = "all",
+            color.by = clr2, plots = c("vlnplot", "boxplot", "jitter"),
+            shape.panel = 21, jitter.size = 2, vlnplot.scaling = "width",
+            jitter.position.dodge = 2)),
+        "ggplot")
+    
+    # 3. set by boxplot dodge... only aligned with boxplots
+    expect_s3_class(
+        print(dittoPlot(
+            "number", object=seurat, group.by = "all",
+            color.by = clr2, plots = c("vlnplot", "boxplot", "jitter"),
+            shape.panel = 21, jitter.size = 2, vlnplot.scaling = "width",
+            boxplot.position.dodge = 2)),
+        "ggplot")
+    
+    # 4. set by vlnplot.width
+    expect_s3_class(
+        print(dittoPlot(
+            "number", object=seurat, group.by = "all",
+            color.by = clr2, plots = c("vlnplot", "boxplot", "jitter"),
+            shape.panel = 21, jitter.size = 2, vlnplot.scaling = "width",
+            vlnplot.width = 0.5,
+            jitter.width = 0.1)),
         "ggplot")
 })
 
@@ -287,11 +329,13 @@ test_that("dittoPlot boxplot adjustments work", {
             boxplot.width = 1, boxplot.color = "blue", boxplot.fill = FALSE,
             boxplot.show.outliers = TRUE),
         "ggplot")
-    # Manual Check: boxplots that overlap
+    # Manual Check: boxplots that overlap, with thick lines
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp, plots = c("jitter","boxplot"),
-            color.by = clr, boxplot.width = 0.3, boxplot.position.dodge = 0.2),
+            color.by = clr,
+            boxplot.width = 0.4, boxplot.position.dodge = 0.2,
+            boxplot.lineweight = 2),
         "ggplot")
 })
 

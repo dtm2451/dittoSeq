@@ -42,7 +42,7 @@ dittoBarPlot(
 
 \item{group.by}{String name of a metadata to use for separating the cells/samples into discrete groups.}
 
-\item{scale}{"count" or "percent". Sets whether data should be shown as raw counts or scaled to 1 and shown as a percentage.}
+\item{scale}{"count" or "percent". Sets whether data should be shown as counts versus percentage.}
 
 \item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 
@@ -75,15 +75,17 @@ Note: When \code{cells.use} is combined with \code{scale = "percent"}, left out 
 These inputs set the minimum / maximum values of the y-axis.
 Default = set based on the limits of the data, 0 to 1 for \code{scale = "percent"}, or 0 to maximum count for 0 to 1 for \code{scale = "count"}.}
 
-\item{var.labels.rename}{String vector for renaming the distinct identities of \code{var} values.}
+\item{var.labels.rename}{String vector for renaming the distinct identities of \code{var} values.
 
-\item{var.labels.reorder}{Integer vector. A sequence of numbers, from 1 to the number of distinct \code{var} value idententities, for rearranging the order of labels' groupings within the plot.
+Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess current values.}
+
+\item{var.labels.reorder}{Integer vector. A sequence of numbers, from 1 to the number of distinct \code{var} value identities, for rearranging the order of labels' groupings within the plot.
 
 Method: Make a first plot without this input.
 Then, treating the top-most grouping as index 1, and the bottom-most as index n.
 Values of \code{var.labels.reorder} should be these indices, but in the order that you would like them rearranged to be.}
 
-\item{x.labels}{String vector which will replaceme the x-axis groupings' labels.
+\item{x.labels}{String vector which will replace the x-axis groupings' labels.
 Regardless of \code{x.reorder}, the first component of \code{x.labels} sets the name for the left-most x-axis grouping.}
 
 \item{x.labels.rotate}{Logical which sets whether the x-axis grouping labels should be rotated.}
@@ -106,7 +108,8 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 Default is \code{group.by} so it defaults to the name of the grouping information.
 Set to \code{NULL} to remove.}
 
-\item{ylab}{String which sets the y-axis title.}
+\item{ylab}{String which sets the y-axis title.
+Default = "make" and if left as make, a title will be automatically generated.}
 
 \item{main}{String, sets the plot title}
 
@@ -147,7 +150,10 @@ Then, a vertical bar plot is generated (\code{ggplot2::geom_col()}) showing eith
 }
 }
 
-\examples{
+\seealso{
+\code{\link{dittoFreqPlot}} for a data representation that focuses on pre-sample frequencies of each the \code{var}-data values individually, rather than emphasizing total makeup of samples/groups.
+
+ @examples
 example(importDittoBulk, echo = FALSE)
 myRNA
 
@@ -183,7 +189,6 @@ dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels")
 # But that respect can be turned off...
 dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels",
     retain.factor.levels = FALSE)
-
 }
 \author{
 Daniel Bunis

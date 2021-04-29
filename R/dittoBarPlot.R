@@ -13,7 +13,7 @@
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default.
 #' @param colors Integer vector, which sets the indexes / order, of colors from color.panel to actually use.
 #' (Provides an alternative to directly modifying \code{color.panel}.)
-#' @param scale "count" or "percent". Sets whether data should be shown as raw counts or scaled to 1 and shown as a percentage.
+#' @param scale "count" or "percent". Sets whether data should be shown as counts versus percentage.
 #' @param do.hover Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
 #' Default = \code{theme_classic()}.
@@ -22,7 +22,8 @@
 #' Default is \code{group.by} so it defaults to the name of the grouping information.
 #' Set to \code{NULL} to remove.
 #' @param ylab String which sets the y-axis title.
-#' @param x.labels String vector which will replaceme the x-axis groupings' labels.
+#' Default = "make" and if left as make, a title will be automatically generated.
+#' @param x.labels String vector which will replace the x-axis groupings' labels.
 #' Regardless of \code{x.reorder}, the first component of \code{x.labels} sets the name for the left-most x-axis grouping.
 #' @param x.labels.rotate Logical which sets whether the x-axis grouping labels should be rotated.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
@@ -41,7 +42,9 @@
 #' @param main String, sets the plot title
 #' @param sub String, sets the plot subtitle
 #' @param var.labels.rename String vector for renaming the distinct identities of \code{var} values.
-#' @param var.labels.reorder Integer vector. A sequence of numbers, from 1 to the number of distinct \code{var} value idententities, for rearranging the order of labels' groupings within the plot.
+#' 
+#' Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess current values.
+#' @param var.labels.reorder Integer vector. A sequence of numbers, from 1 to the number of distinct \code{var} value identities, for rearranging the order of labels' groupings within the plot.
 #'
 #' Method: Make a first plot without this input.
 #' Then, treating the top-most grouping as index 1, and the bottom-most as index n.
@@ -73,7 +76,10 @@
 #' \item y-axis \code{var}-group labels and their order can be changed / reordered using \code{var.labels} and \code{var.labels.reorder}.
 #' }
 #'
-#' @examples
+#' @seealso
+#' \code{\link{dittoFreqPlot}} for a data representation that focuses on pre-sample frequencies of each the \code{var}-data values individually, rather than emphasizing total makeup of samples/groups.
+#'
+#'  @examples
 #' example(importDittoBulk, echo = FALSE)
 #' myRNA
 #'
@@ -232,7 +238,7 @@ dittoBarPlot <- function(
     object, var, group.by, split.by, cells.use,
     x.reorder, x.labels,
     var.labels.reorder, var.labels.rename,
-    do.hover, retain.factor.levels
+    do.hover, retain.factor.levels, max.normalize = FALSE
 ) {
     
     cells.use <- .which_cells(cells.use, object)
@@ -291,6 +297,20 @@ dittoBarPlot <- function(
             }
         )
     )
+    
+    # max.normalization per var-label
+    if (max.normalize) {
+        data$count.norm <- 0
+        data$percent.norm <- 0
+        
+        for (i in unique(data$label)) {
+            this_lab <- data$label == i
+            data$count.norm[this_lab] <- 
+                data$count[this_lab]/max(data$count[this_lab])
+            data$percent.norm[this_lab] <- 
+                data$percent[this_lab]/max(data$percent[this_lab])
+        }
+    }
     
     # Rename/reorder
     data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
