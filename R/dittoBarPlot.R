@@ -73,7 +73,10 @@
 #' \item y-axis \code{var}-group labels and their order can be changed / reordered using \code{var.labels} and \code{var.labels.reorder}.
 #' }
 #'
-#' @examples
+#' @seealso
+#' \code{\link{dittoFreqPlot}} for a data representation that focuses on pre-sample frequencies of each the \code{var}-data values individually, rather than emphasizing total makeup of samples/groups.
+#'
+#'  @examples
 #' example(importDittoBulk, echo = FALSE)
 #' myRNA
 #'

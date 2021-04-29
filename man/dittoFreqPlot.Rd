@@ -2,7 +2,7 @@
 % Please edit documentation in R/dittoFreqPlot.R
 \name{dittoFreqPlot}
 \alias{dittoFreqPlot}
-\title{Outputs a stacked bar plot to show the percent composition of samples, groups, clusters, or other groupings}
+\title{Plots cell-type/cluster/identity frequencies per sample and per grouping}
 \usage{
 dittoFreqPlot(
   object,
@@ -77,20 +77,23 @@ Note that when this is not provided, there will only be one data point per group
 Great for highlighting subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
 Affects boxplot, vlnplot, and ridgeplot fills.}
 
-\item{vars.use}{A subset of the values of \code{var}-data which should be shown.
-If left as \code{NULL}, all values will be shown.
-Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess options.}
+\item{vars.use}{String or string vector naming a subset of the values of \code{var}-data which should be shown.
+If left as \code{NULL}, all values are shown.
+
+Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess options.
+
+Note: When \code{var.labels.rename} is jointly utilized to update how the \code{var}-values are shown, the \strong{updated} values will be prioritized in case of conflict, but you can give \emph{either} the original or updated names to \code{vars.use}.}
 
 \item{scale}{"count" or "percent". Sets whether data should be shown as raw counts or scaled to 1 and shown as a percentage.}
 
-\item{max.normalize}{Logical which sets whether the data for each var-data value (each facet) should be normalized to have the same maximum value.
+\item{max.normalize}{Logical which sets whether the data for each \code{var}-data value (each facet) should be normalized to have the same maximum value.
 When set to \code{TRUE}, lower frequency vars will make use of just as much plot space as higher frequency vars.}
 
 \item{plots}{String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
 Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
 See details section for more info.}
 
-\item{nrow, ncol}{Integers which set the dimensions of the facet grid.}
+\item{nrow, ncol}{Integers which set the dimensions of the facet grid. (\code{split.nrow} and \code{split.ncol} equivalent of other functions)}
 
 \item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
@@ -232,15 +235,19 @@ Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a
 Alternatively, if \code{do.hover = TRUE}, a plotly conversion of the ggplot output in which underlying data can be retrieved upon hovering the cursor over the plot.
 }
 \description{
-Outputs a stacked bar plot to show the percent composition of samples, groups, clusters, or other groupings
+Plots cell-type/cluster/identity frequencies per sample and per grouping
 }
 \details{
-The function creates a dataframe containing counts and percent makeup of \code{var} identities for each x-axis grouping (determined by the \code{group.by} input).
-If a set of cells/samples to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
-Then, a vertical bar plot is generated (\code{ggplot2::geom_col()})
+The function creates a dataframe containing counts and percent makeup of \code{var} identities per sample if \code{sample.by} is given, or per group if only \code{group.by} is given.
+Typically, \code{var} might be given clusters or cell type annotations, but it can be given any discrete data.
 
-Finally, data is plotted with the data representation types in \code{plots}, showing either percent of total if
-\code{scale = "percent"}, which is the default, or raw counts if \code{scale = "count"}.
+If a set of cells to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
+
+If \code{max.normalized} is set to \code{TRUE}, counts and percent data are transformed to a 0-1 scale, which makes better use of white space for lower frequency \code{var}-values.
+
+Either percent of total (\code{scale = "percent"}), which is the default, or counts (if \code{scale = "count"})
+data is then (gg)plotted with the data representation types in \code{plots} by utilizing the same machinery as \code{\link{dittoPlot}}.
+Faceting by \code{var}-data values is utilized to achieve per \code{var}-value (e.g. cluster or cell type) granularity.
 }
 \section{Plot Customization}{
 
@@ -309,6 +316,9 @@ dittoFreqPlot(myRNA, "clustering",
     group.by = "groups", sample.by = "sample", color.by = "subgroups",
     max.normalize = TRUE)
 
+}
+\seealso{
+\code{\link{dittoBarPlot}} for a data representation that emphasizes total makeup of samples/groups rather than focusing on the \code{var}-data values individually.
 }
 \author{
 Daniel Bunis

@@ -1,4 +1,4 @@
-#' Outputs a stacked bar plot to show the percent composition of samples, groups, clusters, or other groupings
+#' Plots cell-type/cluster/identity frequencies per sample and per grouping
 #' @import ggplot2
 #'
 #' @inheritParams dittoBarPlot
@@ -7,25 +7,32 @@
 #' @param sample.by String name of a metadata containing which samples each cell belongs to.
 #' 
 #' Note that when this is not provided, there will only be one data point per grouping. Warning can be expected then for all \code{plot} options except \code{"jitter"}.
-#' @param vars.use A subset of the values of \code{var}-data which should be shown.
-#' If left as \code{NULL}, all values will be shown.
+#' @param vars.use String or string vector naming a subset of the values of \code{var}-data which should be shown.
+#' If left as \code{NULL}, all values are shown.
+#' 
 #' Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess options.
-#' @param max.normalize Logical which sets whether the data for each var-data value (each facet) should be normalized to have the same maximum value.
+#' 
+#' Note: When \code{var.labels.rename} is jointly utilized to update how the \code{var}-values are shown, the \strong{updated} values will be prioritized in case of conflict, but you can give \emph{either} the original or updated names to \code{vars.use}.
+#' @param max.normalize Logical which sets whether the data for each \code{var}-data value (each facet) should be normalized to have the same maximum value.
 #' When set to \code{TRUE}, lower frequency vars will make use of just as much plot space as higher frequency vars.
-#' @param nrow,ncol Integers which set the dimensions of the facet grid.
+#' @param nrow,ncol Integers which set the dimensions of the facet grid. (\code{split.nrow} and \code{split.ncol} equivalent of other functions)
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
 #' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
 #'
 #' Alternatively, if \code{do.hover = TRUE}, a plotly conversion of the ggplot output in which underlying data can be retrieved upon hovering the cursor over the plot.
 #' @details
-#' The function creates a dataframe containing counts and percent makeup of \code{var} identities for each x-axis grouping (determined by the \code{group.by} input).
-#' If a set of cells/samples to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
-#' Then, a vertical bar plot is generated (\code{ggplot2::geom_col()})
+#' The function creates a dataframe containing counts and percent makeup of \code{var} identities per sample if \code{sample.by} is given, or per group if only \code{group.by} is given.
+#' Typically, \code{var} might be given clusters or cell type annotations, but it can be given any discrete data.
+#' 
+#' If a set of cells to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
+#' 
+#' If \code{max.normalized} is set to \code{TRUE}, counts and percent data are transformed to a 0-1 scale, which makes better use of white space for lower frequency \code{var}-values.
 #'
-#' Finally, data is plotted with the data representation types in \code{plots}, showing either percent of total if
-#' \code{scale = "percent"}, which is the default, or raw counts if \code{scale = "count"}.
-#'
+#' Either percent of total (\code{scale = "percent"}), which is the default, or counts (if \code{scale = "count"})
+#' data is then (gg)plotted with the data representation types in \code{plots} by utilizing the same machinery as \code{\link{dittoPlot}}.
+#' Faceting by \code{var}-data values is utilized to achieve per \code{var}-value (e.g. cluster or cell type) granularity.
+#' 
 #' @section Plot Customization:
 #' The \code{plots} argument determines the types of \strong{data representation} that will be generated, as well as their order from back to front.
 #' Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
@@ -52,6 +59,9 @@
 #' \item \strong{x-axis labels and groupings} can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
 #' \item \strong{Shapes used} in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
 #' }
+#' 
+#' @seealso
+#' \code{\link{dittoBarPlot}} for a data representation that emphasizes total makeup of samples/groups rather than focusing on the \code{var}-data values individually.
 #'
 #' @examples
 #' example(importDittoBulk, echo = FALSE)
