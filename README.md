@@ -11,7 +11,7 @@ dittoSeq includes universal plotting and helper functions for working with (sc)R
   - edgeR, *DGEList* data structure
   - DESeq2 / other Bioconductor packages that utilize the *SummarizedExperiment* data structure
   
-All plotting functions spit out easy-to-read, color blind friendly, plots (ggplot2, plotly, or pheatmap) upon minimal coding input for your daily analysis needs, yet also allow sufficient manipulations to provide for out-of-the-box submission-quality figures!
+All plotting functions spit out easy-to-read, color blind friendly, plots (ggplot2, plotly, or pheatmap/ComplexHeatmap) upon minimal coding input for your daily analysis needs, yet also allow sufficient manipulations to provide for out-of-the-box submission-quality figures!
 
 dittoSeq also makes access of underlying data easy, for submitting to journals or for adding extra layers to the plot, with `data.out = TRUE` inputs!
 
@@ -21,7 +21,7 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 #### Updates coming in dittoSeq v1.4:
 
-- \*Added a new visualization: `dittoFreqPlot()`:
+- Added 1 New Visualization Function: `dittoFreqPlot()`:
   - Combines the population frequency summarization of `dittoBarPlot` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons!
 - Improved & expanded faceting capabilities with `split.by` inputs:
     - Added `split.by` to functions which did not have it: `dittoBarPlot()`, `dittoDotPlot()`, and `dittoPlotVarsAcrossGroups()` 

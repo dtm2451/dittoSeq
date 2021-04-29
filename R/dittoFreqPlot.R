@@ -1,22 +1,33 @@
-#' Plots cell-type/cluster/identity frequencies per sample and per grouping
-#' @import ggplot2
+#' Plot cell type/cluster/identity frequencies per sample and per grouping
 #'
-#' @inheritParams dittoBarPlot
 #' @inheritParams dittoPlot
+#' @inheritParams dittoBarPlot
 #' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}.
 #' @param sample.by String name of a metadata containing which samples each cell belongs to.
 #' 
-#' Note that when this is not provided, there will only be one data point per grouping. Warning can be expected then for all \code{plot} options except \code{"jitter"}.
+#' Note that when this is not provided, there will only be one data point per grouping. A warning can be expected then for all \code{plot} options except \code{"jitter"}.
 #' @param vars.use String or string vector naming a subset of the values of \code{var}-data which should be shown.
 #' If left as \code{NULL}, all values are shown.
 #' 
 #' Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess options.
 #' 
-#' Note: When \code{var.labels.rename} is jointly utilized to update how the \code{var}-values are shown, the \strong{updated} values will be prioritized in case of conflict, but you can give \emph{either} the original or updated names to \code{vars.use}.
+#' Note: When \code{var.labels.rename} is jointly utilized to update how the \code{var}-values are shown, the \strong{updated} values must be used.
+#' @param var.labels.rename String vector for renaming the distinct identities of \code{var}-values.
+#' 
+#' Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess current values.
+#' @param var.labels.reorder Integer vector. A sequence of numbers, from 1 to the number of distinct \code{var}-value identities, for rearranging the order of facets within the plot space.
+#'
+#' Method: Make a first plot without this input.
+#' Then, treating the top-left-most grouping as index 1, and the bottom-right-most as index n.
+#' Values of \code{var.labels.reorder} should be these indices, but in the order that you would like them rearranged to be.
 #' @param max.normalize Logical which sets whether the data for each \code{var}-data value (each facet) should be normalized to have the same maximum value.
-#' When set to \code{TRUE}, lower frequency vars will make use of just as much plot space as higher frequency vars.
-#' @param nrow,ncol Integers which set the dimensions of the facet grid. (\code{split.nrow} and \code{split.ncol} equivalent of other functions)
-#' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
+#' 
+#' When set to \code{TRUE}, lower frequency \code{var}-values will make use of just as much plot space as higher frequency vars.
+#' @param nrow,ncol Integers which set the dimensions of the facet grid. (the \code{split.nrow} and \code{split.ncol} equivalent of other functions)
+#' @param ylab String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
+#' Default = "make" and if left as make, a title will be automatically generated.
+#' 
+#' @return A ggplot plot where frequencies of discrete data, grouped by sample, condition, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
 #' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
 #'
@@ -26,6 +37,8 @@
 #' Typically, \code{var} might be given clusters or cell type annotations, but it can be given any discrete data.
 #' 
 #' If a set of cells to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
+#' 
+#' If a set of \code{var}-values to show is indicated with the \code{vars.use} input, the data.frame is trimmed to include only corresponding rows.
 #' 
 #' If \code{max.normalized} is set to \code{TRUE}, counts and percent data are transformed to a 0-1 scale, which makes better use of white space for lower frequency \code{var}-values.
 #'
@@ -54,16 +67,16 @@
 #' \item \strong{Line(s) can be added} at single or multiple value(s) by providing these values to \code{add.line}.
 #' Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 #' \item \strong{Titles and axes labels} can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
-#' \item The \strong{legend can be hidden} by setting \code{legend.show = TRUE}.
+#' \item The \strong{legend can be hidden} by setting \code{legend.show = FALSE}.
 #' \item \strong{y-axis zoom and tick marks} can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
-#' \item \strong{x-axis labels and groupings} can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
-#' \item \strong{Shapes used} in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
+#' \item \strong{x-axis labels and groupings} can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned on/off with \code{x.labels.rotate = TRUE/FALSE}.
 #' }
 #' 
 #' @seealso
 #' \code{\link{dittoBarPlot}} for a data representation that emphasizes total makeup of samples/groups rather than focusing on the \code{var}-data values individually.
 #'
 #' @examples
+#' # Establish some workable example data
 #' example(importDittoBulk, echo = FALSE)
 #' myRNA1 <- myRNA
 #' colnames(myRNA) <- paste0(colnames(myRNA),"_1")
@@ -78,25 +91,26 @@
 #' # There are three necessary inputs for this function.
 #' #  var = typically this will be cell types annotations or clustering
 #' #  sample.by = the name of a metadata containing sample assignment of cells.
-#' #  group.by = how to group group the data on the x-axis (y-axis for ridgeplots)
+#' #  group.by = how to group the data on the x-axis (y-axis for ridgeplots)
 #' dittoFreqPlot(myRNA,
 #'     var = "clustering",
 #'     sample.by = "sample",
 #'     group.by = "groups")
 #'     
-#' # color.by can also be set differently from group.by to have the effect of
-#' #  adding subgroupings:
+#' # 'color.by' can also be set differently from 'group.by' to have the effect
+#' #  of highlighting supersets or subgroupings:
 #' dittoFreqPlot(myRNA, "clustering",
 #'     group.by = "groups",
 #'     sample.by = "sample",
 #'     color.by = "subgroups")
 #' 
-#' # The var-values shown can be subset with vars.use
+#' # The var-values shown can be subset with 'vars.use'
 #' dittoFreqPlot(myRNA, "clustering",
 #'     group.by = "groups", sample.by = "sample", color.by = "subgroups",
 #'     vars.use = 1:2)
 #' 
-#' # Lower frequency groups can be 
+#' # Lower frequency groups can be expanded to use the entire y-axis by turning
+#' #  on 'max.normalize'-ation: 
 #' dittoFreqPlot(myRNA, "clustering",
 #'     group.by = "groups", sample.by = "sample", color.by = "subgroups",
 #'     max.normalize = TRUE)

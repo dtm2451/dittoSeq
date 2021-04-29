@@ -2,7 +2,7 @@
 % Please edit documentation in R/dittoFreqPlot.R
 \name{dittoFreqPlot}
 \alias{dittoFreqPlot}
-\title{Plots cell-type/cluster/identity frequencies per sample and per grouping}
+\title{Plot cell type/cluster/identity frequencies per sample and per grouping}
 \usage{
 dittoFreqPlot(
   object,
@@ -69,75 +69,79 @@ dittoFreqPlot(
 
 \item{sample.by}{String name of a metadata containing which samples each cell belongs to.
 
-Note that when this is not provided, there will only be one data point per grouping. Warning can be expected then for all \code{plot} options except \code{"jitter"}.}
+Note that when this is not provided, there will only be one data point per grouping. A warning can be expected then for all \code{plot} options except \code{"jitter"}.}
 
-\item{group.by}{String name of a metadata to use for separating the cells/samples into discrete groups.}
+\item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
 \item{color.by}{String representing the name of a metadata to use for setting fills.
-Great for highlighting subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
-Affects boxplot, vlnplot, and ridgeplot fills.}
+Great for highlighting supersets or subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.}
 
 \item{vars.use}{String or string vector naming a subset of the values of \code{var}-data which should be shown.
 If left as \code{NULL}, all values are shown.
 
 Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess options.
 
-Note: When \code{var.labels.rename} is jointly utilized to update how the \code{var}-values are shown, the \strong{updated} values will be prioritized in case of conflict, but you can give \emph{either} the original or updated names to \code{vars.use}.}
+Note: When \code{var.labels.rename} is jointly utilized to update how the \code{var}-values are shown, the \strong{updated} values must be used.}
 
-\item{scale}{"count" or "percent". Sets whether data should be shown as raw counts or scaled to 1 and shown as a percentage.}
+\item{scale}{"count" or "percent". Sets whether data should be shown as counts versus percentage.}
 
 \item{max.normalize}{Logical which sets whether the data for each \code{var}-data value (each facet) should be normalized to have the same maximum value.
-When set to \code{TRUE}, lower frequency vars will make use of just as much plot space as higher frequency vars.}
+
+When set to \code{TRUE}, lower frequency \code{var}-values will make use of just as much plot space as higher frequency vars.}
 
 \item{plots}{String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
+
 Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
+
 See details section for more info.}
 
-\item{nrow, ncol}{Integers which set the dimensions of the facet grid. (\code{split.nrow} and \code{split.ncol} equivalent of other functions)}
+\item{nrow, ncol}{Integers which set the dimensions of the facet grid. (the \code{split.nrow} and \code{split.ncol} equivalent of other functions)}
 
-\item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
+\item{cells.use}{String vector of cells'(/samples' for bulk data) names OR an integer vector specifying the indices of cells/samples which should be included.
 
-Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
+Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
-Note: When \code{cells.use} is combined with \code{scale = "percent"}, left out cells are not considered in calculating percentages. Percents will always total to 1.}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.}
+\item{do.hover}{Logical. Default = \code{FALSE}.
+If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),}
 
-\item{do.hover}{Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.}
+\item{color.panel}{String vector which sets the colors to draw from for plot fills.
+Default = \code{dittoColors()}.}
 
-\item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default.}
-
-\item{colors}{Integer vector, which sets the indexes / order, of colors from color.panel to actually use.
+\item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use.
 (Provides an alternative to directly modifying \code{color.panel}.)}
 
-\item{y.breaks}{Numeric vector which sets the plot's tick marks / major gridlines. c(break1,break2,break3,etc.)}
+\item{y.breaks}{Numeric vector, a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.).}
 
 \item{min}{Scalars which control the zoom of the plot.
-These inputs set the minimum / maximum values of the y-axis.
-Default = set based on the limits of the data, 0 to 1 for \code{scale = "percent"}, or 0 to maximum count for 0 to 1 for \code{scale = "count"}.}
+These inputs set the minimum / maximum values of the data to show.
+Default = set based on the limits of the data in var.}
 
 \item{max}{Scalars which control the zoom of the plot.
-These inputs set the minimum / maximum values of the y-axis.
-Default = set based on the limits of the data, 0 to 1 for \code{scale = "percent"}, or 0 to maximum count for 0 to 1 for \code{scale = "count"}.}
+These inputs set the minimum / maximum values of the data to show.
+Default = set based on the limits of the data in var.}
 
-\item{var.labels.rename}{String vector for renaming the distinct identities of \code{var} values.}
+\item{var.labels.rename}{String vector for renaming the distinct identities of \code{var}-values.
 
-\item{var.labels.reorder}{Integer vector. A sequence of numbers, from 1 to the number of distinct \code{var} value idententities, for rearranging the order of labels' groupings within the plot.
+Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess current values.}
+
+\item{var.labels.reorder}{Integer vector. A sequence of numbers, from 1 to the number of distinct \code{var}-value identities, for rearranging the order of facets within the plot space.
 
 Method: Make a first plot without this input.
-Then, treating the top-most grouping as index 1, and the bottom-most as index n.
+Then, treating the top-left-most grouping as index 1, and the bottom-right-most as index n.
 Values of \code{var.labels.reorder} should be these indices, but in the order that you would like them rearranged to be.}
 
-\item{x.labels}{String vector which will replaceme the x-axis groupings' labels.
-Regardless of \code{x.reorder}, the first component of \code{x.labels} sets the name for the left-most x-axis grouping.}
+\item{x.labels}{String vector, c("label1","label2","label3",...) which overrides the names of groupings.}
 
-\item{x.labels.rotate}{Logical which sets whether the x-axis grouping labels should be rotated.}
+\item{x.labels.rotate}{Logical which sets whether the labels should be rotated.
+Default: \code{TRUE} for violin and box plots, but \code{FALSE} for ridgeplots.}
 
 \item{x.reorder}{Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
 
 Method: Make a first plot without this input.
 Then, treating the leftmost grouping as index 1, and the rightmost as index n.
-Values of \code{x.reorder} should be these indices, but in the order that you would like them rearranged to be.
+Values of x.reorder should be these indices, but in the order that you would like them rearranged to be.
 
 Recommendation for advanced users: If you find yourself coming back to this input too many times, an alternative solution that can be easier long-term
 is to make the target data into a factor, and to put its levels in the desired order: \code{factor(data, levels = c("level1", "level2", ...))}.
@@ -147,13 +151,13 @@ is to make the target data into a factor, and to put its levels in the desired o
 Default = \code{theme_classic()}.
 See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.}
 
-\item{xlab}{String which sets the x-axis title.
-Default is \code{group.by} so it defaults to the name of the grouping information.
+\item{xlab}{String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 Set to \code{NULL} to remove.}
 
-\item{ylab}{String which sets the y-axis title.}
+\item{ylab}{String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
+Default = "make" and if left as make, a title will be automatically generated.}
 
-\item{main}{String, sets the plot title}
+\item{main}{String, sets the plot title. Default = "make" and if left as make, a title will be automatically generated.  To remove, set to \code{NULL}.}
 
 \item{sub}{String, sets the plot subtitle}
 
@@ -191,11 +195,11 @@ By default, this input actually controls the value of \code{jitter.position.dodg
 
 \item{vlnplot.lineweight}{Scalar which sets the thickness of the line that outlines the violin plots.}
 
-\item{vlnplot.width}{Scalar which sets the width/spread of the jitter in the x direction}
+\item{vlnplot.width}{Scalar which sets the width/spread of violin plots in the x direction}
 
-\item{vlnplot.scaling}{String which sets how the widths of the of violin plots are set in relation to eachother.
-Options are "area", "count", and "width". If the deafult is not right for your data, I recommend trying "width".
-For a detailed explanation of each, see \code{\link{geom_violin}}.}
+\item{vlnplot.scaling}{String which sets how the widths of the of violin plots are set in relation to each other.
+Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
+For an explanation of each, see \code{\link{geom_violin}}.}
 
 \item{ridgeplot.lineweight}{Scalar which sets the thickness of the ridgeplot outline.}
 
@@ -216,32 +220,34 @@ Overridden by \code{ridgeplot.binwidth} when that input is provided.}
 \item{ridgeplot.binwidth}{Integer which sets the width of chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
 Takes precedence over \code{ridgeplot.bins} when provided.}
 
-\item{add.line}{numeric value(s) where one or multiple line should be added}
+\item{add.line}{numeric value(s) where one or multiple line(s) should be added}
 
 \item{line.linetype}{String which sets the type of line for \code{add.line}.
 Defaults to "dashed", but any ggplot linetype will work.}
 
 \item{line.color}{String that sets the color(s) of the \code{add.line} line(s)}
 
-\item{legend.show}{Logical which sets whether the legend should be displayed.}
+\item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 
-\item{legend.title}{String which adds a title to the legend.}
+\item{legend.title}{String or \code{NULL}, sets the title for the main legend which includes colors and data representations.}
 }
 \value{
-A ggplot plot where discrete data, grouped by sample, condition, cluster, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
+A ggplot plot where frequencies of discrete data, grouped by sample, condition, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 
 Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
 
 Alternatively, if \code{do.hover = TRUE}, a plotly conversion of the ggplot output in which underlying data can be retrieved upon hovering the cursor over the plot.
 }
 \description{
-Plots cell-type/cluster/identity frequencies per sample and per grouping
+Plot cell type/cluster/identity frequencies per sample and per grouping
 }
 \details{
 The function creates a dataframe containing counts and percent makeup of \code{var} identities per sample if \code{sample.by} is given, or per group if only \code{group.by} is given.
 Typically, \code{var} might be given clusters or cell type annotations, but it can be given any discrete data.
 
 If a set of cells to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
+
+If a set of \code{var}-values to show is indicated with the \code{vars.use} input, the data.frame is trimmed to include only corresponding rows.
 
 If \code{max.normalized} is set to \code{TRUE}, counts and percent data are transformed to a 0-1 scale, which makes better use of white space for lower frequency \code{var}-values.
 
@@ -271,14 +277,14 @@ The other two: \code{boxplot.position.dodge}, and \code{jitter.position.dodge}.
 \item \strong{Line(s) can be added} at single or multiple value(s) by providing these values to \code{add.line}.
 Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 \item \strong{Titles and axes labels} can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
-\item The \strong{legend can be hidden} by setting \code{legend.show = TRUE}.
+\item The \strong{legend can be hidden} by setting \code{legend.show = FALSE}.
 \item \strong{y-axis zoom and tick marks} can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
-\item \strong{x-axis labels and groupings} can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
-\item \strong{Shapes used} in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
+\item \strong{x-axis labels and groupings} can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned on/off with \code{x.labels.rotate = TRUE/FALSE}.
 }
 }
 
 \examples{
+# Establish some workable example data
 example(importDittoBulk, echo = FALSE)
 myRNA1 <- myRNA
 colnames(myRNA) <- paste0(colnames(myRNA),"_1")
@@ -293,25 +299,26 @@ myRNA
 # There are three necessary inputs for this function.
 #  var = typically this will be cell types annotations or clustering
 #  sample.by = the name of a metadata containing sample assignment of cells.
-#  group.by = how to group group the data on the x-axis (y-axis for ridgeplots)
+#  group.by = how to group the data on the x-axis (y-axis for ridgeplots)
 dittoFreqPlot(myRNA,
     var = "clustering",
     sample.by = "sample",
     group.by = "groups")
     
-# color.by can also be set differently from group.by to have the effect of
-#  adding subgroupings:
+# 'color.by' can also be set differently from 'group.by' to have the effect
+#  of highlighting supersets or subgroupings:
 dittoFreqPlot(myRNA, "clustering",
     group.by = "groups",
     sample.by = "sample",
     color.by = "subgroups")
 
-# The var-values shown can be subset with vars.use
+# The var-values shown can be subset with 'vars.use'
 dittoFreqPlot(myRNA, "clustering",
     group.by = "groups", sample.by = "sample", color.by = "subgroups",
     vars.use = 1:2)
 
-# Lower frequency groups can be 
+# Lower frequency groups can be expanded to use the entire y-axis by turning
+#  on 'max.normalize'-ation: 
 dittoFreqPlot(myRNA, "clustering",
     group.by = "groups", sample.by = "sample", color.by = "subgroups",
     max.normalize = TRUE)

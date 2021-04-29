@@ -85,8 +85,7 @@ This is the data that will be displayed.}
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
 \item{color.by}{String representing the name of a metadata to use for setting fills.
-Great for highlighting subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
-Affects boxplot, vlnplot, and ridgeplot fills.}
+Great for highlighting supersets or subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.}
 
 \item{shape.by}{Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.}
 
@@ -100,12 +99,14 @@ When 1 metadata is named, shape control can be achieved with \code{split.nrow} a
 
 Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.}
 
-\item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
+\item{cells.use}{String vector of cells'(/samples' for bulk data) names OR an integer vector specifying the indices of cells/samples which should be included.
 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
 \item{plots}{String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
+
 Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
+
 See details section for more info.}
 
 \item{assay, slot}{single strings or integer that set which data to use when plotting gene expression / feature data. See \code{\link{gene}} for more information.}
@@ -154,7 +155,7 @@ Default = set based on the limits of the data in var.}
 \item{xlab}{String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 Set to \code{NULL} to remove.}
 
-\item{x.labels}{String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.}
+\item{x.labels}{String vector, c("label1","label2","label3",...) which overrides the names of groupings.}
 
 \item{x.labels.rotate}{Logical which sets whether the labels should be rotated.
 Default: \code{TRUE} for violin and box plots, but \code{FALSE} for ridgeplots.}
@@ -210,11 +211,11 @@ By default, this input actually controls the value of \code{jitter.position.dodg
 
 \item{vlnplot.lineweight}{Scalar which sets the thickness of the line that outlines the violin plots.}
 
-\item{vlnplot.width}{Scalar which sets the width/spread of the jitter in the x direction}
+\item{vlnplot.width}{Scalar which sets the width/spread of violin plots in the x direction}
 
-\item{vlnplot.scaling}{String which sets how the widths of the of violin plots are set in relation to eachother.
-Options are "area", "count", and "width". If the deafult is not right for your data, I recommend trying "width".
-For a detailed explanation of each, see \code{\link{geom_violin}}.}
+\item{vlnplot.scaling}{String which sets how the widths of the of violin plots are set in relation to each other.
+Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
+For an explanation of each, see \code{\link{geom_violin}}.}
 
 \item{ridgeplot.lineweight}{Scalar which sets the thickness of the ridgeplot outline.}
 
@@ -235,7 +236,7 @@ Overridden by \code{ridgeplot.binwidth} when that input is provided.}
 \item{ridgeplot.binwidth}{Integer which sets the width of chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
 Takes precedence over \code{ridgeplot.bins} when provided.}
 
-\item{add.line}{numeric value(s) where one or multiple line should be added}
+\item{add.line}{numeric value(s) where one or multiple line(s) should be added}
 
 \item{line.linetype}{String which sets the type of line for \code{add.line}.
 Defaults to "dashed", but any ggplot linetype will work.}
@@ -244,8 +245,7 @@ Defaults to "dashed", but any ggplot linetype will work.}
 
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 
-\item{legend.title}{String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
-This input is set to \code{NULL} by default.}
+\item{legend.title}{String or \code{NULL}, sets the title for the main legend which includes colors and data representations.}
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).}
 
@@ -309,9 +309,9 @@ The other two: \code{boxplot.position.dodge}, and \code{jitter.position.dodge}.
 \item \strong{Line(s) can be added} at single or multiple value(s) by providing these values to \code{add.line}.
 Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
 \item \strong{Titles and axes labels} can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
-\item The \strong{legend can be hidden} by setting \code{legend.show = TRUE}.
+\item The \strong{legend can be hidden} by setting \code{legend.show = FALSE}.
 \item \strong{y-axis zoom and tick marks} can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
-\item \strong{x-axis labels and groupings} can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
+\item \strong{x-axis labels and groupings} can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned on/off with \code{x.labels.rotate = TRUE/FALSE}.
 \item \strong{Shapes used} in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
 \item Single or multiple \strong{additional per-cell features can be retrieved} and stashed within the underlying data using \code{extra.vars}.
 This can be very useful for making manual additional alterations \emph{after} dittoSeq plot generation.
