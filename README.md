@@ -22,15 +22,19 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 #### Updates coming in dittoSeq v1.4:
 
 - Added 1 New Visualization Function: `dittoFreqPlot()`:
-  - Combines the population frequency summarization of `dittoBarPlot` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons!
+  - Combines the population frequency summarization of `dittoBarPlot()` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons which focus on individual cell types / clusters!
 - Improved & expanded faceting capabilities with `split.by` inputs:
     - Added `split.by` to functions which did not have it: `dittoBarPlot()`, `dittoDotPlot()`, and `dittoPlotVarsAcrossGroups()` 
     - Better compatibility with other features
         - works with labeling of Dim/Scatter plots
         - new `split.show.all.others` input now controls whether the full spectrum of points, versus just points excluded with `cells.use`, will be shown as light gray in the background of Dim/Scatter facets.
-- Improved ridge-plotting:
-    - Added an alternative histogram-shaping option (Try adding `ridgeplot.shape = "hist"`!)
-    - Better use of white space (via adjustments to default plot grid expansion & exposure of a `ridgeplot.ymax.expansion` input to allow user override.)
+- Improved `dittoPlot()`-plotting engine:
+    - y-axis plotting:
+        - geom dodging when `color.by` is used to add subgroupings now works for jitters too.
+        - added a `boxplot.lineweight` control option.
+    - x-axis / ridge-plotting:
+        - Added an alternative histogram-shaping option (Try adding `ridgeplot.shape = "hist"`!)
+        - Better use of white space (via adjustments to default plot grid expansion & exposure of a `ridgeplot.ymax.expansion` input to allow user override.)
 - Improved ordering capability for `dittoHeatmap()` & `dittoBarPlot()`:
     - `dittoHeatmap()`: You can now give many metadata to `order.by` and it will use them all, prioritizing earliest items
     - `dittoBarPlot()`: Factor-level ordering will now be retained in dittoBarPlot for `var` and `group.by` data by default, a typically expected behavior. Old versions' behavior can be brought back by setting `retain.factor.levels = TRUE`.
