@@ -3,13 +3,26 @@
 
 sce1 <- sce
 colnames(sce1) <- paste0(colnames(sce1),"_1")
-
-sce <- cbind(sce, sce1)
+# sce <- cbind(sce, sce1)
+sce <- setBulk(
+    importDittoBulk(
+        x = list(counts = cbind(
+            SummarizedExperiment::assay(sce, 1),
+            SummarizedExperiment::assay(sce1, 1)
+        )),
+        metadata = rbind(
+            colData(sce),
+            colData(sce1)
+        )
+    ),
+    FALSE)
 
 sce$number <- as.numeric(seq_along(colnames(sce)))
 sce$sample <- rep(1:15, each = 10)
 sce$groups <- c(rep("A", 80), rep("B", 70))
 sce$subgroups <- rep(as.character(c(1:5,1:5,1:5)), each = 10)
+
+sce$clusters <- factor(sce$clusters, levels = 1:4)
 
 grp1 <- "clusters"
 grp2 <- "sample"
@@ -81,11 +94,26 @@ test_that("dittoFreqPlots can be subset to show only certain cells/samples with 
 })
 
 test_that("dittoFreqPlot can trim to individual var-values with vars.use", {
+    # MANUAL: single facet
+    expect_s3_class(
+        dittoFreqPlot(
+            setBulk(sce), grp1, sample.by = grp2, group.by = grp3,
+            vars.use = 1),
+        "ggplot")
+    
     # MANUAL: should only be two facets
     expect_s3_class(
         dittoFreqPlot(
             setBulk(sce), grp1, sample.by = grp2, group.by = grp3,
             vars.use = 1:2),
+        "ggplot")
+    
+    # MANUAL: Two facets, "A" & "B", same look otherwise as above
+    expect_s3_class(
+        dittoFreqPlot(
+            setBulk(sce), grp1, sample.by = grp2, group.by = grp3,
+            vars.use = c("A","B"),
+            var.labels.rename = c("A","B","C","D")),
         "ggplot")
 })
 
