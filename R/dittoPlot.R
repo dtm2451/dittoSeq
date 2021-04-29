@@ -1,6 +1,4 @@
-################################# dittoPlot ####################################
-#'
-#' Plots continuous data for cutomizable cells'/samples' groupings on a y-axis
+#' Plots continuous data for customizeable cells'/samples' groupings on a y- (or x-) axis
 #' @import ggplot2
 #'
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
@@ -366,7 +364,7 @@ dittoPlot <- function(
     }
 }
 
-#' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings horizontally in a density representation
+#' @describeIn dittoPlot Plots continuous data for customizeable cells'/samples' groupings horizontally in a density representation
 #' @export
 dittoRidgePlot <- function(..., plots = c("ridgeplot")){ dittoPlot(..., plots = plots) }
 
@@ -374,7 +372,7 @@ dittoRidgePlot <- function(..., plots = c("ridgeplot")){ dittoPlot(..., plots = 
 #' @export
 dittoRidgeJitter <- function(..., plots = c("ridgeplot", "jitter")){ dittoPlot(..., plots = plots) }
 
-#' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings in boxplot form
+#' @describeIn dittoPlot Plots continuous data for customizeable cells'/samples' groupings in boxplot form
 #' @export
 dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plots = plots) }
 

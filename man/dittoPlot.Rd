@@ -5,7 +5,7 @@
 \alias{dittoRidgePlot}
 \alias{dittoRidgeJitter}
 \alias{dittoBoxPlot}
-\title{Plots continuous data for cutomizable cells'/samples' groupings on a y-axis}
+\title{Plots continuous data for customizeable cells'/samples' groupings on a y- (or x-) axis}
 \usage{
 dittoPlot(
   object,
@@ -260,7 +260,7 @@ Alternatively when \code{data.out=TRUE}, a list containing the plot ("p") and th
 Alternatively when \code{do.hover = TRUE}, a plotly converted version of the ggplot where additional data will be displayed when the cursor is hovered over jitter points.
 }
 \description{
-Plots continuous data for cutomizable cells'/samples' groupings on a y-axis
+Plots continuous data for customizeable cells'/samples' groupings on a y- (or x-) axis
 }
 \details{
 The function creates a dataframe containing the metadata or expression data associated with the given \code{var} (or if a vector of data is provided, that data).
@@ -280,11 +280,11 @@ to make such plots even easier to produce.
 }
 \section{Functions}{
 \itemize{
-\item \code{dittoRidgePlot}: Plots continuous data for cutomizable cells'/samples' groupings horizontally in a density representation
+\item \code{dittoRidgePlot}: Plots continuous data for customizeable cells'/samples' groupings horizontally in a density representation
 
 \item \code{dittoRidgeJitter}: dittoRidgePlot, but with jitter overlaid
 
-\item \code{dittoBoxPlot}: Plots continuous data for cutomizable cells'/samples' groupings in boxplot form
+\item \code{dittoBoxPlot}: Plots continuous data for customizeable cells'/samples' groupings in boxplot form
 }}
 
 \section{Many characteristics of the plot can be adjusted using discrete inputs}{
