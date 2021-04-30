@@ -150,10 +150,7 @@ Then, a vertical bar plot is generated (\code{ggplot2::geom_col()}) showing eith
 }
 }
 
-\seealso{
-\code{\link{dittoFreqPlot}} for a data representation that focuses on pre-sample frequencies of each the \code{var}-data values individually, rather than emphasizing total makeup of samples/groups.
-
- @examples
+\examples{
 example(importDittoBulk, echo = FALSE)
 myRNA
 
@@ -189,6 +186,10 @@ dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels")
 # But that respect can be turned off...
 dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels",
     retain.factor.levels = FALSE)
+
+}
+\seealso{
+\code{\link{dittoFreqPlot}} for a data representation that focuses on pre-sample frequencies of each the \code{var}-data values individually, rather than emphasizing total makeup of samples/groups.
 }
 \author{
 Daniel Bunis

@@ -79,7 +79,7 @@
 #' @seealso
 #' \code{\link{dittoFreqPlot}} for a data representation that focuses on pre-sample frequencies of each the \code{var}-data values individually, rather than emphasizing total makeup of samples/groups.
 #'
-#'  @examples
+#' @examples
 #' example(importDittoBulk, echo = FALSE)
 #' myRNA
 #'
