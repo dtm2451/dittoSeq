@@ -3,6 +3,7 @@
 \encoding{UTF-8}
 
 \section{Version 1.3.13}{\itemize{
+\item Adds a `split.adjust` input, to all functions with `split.by`, for passing adjudstments like 'scales = "free"' through in the code where faceting is added.
 \item Documentation bug fix
 }}
 

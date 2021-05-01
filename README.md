@@ -25,6 +25,7 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
   - Combines the population frequency summarization of `dittoBarPlot()` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons which focus on individual cell types / clusters!
 - Improved & expanded faceting capabilities with `split.by` inputs:
     - Added `split.by` to functions which did not have it: `dittoBarPlot()`, `dittoDotPlot()`, and `dittoPlotVarsAcrossGroups()` 
+    - Added `split.adjust` input to allow tweaks to the underlying `facet_grid()` and `facet_wrap()` calls.
     - Better compatibility with other features
         - works with labeling of Dim/Scatter plots
         - new `split.show.all.others` input now controls whether the full spectrum of points, versus just points excluded with `cells.use`, will be shown as light gray in the background of Dim/Scatter facets.
