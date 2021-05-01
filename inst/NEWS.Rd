@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.13}{\itemize{
+\item Documentation bug fix
+}}
+
 \section{Version 1.3.12}{\itemize{
 \item Adds the entirely new Viz fxn: `dittoFreqPlot()`.
 \item Improves the `dittoPlot()`-plotting engine (which affects `dittoPlot()` & `dittoPlotVarsAcrossGroups()`, and `dittoFreqPlot()`) by: incorporating a position-dodge fix for jitter-plots when `color.by` is used for subgrouping; and adding a `boxplot.lineweight` control option.
