@@ -34,6 +34,7 @@ dittoDotPlot(
   x.labels.rotate = TRUE,
   split.nrow = NULL,
   split.ncol = NULL,
+  split.adjust = list(),
   theme = theme_classic(),
   legend.show = TRUE,
   legend.color.breaks = waiver(),
@@ -119,6 +120,12 @@ Set to \code{NULL} to remove.}
 \item{split.nrow}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_classic()}.

@@ -23,7 +23,11 @@
 #' @param max.normalize Logical which sets whether the data for each \code{var}-data value (each facet) should be normalized to have the same maximum value.
 #' 
 #' When set to \code{TRUE}, lower frequency \code{var}-values will make use of just as much plot space as higher frequency vars.
-#' @param nrow,ncol Integers which set the dimensions of the facet grid. (the \code{split.nrow} and \code{split.ncol} equivalent of other functions)
+#' @param split.nrow,split.ncol Integers which set the dimensions of the facet grid. (the \code{split.nrow} and \code{split.ncol} equivalent of other functions)
+#' @param split.adjust A named list which allows extra parameters to be pushed through to the faceting function call.
+#' List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+#' 
+#' Faceting for this dittoFreqPlot is always by the \code{var}-data, so see \code{\link[ggplot2]{facet_wrap}} for options.
 #' @param ylab String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
 #' Default = "make" and if left as make, a title will be automatically generated.
 #' 
@@ -128,8 +132,9 @@ dittoFreqPlot <- function(
     scale = c("percent", "count"),
     max.normalize = FALSE,
     plots = c("boxplot","jitter"),
-    nrow = NULL,
-    ncol = NULL,
+    split.nrow = NULL,
+    split.ncol = NULL,
+    split.adjust = list(),
     cells.use = NULL,
     data.out = FALSE,
     do.hover = FALSE,
@@ -259,7 +264,7 @@ dittoFreqPlot <- function(
     
     # Split by 'var' to have the desired per element effect!
     p <- .add_splitting(
-        p, "label", nrow, ncol, object, cells.use)
+        p, "label", split.nrow, split.ncol, object, split.adjust)
     
     ### Add extra features
     if (!legend.show) {

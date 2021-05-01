@@ -160,6 +160,7 @@ dittoDotPlot <- function(
     x.labels.rotate = TRUE,
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     theme = theme_classic(),
     legend.show = TRUE,
     legend.color.breaks = waiver(),
@@ -215,7 +216,7 @@ dittoDotPlot <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, cells.use)
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
     }
 
     if (do.hover) {

@@ -211,3 +211,22 @@ test_that("dittoBarPlot can be faceted with 'split.by'", {
             cells.use = seurat$number<50),
         "ggplot")
 })
+
+test_that("'split.by' can be given extra features", {
+    # MANUAL: white space utilized fully
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3, scale = "count", split.ncol = 1,
+            cells.use = meta(grp3,seurat)==1,
+            split.by = grp1,
+            split.adjust = list(scales = "free"), max = NA
+            ),
+        "ggplot")
+    # MANUAL: white space utilized fully
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            split.by = c(grp1,grp3),
+            split.adjust = list(scales = "free")),
+        "ggplot")
+})

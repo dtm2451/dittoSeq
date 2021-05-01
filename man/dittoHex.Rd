@@ -21,6 +21,7 @@ dittoDimHex(
   extra.vars = NULL,
   split.nrow = NULL,
   split.ncol = NULL,
+  split.adjust = list(),
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -81,6 +82,7 @@ dittoScatterHex(
   colors = seq_along(color.panel),
   split.nrow = NULL,
   split.ncol = NULL,
+  split.adjust = list(),
   assay.x = .default_assay(object),
   slot.x = .default_slot(object),
   adjustment.x = NULL,
@@ -180,6 +182,12 @@ When 1 metadata is named, shape control can be achieved with \code{split.nrow} a
 Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{assay, slot, adjustment, assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
 

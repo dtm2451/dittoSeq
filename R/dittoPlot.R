@@ -15,6 +15,11 @@
 #' When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
 #'
 #' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
+#' @param split.adjust A named list which allows extra parameters to be pushed through to the faceting function call.
+#' List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+#' 
+#' For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+#' OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
@@ -259,6 +264,7 @@ dittoPlot <- function(
     x.reorder = NULL,
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     do.raster = FALSE,
     raster.dpi = 300,
     jitter.size = 1,
@@ -344,7 +350,7 @@ dittoPlot <- function(
     # Extra tweaks
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, cells.use)
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
     }
     if (!legend.show) {
         p <- .remove_legend(p)

@@ -39,6 +39,7 @@ dittoPlot(
   x.reorder = NULL,
   split.nrow = NULL,
   split.ncol = NULL,
+  split.adjust = list(),
   do.raster = FALSE,
   raster.dpi = 300,
   jitter.size = 1,
@@ -171,6 +172,12 @@ is to make the target data into a factor, and to put its levels in the desired o
 \code{\link{metaLevels}} can be used to quickly get the identities that need to be part of this 'levels' input.}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.}

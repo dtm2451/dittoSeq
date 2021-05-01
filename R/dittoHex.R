@@ -162,6 +162,7 @@ dittoDimHex <- function(
     extra.vars = NULL,
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
@@ -230,7 +231,7 @@ dittoDimHex <- function(
         object, xdat$embeddings, ydat$embeddings, color.var, bins,
         color.method, split.by,
         extra.vars, cells.use, color.panel, colors,
-        split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
+        split.nrow, split.ncol, split.adjust, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
         swap.rownames,
         min.density, max.density, min.color, max.color,
@@ -280,6 +281,7 @@ dittoScatterHex <- function(
     colors = seq_along(color.panel),
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     assay.x = .default_assay(object),
     slot.x = .default_slot(object),
     adjustment.x = NULL,
@@ -383,7 +385,7 @@ dittoScatterHex <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, cells.use)
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
     }
     
     if (do.contour) {

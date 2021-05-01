@@ -132,6 +132,7 @@ dittoBarPlot <- function(
     colors = seq_along(color.panel),
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     y.breaks = NA,
     min = 0,
     max = NULL,
@@ -212,7 +213,7 @@ dittoBarPlot <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, cells.use)
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
     }
 
     if (!legend.show) {

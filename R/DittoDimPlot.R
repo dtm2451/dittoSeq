@@ -46,6 +46,11 @@
 #'
 #' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
 #' @param split.show.all.others Logical which sets whether gray "others" cells of facets should include all cells of other facets (\code{TRUE}) versus just cells left out by \code{cell.use} (\code{FALSE}).
+#' @param split.adjust A named list which allows extra parameters to be pushed through to the faceting function call.
+#' List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+#' 
+#' For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+#' OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom splitting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
@@ -256,6 +261,7 @@ dittoDimPlot <- function(
     cells.use = NULL,
     shape.by = NULL,
     split.by = NULL,
+    split.adjust = list(),
     extra.vars = NULL,
     show.others = TRUE,
     split.show.all.others = TRUE,
@@ -342,7 +348,7 @@ dittoDimPlot <- function(
         object, xdat$embeddings, ydat$embeddings, var, shape.by, split.by,
         extra.vars, cells.use, show.others, split.show.all.others,
         size, opacity, color.panel, colors,
-        split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
+        split.nrow, split.ncol, split.adjust, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay, slot, adjustment, swap.rownames,
         shape.panel, rename.var.groups, rename.shape.groups,
         min.color, max.color, min, max, order,

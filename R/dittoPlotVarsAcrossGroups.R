@@ -188,6 +188,7 @@ dittoPlotVarsAcrossGroups <- function(
     line.color = "black",
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     legend.show = TRUE,
     legend.title = NULL,
     data.out = FALSE) {
@@ -252,7 +253,7 @@ dittoPlotVarsAcrossGroups <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, cells.use)
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
     }
     
     if (!legend.show) {

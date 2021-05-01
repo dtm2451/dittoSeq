@@ -17,6 +17,7 @@ dittoBarPlot(
   colors = seq_along(color.panel),
   split.nrow = NULL,
   split.ncol = NULL,
+  split.adjust = list(),
   y.breaks = NA,
   min = 0,
   max = NULL,
@@ -68,6 +69,12 @@ Note: When \code{cells.use} is combined with \code{scale = "percent"}, left out 
 \item{split.nrow}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{y.breaks}{Numeric vector which sets the plot's tick marks / major gridlines. c(break1,break2,break3,etc.)}
 

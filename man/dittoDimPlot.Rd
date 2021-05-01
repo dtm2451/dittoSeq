@@ -15,6 +15,7 @@ dittoDimPlot(
   cells.use = NULL,
   shape.by = NULL,
   split.by = NULL,
+  split.adjust = list(),
   extra.vars = NULL,
   show.others = TRUE,
   split.show.all.others = TRUE,
@@ -114,6 +115,12 @@ Even as a color blind person myself writing this code, I recommend use of colors
 When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
 
 When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
+
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 

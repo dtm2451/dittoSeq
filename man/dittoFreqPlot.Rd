@@ -14,8 +14,9 @@ dittoFreqPlot(
   scale = c("percent", "count"),
   max.normalize = FALSE,
   plots = c("boxplot", "jitter"),
-  nrow = NULL,
-  ncol = NULL,
+  split.nrow = NULL,
+  split.ncol = NULL,
+  split.adjust = list(),
   cells.use = NULL,
   data.out = FALSE,
   do.hover = FALSE,
@@ -95,7 +96,12 @@ Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the b
 
 See details section for more info.}
 
-\item{nrow, ncol}{Integers which set the dimensions of the facet grid. (the \code{split.nrow} and \code{split.ncol} equivalent of other functions)}
+\item{split.nrow, split.ncol}{Integers which set the dimensions of the facet grid. (the \code{split.nrow} and \code{split.ncol} equivalent of other functions)}
+
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+Faceting for this dittoFreqPlot is always by the \code{var}-data, so see \code{\link[ggplot2]{facet_wrap}} for options.}
 
 \item{cells.use}{String vector of cells'(/samples' for bulk data) names OR an integer vector specifying the indices of cells/samples which should be included.
 

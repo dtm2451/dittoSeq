@@ -176,6 +176,7 @@ dittoScatterPlot <- function(
     colors = seq_along(color.panel),
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     assay.x = .default_assay(object),
     slot.x = .default_slot(object),
     adjustment.x = NULL,
@@ -282,7 +283,7 @@ dittoScatterPlot <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, cells.use)
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
     }
     
     if (do.contour) {
