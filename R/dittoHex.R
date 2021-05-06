@@ -368,8 +368,15 @@ dittoScatterHex <- function(
     
     # Set titles if "make"
     main <- .leave_default_or_null(main,
-        default = ifelse(!color_by_var, "Density",
-            ifelse(length(color.var)==1, color.var, NULL)))
+        default = 
+            if (!color_by_var) {
+                "Density"
+            } else if (length(color.var)==1) {
+                color.var
+            } else {
+                NULL
+            }
+        )
     legend.color.title <- .leave_default_or_null(legend.color.title,
         default = paste(color.var, color.method, sep = ",\n"))
 
