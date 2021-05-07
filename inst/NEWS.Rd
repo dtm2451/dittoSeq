@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.14}{\itemize{
+\item Vignette Updata & current Seurat Bug Fix: Transitions the single-cell pre-processing chunk of the vignette from a Seurat workflow to a Bioc-OSCA-based workflow.
+}}
+
 \section{Version 1.3.13}{\itemize{
 \item Adds a `split.adjust` input, to all functions with `split.by`, for passing adjudstments like 'scales = "free"' through in the code where faceting is added.
 \item Documentation bug fix
