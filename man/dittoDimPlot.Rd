@@ -15,7 +15,10 @@ dittoDimPlot(
   cells.use = NULL,
   shape.by = NULL,
   split.by = NULL,
+  split.adjust = list(),
   extra.vars = NULL,
+  show.others = TRUE,
+  split.show.all.others = TRUE,
   split.nrow = NULL,
   split.ncol = NULL,
   assay = .default_assay(object),
@@ -25,10 +28,6 @@ dittoDimPlot(
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
   shape.panel = c(16, 15, 17, 23, 25, 8),
-  show.others = TRUE,
-  show.axes.numbers = TRUE,
-  show.grid.lines = if (is.character(reduction.use)) {     !grepl("umap|tsne",
-    tolower(reduction.use)) } else {     TRUE },
   min.color = "#F0E442",
   max.color = "#0072B2",
   min = NULL,
@@ -41,6 +40,9 @@ dittoDimPlot(
   rename.var.groups = NULL,
   rename.shape.groups = NULL,
   theme = theme_bw(),
+  show.axes.numbers = TRUE,
+  show.grid.lines = if (is.character(reduction.use)) {     !grepl("umap|tsne",
+    tolower(reduction.use)) } else {     TRUE },
   do.letter = FALSE,
   do.ellipse = FALSE,
   do.label = FALSE,
@@ -114,9 +116,19 @@ When 2 metadatas are named, c(row,col), the first is used as rows and the second
 
 When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
 
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
+
 \item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 
 Useful for making custom splitting/faceting or other additional alterations \emph{after} dittoSeq plot generation.}
+
+\item{show.others}{Logical. Whether other cells should be shown in the background in light gray. Default = TRUE.}
+
+\item{split.show.all.others}{Logical which sets whether gray "others" cells of facets should include all cells of other facets (\code{TRUE}) versus just cells left out by \code{cell.use} (\code{FALSE}).}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
@@ -145,14 +157,6 @@ Default is a set of 6, \code{c(16,15,17,23,25,8)}, the first being a simple, sol
 Note: Unfortunately, shapes can be hard to see when points are on top of each other & they are more slowly processed by the brain.
 For these reasons, even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.}
 
-\item{show.others}{Logical. Whether other cells should be shown in the background in light gray. Default = TRUE.}
-
-\item{show.axes.numbers}{Logical which controls whether the axes values should be displayed.}
-
-\item{show.grid.lines}{Logical which sets whether gridlines of the plot should be shown.
-They are removed when set to FALSE.
-Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.}
-
 \item{min.color}{color for lowest values of \code{var}/\code{min}.  Default = yellow}
 
 \item{max.color}{color for highest values of \code{var}/\code{max}.  Default = blue}
@@ -179,6 +183,12 @@ To remove, set to \code{NULL}.}
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_bw()}.
 See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.}
+
+\item{show.axes.numbers}{Logical which controls whether the axes values should be displayed.}
+
+\item{show.grid.lines}{Logical which sets whether gridlines of the plot should be shown.
+They are removed when set to FALSE.
+Default = FALSE for umap and tsne \code{reduction.use}, TRUE otherwise.}
 
 \item{do.letter}{Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
 NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
@@ -248,9 +258,7 @@ Default = 5. *Enlarging the colors legend is incredibly helpful for making color
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
-and a data.frame containing the underlying data for non-target cells ("Others_data").
-
-Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.}
+and a data.frame containing the underlying data for non-target cells ("Others_data").}
 }
 \value{
 A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.

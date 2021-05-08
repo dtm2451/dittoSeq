@@ -34,22 +34,25 @@ test_that("dittoBarPlot works for SCE", {
 
 test_that("dittoBarPlots can be subset to show only certain cells/samples with any cells.use method", {
     expect_s3_class(
-        c1 <- dittoBarPlot(
-            seurat, grp2, group.by = grp3,
-            cells.use = cells.names),
+        {c1 <- dittoBarPlot(
+            seurat, grp2, group.by = grp3,  data.out = TRUE,
+            cells.use = cells.names)
+        c1$p},
         "ggplot")
     expect_s3_class(
-        c2 <- dittoBarPlot(
-            seurat, grp2, group.by = grp3,
-            cells.use = cells.logical),
+        {c2 <- dittoBarPlot(
+            seurat, grp2, group.by = grp3, data.out = TRUE,
+            cells.use = cells.logical)
+        c2$p},
         "ggplot")
-    expect_equal(c1,c2)
+    expect_equal(c1$data, c2$data)
     expect_s3_class(
-        c3 <- dittoBarPlot(
-            seurat, grp2, group.by = grp3,
-            cells.use = 1:40),
+        {c3 <- dittoBarPlot(
+            seurat, grp2, group.by = grp3, data.out = TRUE,
+            cells.use = 1:40)
+        c3$p},
         "ggplot")
-    expect_equal(c1,c3)
+    expect_equal(c1$data, c3$data)
     # And if we remove an entire X grouping...
     expect_s3_class(
         dittoBarPlot(
@@ -179,5 +182,51 @@ test_that("dittoBarPlots x-labels can be adjusted", {
             seurat, grp2, group.by = grp3,
             scale = "count",
             x.labels = 4:7, x.labels.rotate = FALSE),
+        "ggplot")
+})
+
+test_that("dittoBarPlot can be faceted with 'split.by'", {
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            split.by = grp1),
+        "ggplot")
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            split.by = c(grp1,grp3)),
+        "ggplot")
+    
+    # Work with cells.use
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            split.by = grp1,
+            cells.use = seurat$number<50),
+        "ggplot")
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            split.by = c(grp1,grp3),
+            cells.use = seurat$number<50),
+        "ggplot")
+})
+
+test_that("'split.by' can be given extra features", {
+    # MANUAL: white space utilized fully
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3, scale = "count", split.ncol = 1,
+            cells.use = meta(grp3,seurat)==1,
+            split.by = grp1,
+            split.adjust = list(scales = "free"), max = NA
+            ),
+        "ggplot")
+    # MANUAL: white space utilized fully
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, grp2, group.by = grp3,
+            split.by = c(grp1,grp3),
+            split.adjust = list(scales = "free")),
         "ggplot")
 })

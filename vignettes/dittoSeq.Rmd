@@ -41,8 +41,8 @@ these formats:
 
 Single-Cell:
 
-- Seurat (versions 2 & 3)
 - SingleCellExperiment
+- Seurat (versions 2 & 3)
 
 Bulk:
 
@@ -94,20 +94,17 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("dittoSeq")
 ```
 
-## Some setup for this vignette that can be ignored
+## Some simple preprocessing
 
-Here, we will need to do some prep as the dataset we will use from
-@baron_single-cell_2016 is not normalized nor dimensionality reduced.
+For examples, we will use a pancreatic
+@baron_single-cell_2016 is not normalized nor dimensionality reduced upon
 
 ```{r}
-library(dittoSeq)
+## Download Data
 library(scRNAseq)
-library(SingleCellExperiment)
-library(Seurat)
-# Download data
 sce <- BaronPancreasData()
 # Trim to only 5 of the cell types for simplicity of vignette
-sce <- sce[,meta("label",sce) %in% c(
+sce <- sce[,sce$label %in% c(
     "acinar", "beta", "gamma", "delta", "ductal")]
 ```
 
@@ -118,42 +115,49 @@ But to make full use of dittoSeq, we should really have this data
 log-normalized, and we should run dimensionality reduction and clustering.
 
 ```{r}
-# Make Seurat and grab metadata
-seurat <- CreateSeuratObject(counts(sce))
-seurat <- AddMetaData(seurat, sce$label, col.name = "celltype")
-seurat <- AddMetaData(seurat, sce$donor, col.name = "Sample")
-seurat <- AddMetaData(seurat,
-                      PercentageFeatureSet(seurat, pattern = "^MT"),
-                      col.name = "percent.mt")
-# Basic Seurat workflow (possibly outdated, but fine for this vignette)
-seurat <- NormalizeData(seurat, verbose = FALSE)
-seurat <- FindVariableFeatures(object = seurat, verbose = FALSE)
-seurat <- ScaleData(object = seurat, verbose = FALSE)
-seurat <- RunPCA(object = seurat, verbose = FALSE)
-seurat <- RunTSNE(object = seurat)
-seurat <- FindNeighbors(object = seurat, verbose = FALSE)
-seurat <- FindClusters(object = seurat, verbose = FALSE)
+## Some Quick Pre-processing
+# Normalization.
+library(scater)
+sce <- logNormCounts(sce)
+
+# Feature selection.
+library(scran)
+dec <- modelGeneVar(sce)
+hvg <- getTopHVGs(dec, prop=0.1)
+
+# PCA & UMAP
+library(scater)
+set.seed(1234)
+sce <- runPCA(sce, ncomponents=25, subset_row=hvg)
+sce <- runUMAP(sce, pca = 10)
+
+# Clustering.
+library(bluster)
+sce$cluster <- clusterCells(sce, use.dimred='PCA',
+    BLUSPARAM=NNGraphParam(cluster.fun="louvain"))
+
+sce
 ```
+
+Now that we have a single-cell dataset loaded and analyzed, let's convert it to
+a Seurat, and add a few extra metadata, for example purposes.
 
 ```{r}
-# Grab PCA, TSNE, clustering, log-norm data, and metadata to sce
+## Transform into a Seurat for examples, and percent.mito
+# First, just to better align with a coupld Seurat conventions...
+sce$nCount_RNA <- colSums(counts(sce))
+sce$nFeature_RNA <- colSums(counts(sce)>0)
+sce1 <- sce
+reducedDimNames(sce1) <- c("pca", "umap")
 
-# sce <- as.SingleCellExperiment(seurat)
-# At the time this part of the vignette was made, the above function gave
-# warnings. So... manual method
-sce <- addDimReduction(
-  sce, embeddings = Embeddings(seurat, reduction = "pca"), name = "PCA")
-sce <- addDimReduction(
-  sce, embeddings = Embeddings(seurat, reduction = "tsne"), name = "TSNE")
-sce$idents <- seurat$seurat_clusters
-assay(sce, "logcounts") <- GetAssayData(seurat)
-sce$percent.mt <- seurat$percent.mt
-sce$celltype <- seurat$celltype
-sce$Sample <- seurat$Sample
+library(Seurat)
+seurat <- as.Seurat(sce1)
+seurat$percent.mito <- PercentageFeatureSet(seurat, pattern = "^MT")
+Idents(seurat) <- "cluster"
+
+rm(sce1)
+seurat
 ```
-
-Now that we have a single-cell dataset loaded and analyzed in Seurat, let's
-convert it to an SCE for examples purposes.
 
 All functions will work the same for either the Seurat or SCE version.
 
@@ -165,42 +169,51 @@ dittoSeq works natively with Seurat and SingleCellExperiment objects.  Nothing
 special is needed. Just load in your data if it isn't already loaded, then go!
 
 ```{r}
-dittoDimPlot(seurat, "Sample")
-dittoPlot(seurat, "ENO1", group.by = "celltype")
-dittoBarPlot(sce, "celltype", group.by = "Sample")
+library(dittoSeq)
+dittoDimPlot(seurat, "donor")
+dittoPlot(seurat, "ENO1", group.by = "label")
+dittoBarPlot(sce, "label", group.by = "donor")
 ```
 
 ## Bulk RNAseq data
 
-dittoSeq works natively with bulk RNAseq data stored as a
-SummarizedExperiment object. For bulk data stored in other forms, namely as
-a DGEList or as raw matrices, one can use the `importDittoBulk()` function to
-convert it into the SingleCellExperiment structure.
-
-Some brief details on this structure: The SingleCellEExperiment class is very
-similar to the SummarizedExperiment class, just with room added for storing
-pre-calculated dimensionality reductions.
-
 ```{r}
-# First, let's make some mock expression and conditions data
+# First, we'll just make some mock expression and conditions data
 exp <- matrix(rpois(20000, 5), ncol=20)
-colnames(exp) <- paste0("sample", seq_len(ncol(exp)))
+colnames(exp) <- paste0("donor", seq_len(ncol(exp)))
 rownames(exp) <- paste0("gene", seq_len(nrow(exp)))
 logexp <- logexp <- log2(exp + 1)
+
+pca <- matrix(rnorm(20000), nrow=20)
 
 conditions <- factor(rep(1:4, 5))
 sex <- c(rep("M", 9), rep("F", 11))
 ```
 
-### Standard bulk data import workflow, `importDittoBulk()`
-
-Importing bulk data can be accomplished with just the `importDittoBulk()`
-function. The function converts various common storage structures for bulk data
-into the `SingleCellExperiment` structure.
+dittoSeq works natively with bulk RNAseq data stored as a SummarizedExperiment
+object, and this includes data analyzed with DESeq2.
 
 ```{r}
-# Import
-myRNA <- importDittoBulk(
+library(SummarizedExperiment)
+bulkSE <- SummarizedExperiment(
+    assays = list(counts = exp,
+             logcounts = logexp),
+    colData = data.frame(conditions = conditions,
+                          sex = sex)
+)
+```
+
+Alternatively, or for bulk data stored in other forms, such as a DGEList or as
+raw matrices, one can use the `importDittoBulk()` function to convert it into
+the SingleCellExperiment structure.
+
+Some brief details on this structure: The SingleCellEExperiment class is very
+similar to the base SummarizedExperiment class, but with room added for storing
+pre-calculated dimensionality reductions.
+
+```{r}
+# dittoSeq import which allows
+bulkSCE <- importDittoBulk(
     # x can be a DGEList, a DESeqDataSet, a SummarizedExperiment,
     #   or a list of data matrices
     x = list(counts = exp,
@@ -210,35 +223,49 @@ myRNA <- importDittoBulk(
     metadata = data.frame(conditions = conditions,
                           sex = sex),
     #   For adding dimensionality reductions
-    reductions = list(pca = matrix(rnorm(20000), nrow=20)))
+    reductions = list(pca = pca)
+    )
 ```
 
 Metadata and dimensionality reductions can be added either directly within the
 `importDittoBulk()` function via the `metadata` and `reductions` inputs,
-respectively, or separately afterwards:
+as above, or separately afterwards:
 
 ```{r}
 # Add metadata (metadata can alternatively be added in this way)
-myRNA$conditions <- conditions
-myRNA$sex <- sex
+bulkSCE$conditions <- conditions
+bulkSCE$sex <- sex
 
 # Add dimensionality reductions (can alternatively be added this way)
-# (We aren't actually calculating PCA here.)
-myRNA <- addDimReduction(
-    object = myRNA,
-    embeddings = matrix(rnorm(20000), nrow=20),
+bulkSCE <- addDimReduction(
+    object = bulkSCE,
+    # (We aren't actually calculating PCA here.)
+    embeddings = pca,
     name = "pca",
     key = "PC")
 ```
 
-Making plots for bulk data then operates the exact same way as for single-cell.
+Making plots for bulk data then operates similarly as for single-cell except
+for one slight caveat for SummarizedExperiment objects
 
 ```{r}
-dittoDimPlot(myRNA, "sex", size = 3, do.ellipse = TRUE)
-dittoBarPlot(myRNA, "sex", group.by = "conditions")
-dittoBoxPlot(myRNA, "gene1", group.by = "sex")
-dittoHeatmap(myRNA, getGenes(myRNA)[1:10],
+library(dittoSeq)
+dittoDimPlot(bulkSCE, "sex", size = 3, do.ellipse = TRUE)
+dittoBarPlot(bulkSCE, "sex", group.by = "conditions")
+dittoBoxPlot(bulkSCE, "gene1", group.by = "sex")
+dittoHeatmap(bulkSCE, getGenes(bulkSCE)[1:10],
     annot.by = c("conditions", "sex"))
+```
+
+For making dittoDimPlots (and dittoHexPlots) with SummarizedExperiment objects,
+the dimensionality reduction of interest must be supplied to 
+
+```{r, eval = FALSE}
+# SummarizedExperiment dim-plots:
+dittoDimPlot(
+    bulkSE,"sex", size = 3, do.ellipse = TRUE,
+    reduction.use = pca
+    )
 ```
 
 #### Additional details on bulk data import:
@@ -282,9 +309,9 @@ getMetas(seurat)
 # Query for the presence of a metadata slot
 isMeta("nCount_RNA", seurat)
 # Retrieve metadata values:
-meta("celltype", seurat)[1:10]
+meta("label", seurat)[1:10]
 # Retrieve unique values of a metadata
-metaLevels("celltype", seurat)
+metaLevels("label", seurat)
 ```
 
 ## Genes/Features
@@ -317,11 +344,13 @@ tells dittoSeq functions which resolution of data a target SCE holds.
 ```{r}
 # Getter
 isBulk(sce)
-isBulk(myRNA)
+isBulk(bulkSCE)
 
 # Setter
 mock_bulk <- setBulk(sce) # to bulk
-mock_sc <- setBulk(myRNA, set = FALSE) # to single-cell
+isBulk(sce)
+mock_sc <- setBulk(bulkSCE, set = FALSE) # to single-cell
+isBulk(bulkSCE)
 ```
 
 # Visualizations
@@ -340,7 +369,7 @@ of `dittoDimPlot()` being dimensionality reductions like tsne, pca, umap or
 similar.
 
 ```{r, results = "hold"}
-dittoDimPlot(seurat, "celltype", reduction.use = "pca")
+dittoDimPlot(seurat, "label", reduction.use = "pca")
 dittoDimPlot(sce, "ENO1")
 ```
 
@@ -348,11 +377,11 @@ dittoDimPlot(sce, "ENO1")
 dittoScatterPlot(
     object = sce,
     x.var = "PPY", y.var = "INS",
-    color.var = "celltype")
+    color.var = "label")
 dittoScatterPlot(
     object = seurat,
     x.var = "nCount_RNA", y.var = "nFeature_RNA",
-    color.var = "percent.mt")
+    color.var = "percent.mito")
 ```
 
 ### Additional features
@@ -421,7 +450,7 @@ dittoDimHex(seurat, "INS")
 dittoScatterHex(
     object = seurat,
     x.var = "PPY", y.var = "INS",
-    color.var = "celltype",
+    color.var = "label",
     colors = c(1:4,7), max.density = 15)
 ```
 
@@ -472,10 +501,10 @@ the `plots` input from c("jitter", "vlnplot") to c("ridgeplot") or
 c("boxplot","jitter"), respectively.
 
 ```{r, results = "hold"}
-dittoPlot(seurat, "ENO1", group.by = "celltype",
+dittoPlot(seurat, "ENO1", group.by = "label",
     plots = c("vlnplot", "jitter"))
-dittoRidgePlot(sce, "ENO1", group.by = "celltype")
-dittoBoxPlot(seurat, "ENO1", group.by = "celltype")
+dittoRidgePlot(sce, "ENO1", group.by = "label")
+dittoBoxPlot(seurat, "ENO1", group.by = "label")
 ```
 
 ### Adjustments to data representations
@@ -485,7 +514,7 @@ inputs, all of which start with the representation types' name.  For
 example...
 
 ```{r}
-dittoPlot(seurat, "ENO1", group.by = "celltype",
+dittoPlot(seurat, "ENO1", group.by = "label",
     plots = c("jitter", "vlnplot", "boxplot"), # <- order matters
     
     # change the color and size of jitter points
@@ -500,17 +529,33 @@ dittoPlot(seurat, "ENO1", group.by = "celltype",
     )
 ```
 
-## dittoBarPlot
+## dittoBarPlot & dittoFreqPlot
 
-This function displays *discrete* cells/samples' data on a y-axis, grouped on
-the x-axis by sample, age, condition, or any discrete grouping metadata. Data
-can be represented as percentages or counts, and this is controlled by the
-`scale` input.
+A couple of very handy visualizations missing from some other major single-cell
+visualization toolsets, these functions quantify and display frequencies of
+clusters or cell types (or other discrete data) per sample (or other discrete
+groupings). Such visualizations are quite useful for QC-ing clustering for
+batch effects and generally assessing cell type fluctuations. 
+
+For both, data can be represented as percentages or counts, and this is
+controlled by the `scale` input.
 
 ```{r, results = "hold"}
-dittoBarPlot(seurat, "celltype", group.by = "Sample")
-dittoBarPlot(seurat, "ident", group.by = "Sample",
+# dittoBarPlot
+dittoBarPlot(seurat, "label", group.by = "donor")
+dittoBarPlot(seurat, "label", group.by = "donor",
     scale = "count")
+```
+
+dittoFreqPlot separates each cell type into its own facet, and thus puts more
+emphasis on individual cells. An additional `sample.by` input controls
+splitting of cells within `group.by`-groups into individual samples.
+
+```{r, results = "hold"}
+# dittoFreqPlot
+sce$mock.donor.group <- ifelse(sce$donor %in% unique(sce$donor)[1:2], "A", "B")
+dittoFreqPlot(sce, "label",
+    sample.by = "donor", group.by = "mock.donor.group")
 ```
 
 ## dittoHeatmap
@@ -534,10 +579,10 @@ genes <- c("SST", "REG1A", "PPY", "INS", "CELA3A", "PRSS2", "CTRB1",
 
 # Annotating and ordering cells by some meaningful feature(s):
 dittoHeatmap(seurat, genes,
-    annot.by = c("celltype", "Sample"))
+    annot.by = c("label", "donor"))
 dittoHeatmap(seurat, genes,
-    annot.by = c("celltype", "Sample"),
-    order.by = "Sample")
+    annot.by = c("label", "donor"),
+    order.by = "donor")
 ```
 
 `scaled.to.max = TRUE` will normalize all expression data to the max expression
@@ -549,7 +594,7 @@ shown. (`show_colnames` default is TRUE for bulk, and FALSE for single-cell.)
 ```{r}
 # Add annotations
 dittoHeatmap(seurat, genes,
-    annot.by = c("celltype", "Sample"),
+    annot.by = c("label", "donor"),
     scaled.to.max = TRUE,
     show_colnames = FALSE,
     show_rownames = FALSE)
@@ -565,7 +610,7 @@ when the heatmap would be too complex for editing software like Illustrator.
 
 ```{r}
 # Highlight certain genes
-dittoHeatmap(seurat, genes, annot.by = c("celltype", "Sample"),
+dittoHeatmap(seurat, genes, annot.by = c("label", "donor"),
     highlight.features = genes[1:3],
     complex = TRUE)
 ```
@@ -585,7 +630,7 @@ Some setup for these, let's roughly pick out the markers of delta cells in
 this data set
 
 ```{r}
-# Idents(seurat) <- "celltype"
+# Idents(seurat) <- "label"
 # delta.marker.table <- FindMarkers(seurat, ident.1 = "delta")
 # delta.genes <- rownames(delta.marker.table)[1:20]
 # Idents(seurat) <- "seurat_clusters"
@@ -610,8 +655,8 @@ a similar range of values for all `vars` displayed and to emphasize differences
 between groups.
 
 ```{r}
-dittoDotPlot(seurat, vars = delta.genes, group.by = "celltype")
-dittoDotPlot(seurat, vars = delta.genes, group.by = "celltype",
+dittoDotPlot(seurat, vars = delta.genes, group.by = "label")
+dittoDotPlot(seurat, vars = delta.genes, group.by = "label",
     scale = FALSE)
 ```
 
@@ -626,9 +671,9 @@ point instead represents a gene (or metadata). More specifically, the average
 expression, within each x-grouping, of a gene (or value of a metadata).
 
 ```{r}
-multi_dittoPlot(seurat, delta.genes[1:6], group.by = "celltype",
+multi_dittoPlot(seurat, delta.genes[1:6], group.by = "label",
     vlnplot.lineweight = 0.2, jitter.size = 0.3)
-dittoPlotVarsAcrossGroups(seurat, delta.genes, group.by = "celltype",
+dittoPlotVarsAcrossGroups(seurat, delta.genes, group.by = "label",
     main = "Delta-cell Markers")
 ```
 
@@ -652,15 +697,17 @@ making manually customized plot arrangements when `data.out = TRUE`.
 ```{r, results = "hold"}
 multi_dittoDimPlot(seurat, delta.genes[1:6])
 multi_dittoDimPlotVaryCells(seurat, delta.genes[1],
-    vary.cells.meta = "celltype")
+    vary.cells.meta = "label")
 ```
 
 # Customization via Simple Inputs 
 
-**Many adjustments can be made with simple additional inputs**.  Here, we go
+**Many adjustments can be made with simple additional inputs**.  Here, we'll go
 through a few that are consistent across most dittoSeq functions, but there
 are many more.  Be sure to check the function documentation (e.g.
-`?dittoDimPlot`) to explore more!
+`?dittoDimPlot`) to explore more!  Often, there will be a dedicated section
+towards the bottom of a function's documentation dedicated to its specific
+tweaks!
 
 ## Subsetting to certain cells/samples
 
@@ -671,10 +718,10 @@ logical vector that states whether each cell / sample should be included.
 
 ```{r}
 # Original
-dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count")
+dittoBarPlot(seurat, "label", group.by = "donor", scale = "count")
 
 # First 10 cells
-dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
+dittoBarPlot(seurat, "label", group.by = "donor", scale = "count",
     # String method
     cells.use = colnames(seurat)[1:10]
     # Index method, which would achieve the same effect
@@ -682,19 +729,39 @@ dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
     )
 
 # Acinar cells only
-dittoBarPlot(seurat, "celltype", group.by = "Sample", scale = "count",
+dittoBarPlot(seurat, "label", group.by = "donor", scale = "count",
     # Logical method
-    cells.use = meta("celltype", seurat) == "acinar")
+    cells.use = meta("label", seurat) == "acinar")
 ```
 
 ## Faceting with split.by
 
-dittoPlot, dittoDimPlot, and dittoScatterPlots can be split into separate
-plots for distinct groups of cells with the `split.by` input.
+Most diitoSeq plot types can be faceted into separate plots for distinct groups
+of cells with the `split.by` input.
 
 ```{r}
-dittoDimPlot(seurat, "celltype", split.by = "Sample")
-dittoDimPlot(seurat, "ENO1", split.by = c("Sample", "celltype"))
+dittoPlot(seurat, "PPY", group.by = "donor", 
+    split.by = "label")
+dittoDimPlot(seurat, "PPY",
+    split.by = c("donor", "label"))
+```
+
+Extra control over how this is done can be achieved with the `split.adjust`
+input. `split.adjust` allows inputs to be passed through to the ggplot 
+functions used for achieving the faceting.
+
+```{r}
+dittoPlot(seurat, "PPY", group.by = "donor", 
+    split.by = "label",
+    split.adjust = list(scales = "free_y"), max = NA)
+```
+
+When splitting is by only one metadata, the shape of the facet grid can be controlled with `split.ncol` and `split.nrow`.
+
+```{r, fig.height=7}
+dittoRidgePlot(seurat, "PPY", group.by = "donor", 
+    split.by = "label",
+    split.ncol = 1)
 ```
 
 ## All titles are adjustable.
@@ -703,7 +770,7 @@ Relevant inputs are generally `main`, `sub`, `xlab`, `ylab`, `x.labels`, and
 `legend.title`.
 
 ```{r}
-dittoBarPlot(seurat, "celltype", group.by = "Sample",
+dittoBarPlot(seurat, "label", group.by = "donor",
     main = "Encounters",
     sub = "By Type",
     xlab = NULL, # NULL = remove
@@ -725,12 +792,12 @@ easy when nearby clusters appear too similar in tSNE/umap plots!
 
 ```{r, results="hold"}
 # original - discrete
-dittoDimPlot(seurat, "celltype")
+dittoDimPlot(seurat, "label")
 # swapped colors
-dittoDimPlot(seurat, "celltype",
+dittoDimPlot(seurat, "label",
     colors = 5:1)
 # different colors
-dittoDimPlot(seurat, "celltype",
+dittoDimPlot(seurat, "label",
     color.panel = c("red", "orange", "purple", "yellow", "skyblue"))
 ```
 
@@ -748,7 +815,7 @@ Simply add  `data.out = TRUE` to any of the individual plotters and a
 representation of the underlying data will be output.
 
 ```{r}
-dittoBarPlot(seurat, "celltype", group.by = "Sample",
+dittoBarPlot(seurat, "label", group.by = "donor",
     data.out = TRUE)
 ```
 
@@ -779,8 +846,8 @@ dittoPlotVarsAcrossGroups), the `hover.data` input is not used.
 # These can be finicky to render in knitting, but still, example code:
 dittoDimPlot(seurat, "INS",
     do.hover = TRUE,
-    hover.data = c("celltype", "Sample", "ENO1", "ident", "nCount_RNA"))
-dittoBarPlot(seurat, "celltype", group.by = "Sample",
+    hover.data = c("label", "donor", "ENO1", "ident", "nCount_RNA"))
+dittoBarPlot(seurat, "label", group.by = "donor",
     do.hover = TRUE)
 ```
 
@@ -796,7 +863,7 @@ to a pixel representation. Generally, dittoSeq offers this capability for via
 ```{r}
 # Note: dpi gets re-set by the styling code of this vignette, so this is
 #   just a code example, but the plot won't be quite matched.
-dittoDimPlot(sce, "celltype",
+dittoDimPlot(sce, "label",
     do.raster = TRUE,
     raster.dpi = 300)
 ```

@@ -2,6 +2,7 @@
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-Plot.R")
 
 seurat$number <- as.numeric(seq_along(colnames(seurat)))
+seurat$all <- "A"
 grp <- "clusters"
 clr <- "age"
 clr2 <- "groups"
@@ -45,25 +46,28 @@ test_that("dittoPlot can plot gene expression data with all plot types", {
 
 test_that("dittoPlots can be subset to show only certain cells/samples with any cells.use method", {
     expect_s3_class(
-        c1 <- dittoPlot(
-            "number", object=seurat, group.by = grp,
+        {c1 <- dittoPlot(
+            "number", object=seurat, group.by = grp, data.out = TRUE,
             plots = c("vlnplot", "boxplot"),
-            cells.use = cells.names),
+            cells.use = cells.names)
+        c1$p},
         "ggplot")
     expect_s3_class(
-        c2 <- dittoPlot(
-            "number", object=seurat, group.by = grp,
+        {c2 <- dittoPlot(
+            "number", object=seurat, group.by = grp, data.out = TRUE,
             plots = c("vlnplot", "boxplot"),
-            cells.use = cells.logical),
+            cells.use = cells.logical)
+        c2$p},
         "ggplot")
     expect_s3_class(
-        c3 <- dittoPlot(
-            "number", object=seurat, group.by = grp,
+        {c3 <- dittoPlot(
+            "number", object=seurat, group.by = grp, data.out = TRUE,
             plots = c("vlnplot", "boxplot"),
-            cells.use = 1:40),
+            cells.use = 1:40)
+        c3$p},
         "ggplot")
-    expect_equal(c1,c2)
-    expect_equal(c1,c3)
+    expect_equal(c1$data,c2$data)
+    expect_equal(c1$data,c3$data)
     # And if we remove an entire grouping...
     expect_s3_class(
         dittoPlot(
@@ -262,7 +266,7 @@ test_that("dittoPlot can have lines added", {
 })
 
 test_that("dittoPlot jitter adjustments work", {
-    # Manuel Check: Large blue dots that, in the yplot, look continuous accross groups.
+    # Manuel Check: Large blue dots that, in the y-plot, look continuous across groups.
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp, plots = "jitter",
@@ -272,6 +276,47 @@ test_that("dittoPlot jitter adjustments work", {
         dittoRidgePlot(
             "number", object=seurat, group.by = grp, plots = c("jitter","ridgeplot"),
             jitter.size = 10, jitter.color = "blue", jitter.width = 1),
+        "ggplot")
+    
+    # Manual Check: 1. jitters that touch / align with vlnplot widths.
+    #               2. jitters that far from touch, NOT aligned properly
+    #               3. jitters that far from touch. Tests control, by default, by the boxplot input.
+    #               4. jitters that far from touch. Tests control, by default, by the vlnplot input via the boxplot input.
+    
+    # 1. Defaults
+    expect_s3_class(
+        print(dittoPlot(
+            "number", object=seurat, group.by = "all",
+            color.by = clr2, plots = c("vlnplot", "boxplot", "jitter"),
+            shape.panel = 21, jitter.size = 2, vlnplot.scaling = "width")),
+        "ggplot")
+    
+    # 2. jitters further apart
+    expect_s3_class(
+        print(dittoPlot(
+            "number", object=seurat, group.by = "all",
+            color.by = clr2, plots = c("vlnplot", "boxplot", "jitter"),
+            shape.panel = 21, jitter.size = 2, vlnplot.scaling = "width",
+            jitter.position.dodge = 2)),
+        "ggplot")
+    
+    # 3. set by boxplot dodge... only aligned with boxplots
+    expect_s3_class(
+        print(dittoPlot(
+            "number", object=seurat, group.by = "all",
+            color.by = clr2, plots = c("vlnplot", "boxplot", "jitter"),
+            shape.panel = 21, jitter.size = 2, vlnplot.scaling = "width",
+            boxplot.position.dodge = 2)),
+        "ggplot")
+    
+    # 4. set by vlnplot.width
+    expect_s3_class(
+        print(dittoPlot(
+            "number", object=seurat, group.by = "all",
+            color.by = clr2, plots = c("vlnplot", "boxplot", "jitter"),
+            shape.panel = 21, jitter.size = 2, vlnplot.scaling = "width",
+            vlnplot.width = 0.5,
+            jitter.width = 0.1)),
         "ggplot")
 })
 
@@ -284,11 +329,13 @@ test_that("dittoPlot boxplot adjustments work", {
             boxplot.width = 1, boxplot.color = "blue", boxplot.fill = FALSE,
             boxplot.show.outliers = TRUE),
         "ggplot")
-    # Manual Check: boxplots that overlap
+    # Manual Check: boxplots that overlap, with thick lines
     expect_s3_class(
         dittoPlot(
             "number", object=seurat, group.by = grp, plots = c("jitter","boxplot"),
-            color.by = clr, boxplot.width = 0.3, boxplot.position.dodge = 0.2),
+            color.by = clr,
+            boxplot.width = 0.4, boxplot.position.dodge = 0.2,
+            boxplot.lineweight = 2),
         "ggplot")
 })
 
@@ -314,6 +361,40 @@ test_that("dittoPlot violin plot adjustments work", {
         dittoPlot(
             "number", object=seurat, group.by = grp,
             vlnplot.scaling = "width"),
+        "ggplot")
+})
+
+test_that("dittoPlot ridgeplot adjustments work", {
+    # Manuel Check: Almost non-existent lines, with quite overlapping ridges.
+    expect_s3_class(
+        dittoRidgePlot(
+            "number", object=seurat, group.by = grp,
+            ridgeplot.lineweight = 0.1, ridgeplot.scale = 5),
+        "ggplot")
+    # Manual Check: Lots of space at the top.
+    expect_s3_class(
+        dittoRidgePlot(
+            "number", object=seurat, group.by = grp,
+            ridgeplot.ymax.expansion = 5),
+        "ggplot")
+    # Manual Check: Histogram
+    expect_s3_class(
+        dittoRidgePlot(
+            "number", object=seurat, group.by = grp,
+            ridgeplot.shape = "hist"),
+        "ggplot")
+    # Manual Check: Hist with narrower bins
+    expect_s3_class(
+        dittoRidgePlot(
+            "number", object=seurat, group.by = grp,
+            ridgeplot.shape = "hist", ridgeplot.bins = 60),
+        "ggplot")
+    # Manual Check: Hist with even narrower bins
+    expect_s3_class(
+        dittoRidgePlot(
+            "number", object=seurat, group.by = grp,
+            ridgeplot.shape = "hist", ridgeplot.bins = 60,
+            ridgeplot.binwidth = 1),
         "ggplot")
 })
 

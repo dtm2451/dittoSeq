@@ -1,6 +1,7 @@
 #' Outputs a stacked bar plot to show the percent composition of samples, groups, clusters, or other groupings
 #' @import ggplot2
 #'
+#' @inheritParams dittoPlot
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}.
 #' @param group.by String name of a metadata to use for separating the cells/samples into discrete groups.
@@ -12,7 +13,7 @@
 #' @param color.panel String vector which sets the colors to draw from. \code{dittoColors()} by default.
 #' @param colors Integer vector, which sets the indexes / order, of colors from color.panel to actually use.
 #' (Provides an alternative to directly modifying \code{color.panel}.)
-#' @param scale "count" or "percent". Sets whether data should be shown as raw counts or scaled to 1 and shown as a percentage.
+#' @param scale "count" or "percent". Sets whether data should be shown as counts versus percentage.
 #' @param do.hover Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
 #' Default = \code{theme_classic()}.
@@ -21,7 +22,8 @@
 #' Default is \code{group.by} so it defaults to the name of the grouping information.
 #' Set to \code{NULL} to remove.
 #' @param ylab String which sets the y-axis title.
-#' @param x.labels String vector which will replaceme the x-axis groupings' labels.
+#' Default = "make" and if left as make, a title will be automatically generated.
+#' @param x.labels String vector which will replace the x-axis groupings' labels.
 #' Regardless of \code{x.reorder}, the first component of \code{x.labels} sets the name for the left-most x-axis grouping.
 #' @param x.labels.rotate Logical which sets whether the x-axis grouping labels should be rotated.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
@@ -40,7 +42,9 @@
 #' @param main String, sets the plot title
 #' @param sub String, sets the plot subtitle
 #' @param var.labels.rename String vector for renaming the distinct identities of \code{var} values.
-#' @param var.labels.reorder Integer vector. A sequence of numbers, from 1 to the number of distinct \code{var} value idententities, for rearranging the order of labels' groupings within the plot.
+#' 
+#' Hint: use \code{\link{metaLevels}} or \code{unique(<var-data>)} to assess current values.
+#' @param var.labels.reorder Integer vector. A sequence of numbers, from 1 to the number of distinct \code{var} value identities, for rearranging the order of labels' groupings within the plot.
 #'
 #' Method: Make a first plot without this input.
 #' Then, treating the top-most grouping as index 1, and the bottom-most as index n.
@@ -48,8 +52,9 @@
 #' @param legend.show Logical which sets whether the legend should be displayed.
 #' @param legend.title String which adds a title to the legend.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.
+#' @param retain.factor.levels Logical (for older version compatibility) which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
+#' Set this to FALSE to recreate data order of older ditto-plots.
 #'
-#' Note: plotly output is turned off in the \code{data.out = TRUE} setting, but hover.data is still calculated.
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
 #'
 #' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
@@ -70,6 +75,9 @@
 #' \item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
 #' \item y-axis \code{var}-group labels and their order can be changed / reordered using \code{var.labels} and \code{var.labels.reorder}.
 #' }
+#'
+#' @seealso
+#' \code{\link{dittoFreqPlot}} for a data representation that focuses on pre-sample frequencies of each the \code{var}-data values individually, rather than emphasizing total makeup of samples/groups.
 #'
 #' @examples
 #' example(importDittoBulk, echo = FALSE)
@@ -93,6 +101,21 @@
 #'         do.hover = TRUE)
 #'     }
 #'
+#' ### Previous Version Compatibility
+#' # Mistakenly, dittoBarPlot used to remove factor identities entirely from the
+#' #  data it used. This manifests as ignorance of a user's set orderings for
+#' #  their data. That is nolonger done by default, but to recreate old plots,
+#' #  restoring this behavior can be achieved with 'retain.factor.levels = FALSE'
+#' # Set factor level ordering for a metadata we'll give to 'group.by'
+#' myRNA$groups_reverse_levels <- factor(
+#'     myRNA$groups,
+#'     levels = c("D", "C", "B", "A"))
+#' # dittoBarPlot will now respect this level order by default. 
+#' dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels")
+#' # But that respect can be turned off...
+#' dittoBarPlot(myRNA, "clustering", group.by = "groups_reverse_levels",
+#'     retain.factor.levels = FALSE)
+#' 
 #' @author Daniel Bunis
 #' @export
 
@@ -101,11 +124,15 @@ dittoBarPlot <- function(
     var,
     group.by,
     scale = c("percent", "count"),
+    split.by = NULL,
     cells.use = NULL,
     data.out = FALSE,
     do.hover = FALSE,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
+    split.nrow = NULL,
+    split.ncol = NULL,
+    split.adjust = list(),
     y.breaks = NA,
     min = 0,
     max = NULL,
@@ -120,17 +147,10 @@ dittoBarPlot <- function(
     main = "make",
     sub = NULL,
     legend.show = TRUE,
-    legend.title = NULL) {
-
-    cells.use <- .which_cells(cells.use, object)
-    all.cells <- .all_cells(object)
+    legend.title = NULL,
+    retain.factor.levels = TRUE) {
+    
     scale = match.arg(scale)
-
-    # Extract x.grouping and y.labels data
-    y.var <- as.character(
-        .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use])
-    x.var <- as.character(
-        .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use])
 
     # Decide titles
     if (!(is.null(ylab))) {
@@ -150,30 +170,15 @@ dittoBarPlot <- function(
             main <- NULL
         }
     }
-
-    # Create dataframe
-    data <- data.frame(
-        count = as.vector(data.frame(table(y.var, x.var))))
-    names(data) <- c("label", "grouping", "count")
-    data$label.count.total <- rep(
-        as.vector(table(x.var)),
-        each = length(levels(as.factor(y.var))))
-    data$percent <- data$count / data$label.count.total
-    data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
-    data$label <- .rename_and_or_reorder(
-        data$label, var.labels.reorder, var.labels.rename)
+    
+    # Gather data
+    data <- .dittoBarPlot_data_gather(
+        object, var, group.by, split.by, cells.use, x.reorder, x.labels,
+        var.labels.reorder, var.labels.rename, do.hover, retain.factor.levels)
     if (scale == "percent") {
         y.show <- "percent"
     } else {
         y.show <- "count"
-    }
-
-    # Add hover info
-    if (do.hover) {
-        hover.data <- data[,names(data) %in% c("label", "count", "percent")]
-        names(hover.data)[1] <- var
-        # Make hover srtings, "data.type: data" \n "data.type: data"
-        data$hover.string <- .make_hover_strings_from_df(hover.data)
     }
 
     #Build Plot
@@ -204,19 +209,122 @@ dittoBarPlot <- function(
         max <- ifelse(scale == "percent", 1, max(data$label.count.total))
     }
     p <- p + coord_cartesian(ylim=c(min,max))
+    
+    ### Add extra features
+    if (!is.null(split.by)) {
+        p <- .add_splitting(
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
+    }
 
     if (!legend.show) {
         p <- .remove_legend(p)
     }
+    
+    if (do.hover) {
+        .error_if_no_plotly()
+        p <- plotly::ggplotly(p, tooltip = "text")
+    }
+
     #DONE. Return the plot
     if (data.out) {
-        return(list(p = p, data = data))
+        list(
+            p = p,
+            data = data)
     } else {
-        if (do.hover) {
-            .error_if_no_plotly()
-            return(plotly::ggplotly(p, tooltip = "text"))
-        } else {
-            return(p)
+        p
+    }
+}
+
+.dittoBarPlot_data_gather <- function(
+    object, var, group.by, split.by, cells.use,
+    x.reorder, x.labels,
+    var.labels.reorder, var.labels.rename,
+    do.hover, retain.factor.levels, max.normalize = FALSE
+) {
+    
+    cells.use <- .which_cells(cells.use, object)
+    all.cells <- .all_cells(object)
+    
+    # Extract x.grouping and y.labels data
+    y.var <- .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use]
+    x.var <- .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use]
+    
+    # For pre-v1.4 compatibility
+    if(!retain.factor.levels) {
+        y.var <- as.character(y.var)
+        x.var <- as.character(x.var)
+    }
+    
+    # Extract or negate-away split.by data
+    facet <- "filler"
+    split.data <- list()
+    if (!is.null(split.by)) {
+        for (by in seq_along(split.by)) {
+            split.data[[by]] <- meta(split.by[by], object)[all.cells %in% cells.use]
+        }
+        facet <- do.call(paste, split.data)
+    }
+    
+    # Create dataframe (per split.by group)
+    data <- do.call(
+        rbind,
+        lapply(
+            unique(facet),
+            function(this_facet) {
+                
+                # Subset data per facet
+                y.var <- y.var[facet==this_facet]
+                x.var <- x.var[facet==this_facet]
+                
+                # Create data frame
+                new <- data.frame(
+                    count = as.vector(data.frame(table(y.var, x.var))))
+                names(new) <- c("label", "grouping", "count")
+                
+                new$label.count.total.per.facet <- rep(
+                    as.vector(table(x.var)),
+                    each = length(levels(as.factor(y.var))))
+                new$percent <- new$count / new$label.count.total.per.facet
+                
+                # Catch 0/0
+                new$percent[is.nan(new$percent)] <- 0
+                
+                # Add facet info
+                for (by in seq_along(split.by)) {
+                    new[[split.by[by]]] <- (split.data[[by]][facet==this_facet])[1]
+                }
+                
+                new
+            }
+        )
+    )
+    
+    # max.normalization per var-label
+    if (max.normalize) {
+        data$count.norm <- 0
+        data$percent.norm <- 0
+        
+        for (i in unique(data$label)) {
+            this_lab <- data$label == i
+            data$count.norm[this_lab] <- 
+                data$count[this_lab]/max(data$count[this_lab])
+            data$percent.norm[this_lab] <- 
+                data$percent[this_lab]/max(data$percent[this_lab])
         }
     }
+    
+    # Rename/reorder
+    data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
+    data$label <- .rename_and_or_reorder(
+        data$label, var.labels.reorder, var.labels.rename)
+
+    # Add hover info
+    if (do.hover) {
+        hover.data <- data[,names(data) %in% c("label", "count", "percent")]
+        names(hover.data)[1] <- var
+        # Make hover strings, "data.type: data" \n "data.type: data"
+        data$hover.string <- .make_hover_strings_from_df(hover.data)
+    }
+    
+    data
 }

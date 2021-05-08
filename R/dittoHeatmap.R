@@ -12,9 +12,11 @@
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' @param assay,slot single strings or integer that set which expression data to use. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.
 #' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
-#' @param order.by Single string or numeric vector which sets the ordering of cells/samples.
-#' Can be the name of a gene, or metadata slot.
-#' Alternatively, can be a numeric vector of length equal to the total number of cells/samples in object.
+#' @param order.by Single string, string vector, or numeric vector which sets how cells/samples (columns) will be ordered when \code{cluster_cols = FALSE}.
+#' 
+#' Strings should be the name of a gene, or metadata slot, but can also be multiple such values in order of priority.
+#' 
+#' Alternatively, can be a numeric vector which gives the column index order directly.
 #' @param heatmap.colors the colors to use within the heatmap when (default setting) \code{scaled.to.max} is set to \code{FALSE}.
 #' Default is a ramp from navy to white to red with 50 slices.
 #' @param scaled.to.max Logical, \code{FALSE} by default, which sets whether expression shoud be scaled between [0, 1].
@@ -141,13 +143,21 @@
 #'     annot.by = "clustering")
 #'
 #' # Using the 'order.by' input:
-#' #   ordering by a useful metadata or gene is generally more helpful
+#' #   Ordering by a useful metadata or gene is often helpful.
 #' #   For single-cell data, order.by defaults to the first element given to
 #' #     annot.by.
 #' #   For bulk data, order.by must be set separately.
 #' dittoHeatmap(myRNA, genes,
 #'     annot.by = "clustering",
-#'     order.by = "clustering")
+#'     order.by = "clustering",
+#'     cluster_cols = FALSE)
+#' # 'order.by' can be multiple metadata/genes, or a vector of indexes directly 
+#' dittoHeatmap(scRNA, genes,
+#'     annot.by = "clustering",
+#'     order.by = c("clustering", "timepoint"))
+#' dittoHeatmap(scRNA, genes,
+#'     annot.by = "clustering",
+#'     order.by = ncol(scRNA):1)
 #'
 #' # When there are many cells, showing names becomes less useful.
 #' #   Names can be turned off with the 'show_colnames' parameter.
@@ -163,7 +173,7 @@
 #' #   pheatmap package) by setting 'complex = TRUE'.
 #' #   Our data here is too small to hit that defaulting switch, so lets give
 #' #   the direct input, 'use_raster' as well:
-#' if (require(ComplexHeatmap)) { # Checks (and loads) if you have the package.
+#' if (requireNamespace("ComplexHeatmap")) { # Checks if you have the package.
 #'     dittoHeatmap(scRNA, genes, annot.by = "groups", show_colnames = FALSE,
 #'         complex = TRUE,
 #'         use_raster = TRUE)
@@ -239,9 +249,23 @@ dittoHeatmap <- function(
     }
     
     if (!is.null(order.by)) {
-        order_data <- .var_OR_get_meta_or_gene(order.by, object, assay, slot)
-    } else {
-        order_data <- NULL
+        
+        if (is.numeric(order.by)) {
+            ordering <- order.by
+            # Trim by cells.use if longer than cells.use
+            if (length(ordering) > length(cells.use)){
+                ordering <- ordering[all.cells %in% cells.use]
+            }
+        } else {
+            order_data <- lapply(
+                order.by,
+                function(x) {
+                    .var_OR_get_meta_or_gene(x, object, assay, slot)[all.cells %in% cells.use]
+                })
+            ordering <- do.call(order, order_data)
+        }
+        
+        data <- data[, ordering]
     }
     
     # Make the columns annotations data
@@ -263,7 +287,7 @@ dittoHeatmap <- function(
     
     ### Prep inputs for heatmap contructor calls
     args <- .prep_ditto_heatmap(
-        data, cells.use, all.cells, cell.names, order_data, main,
+        data, cells.use, all.cells, cell.names, main,
         heatmap.colors, scaled.to.max, heatmap.colors.max.scaled, annot.colors,
         annotation_col, annotation_colors, highlight.features, show_colnames,
         show_rownames, scale, cluster_cols, border_color, legend_breaks,
@@ -273,7 +297,7 @@ dittoHeatmap <- function(
         OUT <- args
     } else if (complex) {
         .error_if_no_complexHm()
-        OUT <- do.call(ComplexHeatmap::pheatmap, args)
+        OUT <- do.call("pheatmap", args, envir = asNamespace("ComplexHeatmap"))
     } else {
         OUT <- do.call(pheatmap::pheatmap, args)
     }
@@ -285,7 +309,6 @@ dittoHeatmap <- function(
     cells.use,
     all.cells,
     cell.names,
-    order_data,
     main,
     heatmap.colors,
     scaled.to.max,
@@ -311,13 +334,7 @@ dittoHeatmap <- function(
         scale = scale, breaks = breaks, legend_breaks = legend_breaks, ...)
     
     # Adjust data
-    if (!is.null(order_data)){
-        args$mat <- args$mat[,order(order_data[all.cells %in% cells.use])]
-        
-        if (!identical(annotation_col, NULL)) {
-            annotation_col <- annotation_col[colnames(args$mat),, drop = FALSE]
-        }
-    }
+    
     if (scaled.to.max) {
         args <- .scale_to_max(args, heatmap.colors.max.scaled)
     }
@@ -325,7 +342,7 @@ dittoHeatmap <- function(
     # Add annotation_col / annotation_colors only if needed
     if (ncol(annotation_col)>0 || !is.null(args$annotation_row)) {
         if (ncol(annotation_col)>0) {
-            args$annotation_col <- annotation_col
+            args$annotation_col <- annotation_col[colnames(args$mat),, drop = FALSE]
         }
         args$annotation_colors <- annotation_colors
         # Add any missing annotation colors

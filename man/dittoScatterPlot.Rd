@@ -14,12 +14,14 @@ dittoScatterPlot(
   extra.vars = NULL,
   cells.use = NULL,
   show.others = FALSE,
+  split.show.all.others = TRUE,
   size = 1,
   opacity = 1,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
   split.nrow = NULL,
   split.ncol = NULL,
+  split.adjust = list(),
   assay.x = .default_assay(object),
   slot.x = .default_slot(object),
   adjustment.x = NULL,
@@ -110,6 +112,8 @@ Alternatively, a Logical vector, the same length as the number of cells in the o
 
 \item{show.others}{Logical. FALSE by default, whether other cells should be shown in the background in light gray.}
 
+\item{split.show.all.others}{Logical which sets whether gray "others" cells of facets should include all cells of other facets (\code{TRUE}) versus just cells left out by \code{cell.use} (\code{FALSE}).}
+
 \item{size}{Number which sets the size of data points. Default = 1.}
 
 \item{opacity}{Number between 0 and 1.
@@ -122,6 +126,12 @@ Great for when you have MANY overlapping points, this sets how solid the points 
 \item{colors}{Integer vector, the indexes / order, of colors from color.panel to actually use}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
 
@@ -220,9 +230,7 @@ This can be useful for editing in external programs (e.g. Illustrator) when ther
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
-and a data.frame containing the underlying data for non-target cells ("Others_data").
-
-Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.}
+and a data.frame containing the underlying data for non-target cells ("Others_data").}
 }
 \value{
 a ggplot scatterplot where colored dots and/or shapes represent individual cells/samples. X and Y axes can be gene expression, numeric metadata, or manually supplied values.

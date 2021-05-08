@@ -11,25 +11,64 @@ dittoSeq includes universal plotting and helper functions for working with (sc)R
   - edgeR, *DGEList* data structure
   - DESeq2 / other Bioconductor packages that utilize the *SummarizedExperiment* data structure
   
-All plotting functions spit out easy-to-read, color blind friendly, plots (ggplot2, plotly, or pheatmap) upon minimal coding input for your daily analysis needs, yet also allow sufficient manipulations to provide for out-of-the-box submission-quality figures!
+All plotting functions spit out easy-to-read, color blind friendly, plots (ggplot2, plotly, or pheatmap/ComplexHeatmap) upon minimal coding input for your daily analysis needs, yet also allow sufficient manipulations to provide for out-of-the-box submission-quality figures!
 
 dittoSeq also makes access of underlying data easy, for submitting to journals or for adding extra layers to the plot, with `data.out = TRUE` inputs!
 
 ![Overview](vignettes/dittoSeq.gif)
 
-### News: Updates in dittoSeq v1.2:
+### News: 
 
-- Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimHex()` & `dittoScatterHex()`.
-- Expanded SummarizedExperiment compatibility across the entire toolset.
-- Added ComplexHeatmap integration to `dittoHeatmap()`, controlled by a new input, `complex`.
-- Added Rasterization for improved image editor compatibility of complex plots. (See the dedicated section in the vignette for details.)
-- Added `labels.split.by` input & `do.contour`, `contour.color`, and `contour.linetype` inputs to scatter/dim-plots.
-- Added `order` input to scatter/dim-plots for control of plotting order.
-- Added `metas` input for displaying such data with `dittoHeatmap()`.
-- Added `adjustment` input to `meta()`, which works exactly as in `gene()` (but this is not yet implemented within data grab of visualization functions).
-- Added `adj.fxn` input to `meta()` and `gene()` for added control of how data might be adjusted (but this is not yet implemented within data grab of visualization functions).
-- Replaced (deprecated) `highlight.genes` input with `highlight.features` in `dittoHeatmap()`.
-- Replaced (deprecated) `OUT.List` input with `list.out` for all `multi_*` plotters.
+#### Updates coming in dittoSeq v1.4:
+
+- Added 1 New Visualization Function: `dittoFreqPlot()`:
+  - Combines the population frequency summarization of `dittoBarPlot()` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons which focus on individual cell types / clusters!
+- Improved & expanded faceting capabilities with `split.by` inputs:
+    - Added `split.by` to functions which did not have it: `dittoBarPlot()`, `dittoDotPlot()`, and `dittoPlotVarsAcrossGroups()` 
+    - Added `split.adjust` input to allow tweaks to the underlying `facet_grid()` and `facet_wrap()` calls.
+    - Better compatibility with other features
+        - works with labeling of Dim/Scatter plots
+        - new `split.show.all.others` input now controls whether the full spectrum of points, versus just points excluded with `cells.use`, will be shown as light gray in the background of Dim/Scatter facets.
+- Improved `dittoPlot()`-plotting engine:
+    - y-axis plotting:
+        - geom dodging when `color.by` is used to add subgroupings now works for jitters too.
+        - added a `boxplot.lineweight` control option.
+    - x-axis / ridge-plotting:
+        - Added an alternative histogram-shaping option (Try adding `ridgeplot.shape = "hist"`!)
+        - Better use of white space (via adjustments to default plot grid expansion & exposure of a `ridgeplot.ymax.expansion` input to allow user override.)
+- Improved ordering capability for `dittoHeatmap()` & `dittoBarPlot()`:
+    - `dittoHeatmap()`: You can now give many metadata to `order.by` and it will use them all, prioritizing earliest items
+    - `dittoBarPlot()`: Factor-level ordering will now be retained in dittoBarPlot for `var` and `group.by` data by default, a typically expected behavior. Old versions' behavior can be brought back by setting `retain.factor.levels = TRUE`.
+- Added interaction with `rowData` of SE and SCEs:
+    - `swap.rownames` input allows indication of genes/rows by non-default rownames. E.g. for an `object` with Ensembl_IDs as the default and a rowData column named 'symbol' that contains gene symbols, those symbols can be used via `dittoFunction(..., var = "<gene_symbol>", swap.rownames = "symbol"`).
+- Quality of Life improvements:
+    - Standardized `data.out` & `do.hover` interplay to allow both plotly conversion and data output.
+    - Documentation Updates
+
+\* = Largely completed but not yet pushed through to Bioc-devel
+
+#### Previous updates:
+
+<details>
+
+  <summary>Click to expand</summary>
+  
+  Updates in dittoSeq v1.2:
+  
+  - Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimHex()` & `dittoScatterHex()`.
+  - Expanded SummarizedExperiment compatibility across the entire toolset.
+  - Added ComplexHeatmap integration to `dittoHeatmap()`, controlled by a new input, `complex`.
+  - Added Rasterization for improved image editor compatibility of complex plots. (See the dedicated section in the vignette for details.)
+  - Added `labels.split.by` input & `do.contour`, `contour.color`, and `contour.linetype` inputs to scatter/dim-plots.
+  - Added `order` input to scatter/dim-plots for control of plotting order.
+  - Added `metas` input for displaying such data with `dittoHeatmap()`.
+  - Added `adjustment` input to `meta()`, which works exactly as in `gene()` (but this is not yet implemented within data grab of visualization functions).
+  - Added `adj.fxn` input to `meta()` and `gene()` for added control of how data might be adjusted (but this is not yet implemented within data grab of visualization functions).
+  - Replaced (deprecated) `highlight.genes` input with `highlight.features` in `dittoHeatmap()`.
+  - Replaced (deprecated) `OUT.List` input with `list.out` for all `multi_*` plotters.
+  
+</details>
+
 
 ### Color Blindness Compatibility:
 

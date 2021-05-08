@@ -1,6 +1,4 @@
-################################# dittoPlot ####################################
-#'
-#' Plots continuous data for cutomizable cells'/samples' groupings on a y-axis
+#' Plots continuous data for customizeable cells'/samples' groupings on a y- (or x-) axis
 #' @import ggplot2
 #'
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
@@ -8,8 +6,7 @@
 #' This is the data that will be displayed.
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
 #' @param color.by String representing the name of a metadata to use for setting fills.
-#' Great for highlighting subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
-#' Affects boxplot, vlnplot, and ridgeplot fills.
+#' Great for highlighting supersets or subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
 #' @param shape.by Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.
 #' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #'
@@ -18,14 +15,21 @@
 #' When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
 #'
 #' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
+#' @param split.adjust A named list which allows extra parameters to be pushed through to the faceting function call.
+#' List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+#' 
+#' For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+#' OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
 #' Useful for making custom spliting/faceting or other additional alterations \emph{after} dittoSeq plot generation.
-#' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
+#' @param cells.use String vector of cells'(/samples' for bulk data) names OR an integer vector specifying the indices of cells/samples which should be included.
 #' 
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 #' @param plots String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
+#' 
 #' Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
+#' 
 #' See details section for more info.
 #' @param assay,slot single strings or integer that set which data to use when plotting gene expression / feature data. See \code{\link{gene}} for more information.
 #' @param adjustment When plotting gene expression / feature counts, should that data be used directly (default) or should it be adjusted to be
@@ -36,8 +40,6 @@
 #' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),
-#'
-#' Note: Hovering is incompatible with RidgePlots as plotly does not support the geom_density_ridges2 geom.
 #' @param hover.data String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' Default = \code{dittoColors()}.
@@ -60,7 +62,7 @@
 #' @param min,max Scalars which control the zoom of the plot.
 #' These inputs set the minimum / maximum values of the data to show.
 #' Default = set based on the limits of the data in var.
-#' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of the samples/groups.
+#' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of groupings.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
 #'
 #' Method: Make a first plot without this input.
@@ -72,16 +74,22 @@
 #' \code{\link{metaLevels}} can be used to quickly get the identities that need to be part of this 'levels' input.
 #' @param x.labels.rotate Logical which sets whether the labels should be rotated.
 #' Default: \code{TRUE} for violin and box plots, but \code{FALSE} for ridgeplots.
-#' @param add.line numeric value(s) where one or multiple line should be added
+#' @param add.line numeric value(s) where one or multiple line(s) should be added
 #' @param line.linetype String which sets the type of line for \code{add.line}.
 #' Defaults to "dashed", but any ggplot linetype will work.
 #' @param line.color String that sets the color(s) of the \code{add.line} line(s)
 #' @param jitter.size Scalar which sets the size of the jitter shapes.
 #' @param jitter.width Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.
+#' 
+#' Note for when \code{color.by} is used to split x-axis groupings into additional bins: ggplot does not shrink jitter widths accordingly, so be sure to do so yourself!
+#' Ideally, needs to be 0.5/num_subgroups.
 #' @param jitter.color String which sets the color of the jitter shapes
 #' @param jitter.shape.legend.size Scalar which changes the size of the shape key in the legend.
 #' If set to \code{NA}, \code{jitter.size} is used.
 #' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown when its shape is determined by \code{shape.by}.
+#' @param jitter.position.dodge Scalar which adjusts the relative distance between jitter widths when multiple subgroups exist per \code{group.by} grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+#' Similar to \code{boxplot.position.dodge} input & defaults to the value of that input so that BOTH will actually be adjusted when only, say, \code{boxplot.position.dodge = 0.3} is given.
+#' @param do.raster Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 #' @param do.raster Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 #' This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.
 #' @param raster.dpi Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.
@@ -91,12 +99,14 @@
 #' Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is no jitter.
 #' @param boxplot.fill Logical, whether the boxplot should be filled in or not.
 #' Known bug: when boxplot fill is turned off, outliers do not render.
-#' @param boxplot.position.dodge Scalar which adjusts the distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+#' @param boxplot.position.dodge Scalar which adjusts the relative distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
+#' By default, this input actually controls the value of \code{jitter.position.dodge} unless the \code{jitter} version is provided separately.
+#' @param boxplot.lineweight Scalar which adjusts the thickness of boxplot lines.
 #' @param vlnplot.lineweight Scalar which sets the thickness of the line that outlines the violin plots.
-#' @param vlnplot.width Scalar which sets the width/spread of the jitter in the x direction
-#' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to eachother.
-#' Options are "area", "count", and "width". If the deafult is not right for your data, I recommend trying "width".
-#' For a detailed explanation of each, see \code{\link{geom_violin}}.
+#' @param vlnplot.width Scalar which sets the width/spread of violin plots in the x direction
+#' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to each other.
+#' Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
+#' For an explanation of each, see \code{\link{geom_violin}}.
 #' @param ridgeplot.lineweight Scalar which sets the thickness of the ridgeplot outline.
 #' @param ridgeplot.scale Scalar which sets the distance/overlap between ridgeplots.
 #' A value of 1 means the tallest density curve just touches the baseline of the next higher one.
@@ -104,9 +114,14 @@
 #' @param ridgeplot.ymax.expansion Scalar which adjusts the minimal space between the topmost grouping and the top of the plot in order to ensure the curve is not cut off by the plotting grid.
 #' The larger the value, the greater the space requested.
 #' When left as NA, dittoSeq will attempt to determine an ideal value itself based on the number of groups & linear interpolation between these goal posts: #groups of 3 or fewer: 0.6; #groups=12: 0.1; #groups or 34 or greater: 0.05.
+#' @param ridgeplot.shape Either "smooth" or "hist", sets whether ridges will be smoothed (the typical, and default) versus rectangular like a histogram.
+#' (Note: as of the time shape "hist" was added, combination of jittered points is not supported by the \code{\link[ggridges]{stat_binline}} that dittoSeq relies on.)
+#' @param ridgeplot.bins Integer which sets how many chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
+#' Overridden by \code{ridgeplot.binwidth} when that input is provided.
+#' @param ridgeplot.binwidth Integer which sets the width of chunks to break the x-axis into when \code{ridgeplot.shape = "hist"}.
+#' Takes precedence over \code{ridgeplot.bins} when provided.
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
 #' @param legend.title String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
-#' This input is set to \code{NULL} by default.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
 #' @param ... arguments passed to dittoPlot by dittoRidgePlot, dittoRidgeJitter, and dittoBoxPlot wrappers.
 #' Options are all the ones above.
@@ -123,7 +138,7 @@
 #'
 #' The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
 #' Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
-#' Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
+#' Inclusion of \code{"ridgeplot"} overrides \code{"boxplot"} and \code{"vlnplot"} presence and changes the plot to be horizontal.
 #'
 #' When \code{split.by} is provided the name of a metadata containing discrete data, separate plots will be produced representing each of the distinct groupings of the split.by data.
 #'
@@ -132,18 +147,31 @@
 #' to make such plots even easier to produce.
 #'
 #' @section Many characteristics of the plot can be adjusted using discrete inputs:
+#' The \code{plots} argument determines the types of \strong{data representation} that will be generated, as well as their order from back to front.
+#' Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
+#' 
+#' Each plot type has specific associated options which are controlled by variables that start with their associated string.
+#' For example, all jitter adjustments start with "\code{jitter.}", such as \code{jitter.size} and \code{jitter.width}.
+#'
+#' Inclusion of \code{"ridgeplot"} overrides \code{"boxplot"} and \code{"vlnplot"} presence and changes the plot to be horizontal.
+#'
+#' Additionally:
+#'
 #' \itemize{
-#' \item Each data representation has options which are controlled by variables that start with their associated string.
-#' For example, all jitter adjustments, like \code{jitter.size}, start with "\code{jitter.}".
-#' \item Colors can be adjusted with \code{color.panel}.
-#' \item Shapes used in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
-#' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
-#' \item The legend can be hidden by setting \code{legend.show = TRUE}.
-#' \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
-#' \item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
-#' \item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
+#' \item \strong{Colors can be adjusted} with \code{color.panel}.
+#' \item \strong{Subgroupings:} \code{color.by} can be utilized to split major \code{group.by} groupings into subgroups.
+#' When this is done in y-axis plotting, dittoSeq automatically ensures the centers of all geoms will align,
+#' but users will need to manually adjust \code{jitter.width} to less than 0.5/num_subgroups to avoid overlaps.
+#' There are also three inputs through which one can use to control geom-center placement, but the easiest way to do all at once so is to just adjust \code{vlnplot.width}!
+#' The other two: \code{boxplot.position.dodge}, and \code{jitter.position.dodge}.
+#' \item \strong{Line(s) can be added} at single or multiple value(s) by providing these values to \code{add.line}.
 #' Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
-#' \item Single or multiple additional per-cell features can be retrieved and stashed within the underlying data using \code{extra.vars}.
+#' \item \strong{Titles and axes labels} can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+#' \item The \strong{legend can be hidden} by setting \code{legend.show = FALSE}.
+#' \item \strong{y-axis zoom and tick marks} can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
+#' \item \strong{x-axis labels and groupings} can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned on/off with \code{x.labels.rotate = TRUE/FALSE}.
+#' \item \strong{Shapes used} in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
+#' \item Single or multiple \strong{additional per-cell features can be retrieved} and stashed within the underlying data using \code{extra.vars}.
 #' This can be very useful for making manual additional alterations \emph{after} dittoSeq plot generation.
 #' }
 #' @seealso
@@ -167,6 +195,8 @@
 #' # Update the 'plots' input to change / reorder the data representations
 #' dittoPlot(myRNA, "gene1", "timepoint",
 #'     plots = c("vlnplot", "boxplot", "jitter"))
+#' dittoPlot(myRNA, "gene1", "timepoint",
+#'     plots = c("ridgeplot", "jitter"))
 #'
 #' # Modify the look with intuitive inputs
 #' dittoPlot(myRNA, "gene1", "timepoint",
@@ -191,11 +221,13 @@
 #'     plots = c("vlnplot", "boxplot", "jitter"),
 #'     extra.var = "SNP") + facet_wrap("SNP", ncol = 1, strip.position = "left")
 #'
-#' # Quickly make a Ridgeplot
-#' dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
-#'
+#' ### Provided wrappers enable certain easy adjustments of the 'plots' parameter.
 #' # Quickly make a Boxplot
 #' dittoBoxPlot(myRNA, "gene1", group.by = "timepoint")
+#' 
+#' # Quickly make a Ridgeplot, with or without jitter
+#' dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
+#' dittoRidgeJitter(myRNA, "gene1", group.by = "timepoint")
 #'
 #' @author Daniel Bunis
 #' @export
@@ -232,6 +264,7 @@ dittoPlot <- function(
     x.reorder = NULL,
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     do.raster = FALSE,
     raster.dpi = 300,
     jitter.size = 1,
@@ -239,17 +272,22 @@ dittoPlot <- function(
     jitter.color = "black",
     jitter.shape.legend.size = NA,
     jitter.shape.legend.show = TRUE,
+    jitter.position.dodge = boxplot.position.dodge,
     boxplot.width = 0.2,
     boxplot.color = "black",
     boxplot.show.outliers = NA,
     boxplot.fill = TRUE,
     boxplot.position.dodge = vlnplot.width,
+    boxplot.lineweight = 1,
     vlnplot.lineweight = 1,
     vlnplot.width = 1,
     vlnplot.scaling = "area",
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
     ridgeplot.ymax.expansion = NA,
+    ridgeplot.shape = c("smooth", "hist"),
+    ridgeplot.bins = 30,
+    ridgeplot.binwidth = NULL,
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
@@ -257,6 +295,8 @@ dittoPlot <- function(
     legend.title = "make",
     data.out = FALSE) {
 
+    ridgeplot.shape <- match.arg(ridgeplot.shape)
+    
     #Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
     #Establish the full list of cell/sample names
@@ -291,9 +331,10 @@ dittoPlot <- function(
         p <- .dittoPlot_add_data_y_direction(
             p, Target_data, plots, xlab, ylab, shape.by, jitter.size,
             jitter.width, jitter.color, shape.panel, jitter.shape.legend.size,
-            jitter.shape.legend.show, do.raster, raster.dpi,
+            jitter.shape.legend.show, jitter.position.dodge,
+            do.raster, raster.dpi,
             boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
-            boxplot.position.dodge,
+            boxplot.position.dodge, boxplot.lineweight,
             vlnplot.lineweight, vlnplot.width, vlnplot.scaling,
             add.line, line.linetype, line.color,
             x.labels.rotate, do.hover, y.breaks, min, max, object)
@@ -302,43 +343,34 @@ dittoPlot <- function(
             p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
             jitter.shape.legend.size, jitter.shape.legend.show,
             ridgeplot.lineweight, ridgeplot.scale, ridgeplot.ymax.expansion,
-            add.line, line.linetype,
-            line.color, x.labels.rotate, do.hover, color.panel, colors,
-            y.breaks, min, max)
+            ridgeplot.shape, ridgeplot.bins, ridgeplot.binwidth, add.line,
+            line.linetype, line.color, x.labels.rotate, do.hover, color.panel,
+            colors, y.breaks, min, max)
     }
     # Extra tweaks
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, cells.use)
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
     }
     if (!legend.show) {
         p <- .remove_legend(p)
     }
     
-    # Handle hover.
     if (do.hover) {
-        if ("ridgeplot" %in% plots) {
-            warning("'do.hover = TRUE' request ignored because plotly does not support ridgeplots.")
-        } else {
-            .error_if_no_plotly()
-            # Add hover.text to jitter, else just convert.
-            if ("jitter" %in% plots) {
-                p <- plotly::ggplotly(p, tooltip = "text")
-            } else {
-                p <- plotly::ggplotly(p)
-            }
-        }
+        p <- .warn_or_jitter_plotly(p, plots)
     }
     
     # DONE. Return the plot +/- data
     if (data.out) {
-        return(list(p = p, data = Target_data))
+        list(
+            p = p,
+            data = Target_data)
     } else {
-        return(p)
+        p
     }
 }
 
-#' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings horizontally in a density representation
+#' @describeIn dittoPlot Plots continuous data for customizeable cells'/samples' groupings horizontally in a density representation
 #' @export
 dittoRidgePlot <- function(..., plots = c("ridgeplot")){ dittoPlot(..., plots = plots) }
 
@@ -346,16 +378,17 @@ dittoRidgePlot <- function(..., plots = c("ridgeplot")){ dittoPlot(..., plots = 
 #' @export
 dittoRidgeJitter <- function(..., plots = c("ridgeplot", "jitter")){ dittoPlot(..., plots = plots) }
 
-#' @describeIn dittoPlot Plots continuous data for cutomizable cells'/samples' groupings in boxplot form
+#' @describeIn dittoPlot Plots continuous data for customizeable cells'/samples' groupings in boxplot form
 #' @export
 dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plots = plots) }
 
 .dittoPlot_add_data_y_direction <- function(
     p, Target_data, plots, xlab, ylab, shape.by,
     jitter.size, jitter.width, jitter.color,shape.panel,
-    jitter.shape.legend.size, jitter.shape.legend.show, do.raster, raster.dpi,
+    jitter.shape.legend.size, jitter.shape.legend.show, jitter.position.dodge,
+    do.raster, raster.dpi,
     boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
-    boxplot.position.dodge,
+    boxplot.position.dodge, boxplot.lineweight,
     vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
     line.linetype, line.color, x.labels.rotate, do.hover, y.breaks, min, max,
     object) {
@@ -363,7 +396,9 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     # overlay, and parses adding the main data visualizations.
     # Adds plots based on what is requested in plots, ordered by their order.
 
-    # Now that we know the plot's direction, set y-axis limits
+    # Now that we know the plot's direction, set direction & y-axis limits
+    p <- p + aes_string(x = "grouping", y = "var.data")
+    
     if (!is.null(y.breaks)) {
         p <- p + scale_y_continuous(breaks = y.breaks)
     }
@@ -389,6 +424,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
             boxplot.args <- list(
                 width = boxplot.width,
                 color = boxplot.color,
+                lwd = boxplot.lineweight,
                 alpha = ifelse(boxplot.fill, 1, 0),
                 position = position_dodge(width = boxplot.position.dodge),
                 na.rm = TRUE)
@@ -402,10 +438,16 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
         }
 
         if (plots[i] == "jitter") {
+            
+            # Create geom_jitter() arguments
             jitter.args <- list(
+                position = position_jitterdodge(
+                      jitter.width = jitter.width,
+                      jitter.height = 0,
+                      dodge.width = jitter.position.dodge,
+                      seed = NA
+                ),
                 size=jitter.size,
-                width=jitter.width,
-                height = 0,
                 color = jitter.color)
             
             geom_for_jitter <- geom_jitter
@@ -453,8 +495,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     }
 
     # Add labels and, if requested, lines
-    p <- p + aes_string(x = "grouping", y = "var.data") +
-        xlab(xlab) + ylab(ylab)
+    p <- p + xlab(xlab) + ylab(ylab)
     if (is.na(x.labels.rotate) || x.labels.rotate) {
         p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1))
     }
@@ -466,17 +507,18 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 }
 
 #' @importFrom ggridges geom_density_ridges2
-.dittoPlot_add_data_x_direction <- function(p, Target_data, plots, xlab, ylab,
-                            jitter.size=1, jitter.color = "black",
-                            jitter.shape.legend.size, jitter.shape.legend.show,
-                            ridgeplot.lineweight = 1, ridgeplot.scale = 1.25,
-                            ridgeplot.ymax.expansion = NA,
-                            add.line=NULL, line.linetype = "dashed", line.color = "black",
-                            x.labels.rotate = FALSE, do.hover, color.panel, colors, y.breaks, min, max) {
+.dittoPlot_add_data_x_direction <- function(
+    p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
+    jitter.shape.legend.size, jitter.shape.legend.show,
+    ridgeplot.lineweight, ridgeplot.scale,
+    ridgeplot.ymax.expansion, ridgeplot.shape, ridgeplot.bins,
+    ridgeplot.binwidth, add.line, line.linetype, line.color,
+    x.labels.rotate, do.hover, color.panel, colors, y.breaks, min, max) {
     #This function takes in a partial dittoPlot ggplot object without any data overlay, and parses adding the main data visualizations.
-    # It adds plots based on what is requested in plots, *ordered by their order*
 
-    # Now that we know the plot's direction, set "y"-axis limits
+    # Now that we know the plot's direction, set direction & "y"-axis limits
+    p <- p + aes_string(x = "var.data", y = "grouping")
+    
     if (!is.null(y.breaks)) {
         p <- p + scale_x_continuous(breaks = y.breaks)
     }
@@ -496,14 +538,23 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
             x=c(3,12,34), y=c(0.6, 0.1, 0.05), yleft = 0.6, yright = 0.05)
         ridgeplot.ymax.expansion <- set_exp(num_groups)
     }
-    p <- p + 
+    p <- p + scale_color_manual(values=color.panel[colors]) +
         scale_y_discrete(expand = expansion(mult=c(0, ridgeplot.ymax.expansion)))
 
-    # Add ridgeplot (and jitter) data
-    p <- p + ggridges::geom_density_ridges2(
-        size = ridgeplot.lineweight, scale = ridgeplot.scale,
-        jittered_points = "jitter" %in% plots, point_size = jitter.size, point_color = jitter.color) +
-        scale_color_manual(values=color.panel[colors])
+    # Add ridgeplot and jitter data
+    ridge.args <- list(size = ridgeplot.lineweight, scale = ridgeplot.scale)
+    if (ridgeplot.shape == "hist") {
+        ridge.args$stat <- "binline"
+        ridge.args$bins <- ridgeplot.bins
+        ridge.args$binwidth <- ridgeplot.binwidth
+    }
+    if ("jitter" %in% plots) {
+        ridge.args <- c(ridge.args, jittered_points = TRUE,
+            point_size = jitter.size, point_color = jitter.color)
+    }
+    
+    p <- p + do.call(ggridges::geom_density_ridges2, ridge.args)
+        
     if (!is.na(jitter.shape.legend.size)) {
         p <- p + guides(shape = guide_legend(override.aes = list(size=jitter.shape.legend.size)))
     }
@@ -512,7 +563,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     }
 
     # Add labels and, if requested, lines
-    p <- p + aes_string(x = "var.data", y = "grouping") + xlab(ylab) + ylab(xlab)
+    p <- p + xlab(ylab) + ylab(xlab)
     if (!is.na(x.labels.rotate) && x.labels.rotate) {
         p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1))
     }
@@ -520,6 +571,21 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
         p <- p + geom_vline(xintercept=add.line, linetype= line.linetype, color = line.color)
     }
 
+    p
+}
+
+.warn_or_jitter_plotly <- function(p, plots) {
+    if ("ridgeplot" %in% plots) {
+        warning("'do.hover = TRUE' request ignored because plotly does not support ridgeplots.")
+    } else {
+        .error_if_no_plotly()
+        # Add hover.text to jitter, else just convert.
+        if ("jitter" %in% plots) {
+            p <- plotly::ggplotly(p, tooltip = "text")
+        } else {
+            p <- plotly::ggplotly(p)
+        }
+    }
     p
 }
 

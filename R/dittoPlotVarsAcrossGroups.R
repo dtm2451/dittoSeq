@@ -24,8 +24,6 @@
 #' }
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.
-#' 
-#' Note: Currently, plotly is incompatible with ridge plots as plotly does not support the geom_density_ridges2 geom.
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
 #' (Provides an alternative to directly modifying \code{color.panel}.)
@@ -63,21 +61,30 @@
 #' Finally, data is plotted with the data representation types in \code{plots}.
 #'
 #' @section Plot Customization:
-#' The \code{plots} argument determines the types of data representation that will be generated, as well as their order from back to front.
+#' The \code{plots} argument determines the types of \strong{data representation} that will be generated, as well as their order from back to front.
 #' Options are \code{"jitter"}, \code{"boxplot"}, \code{"vlnplot"}, and \code{"ridgeplot"}.
-#' Each plot type has specific associated options which are controlled by variables that start with their associated string, ex: \code{jitter.size}.
+#' 
+#' Each plot type has specific associated options which are controlled by variables that start with their associated string.
+#' For example, all jitter adjustments start with "\code{jitter.}", such as \code{jitter.size} and \code{jitter.width}.
 #'
-#' Inclusion of \code{"ridgeplot"} overrides boxplot and violin plot and changes the plot to be horizontal.
+#' Inclusion of \code{"ridgeplot"} overrides \code{"boxplot"} and \code{"vlnplot"} presence and changes the plot to be horizontal.
+#'
+#' Additionally:
 #'
 #' \itemize{
-#' \item Colors can be adjusted with \code{color.panel}.
-#' \item Shapes used in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
-#' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
-#' \item The legend can be hidden by setting \code{legend.show = TRUE}.
-#' \item y-axis zoom and tick marks can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
-#' \item x-axis labels and groupings can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned off with \code{x.labels.rotate = FALSE}.
-#' \item Line(s) can be added at single or multiple value(s) by providing these values to \code{add.line}.
+#' \item \strong{Colors can be adjusted} with \code{color.panel}.
+#' \item \strong{Subgroupings:} \code{color.by} can be utilized to split major \code{group.by} groupings into subgroups.
+#' When this is done in y-axis plotting, dittoSeq automatically ensures the centers of all geoms will align,
+#' but users will need to manually adjust \code{jitter.width} to less than 0.5/num_subgroups to avoid overlaps.
+#' There are also three inputs through which one can use to control geom-center placement, but the easiest way to do all at once so is to just adjust \code{vlnplot.width}!
+#' The other two: \code{boxplot.position.dodge}, and \code{jitter.position.dodge}.
+#' \item \strong{Line(s) can be added} at single or multiple value(s) by providing these values to \code{add.line}.
 #' Linetype and color are set with \code{line.linetype}, which is "dashed" by default, and \code{line.color}, which is "black" by default.
+#' \item \strong{Titles and axes labels} can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, and \code{legend.title} arguments.
+#' \item The \strong{legend can be hidden} by setting \code{legend.show = FALSE}.
+#' \item \strong{y-axis zoom and tick marks} can be adjusted using \code{min}, \code{max}, and \code{y.breaks}.
+#' \item \strong{x-axis labels and groupings} can be changed / reordered using \code{x.labels} and \code{x.reorder}, and rotation of these labels can be turned on/off with \code{x.labels.rotate = TRUE/FALSE}.
+#' \item \strong{Shapes used} in conjunction with \code{shape.by} can be adjusted with \code{shape.panel}.
 #' }
 #'
 #' @seealso
@@ -133,6 +140,7 @@ dittoPlotVarsAcrossGroups <- function(
     vars,
     group.by,
     color.by = group.by,
+    split.by = NULL,
     summary.fxn = mean,
     cells.use = NULL,
     plots = c("vlnplot","jitter"),
@@ -157,6 +165,7 @@ dittoPlotVarsAcrossGroups <- function(
     jitter.size = 1,
     jitter.width = 0.2,
     jitter.color = "black",
+    jitter.position.dodge = boxplot.position.dodge,
     do.raster = FALSE,
     raster.dpi = 300,
     boxplot.width = 0.2,
@@ -164,18 +173,27 @@ dittoPlotVarsAcrossGroups <- function(
     boxplot.show.outliers = NA,
     boxplot.fill = TRUE,
     boxplot.position.dodge = vlnplot.width,
+    boxplot.lineweight = 1,
     vlnplot.lineweight = 1,
     vlnplot.width = 1,
     vlnplot.scaling = "area",
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
     ridgeplot.ymax.expansion = NA,
+    ridgeplot.shape = c("smooth", "hist"),
+    ridgeplot.bins = 30,
+    ridgeplot.binwidth = NULL,
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
+    split.nrow = NULL,
+    split.ncol = NULL,
+    split.adjust = list(),
     legend.show = TRUE,
     legend.title = NULL,
     data.out = FALSE) {
+    
+    ridgeplot.shape <- match.arg(ridgeplot.shape)
 
     cells.use <- .which_cells(cells.use, object)
     
@@ -189,7 +207,8 @@ dittoPlotVarsAcrossGroups <- function(
 
     # Create data table summarizing vars data for each group
     data <- .data_gather_summarize_vars_by_groups(
-        object, vars, group.by, list(summary.fxn), "var.data", cells.use,
+        object, vars, group.by, split.by,
+        list(summary.fxn), "var.data", cells.use,
         assay, slot, adjustment, swap.rownames, do.hover)
     
     data$grouping <-
@@ -216,44 +235,42 @@ dittoPlotVarsAcrossGroups <- function(
     if (!("ridgeplot" %in% plots)) {
         p <- .dittoPlot_add_data_y_direction(
             p, data, plots, xlab, ylab, NULL, jitter.size, jitter.width,
-            jitter.color, 16, NA, TRUE, do.raster, raster.dpi,
+            jitter.color, 16, NA, TRUE, jitter.position.dodge, do.raster, raster.dpi,
             boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
-            boxplot.position.dodge, vlnplot.lineweight,
+            boxplot.position.dodge, boxplot.lineweight, vlnplot.lineweight,
             vlnplot.width, vlnplot.scaling, add.line, line.linetype,
             line.color, x.labels.rotate, do.hover, y.breaks, min, max, object)
     } else {
         p <- .dittoPlot_add_data_x_direction(
             p, data, plots, xlab, ylab, jitter.size, jitter.color,
             NA, TRUE, ridgeplot.lineweight, ridgeplot.scale,
-            ridgeplot.ymax.expansion, add.line, line.linetype, line.color,
+            ridgeplot.ymax.expansion, ridgeplot.shape, ridgeplot.bins,
+            ridgeplot.binwidth, add.line, line.linetype, line.color,
             x.labels.rotate, do.hover, color.panel,
             colors, y.breaks, min, max)
+    }
+    
+    ### Add extra features
+    if (!is.null(split.by)) {
+        p <- .add_splitting(
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
     }
     
     if (!legend.show) {
         p <- .remove_legend(p)
     }
     
-    # Handle hover.
     if (do.hover) {
-        if ("ridgeplot" %in% plots) {
-            warning("'do.hover = TRUE' request ignored because plotly does not support ridgeplots.")
-        } else {
-            .error_if_no_plotly()
-            # Add hover.text to jitter, else just convert.
-            if ("jitter" %in% plots) {
-                p <- plotly::ggplotly(p, tooltip = "text")
-            } else {
-                p <- plotly::ggplotly(p)
-            }
-        }
+        p <- .warn_or_jitter_plotly(p, plots)
     }
     
     # DONE. Return the plot +/- data
     if (data.out) {
-        return(list(p = p, data = data))
+        list(
+            p = p,
+            data = data)
     } else {
-        return(p)
+        p
     }
 }
 

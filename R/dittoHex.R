@@ -162,6 +162,7 @@ dittoDimHex <- function(
     extra.vars = NULL,
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
@@ -230,7 +231,7 @@ dittoDimHex <- function(
         object, xdat$embeddings, ydat$embeddings, color.var, bins,
         color.method, split.by,
         extra.vars, cells.use, color.panel, colors,
-        split.nrow, split.ncol, NA, NA, NA, NA, NA, NA,
+        split.nrow, split.ncol, split.adjust, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
         swap.rownames,
         min.density, max.density, min.color, max.color,
@@ -256,11 +257,11 @@ dittoDimHex <- function(
     
     ### RETURN the PLOT ###
     if (data.out) {
-        return(list(
+        list(
             plot = p,
-            data = data))
+            data = data)
     } else {
-        return(p)
+        p
     }
 }
 
@@ -280,6 +281,7 @@ dittoScatterHex <- function(
     colors = seq_along(color.panel),
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     assay.x = .default_assay(object),
     slot.x = .default_slot(object),
     adjustment.x = NULL,
@@ -366,8 +368,15 @@ dittoScatterHex <- function(
     
     # Set titles if "make"
     main <- .leave_default_or_null(main,
-        default = ifelse(!color_by_var, "Density",
-            ifelse(length(color.var)==1, color.var, NULL)))
+        default = 
+            if (!color_by_var) {
+                "Density"
+            } else if (length(color.var)==1) {
+                color.var
+            } else {
+                NULL
+            }
+        )
     legend.color.title <- .leave_default_or_null(legend.color.title,
         default = paste(color.var, color.method, sep = ",\n"))
 
@@ -383,7 +392,7 @@ dittoScatterHex <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, cells.use)
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
     }
     
     if (do.contour) {
@@ -527,66 +536,6 @@ dittoScatterHex <- function(
     }
 
     p
-}
-
-.scatter_data_gather <- function(
-    object,
-    cells.use,
-    x.var,
-    y.var,
-    color.var,
-    shape.by,
-    split.by,
-    extra.vars,
-    assay.x,
-    slot.x,
-    adjustment.x,
-    assay.y,
-    slot.y,
-    adjustment.y,
-    assay.color,
-    slot.color,
-    adjustment.color,
-    assay.extra,
-    slot.extra,
-    adjustment.extra,
-    swap.rownames = NULL,
-    do.hover = FALSE,
-    hover.data = NULL,
-    hover.assay = NULL,
-    hover.slot = NULL,
-    hover.adjustment = NULL,
-    rename.color.groups = NULL,
-    rename.shape.groups = NULL
-    ) {
-
-    all.cells <- .all_cells(object)
-    object <- .swap_rownames(object, swap.rownames)
-    
-    # Make dataframe
-    vars <- list(x.var, y.var, color.var, shape.by)
-    names <- list("X", "Y", "color", "shape")
-    assays <- list(assay.x, assay.y, assay.color, NA)
-    slots <- list(slot.x, slot.y, slot.color, NA)
-    adjustments <- list(adjustment.x, adjustment.y, adjustment.color, NA)
-    relabels <- list(NULL, NULL, rename.color.groups, rename.shape.groups)
-
-    dat <- data.frame(row.names = all.cells)
-    for (i in seq_along(vars)) {
-        dat <- .add_by_cell(dat, vars[[i]], names[[i]], object, assays[[i]],
-            slots[[i]], adjustments[[i]], NULL, relabels[[i]])
-    }
-
-    extra.vars <- unique(c(split.by, extra.vars))
-    dat <- .add_by_cell(dat, extra.vars, extra.vars, object, assay.extra,
-        slot.extra, adjustment.extra, mult = TRUE)
-
-    if (do.hover) {
-        dat$hover.string <- .make_hover_strings_from_vars(
-            hover.data, object, hover.assay, hover.slot, hover.adjustment)
-    }
-    
-    dat
 }
 
 .check_color.method <- function(color.method, discrete) {

@@ -75,7 +75,6 @@
 #' a data.frame containing the underlying data for target cells ("Target_data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
 #' 
-#' Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.
 #' @inheritParams dittoDimPlot
 #' @return a ggplot scatterplot where colored dots and/or shapes represent individual cells/samples. X and Y axes can be gene expression, numeric metadata, or manually supplied values.
 #'
@@ -171,12 +170,14 @@ dittoScatterPlot <- function(
     extra.vars = NULL,
     cells.use = NULL,
     show.others = FALSE,
+    split.show.all.others = TRUE,
     size = 1,
     opacity = 1,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
     split.nrow = NULL,
     split.ncol = NULL,
+    split.adjust = list(),
     assay.x = .default_assay(object),
     slot.x = .default_slot(object),
     adjustment.x = NULL,
@@ -278,12 +279,13 @@ dittoScatterPlot <- function(
         xlab, ylab, main, sub, theme,
         legend.show, legend.color.title, legend.color.size,
         legend.color.breaks, legend.color.breaks.labels, legend.shape.title,
-        legend.shape.size, do.raster, raster.dpi, spatial.image.data)
+        legend.shape.size, do.raster, raster.dpi,
+        split.by, split.show.all.others, spatial.image.data)
 
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, cells.use)
+            p, split.by, split.nrow, split.ncol, object, split.adjust)
     }
     
     if (do.contour) {
@@ -306,17 +308,20 @@ dittoScatterPlot <- function(
         p <- .add_trajectory_curves(
             p, add.trajectory.curves, trajectory.arrow.size)
     }
+    
+    if (do.hover) {
+        .error_if_no_plotly()
+        p <- plotly::ggplotly(p, tooltip = "text")
+    }
 
     ### RETURN the PLOT ###
     if (data.out) {
-        return(list(plot = p, Target_data = Target_data, Others_data = Others_data))
+        list(
+            plot = p,
+            Target_data = Target_data,
+            Others_data = Others_data)
     } else{
-        if (do.hover) {
-            .error_if_no_plotly()
-            return(plotly::ggplotly(p, tooltip = "text"))
-        } else {
-            return(p)
-        }
+        p
     }
 }
 
@@ -350,6 +355,8 @@ dittoScatterPlot <- function(
     legend.shape.size,
     do.raster,
     raster.dpi,
+    split.by,
+    split.show.all.others,
     spatial.image.data = NULL
 ) {
     
@@ -414,17 +421,25 @@ dittoScatterPlot <- function(
     }
     
     # Data points
-    if (show.others && nrow(Others_data)>1) {
-        if (do.raster) {
-            .error_if_no_ggrastr()
-            p <- p + ggrastr::geom_point_rast(data = Others_data,
-                aes_string(x = "X", y = "Y"), size=size, color = "gray90", raster.dpi = raster.dpi)
-        } else {
-            p <- p + geom_point(data = Others_data,
-                aes_string(x = "X", y = "Y"), size=size, color = "gray90")
+    # Others_data
+    if (show.others) {
+        if (!is.null(split.by) && split.show.all.others) {
+            Others_data <- .rep_all_data_per_facet(
+                Target_data, Others_data, split.by)
+        }
+        
+        if (nrow(Others_data)>1) {
+            if (do.raster) {
+                .error_if_no_ggrastr()
+                p <- p + ggrastr::geom_point_rast(data = Others_data,
+                    aes_string(x = "X", y = "Y"), size=size, color = "gray90", raster.dpi = raster.dpi)
+            } else {
+                p <- p + geom_point(data = Others_data,
+                    aes_string(x = "X", y = "Y"), size=size, color = "gray90")
+            }
         }
     }
-
+    # Target_data
     if (do.hover) {
         aes.args$text = "hover.string"
         geom.args$mapping <- do.call(aes_string, aes.args)
@@ -444,4 +459,98 @@ dittoScatterPlot <- function(
     }
 
     p
+}
+
+.rep_all_data_per_facet <- function(Target_data, Others_data, split.by) {
+    
+    all_data <- rbind(Target_data, Others_data)
+    
+    facet <- if (is.null(split.by)) {
+        "filler"
+    } else {
+        do.call(paste, all_data[,split.by, drop = FALSE])
+    }
+    
+    Others_data <- data.frame(row.names = rownames(all_data))
+    
+    Others_data <- do.call(
+        rbind,
+        lapply(
+            unique(facet),
+            function(this_facet) {
+        
+                facet_data <- all_data[facet==this_facet, , drop = FALSE]
+                
+                new_data <- all_data        
+                # Add facet info
+                if (!is.null(split.by)) {
+                    for (by in split.by) {
+                        new_data[[by]] <- facet_data[1,by]
+                    }
+                }
+                
+                new_data
+            }
+        )
+    )
+}
+
+.scatter_data_gather <- function(
+    object,
+    cells.use,
+    x.var,
+    y.var,
+    color.var,
+    shape.by,
+    split.by,
+    extra.vars,
+    assay.x,
+    slot.x,
+    adjustment.x,
+    assay.y,
+    slot.y,
+    adjustment.y,
+    assay.color,
+    slot.color,
+    adjustment.color,
+    assay.extra,
+    slot.extra,
+    adjustment.extra,
+    swap.rownames = NULL,
+    do.hover = FALSE,
+    hover.data = NULL,
+    hover.assay = NULL,
+    hover.slot = NULL,
+    hover.adjustment = NULL,
+    rename.color.groups = NULL,
+    rename.shape.groups = NULL
+    ) {
+
+    all.cells <- .all_cells(object)
+    object <- .swap_rownames(object, swap.rownames)
+    
+    # Make dataframe
+    vars <- list(x.var, y.var, color.var, shape.by)
+    names <- list("X", "Y", "color", "shape")
+    assays <- list(assay.x, assay.y, assay.color, NA)
+    slots <- list(slot.x, slot.y, slot.color, NA)
+    adjustments <- list(adjustment.x, adjustment.y, adjustment.color, NA)
+    relabels <- list(NULL, NULL, rename.color.groups, rename.shape.groups)
+
+    dat <- data.frame(row.names = all.cells)
+    for (i in seq_along(vars)) {
+        dat <- .add_by_cell(dat, vars[[i]], names[[i]], object, assays[[i]],
+            slots[[i]], adjustments[[i]], NULL, relabels[[i]])
+    }
+
+    extra.vars <- unique(c(split.by, extra.vars))
+    dat <- .add_by_cell(dat, extra.vars, extra.vars, object, assay.extra,
+        slot.extra, adjustment.extra, mult = TRUE)
+
+    if (do.hover) {
+        dat$hover.string <- .make_hover_strings_from_vars(
+            hover.data, object, hover.assay, hover.slot, hover.adjustment)
+    }
+    
+    dat
 }

@@ -21,6 +21,7 @@ dittoDimHex(
   extra.vars = NULL,
   split.nrow = NULL,
   split.ncol = NULL,
+  split.adjust = list(),
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -81,6 +82,7 @@ dittoScatterHex(
   colors = seq_along(color.panel),
   split.nrow = NULL,
   split.ncol = NULL,
+  split.adjust = list(),
   assay.x = .default_assay(object),
   slot.x = .default_slot(object),
   adjustment.x = NULL,
@@ -181,6 +183,12 @@ Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
+
 \item{assay, slot, adjustment, assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
 
 \item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
@@ -189,7 +197,7 @@ Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 
 \item{show.grid.lines}{Logical which sets whether gridlines of the plot should be shown.
 They are removed when set to FALSE.
-Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.}
+Default = FALSE for umap and tsne \code{reduction.use}, TRUE otherwise.}
 
 \item{main}{String, sets the plot title. The default title is either "Density", \code{color.var}, or NULL, depending on the identity of \code{color.var}.
 To remove, set to \code{NULL}.}
