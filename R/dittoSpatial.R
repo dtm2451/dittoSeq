@@ -32,8 +32,10 @@
 #' @details X/Y are extracted... Remember to update notes on defaults for these inputs: show.gridlines
 #' @export
 #' @author Daniel Bunis
-
-
+#' @examples 
+#' library(SpatialExperiment)
+#' example(SpatialExperiment)
+#' dittoSpatial(spe)
 dittoSpatial <- function(
     object,
     var = NULL,
@@ -102,19 +104,16 @@ dittoSpatial <- function(
     data.out = FALSE
     ) {
 
+    .error_if_no_SpatialExperiment()
     is_visium <- is(object,"VisiumExperiment")
     
     order <- match.arg(order)
-    
-    if (do.hover || !is.null(shape.by)) {
-        do.letter <- FALSE
-    }
 
-    # Generate the x/y dimensional reduction data and plot titles.
+    # Plot titles.
     main <- .leave_default_or_null(main, var, length(var)!=1)
     legend.title <- .leave_default_or_null(legend.title, var, is.null(shape.by))
 
-    # Retrieve coordinates data
+    # Coordinates data
     coords <- SpatialExperiment::spatialCoords(object)
     
     if (is_visium) {

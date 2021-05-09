@@ -98,7 +98,7 @@ When 2 metadata are named, c(row,col), the first is used as rows and the second 
 
 When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
 
-\item{images.id}{Single string, a value of \code{imgData(object)$image_id} when \code{object} is a \code{\linkS4class{VisiumExperiment}}, for selecting a set of tissue images to use.}
+\item{images.id}{Single string, a value of \code{imgData(object)$image_id} when \code{object} is a \code{\link[SpatialExperiment]{VisiumExperiment}}, for selecting a set of tissue images to use.}
 
 \item{image.paths}{Alternative to \code{images.id} which takes precedence when given.
 A single string, or string vector, specifying file path(s) of tissue image(s).
@@ -159,7 +159,7 @@ For these reasons, even as a color blind person myself writing this code, I reco
 
 \item{show.grid.lines}{Logical which sets whether gridlines of the plot should be shown.
 They are removed when set to FALSE.
-Default = TRUE for umap and tsne \code{reduction.use}, FALSE otherwise.}
+Default = FALSE for umap and tsne \code{reduction.use}, TRUE otherwise.}
 
 \item{min.color}{color for lowest values of \code{var}/\code{min}.  Default = yellow}
 
@@ -258,9 +258,7 @@ Default = 5. *Enlarging the colors legend is incredibly helpful for making color
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 a data.frame containing the underlying data for target cells ("Target_data"),
-and a data.frame containing the underlying data for non-target cells ("Others_data").
-
-Note: \code{do.hover} plotly conversion is turned off in this setting, but hover.data is still calculated.}
+and a data.frame containing the underlying data for non-target cells ("Others_data").}
 }
 \value{
 a ggplot scatterplot where colored dots and/or shapes represent data from the given spatial coordinates.
@@ -275,6 +273,10 @@ Plot spatial transcriptomics data by spatial coordinates
 }
 \details{
 X/Y are extracted... Remember to update notes on defaults for these inputs: show.gridlines
+}
+\examples{
+library(SpatialExperiment)
+example(SpatialExperiment)
 }
 \author{
 Daniel Bunis
