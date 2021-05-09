@@ -319,10 +319,6 @@ dittoDimPlot <- function(
     data.out = FALSE) {
 
     order <- match.arg(order)
-    
-    if (do.hover || !is.null(shape.by)) {
-        do.letter <- FALSE
-    }
 
     # Generate the x/y dimensional reduction data and plot titles.
     xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)

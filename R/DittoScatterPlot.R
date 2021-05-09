@@ -292,6 +292,9 @@ dittoScatterPlot <- function(
         p <- .add_contours(p, Target_data, contour.color, contour.linetype)
     }
     
+    if (do.hover || !is.null(shape.by)) {
+        do.letter <- FALSE
+    }
     p <- .add_letters_ellipses_labels_if_discrete(
         p, Target_data, is.discrete = !is.numeric(Target_data$color),
         do.letter, do.ellipse, do.label,
