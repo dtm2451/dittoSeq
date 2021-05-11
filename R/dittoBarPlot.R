@@ -52,8 +52,9 @@
 #' @param legend.show Logical which sets whether the legend should be displayed.
 #' @param legend.title String which adds a title to the legend.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.
-#' @param retain.factor.levels Logical (for older version compatibility) which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
-#' Set this to FALSE to recreate data order of older ditto-plots.
+#' @param retain.factor.levels Logical which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
+#' Set to TRUE to faithfully reflect ordering of groupings encoded in factor levels,
+#' but Note that this will also force retention of groupings that could otherwise be removed via \code{cells.use}.
 #'
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
 #'
@@ -126,6 +127,7 @@ dittoBarPlot <- function(
     scale = c("percent", "count"),
     split.by = NULL,
     cells.use = NULL,
+    retain.factor.levels = FALSE,
     data.out = FALSE,
     do.hover = FALSE,
     color.panel = dittoColors(),
@@ -147,8 +149,7 @@ dittoBarPlot <- function(
     main = "make",
     sub = NULL,
     legend.show = TRUE,
-    legend.title = NULL,
-    retain.factor.levels = TRUE) {
+    legend.title = NULL) {
     
     scale = match.arg(scale)
 

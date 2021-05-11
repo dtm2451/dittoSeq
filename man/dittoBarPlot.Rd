@@ -11,6 +11,7 @@ dittoBarPlot(
   scale = c("percent", "count"),
   split.by = NULL,
   cells.use = NULL,
+  retain.factor.levels = FALSE,
   data.out = FALSE,
   do.hover = FALSE,
   color.panel = dittoColors(),
@@ -32,8 +33,7 @@ dittoBarPlot(
   main = "make",
   sub = NULL,
   legend.show = TRUE,
-  legend.title = NULL,
-  retain.factor.levels = TRUE
+  legend.title = NULL
 )
 }
 \arguments{
@@ -56,6 +56,10 @@ When 1 metadata is named, shape control can be achieved with \code{split.nrow} a
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
 
 Note: When \code{cells.use} is combined with \code{scale = "percent"}, left out cells are not considered in calculating percentages. Percents will always total to 1.}
+
+\item{retain.factor.levels}{Logical which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
+Set to TRUE to faithfully reflect ordering of groupings encoded in factor levels,
+but Note that this will also force retention of groupings that could otherwise be removed via \code{cells.use}.}
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.}
 
@@ -125,9 +129,6 @@ Default = "make" and if left as make, a title will be automatically generated.}
 \item{legend.show}{Logical which sets whether the legend should be displayed.}
 
 \item{legend.title}{String which adds a title to the legend.}
-
-\item{retain.factor.levels}{Logical (for older version compatibility) which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
-Set this to FALSE to recreate data order of older ditto-plots.}
 }
 \value{
 A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.

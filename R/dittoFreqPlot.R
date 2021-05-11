@@ -131,6 +131,7 @@ dittoFreqPlot <- function(
     vars.use = NULL,
     scale = c("percent", "count"),
     max.normalize = FALSE,
+    retain.factor.levels = FALSE,
     plots = c("boxplot","jitter"),
     split.nrow = NULL,
     split.ncol = NULL,
@@ -178,8 +179,7 @@ dittoFreqPlot <- function(
     line.linetype = "dashed",
     line.color = "black",
     legend.show = TRUE,
-    legend.title = color.by,
-    retain.factor.levels = TRUE) {
+    legend.title = color.by) {
     
     scale = match.arg(scale)
     ridgeplot.shape <- match.arg(ridgeplot.shape)

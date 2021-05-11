@@ -230,3 +230,21 @@ test_that("'split.by' can be given extra features", {
             split.adjust = list(scales = "free")),
         "ggplot")
 })
+
+test_that("dittoBarPlot, 'retain.factor.level' can be used to respect factor levels", {
+    seurat$var_factor <- factor(
+        meta(grp2, seurat),
+        levels = rev(metaLevels(grp2, seurat)))
+    seurat$grp_factor <- factor(
+        meta(grp3, seurat),
+        levels = rev(metaLevels(grp3, seurat)))
+    
+    # MANUAL: var and group.by ordering should be reverse of alpha-numeric
+    #  & group.by-1 should remain.
+    expect_s3_class(
+        dittoBarPlot(
+            seurat, "var_factor", group.by = "grp_factor",
+            retain.factor.levels = TRUE,
+            cells.use = meta("grp_factor",seurat)!=1),
+        "ggplot")
+})

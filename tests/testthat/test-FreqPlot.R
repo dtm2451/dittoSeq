@@ -149,3 +149,21 @@ test_that("dittoFreqPlot properly checks if samples vs grouping-data has mismatc
             color.by = bad_grp),
         "ggplot")
 })
+
+test_that("dittoFreqPlot, 'retain.factor.level' can be used to respect factor levels", {
+    sce$var_factor <- factor(
+        meta(grp1, sce),
+        levels = rev(metaLevels(grp1, sce)))
+    sce$grp_factor <- factor(
+        meta(grp3, sce),
+        levels = rev(metaLevels(grp3, sce)))
+    
+    # MANUAL: var and group.by ordering should be reverse of alpha-numeric
+    #  & group.by-A should remain but be all zero.
+    expect_s3_class(
+        dittoFreqPlot(
+            sce, "var_factor", sample.by = grp2, group.by = "grp_factor",
+            retain.factor.levels = TRUE,
+            cells.use = meta("grp_factor",sce)!="A"),
+        "ggplot")
+})

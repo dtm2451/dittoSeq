@@ -13,6 +13,7 @@ dittoFreqPlot(
   vars.use = NULL,
   scale = c("percent", "count"),
   max.normalize = FALSE,
+  retain.factor.levels = FALSE,
   plots = c("boxplot", "jitter"),
   split.nrow = NULL,
   split.ncol = NULL,
@@ -60,8 +61,7 @@ dittoFreqPlot(
   line.linetype = "dashed",
   line.color = "black",
   legend.show = TRUE,
-  legend.title = color.by,
-  retain.factor.levels = TRUE
+  legend.title = color.by
 )
 }
 \arguments{
@@ -90,6 +90,10 @@ Note: When \code{var.labels.rename} is jointly utilized to update how the \code{
 \item{max.normalize}{Logical which sets whether the data for each \code{var}-data value (each facet) should be normalized to have the same maximum value.
 
 When set to \code{TRUE}, lower frequency \code{var}-values will make use of just as much plot space as higher frequency vars.}
+
+\item{retain.factor.levels}{Logical which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
+Set to TRUE to faithfully reflect ordering of groupings encoded in factor levels,
+but Note that this will also force retention of groupings that could otherwise be removed via \code{cells.use}.}
 
 \item{plots}{String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
 
@@ -237,9 +241,6 @@ Defaults to "dashed", but any ggplot linetype will work.}
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 
 \item{legend.title}{String or \code{NULL}, sets the title for the main legend which includes colors and data representations.}
-
-\item{retain.factor.levels}{Logical (for older version compatibility) which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
-Set this to FALSE to recreate data order of older ditto-plots.}
 }
 \value{
 A ggplot plot where frequencies of discrete data, grouped by sample, condition, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
