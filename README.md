@@ -38,14 +38,12 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
         - Better use of white space (via adjustments to default plot grid expansion & exposure of a `ridgeplot.ymax.expansion` input to allow user override.)
 - Improved ordering capability for `dittoHeatmap()` & `dittoBarPlot()`:
     - `dittoHeatmap()`: You can now give many metadata to `order.by` and it will use them all, prioritizing earliest items
-    - `dittoBarPlot()`: Factor-level ordering will now be retained in dittoBarPlot for `var` and `group.by` data by default, a typically expected behavior. Old versions' behavior can be brought back by setting `retain.factor.levels = TRUE`.
+    - `dittoBarPlot()`: Factor-level ordering can now be retained in dittoBarPlot for `var` and `group.by` data, a typically expected behavior, by setting a new input `retain.factor.levels = TRUE`.
 - Added interaction with `rowData` of SE and SCEs:
     - `swap.rownames` input allows indication of genes/rows by non-default rownames. E.g. for an `object` with Ensembl_IDs as the default and a rowData column named 'symbol' that contains gene symbols, those symbols can be used via `dittoFunction(..., var = "<gene_symbol>", swap.rownames = "symbol"`).
 - Quality of Life improvements:
     - Standardized `data.out` & `do.hover` interplay to allow both plotly conversion and data output.
     - Documentation Updates
-
-\* = Largely completed but not yet pushed through to Bioc-devel
 
 #### Previous updates:
 

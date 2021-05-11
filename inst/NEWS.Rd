@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.3.15}{\itemize{
+\item Adjusts the default behavior of `retain.factor.levels` input of `dittoBarPlot()` and `dittoFreqPlot()` to FALSE rather than TRUE. Returns default method for BarPlot back to old behavior, and prevents some oddities that arise from factor retention from appearing in FreqPlot unless it is explicitly requested by the user.
+}}
+
 \section{Version 1.3.14}{\itemize{
 \item Vignette Updata & current Seurat Bug Fix: Transitions the single-cell pre-processing chunk of the vignette from a Seurat workflow to a Bioc-OSCA-based workflow.
 }}
