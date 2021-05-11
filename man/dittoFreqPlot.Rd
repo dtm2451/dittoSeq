@@ -60,7 +60,8 @@ dittoFreqPlot(
   line.linetype = "dashed",
   line.color = "black",
   legend.show = TRUE,
-  legend.title = color.by
+  legend.title = color.by,
+  retain.factor.levels = TRUE
 )
 }
 \arguments{
@@ -236,6 +237,9 @@ Defaults to "dashed", but any ggplot linetype will work.}
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 
 \item{legend.title}{String or \code{NULL}, sets the title for the main legend which includes colors and data representations.}
+
+\item{retain.factor.levels}{Logical (for older version compatibility) which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
+Set this to FALSE to recreate data order of older ditto-plots.}
 }
 \value{
 A ggplot plot where frequencies of discrete data, grouped by sample, condition, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.

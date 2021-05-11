@@ -178,7 +178,8 @@ dittoFreqPlot <- function(
     line.linetype = "dashed",
     line.color = "black",
     legend.show = TRUE,
-    legend.title = color.by) {
+    legend.title = color.by,
+    retain.factor.levels = TRUE) {
     
     scale = match.arg(scale)
     ridgeplot.shape <- match.arg(ridgeplot.shape)
@@ -214,7 +215,7 @@ dittoFreqPlot <- function(
         object, var, group.by, split.by = c(sample.by, color.by),
         cells.use, x.reorder, x.labels,
         var.labels.reorder, var.labels.rename, do.hover,
-        retain.factor.levels = TRUE, max.normalize)
+        retain.factor.levels, max.normalize)
     
     # Subset to vars.use
     if (!is.null(vars.use)) {
