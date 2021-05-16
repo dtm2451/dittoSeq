@@ -8,8 +8,10 @@ bibentry(
         person("Marina", "Sirota")),
     title="dittoSeq: universal user-friendly single-cell and bulk RNA sequencing visualization toolkit",
     journal="Bioinformatics",
+    volumne = "36",
+    number = "22-23",
+    pages = "5535-5536",
     year="2020",
     month="12",
-    doi = "10.1093/bioinformatics/btaa1011",
-    note = "btaa1001"
+    doi = "10.1093/bioinformatics/btaa1011"
 )
