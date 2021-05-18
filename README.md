@@ -19,7 +19,7 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 ### News: 
 
-#### Updates coming in dittoSeq v1.4:
+#### Updates in dittoSeq v1.4:
 
 - Added 1 New Visualization Function: `dittoFreqPlot()`:
   - Combines the population frequency summarization of `dittoBarPlot()` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons which focus on individual cell types / clusters!
