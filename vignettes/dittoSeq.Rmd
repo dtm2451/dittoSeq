@@ -4,7 +4,7 @@ author:
 - name: Daniel Bunis
   affiliation: Bakar Computational Health Sciences Institute, University of California San Francisco, San
   email: daniel.bunis@ucsf.edu
-date: "October 9th, 2020"
+date: "May 25th, 2021"
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -188,6 +188,11 @@ sce <- runUMAP(sce, pca = 10)
 library(bluster)
 sce$cluster <- clusterCells(sce, use.dimred='PCA',
     BLUSPARAM=NNGraphParam(cluster.fun="louvain"))
+
+# Add some metadata common to Seurat objects
+sce$nCount_RNA <- colSums(counts(sce))
+sce$nFeature_RNA <- colSums(counts(sce)>0)
+sce$percent.mito <- colSums(counts(sce)[grep("^MT-", rownames(sce)),])/sce$nCount_RNA 
 
 sce
 ```
@@ -404,7 +409,7 @@ of `dittoDimPlot()` being dimensionality reductions like tsne, pca, umap or
 similar.
 
 ```{r, results = "hold"}
-dittoDimPlot(sce, "label", reduction.use = "pca")
+dittoDimPlot(sce, "label", reduction.use = "PCA")
 dittoDimPlot(sce, "ENO1")
 ```
 
@@ -450,7 +455,7 @@ dittoDimPlot(sce, "cluster",
                  c("8","7","1"),
                  c("5","11","6"),
                  c("10","0")),
-             trajectory.cluster.meta = "ident")
+             trajectory.cluster.meta = "cluster")
 ```
 
 ## dittoDimHex & dittoScatterHex
@@ -882,7 +887,7 @@ dittoPlotVarsAcrossGroups), the `hover.data` input is not used.
 # These can be finicky to render in knitting, but still, example code:
 dittoDimPlot(sce, "INS",
     do.hover = TRUE,
-    hover.data = c("label", "donor", "ENO1", "ident", "nCount_RNA"))
+    hover.data = c("label", "donor", "ENO1", "cluster", "nCount_RNA"))
 dittoBarPlot(sce, "label", group.by = "donor",
     do.hover = TRUE)
 ```
