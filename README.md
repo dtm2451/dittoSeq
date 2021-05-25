@@ -125,11 +125,10 @@ Because often users will be familiar with Seurat already, so this may be 90% of 
   
   See reference below for the equivalent names of major inputs
   
-  For input names Seurat has had some inconsistency compared to its past. dittoSeq
-  actually drew some of its parameter names from previous Seurat-equivalents in
-  order to ease cross-conversion, but alas... I will NOT break peoples' code
-  just to follow another package's changes (and especially not just for the
-  purpose of "We like this name better now."). Instead, dittoSeq input names are
+  Seurat has had inconsistency in input names from version to version. dittoSeq
+  drew some of its parameter names from previous Seurat-equivalents to ease
+  cross-conversion, but continuing to blindly copy their parameter standards will
+  break people's already existing code. Instead, dittoSeq input names are
   guaranteed to remain consistent across versions, unless a change is required for
   useful feature additions.
   
