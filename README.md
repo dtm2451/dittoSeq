@@ -94,6 +94,65 @@ if (!requireNamespace("devtools", quietly = TRUE))
 devtools::install_github("dtm2451/dittoSeq")
 ```
 
+# Quick Reference: Seurat <=> dittoSeq
+
+Because often users will be familiar with Seurat already, so this may be 90% of what you may need!
+
+<details>
+
+  <summary>Click to expand</summary>
+
+  As of May 25th, 2021, Seurat-v4.0.2 & dittoSeq v1.4.1
+  
+  **Functions**
+  
+  Seurat Viz Function(s) | dittoSeq Equivalent(s)
+  --- | ---
+  DimPlot/ (I)FeaturePlot / UMAPPlot / etc. | dittoDimPlot / multi_dittoDimPlot
+  VlnPlot / RidgePlot | dittoPlot / multi_dittoPlot
+  DotPlot | dittoDotPlot
+  FeatureScatter / GenePlot | dittoScatterPlot
+  DoHeatmap | dittoHeatmap*
+  [No Seurat Equivalent] | dittoBarPlot / dittoFreqPlot
+  [No Seurat Equivalent] | dittoDimHex / dittoScatterHex
+  [No Seurat Equivalent] | dittoPlotVarsAcrossGroups
+  SpatialDimPlot, SpatialFeaturePlot, etc. | dittoSpatial (coming soon!)
+  
+  *Not all dittoSeq features exist in Seurat counterparts, and occasionally the
+  same is true in the reverse.
+  
+  **Inputs**
+  
+  See reference below for the equivalent names of major inputs
+  
+  For input names Seurat has had some inconsistency compared to its past. dittoSeq
+  actually drew some of its parameter names from previous Seurat-equivalents in
+  order to ease cross-conversion, but alas... I will NOT break peoples' code
+  just to follow another package's changes (and especially not just for the
+  purpose of "We like this name better now."). Instead, dittoSeq input names are
+  guaranteed to remain consistent across versions, unless a change is required for
+  useful feature additions.
+  
+  Seurat Viz Input(s) | dittoSeq Equivalents
+  --- | ---
+  `object` | SAME
+  `features` | `var` / `vars` (generally the 2nd input, so name not needed!) OR `genes` & `metas` for dittoHeatmap()
+  `cells` (cell subsetting is not always available) | `cells.use` (consistently available)
+  `reduction` & `dims` | `reduction.use` & `dim.1`, `dim.2`
+  `pt.size` | `size` (or `jitter.size`)
+  `group.by` | SAME
+  `split.by` | SAME
+  `shape.by` | SAME and also available in dittoPlot()
+  `fill.by` | `color.by` (can be used to subset `group.by` further!)
+  `assay` / `slot` | SAME
+  `order` = logical | `order` but = "unordered" (default), "increasing", or "decreasing"
+  `cols` | `color.panel` for discrete OR `min.color`, `max.color` for continuous
+  `label` & `label.size` & `repel` | `do.label` & `labels.size` & `labels.repel`
+  `interactive` | `do.hover` = via plotly conversion
+  [Not in Seurat] | `data.out`, `do.raster`, `do.letter`, `do.ellipse`, `add.trajectory.lineages` and others!
+  
+</details>
+
 # Quick Start Guide:
 
 Load in your data, then go!:

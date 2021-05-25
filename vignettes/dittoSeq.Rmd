@@ -96,7 +96,7 @@ BiocManager::install("dittoSeq")
 
 # Ref: Seurat<=>dittoSeq
 
-As of May 25th, 2021, Seurat-v4.0.2 & dittoSeq v1.5.1
+As of May 25th, 2021, Seurat-v4.0.2 & dittoSeq v1.4.1
 
 Because often users will be familiar with Seurat already, so this may be 90% of
 what you may need!
