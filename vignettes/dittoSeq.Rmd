@@ -94,7 +94,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("dittoSeq")
 ```
 
-# Ref: Seurat<=>dittoSeq
+# Quick-Reference: Seurat<=>dittoSeq
 
 As of May 25th, 2021, Seurat-v4.0.2 & dittoSeq v1.4.1
 
@@ -129,7 +129,7 @@ break people's already existing code. Instead, dittoSeq input names are
 guaranteed to remain consistent across versions, unless a change is required for
 useful feature additions.
 
-Seurat Viz Input(s) | dittoSeq Equivalents
+Seurat Viz Input(s) | dittoSeq Equivalent(s)
 --- | ---
 `object` | SAME
 `features` | `var` / `vars` (generally the 2nd input, so name not needed!) OR `genes` & `metas` for dittoHeatmap()
@@ -147,7 +147,7 @@ Seurat Viz Input(s) | dittoSeq Equivalents
 `interactive` | `do.hover` = via plotly conversion
 [Not in Seurat] | `data.out`, `do.raster`, `do.letter`, `do.ellipse`, `add.trajectory.lineages` and others!
 
-## Some simple preprocessing
+# Setup: Some simple preprocessing
 
 For examples, we will use a pancreatic
 @baron_single-cell_2016 is not normalized nor dimensionality reduced upon
@@ -197,7 +197,7 @@ sce$percent.mito <- colSums(counts(sce)[grep("^MT-", rownames(sce)),])/sce$nCoun
 sce
 ```
 
-Now that we have a single-cell dataset loaded and analyzed as an SCE, but note:
+Now we have a single-cell dataset loaded and analyzed as an SCE, but note:
 **All functions will work the same for single-cell data stored as either**
 **Seurat or SCE.**
 
