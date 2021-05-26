@@ -20,7 +20,9 @@ test_that("dittoBarPlot works for a Seurat", {
 })
 
 test_that("importDemux + demux.SNP.summary & demux.calls.summary work for a Seurat", {
+    
     skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+
     ### Prep
     sce.noDash <- sce
     colnames(sce.noDash) <- sapply(colnames(sce.noDash), function(X) strsplit(X, "-")[[1]][1])
@@ -54,19 +56,25 @@ test_that("importDemux + demux.SNP.summary & demux.calls.summary work for a Seur
 })
   
 test_that("dittoDimPlot work for a Seurat & 'slot' input usable", {
-  expect_s3_class(
-      dittoDimPlot(
-          "groups", object=seurat),
-      "ggplot")
-  
-  df <- dittoDimPlot("gene1", object = seurat, data.out = TRUE,
-      slot = "counts")
-  expect_equal(
-      df$Target_data$color,
-      round(df$Target_data$color,0))
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+
+    expect_s3_class(
+        dittoDimPlot(
+            "groups", object=seurat),
+        "ggplot")
+    
+    df <- dittoDimPlot("gene1", object = seurat, data.out = TRUE,
+        slot = "counts")
+    expect_equal(
+        df$Target_data$color,
+        round(df$Target_data$color,0))
 })
 
 test_that("dittoDotPlot works with gene and meta data for a Seurat, with 'slot' doing what it should", {
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+  
     expect_s3_class(
         print(dittoDotPlot(seurat, group.by = "clusters",
             getGenes(sce)[1:5])),
@@ -93,6 +101,9 @@ test_that("dittoDotPlot works with gene and meta data for a Seurat, with 'slot' 
 })
 
 test_that("Heatmap can be plotted for a Seurat and slot adjusted", {
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+
     expect_s3_class(
         dittoHeatmap(
             genes = getGenes(sce)[1:9],
@@ -113,6 +124,9 @@ test_that("Heatmap can be plotted for a Seurat and slot adjusted", {
 })
 
 test_that("DimHex & ScatterHex work for Seurat", {
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+
     expect_s3_class(dittoDimHex(object=seurat), "ggplot")
     expect_s3_class(dittoDimHex("number", object=seurat), "ggplot")
     # Slot / Assay
@@ -135,12 +149,18 @@ test_that("DimHex & ScatterHex work for Seurat", {
 })
 
 test_that("VaryCells works for a Seurat", {
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+
     expect_s3_class(
         multi_dittoDimPlotVaryCells("gene1", object=seurat, "age"),
         "gtable")
 })
 
 test_that("dittoPlot can work for a Seurat", {
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+
     expect_s3_class(
         dittoPlot(
             "gene1", object=seurat, group.by = "clusters",
@@ -149,6 +169,9 @@ test_that("dittoPlot can work for a Seurat", {
 })
 
 test_that("dittoPlotVarsAcrossGroups can work for a Seurat", {
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+
     sce$half <- c(rep("a", 40), rep("b", ncells-40))
     sce$quarter <- sce$half
     sce$quarter[21:40] <- "c"
@@ -160,6 +183,9 @@ test_that("dittoPlotVarsAcrossGroups can work for a Seurat", {
 })
 
 test_that("dittoScatterPlot can plot genes or metadata for a Seurat, with'slot' adjustable", {
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+
     expect_s3_class(
         dittoScatterPlot(
             "gene1", "number", object = seurat),
