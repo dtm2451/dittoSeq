@@ -5,7 +5,7 @@ gene <- "gene1"
 cont <- "score2"
 disc <- "groups"
 disc2 <- "age"
-cells.names <- colnames(seurat)[1:40]
+cells.names <- colnames(sce)[1:40]
 cells.logical <- c(rep(TRUE, 40), rep(FALSE,ncells-40))
 cols <- c("red", "blue", "yellow", "green", "black", "gray", "white")
 
@@ -57,7 +57,7 @@ test_that("dittoDimPlots can be subset to show only certain cells/samples with a
     expect_s3_class(
         dittoDimPlot(
             disc, object = se, reduction.use = embeds,
-            cells.use = meta(disc,seurat)!="A"),
+            cells.use = meta(disc,sce)!="A"),
         "ggplot")
 })
 
@@ -189,17 +189,12 @@ test_that("dittoDimPlot can add extra vars to dataframe", {
 })
 
 test_that("dittoDimPlot genes can be different data types", {
-    df <- dittoDimPlot(gene, object = seurat, data.out = TRUE,
-        slot = "counts")
-    expect_equal(
-        df$Target_data$color,
-        round(df$Target_data$color,0))
-    df <- dittoDimPlot(gene, object = sce, data.out = TRUE,
+    df <- dittoDimPlot(gene, object = se, reduction.use = embeds, data.out = TRUE,
         assay = "counts")
     expect_equal(
         df$Target_data$color,
         round(df$Target_data$color,0))
-    df <- dittoDimPlot(gene, object = sce, data.out = TRUE,
+    df <- dittoDimPlot(gene, object = se, reduction.use = embeds, data.out = TRUE,
         adjustment = "relative.to.max")
     expect_equal(
         0:1,
