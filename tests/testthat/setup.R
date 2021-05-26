@@ -54,10 +54,6 @@ sce <- SingleCellExperiment(
 # Remove the unneeded external data
 rm(exp,exp.vec,logexp,pca,tsne,l1,l2,clusters,groups,age,score,score2,score3)
 
-# Make a Seurat
-seurat <- suppressWarnings(Seurat::as.Seurat(sce))
-rownames(seurat@meta.data) <- colnames(seurat)
-
 # Manually make bulk
 bulk <- sce
 int_metadata(bulk) <- c(
