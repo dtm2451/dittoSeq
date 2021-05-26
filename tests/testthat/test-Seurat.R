@@ -3,13 +3,16 @@
 
 sce$number <- as.numeric(seq_along(colnames(sce)))
 
-seurat <- suppressWarnings(Seurat::as.Seurat(sce))
+# Convert
+seurat <- try(Seurat::as.Seurat(sce), silent = FALSE)
+seurat_conversion_worked <- exists("seurat")
 
-# Ensure metadata has row.names (past issue with the fxn)
+# Ensure metadata has row.names (a past issue with the fxn)
 rownames(seurat@meta.data) <- colnames(seurat)
 
 ### TESTS
 test_that("dittoBarPlot works for a Seurat", {
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
     expect_s3_class(
         dittoBarPlot(
             seurat, "clusters", group.by = "age"),
@@ -17,11 +20,12 @@ test_that("dittoBarPlot works for a Seurat", {
 })
 
 test_that("importDemux + demux.SNP.summary & demux.calls.summary work for a Seurat", {
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
     ### Prep
     sce.noDash <- sce
     colnames(sce.noDash) <- sapply(colnames(sce.noDash), function(X) strsplit(X, "-")[[1]][1])
     # Convert that SCE to Seurat
-    seurat.noDash <- suppressWarnings(Seurat::as.Seurat(sce.noDash))
+    seurat.noDash <- try(Seurat::as.Seurat(sce.noDash), silent = TRUE)
     
     expect_s4_class(
         seurat.demux <- importDemux(
