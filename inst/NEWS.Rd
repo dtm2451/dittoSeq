@@ -2,6 +2,12 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.5.1}{\itemize{
+\item Build & Test Infrastructure Fix/Update: Removes the remaining Seurat code from the vignette and makes all unit-testing of Seurat interactions conditional on SCE to Seurat cnversion.
+\item Vignette Update: Adds a 'Quick-Reference: Seurat<=>dittoSeq' section
+\item Doc Update: 'metaLevels()'
+}}
+
 \section{Version 1.4}{\itemize{
 \item Added 1 new Visualization function: 'dittoFreqPlot()'.
 \item Added interaction with 'rowData' of SE and SCEs via a 'swap.rownames' input, e.g. to simplify provision of 'var's via symbols vs IDs.
