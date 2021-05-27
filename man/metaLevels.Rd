@@ -15,10 +15,10 @@ metaLevels(meta, object, cells.use = NULL, used.only = TRUE)
 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
-\item{used.only}{TRUE by default, whether unused levels of already}
+\item{used.only}{TRUE by default, for target metadata that are factors, whether levels nonexistent in the target data should be ignored.}
 }
 \value{
-Returns the distinct values of a metadata slot (factor or not) among to all cells/samples, or for a subset of cells/samples.
+String vector, the distinct values of a metadata slot (factor or not) among all cells/samples, or for a subset of cells/samples.
 (Alternatively, returns the distinct values of clustering if \code{meta = "ident"} and the object is a \code{Seurat} object).
 }
 \description{
