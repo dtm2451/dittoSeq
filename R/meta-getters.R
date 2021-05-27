@@ -174,11 +174,11 @@ meta <- function(meta, object,
 #'
 #' @param meta quoted "meta.data.slot" name = REQUIRED. the meta.data slot whose potential values should be retrieved.
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
-#' @param used.only TRUE by default, whether unused levels of already
+#' @param used.only TRUE by default, for target metadata that are factors, whether levels nonexistent in the target data should be ignored.
 #' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 #' 
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#' @return Returns the distinct values of a metadata slot (factor or not) among to all cells/samples, or for a subset of cells/samples.
+#' @return String vector, the distinct values of a metadata slot (factor or not) among all cells/samples, or for a subset of cells/samples.
 #' (Alternatively, returns the distinct values of clustering if \code{meta = "ident"} and the object is a \code{Seurat} object).
 #' @seealso
 #' \code{\link{meta}} for returning an entire metadata slots of an \code{object}, not just the potential levels

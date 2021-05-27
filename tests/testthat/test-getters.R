@@ -1,94 +1,157 @@
 # Tests for visualization functions
-# library(dittoSeq); library(testthat); source("setup.R"); source("test-getters.R")
+# library(dittoSeq); library(testthat); source("setup.R"); source("../../R/utils-getters.R"); source("test-getters.R")
+
+# Make Seurat, if can
+try(seurat <- Seurat::as.Seurat(sce), silent = TRUE)
+seurat_conversion_worked <- exists("seurat")
+
+# Ensure metadata has row.names (a past issue with the fxn)
+if (seurat_conversion_worked) {
+    rownames(seurat@meta.data) <- colnames(seurat)
+}
 
 test_that("getMetas works for Seurat and SCE", {
-    expect_type(metas <- getMetas(seurat),
+    expect_type(metas <- getMetas(sce),
         "character")
-    expect_true(all(metas %in% getMetas(sce)))
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_true(all(metas %in% getMetas(seurat)))
 })
-
-metas <- getMetas(seurat)
 
 test_that("isMeta works for Seurat and SCE", {
-    expect_false(isMeta("HELLO", seurat))
     expect_false(isMeta("HELLO", sce))
+    expect_true(isMeta("score", sce))
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_false(isMeta("HELLO", seurat))
     expect_true(isMeta("ident", seurat))
     expect_true(isMeta("score", seurat))
-    expect_true(isMeta("score", sce))
 })
 
-test_that("meta works for Seurat and SCE", {
-    expect_type(counts <- meta("score", seurat),
+test_that("meta works for Seurat and SCE (+ adjustment/adj.fxn)", {
+    expect_type(
+        meta("score", sce),
         "double")
-    expect_equal(counts, meta("score", sce))
-    expect_type(meta("score", seurat, adjustment = "z-score"),
+    expect_type(
+        meta("score", sce, adjustment = "z-score"),
         "double")
-    expect_equal(0, mean(
-        meta("score", seurat, adjustment = "z-score")))
-    expect_type(meta("score", seurat, adjustment = "relative.to.max"),
-        "double")
-    expect_equal(0:1, range(
-        meta("score", seurat, adjustment = "relative.to.max")))
-    expect_equal(factor(meta("score", seurat)),
-        meta("score", seurat, adj.fxn = function(x) {factor(x)}))
+    expect_equal(
+        0,
+        mean(meta("score", sce, adjustment = "z-score")))
+    expect_equal(
+        0:1,
+        range(meta("score", sce, adjustment = "relative.to.max")))
+    expect_equal(
+        factor(meta("score", sce)),
+        meta("score", sce, adj.fxn = function(x) {factor(x)}))
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_equal(
+        meta("score", sce),
+        meta("score", seurat))
+    expect_equal(
+        0:1,
+        range(meta("score", seurat, adjustment = "relative.to.max")))
 })
 
-test_that("metaLevels works for Seurat and SCE", {
-    expect_type(groups <- metaLevels("groups", seurat),
+test_that("metaLevels works for Seurat and SCE (+ cells.use & used.only)", {
+    expect_type(groups <- metaLevels("groups", sce),
         "character")
-    expect_equal(groups, metaLevels("groups", sce))
+    
+    expect_gt(
+        length(groups),
+        length(metaLevels("groups", sce,
+            cells.use = sce$groups!=groups[1]))
+    )
+    
+    sce$groups_fac <- factor(sce$groups)
+    expect_gt(
+        length(groups),
+        length(metaLevels("groups_fac", sce,
+            cells.use = sce$groups!=groups[1]))
+    )
+    expect_equal(
+        length(groups),
+        length(metaLevels("groups_fac", sce,
+            cells.use = sce$groups!=groups[1],
+            used.only = FALSE))
+    )
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_equal(groups, metaLevels("groups", seurat))
 })
 
 test_that("meta and metaLevels give error when given a non-meta", {
-    expect_error(meta("a", seurat),
+    expect_error(meta("a", sce),
         "is not a metadata of 'object'", fixed = TRUE)
-    expect_error(metaLevels("a", seurat),
+    expect_error(metaLevels("a", sce),
         "is not a metadata of 'object'", fixed = TRUE)
 })
 
 test_that("getGenes works for Seurat and SCE", {
-    expect_type(genes <- getGenes(seurat),
+    expect_type(genes <- getGenes(sce),
         "character")
-    expect_equal(genes, getGenes(sce))
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_equal(genes, getGenes(seurat))
 })
-
-genes <- getGenes(seurat)
 
 test_that("isGene works for Seurat and SCE", {
-    expect_false(isGene("HELLO", seurat))
     expect_false(isGene("HELLO", sce))
-    expect_true(isGene("gene1", seurat))
     expect_true(isGene("gene1", sce))
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_false(isGene("HELLO", seurat))
+    expect_true(isGene("gene1", seurat))
 })
 
-test_that("isGene works for different assays in SCE", {
+test_that("isGene works for different assays / slots", {
     expect_false(isGene("HELLO", sce, assay = "counts"))
     expect_true(isGene("gene1", sce, assay = "counts"))
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_false(isGene("HELLO", seurat))
+    expect_true(isGene("gene1", seurat))
 })
 
-test_that("gene works for different data types for Seurat and SCE", {
-    expect_type(gene("gene1", sce),
-        "double")
-    expect_type(gene("gene1", sce, assay = "counts"),
-        "double")
-    expect_type(gene("gene1", seurat, slot = "counts"),
-        "double")
-    expect_type(gene("gene1", seurat, slot = "data"),
-        "double")
-    expect_type(gene("gene1", seurat, adjustment = "z-score"),
-        "double")
-    expect_equal(0, mean(
-        gene("gene1", seurat, adjustment = "z-score")))
-    expect_type(gene("gene1", seurat, adjustment = "relative.to.max"),
-        "double")
-    expect_equal(0:1, range(
-        gene("gene1", seurat, adjustment = "relative.to.max")))
-    expect_equal(gene("gene1", seurat)+1,
-        gene("gene1", seurat, adj.fxn = function(x) {x+1}))
+test_that("isGene can return logical or names for test vectors", {
+    expect_equivalent(
+        isGene(c("HELLO","gene1","gene2"), sce),
+        c(FALSE, TRUE, TRUE))
+    expect_equivalent(
+        isGene(c("HELLO","gene1","gene2"), sce, return.values = TRUE),
+        c("gene1","gene2"))
 })
 
-test_that("gene gives error when given a non-meta", {
-    expect_error(gene("a", seurat),
+test_that("gene works for Seurat and SCE (+ assay/slot & adjustment/adj.fxn)", {
+    expect_type(log <- gene("gene1", sce),
+        "double")
+    expect_type(raw <- gene("gene1", sce, assay = "counts"),
+        "double")
+    expect_false(identical(log,raw))
+    
+    expect_equal(
+        0,
+        mean(gene("gene1", sce, adjustment = "z-score")))
+    expect_equal(
+        0:1,
+        range(gene("gene1", sce, adjustment = "relative.to.max")))
+    
+    expect_equal(
+        gene("gene1", sce)+1,
+        gene("gene1", sce,
+             adj.fxn = function(x) {x+1}))
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_type(log <- gene("gene1", seurat),
+        "double")
+    expect_type(raw <- gene("gene1", seurat, slot = "counts"),
+        "double")
+    expect_false(identical(log,raw))
+})
+
+test_that("gene gives error when given a non-gene", {
+    expect_error(gene("a", sce),
         "is not a gene of 'object'", fixed = TRUE)
 })
 
@@ -111,21 +174,25 @@ test_that("gene, isGene, and getGenes work with swap.rownames",{
 })
 
 test_that("getReductions works for Seurat and SCE", {
-    expect_type(reductions <- getReductions(seurat),
+    expect_type(reductions <- getReductions(sce),
         "character")
-    expect_equal(reductions, getReductions(sce))
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_equal(reductions, getReductions(seurat))
 })
 
 test_that(".var_or_get_meta_or_gene gets metas, genes, spits back var, or errors if wrong length", {
     expect_equal(
-        .var_OR_get_meta_or_gene("groups", seurat),
-        meta("groups", seurat))
+        .var_OR_get_meta_or_gene("groups", sce),
+        meta("groups", sce))
     expect_equal(
-        .var_OR_get_meta_or_gene("gene1", seurat),
-        gene("gene1", seurat))
+        .var_OR_get_meta_or_gene("gene1", sce),
+        gene("gene1", sce))
     expect_equal(
-        length(.var_OR_get_meta_or_gene(seq_len(ncol(seurat)), seurat)),
-        ncol(seurat)) # just checks length because names are added by the function.
+        seq_len(ncol(sce)),
+        unname(.var_OR_get_meta_or_gene(
+            seq_len(ncol(sce)),
+            sce)))
     expect_error(.var_OR_get_meta_or_gene(1,sce),
         "is not a metadata or gene nor equal in length to ncol('object')", fixed = TRUE)
 })
@@ -133,8 +200,10 @@ test_that(".var_or_get_meta_or_gene gets metas, genes, spits back var, or errors
 test_that("isBulk works properly", {
     expect_true(isBulk(bulk))
     expect_false(isBulk(sce))
-    expect_false(isBulk(seurat))
     expect_true(isBulk(as(sce, "SummarizedExperiment")))
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_false(isBulk(seurat))
 })
 
 test_that("setBulk works properly", {
@@ -144,11 +213,13 @@ test_that("setBulk works properly", {
 })
 
 test_that(".which_cells converts non-string cells.use to string", {
-    expect_equal(.which_cells(1:10, sce), colnames(sce)[1:10])
+    expect_equal(
+        .which_cells(1:10, sce),
+        colnames(sce)[1:10])
+    
     logical <- rep(FALSE, ncol(sce))
     logical[1:10] <- TRUE
     expect_equal(.which_cells(logical, sce), colnames(sce)[1:10])
-    expect_equal(.which_cells(colnames(sce)[1:10], sce), colnames(sce)[1:10])
 })
 
 test_that(".which_cells errors when logical 'cells.use' is the wrong length", {

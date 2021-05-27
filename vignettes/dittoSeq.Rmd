@@ -4,7 +4,7 @@ author:
 - name: Daniel Bunis
   affiliation: Bakar Computational Health Sciences Institute, University of California San Francisco, San
   email: daniel.bunis@ucsf.edu
-date: "October 9th, 2020"
+date: "May 25th, 2021"
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -42,7 +42,7 @@ these formats:
 Single-Cell:
 
 - SingleCellExperiment
-- Seurat (versions 2 & 3)
+- Seurat (v2 onwards)
 
 Bulk:
 
@@ -79,7 +79,7 @@ dittoSeq plots might look like to a colorblind individual.
 Code used here for dataset processing and normalization should not be seen as
 a suggestion of the proper methods for performing such steps. dittoSeq is a
 visualization tool, and my focus while developing this vignette has been simply
-creating values required for providing visualization examples.
+creating values required for providing "pretty-enough" visualization examples.
 
 # Installation
 
@@ -94,7 +94,60 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("dittoSeq")
 ```
 
-## Some simple preprocessing
+# Quick-Reference: Seurat<=>dittoSeq
+
+As of May 25th, 2021, Seurat-v4.0.2 & dittoSeq v1.4.1
+
+Because often users will be familiar with Seurat already, so this may be 90% of
+what you may need!
+
+## Functions
+
+Seurat Viz Function(s) | dittoSeq Equivalent(s)
+--- | ---
+DimPlot/ (I)FeaturePlot / UMAPPlot / etc. | dittoDimPlot / multi_dittoDimPlot
+VlnPlot / RidgePlot | dittoPlot / multi_dittoPlot
+DotPlot | dittoDotPlot
+FeatureScatter / GenePlot | dittoScatterPlot
+DoHeatmap | dittoHeatmap*
+[No Seurat Equivalent] | dittoBarPlot / dittoFreqPlot
+[No Seurat Equivalent] | dittoDimHex / dittoScatterHex
+[No Seurat Equivalent] | dittoPlotVarsAcrossGroups
+SpatialDimPlot, SpatialFeaturePlot, etc. | dittoSpatial (coming soon!)
+
+*Not all dittoSeq features exist in Seurat counterparts, and occasionally the
+same is true in the reverse.
+
+## Inputs
+
+See reference below for the equivalent names of major inputs
+
+Seurat has had inconsistency in input names from version to version. dittoSeq
+drew some of its parameter names from previous Seurat-equivalents to ease
+cross-conversion, but continuing to blindly copy their parameter standards will
+break people's already existing code. Instead, dittoSeq input names are
+guaranteed to remain consistent across versions, unless a change is required for
+useful feature additions.
+
+Seurat Viz Input(s) | dittoSeq Equivalent(s)
+--- | ---
+`object` | SAME
+`features` | `var` / `vars` (generally the 2nd input, so name not needed!) OR `genes` & `metas` for dittoHeatmap()
+`cells` (cell subsetting is not always available) | `cells.use` (consistently available)
+`reduction` & `dims` | `reduction.use` & `dim.1`, `dim.2`
+`pt.size` | `size` (or `jitter.size`)
+`group.by` | SAME
+`split.by` | SAME
+`shape.by` | SAME and also available in dittoPlot()
+`fill.by` | `color.by` (can be used to subset `group.by` further!)
+`assay` / `slot` | SAME
+`order` = logical | `order` but = "unordered" (default), "increasing", or "decreasing"
+`cols` | `color.panel` for discrete OR `min.color`, `max.color` for continuous
+`label` & `label.size` & `repel` | `do.label` & `labels.size` & `labels.repel`
+`interactive` | `do.hover` = via plotly conversion
+[Not in Seurat] | `data.out`, `do.raster`, `do.letter`, `do.ellipse`, `add.trajectory.lineages` and others!
+
+# Setup: Some simple preprocessing
 
 For examples, we will use a pancreatic
 @baron_single-cell_2016 is not normalized nor dimensionality reduced upon
@@ -136,30 +189,17 @@ library(bluster)
 sce$cluster <- clusterCells(sce, use.dimred='PCA',
     BLUSPARAM=NNGraphParam(cluster.fun="louvain"))
 
+# Add some metadata common to Seurat objects
+sce$nCount_RNA <- colSums(counts(sce))
+sce$nFeature_RNA <- colSums(counts(sce)>0)
+sce$percent.mito <- colSums(counts(sce)[grep("^MT-", rownames(sce)),])/sce$nCount_RNA 
+
 sce
 ```
 
-Now that we have a single-cell dataset loaded and analyzed, let's convert it to
-a Seurat, and add a few extra metadata, for example purposes.
-
-```{r}
-## Transform into a Seurat for examples, and percent.mito
-# First, just to better align with a coupld Seurat conventions...
-sce$nCount_RNA <- colSums(counts(sce))
-sce$nFeature_RNA <- colSums(counts(sce)>0)
-sce1 <- sce
-reducedDimNames(sce1) <- c("pca", "umap")
-
-library(Seurat)
-seurat <- as.Seurat(sce1)
-seurat$percent.mito <- PercentageFeatureSet(seurat, pattern = "^MT")
-Idents(seurat) <- "cluster"
-
-rm(sce1)
-seurat
-```
-
-All functions will work the same for either the Seurat or SCE version.
+Now we have a single-cell dataset loaded and analyzed as an SCE, but note:
+**All functions will work the same for single-cell data stored as either**
+**Seurat or SCE.**
 
 # Getting started
 
@@ -170,8 +210,8 @@ special is needed. Just load in your data if it isn't already loaded, then go!
 
 ```{r}
 library(dittoSeq)
-dittoDimPlot(seurat, "donor")
-dittoPlot(seurat, "ENO1", group.by = "label")
+dittoDimPlot(sce, "donor")
+dittoPlot(sce, "ENO1", group.by = "label")
 dittoBarPlot(sce, "label", group.by = "donor")
 ```
 
@@ -305,32 +345,32 @@ dimensionality reduction options for plotting.
 
 ```{r}
 # Retrieve all metadata slot names
-getMetas(seurat)
+getMetas(sce)
 # Query for the presence of a metadata slot
-isMeta("nCount_RNA", seurat)
+isMeta("nCount_RNA", sce)
 # Retrieve metadata values:
-meta("label", seurat)[1:10]
+meta("label", sce)[1:10]
 # Retrieve unique values of a metadata
-metaLevels("label", seurat)
+metaLevels("label", sce)
 ```
 
 ## Genes/Features
 
 ```{r}
 # Retrieve all gene names
-getGenes(seurat)[1:10]
+getGenes(sce)[1:10]
 # Query for the presence of a gene(s)
-isGene("CD3E", seurat)
-isGene(c("CD3E","ENO1","INS","non-gene"), seurat, return.values = TRUE)
+isGene("CD3E", sce)
+isGene(c("CD3E","ENO1","INS","non-gene"), sce, return.values = TRUE)
 # Retrieve gene expression values:
-gene("ENO1", seurat)[1:10]
+gene("ENO1", sce)[1:10]
 ```
 
 ## Reductions
 
 ```{r}
 # Retrieve all dimensionality reductions
-getReductions(seurat)
+getReductions(sce)
 ```
 
 These are what can be provided to `reduction.use` for `dittoDimPlot()`.
@@ -369,7 +409,7 @@ of `dittoDimPlot()` being dimensionality reductions like tsne, pca, umap or
 similar.
 
 ```{r, results = "hold"}
-dittoDimPlot(seurat, "label", reduction.use = "pca")
+dittoDimPlot(sce, "label", reduction.use = "PCA")
 dittoDimPlot(sce, "ENO1")
 ```
 
@@ -379,7 +419,7 @@ dittoScatterPlot(
     x.var = "PPY", y.var = "INS",
     color.var = "label")
 dittoScatterPlot(
-    object = seurat,
+    object = sce,
     x.var = "nCount_RNA", y.var = "nFeature_RNA",
     color.var = "percent.mito")
 ```
@@ -404,7 +444,7 @@ the XXXX part that comes after `add.XXXX` or `do.XXXX`, as exemplified below.
 A few examples:
 
 ```{r}
-dittoDimPlot(seurat, "ident",
+dittoDimPlot(sce, "cluster",
              
              do.label = TRUE,
              labels.repel = FALSE,
@@ -415,7 +455,7 @@ dittoDimPlot(seurat, "ident",
                  c("8","7","1"),
                  c("5","11","6"),
                  c("10","0")),
-             trajectory.cluster.meta = "ident")
+             trajectory.cluster.meta = "cluster")
 ```
 
 ## dittoDimHex & dittoScatterHex
@@ -431,8 +471,8 @@ summaries of cells/samples within each of those bins.
 The minimal functions will summarize density of cells/samples only using color.
 
 ```{r, results = "hold"}
-dittoDimHex(seurat)
-dittoScatterHex(seurat,
+dittoDimHex(sce)
+dittoScatterHex(sce,
     x.var = "PPY", y.var = "INS")
 ```
 
@@ -446,9 +486,9 @@ color-blindness friendliness of dittoSeq's default colors is no longer
 guaranteed.
 
 ```{r, results = "hold"}
-dittoDimHex(seurat, "INS")
+dittoDimHex(sce, "INS")
 dittoScatterHex(
-    object = seurat,
+    object = sce,
     x.var = "PPY", y.var = "INS",
     color.var = "label",
     colors = c(1:4,7), max.density = 15)
@@ -501,10 +541,10 @@ the `plots` input from c("jitter", "vlnplot") to c("ridgeplot") or
 c("boxplot","jitter"), respectively.
 
 ```{r, results = "hold"}
-dittoPlot(seurat, "ENO1", group.by = "label",
+dittoPlot(sce, "ENO1", group.by = "label",
     plots = c("vlnplot", "jitter"))
 dittoRidgePlot(sce, "ENO1", group.by = "label")
-dittoBoxPlot(seurat, "ENO1", group.by = "label")
+dittoBoxPlot(sce, "ENO1", group.by = "label")
 ```
 
 ### Adjustments to data representations
@@ -514,7 +554,7 @@ inputs, all of which start with the representation types' name.  For
 example...
 
 ```{r}
-dittoPlot(seurat, "ENO1", group.by = "label",
+dittoPlot(sce, "ENO1", group.by = "label",
     plots = c("jitter", "vlnplot", "boxplot"), # <- order matters
     
     # change the color and size of jitter points
@@ -542,8 +582,8 @@ controlled by the `scale` input.
 
 ```{r, results = "hold"}
 # dittoBarPlot
-dittoBarPlot(seurat, "label", group.by = "donor")
-dittoBarPlot(seurat, "label", group.by = "donor",
+dittoBarPlot(sce, "label", group.by = "donor")
+dittoBarPlot(sce, "label", group.by = "donor",
     scale = "count")
 ```
 
@@ -578,9 +618,9 @@ genes <- c("SST", "REG1A", "PPY", "INS", "CELA3A", "PRSS2", "CTRB1",
     "SPINK1", "CELA3B", "CLPS", "OLFM4", "ACTG1", "FTL")
 
 # Annotating and ordering cells by some meaningful feature(s):
-dittoHeatmap(seurat, genes,
+dittoHeatmap(sce, genes,
     annot.by = c("label", "donor"))
-dittoHeatmap(seurat, genes,
+dittoHeatmap(sce, genes,
     annot.by = c("label", "donor"),
     order.by = "donor")
 ```
@@ -593,7 +633,7 @@ shown. (`show_colnames` default is TRUE for bulk, and FALSE for single-cell.)
 
 ```{r}
 # Add annotations
-dittoHeatmap(seurat, genes,
+dittoHeatmap(sce, genes,
     annot.by = c("label", "donor"),
     scaled.to.max = TRUE,
     show_colnames = FALSE,
@@ -610,7 +650,7 @@ when the heatmap would be too complex for editing software like Illustrator.
 
 ```{r}
 # Highlight certain genes
-dittoHeatmap(seurat, genes, annot.by = c("label", "donor"),
+dittoHeatmap(sce, genes, annot.by = c("label", "donor"),
     highlight.features = genes[1:3],
     complex = TRUE)
 ```
@@ -630,6 +670,7 @@ Some setup for these, let's roughly pick out the markers of delta cells in
 this data set
 
 ```{r}
+# seurat <- as.Seurat(sce)
 # Idents(seurat) <- "label"
 # delta.marker.table <- FindMarkers(seurat, ident.1 = "delta")
 # delta.genes <- rownames(delta.marker.table)[1:20]
@@ -655,8 +696,8 @@ a similar range of values for all `vars` displayed and to emphasize differences
 between groups.
 
 ```{r}
-dittoDotPlot(seurat, vars = delta.genes, group.by = "label")
-dittoDotPlot(seurat, vars = delta.genes, group.by = "label",
+dittoDotPlot(sce, vars = delta.genes, group.by = "label")
+dittoDotPlot(sce, vars = delta.genes, group.by = "label",
     scale = FALSE)
 ```
 
@@ -671,9 +712,9 @@ point instead represents a gene (or metadata). More specifically, the average
 expression, within each x-grouping, of a gene (or value of a metadata).
 
 ```{r}
-multi_dittoPlot(seurat, delta.genes[1:6], group.by = "label",
+multi_dittoPlot(sce, delta.genes[1:6], group.by = "label",
     vlnplot.lineweight = 0.2, jitter.size = 0.3)
-dittoPlotVarsAcrossGroups(seurat, delta.genes, group.by = "label",
+dittoPlotVarsAcrossGroups(sce, delta.genes, group.by = "label",
     main = "Delta-cell Markers")
 ```
 
@@ -695,8 +736,8 @@ showing an "AllCells" plot as well, or of outputting the individual plots for
 making manually customized plot arrangements when `data.out = TRUE`.
 
 ```{r, results = "hold"}
-multi_dittoDimPlot(seurat, delta.genes[1:6])
-multi_dittoDimPlotVaryCells(seurat, delta.genes[1],
+multi_dittoDimPlot(sce, delta.genes[1:6])
+multi_dittoDimPlotVaryCells(sce, delta.genes[1],
     vary.cells.meta = "label")
 ```
 
@@ -718,20 +759,20 @@ logical vector that states whether each cell / sample should be included.
 
 ```{r}
 # Original
-dittoBarPlot(seurat, "label", group.by = "donor", scale = "count")
+dittoBarPlot(sce, "label", group.by = "donor", scale = "count")
 
 # First 10 cells
-dittoBarPlot(seurat, "label", group.by = "donor", scale = "count",
+dittoBarPlot(sce, "label", group.by = "donor", scale = "count",
     # String method
-    cells.use = colnames(seurat)[1:10]
+    cells.use = colnames(sce)[1:10]
     # Index method, which would achieve the same effect
     # cells.use = 1:10
     )
 
 # Acinar cells only
-dittoBarPlot(seurat, "label", group.by = "donor", scale = "count",
+dittoBarPlot(sce, "label", group.by = "donor", scale = "count",
     # Logical method
-    cells.use = meta("label", seurat) == "acinar")
+    cells.use = meta("label", sce) == "acinar")
 ```
 
 ## Faceting with split.by
@@ -740,9 +781,9 @@ Most diitoSeq plot types can be faceted into separate plots for distinct groups
 of cells with the `split.by` input.
 
 ```{r}
-dittoPlot(seurat, "PPY", group.by = "donor", 
+dittoPlot(sce, "PPY", group.by = "donor", 
     split.by = "label")
-dittoDimPlot(seurat, "PPY",
+dittoDimPlot(sce, "PPY",
     split.by = c("donor", "label"))
 ```
 
@@ -751,7 +792,7 @@ input. `split.adjust` allows inputs to be passed through to the ggplot
 functions used for achieving the faceting.
 
 ```{r}
-dittoPlot(seurat, "PPY", group.by = "donor", 
+dittoPlot(sce, "PPY", group.by = "donor", 
     split.by = "label",
     split.adjust = list(scales = "free_y"), max = NA)
 ```
@@ -759,7 +800,7 @@ dittoPlot(seurat, "PPY", group.by = "donor",
 When splitting is by only one metadata, the shape of the facet grid can be controlled with `split.ncol` and `split.nrow`.
 
 ```{r, fig.height=7}
-dittoRidgePlot(seurat, "PPY", group.by = "donor", 
+dittoRidgePlot(sce, "PPY", group.by = "donor", 
     split.by = "label",
     split.ncol = 1)
 ```
@@ -770,7 +811,7 @@ Relevant inputs are generally `main`, `sub`, `xlab`, `ylab`, `x.labels`, and
 `legend.title`.
 
 ```{r}
-dittoBarPlot(seurat, "label", group.by = "donor",
+dittoBarPlot(sce, "label", group.by = "donor",
     main = "Encounters",
     sub = "By Type",
     xlab = NULL, # NULL = remove
@@ -792,20 +833,20 @@ easy when nearby clusters appear too similar in tSNE/umap plots!
 
 ```{r, results="hold"}
 # original - discrete
-dittoDimPlot(seurat, "label")
+dittoDimPlot(sce, "label")
 # swapped colors
-dittoDimPlot(seurat, "label",
+dittoDimPlot(sce, "label",
     colors = 5:1)
 # different colors
-dittoDimPlot(seurat, "label",
+dittoDimPlot(sce, "label",
     color.panel = c("red", "orange", "purple", "yellow", "skyblue"))
 ```
 
 ```{r, results="hold"}
 # original - expression
-dittoDimPlot(seurat, "INS")
+dittoDimPlot(sce, "INS")
 # different colors
-dittoDimPlot(seurat, "INS",
+dittoDimPlot(sce, "INS",
     max.color = "red", min.color = "gray90")
 ```
 
@@ -815,7 +856,7 @@ Simply add  `data.out = TRUE` to any of the individual plotters and a
 representation of the underlying data will be output.
 
 ```{r}
-dittoBarPlot(seurat, "label", group.by = "donor",
+dittoBarPlot(sce, "label", group.by = "donor",
     data.out = TRUE)
 ```
 
@@ -825,7 +866,7 @@ expression matrix is represented before plotting, or even to use a different
 heatmap creator from pheatmap altogether.
 
 ```{r}
-dittoHeatmap(seurat, c("SST","CPE","GPX3"), cells.use = colnames(seurat)[1:5],
+dittoHeatmap(sce, c("SST","CPE","GPX3"), cells.use = colnames(sce)[1:5],
     data.out = TRUE)
 ```
 
@@ -844,10 +885,10 @@ dittoPlotVarsAcrossGroups), the `hover.data` input is not used.
 
 ```{r, eval = FALSE}
 # These can be finicky to render in knitting, but still, example code:
-dittoDimPlot(seurat, "INS",
+dittoDimPlot(sce, "INS",
     do.hover = TRUE,
-    hover.data = c("label", "donor", "ENO1", "ident", "nCount_RNA"))
-dittoBarPlot(seurat, "label", group.by = "donor",
+    hover.data = c("label", "donor", "ENO1", "cluster", "nCount_RNA"))
+dittoBarPlot(sce, "label", group.by = "donor",
     do.hover = TRUE)
 ```
 
@@ -875,7 +916,7 @@ ComplexHeatmap, then rasterization should be turned on by default when needed,
 but it can also be turned on manually with `use_raster = TRUE`.
 
 ```{r}
-dittoHeatmap(seurat, genes, scaled.to.max = TRUE,
+dittoHeatmap(sce, genes, scaled.to.max = TRUE,
     complex = TRUE,
     use_raster = TRUE)
 ```

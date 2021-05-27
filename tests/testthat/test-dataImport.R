@@ -1,4 +1,4 @@
-# Tests for importDemux2Seurat function
+# Tests for importDittoBulk function
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-dataImport.R")
 
 library(DESeq2)
