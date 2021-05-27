@@ -3,15 +3,12 @@
 
 sce.noDash <- sce
 colnames(sce.noDash) <- sapply(colnames(sce.noDash), function(X) strsplit(X, "-")[[1]][1])
-seurat.noDash <- suppressWarnings(Seurat::as.Seurat(sce.noDash))
 
 sce2 <- sce.noDash
 colnames(sce2) <- paste(colnames(sce2), rep(1:2, each = 40)[seq_len(ncells)], sep = "-")
-seurat2 <- suppressWarnings(Seurat::as.Seurat(sce2))
 
 sce3 <- sce.noDash
 colnames(sce3) <- paste(colnames(sce3), c(rep(1, 45),rep(2, 35))[seq_len(ncells)], sep = "-")
-seurat3 <- suppressWarnings(Seurat::as.Seurat(sce3))
 
 ### Extract the proper samples calls
 best <- read.table(file = "mock_demux.best", header=TRUE, sep="\t", stringsAsFactors = FALSE)

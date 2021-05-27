@@ -4,11 +4,13 @@
 sce$number <- as.numeric(seq_along(colnames(sce)))
 
 # Convert
-seurat <- try(Seurat::as.Seurat(sce), silent = FALSE)
+try(seurat <- Seurat::as.Seurat(sce), silent = TRUE)
 seurat_conversion_worked <- exists("seurat")
 
 # Ensure metadata has row.names (a past issue with the fxn)
-rownames(seurat@meta.data) <- colnames(seurat)
+if (seurat_conversion_worked) {
+    rownames(seurat@meta.data) <- colnames(seurat)
+}
 
 ### TESTS
 test_that("dittoBarPlot works for a Seurat", {
@@ -172,13 +174,13 @@ test_that("dittoPlotVarsAcrossGroups can work for a Seurat", {
     
     skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
 
-    sce$half <- c(rep("a", 40), rep("b", ncells-40))
-    sce$quarter <- sce$half
-    sce$quarter[21:40] <- "c"
-    sce$quarter[51:ncells] <- "d"
+    seurat$half <- c(rep("a", 40), rep("b", ncells-40))
+    seurat$quarter <- seurat$half
+    seurat$quarter[21:40] <- "c"
+    seurat$quarter[51:ncells] <- "d"
     expect_s3_class(
         dittoPlotVarsAcrossGroups(
-            getGenes(sce)[1:5], object=sce, group.by = "quarter"),
+            getGenes(seurat)[1:5], object=seurat, group.by = "quarter"),
         "ggplot")
 })
 
