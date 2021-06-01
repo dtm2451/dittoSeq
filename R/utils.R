@@ -30,7 +30,14 @@
 
 .error_if_no_complexHm <- function() {
     if (!requireNamespace("ComplexHeatmap", quietly = TRUE)) {
-        stop("ComplexHeatmap installation required for using `complex` in dittoHeatmap.",
+        stop("ComplexHeatmap installation required for using 'complex' in dittoHeatmap.",
              "\nInstall with BiocManager::install('ComplexHeatmap').")
+    }
+}
+
+.error_if_no_SpatialExperiment <- function() {
+    if (!requireNamespace("SpatialExperiment", quietly = TRUE)) {
+        stop("SpatialExperiment installation required for running dittoSpatial.",
+             "\nInstall with BiocManager::install('SpatialExperiment').")
     }
 }

@@ -67,6 +67,7 @@
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
 #' Default = \code{theme_bw()}.
 #' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
+#' @param spatial.image.data A tibble, normally passed in from \code{\link{dittoSpatial}}, that contains image grobs, their height, their width, and optionally also a column for \code{split.by}.
 #' @param do.raster Logical. When set to \code{TRUE}, rasterizes the internal plot layer, changing it from individually encoded points to a flattened set of pixels.
 #' This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.
 #' @param raster.dpi Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.
@@ -79,7 +80,7 @@
 #'
 #' Alternatively, if \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
 #'
-#' Alternatively, if \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly &
+#' Alternatively, if \code{do.hover} is set to \code{TRUE}, the plot is converted from ggplot to plotly &
 #' cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed upon hovering the cursor over the plot.
 #'
 #' @details
@@ -231,6 +232,7 @@ dittoScatterPlot <- function(
     legend.shape.size = 5,
     do.raster = FALSE,
     raster.dpi = 300,
+    spatial.image.data = NULL,
     data.out = FALSE) {
 
     order <- match.arg(order)
@@ -278,7 +280,7 @@ dittoScatterPlot <- function(
         legend.show, legend.color.title, legend.color.size,
         legend.color.breaks, legend.color.breaks.labels, legend.shape.title,
         legend.shape.size, do.raster, raster.dpi,
-        split.by, split.show.all.others)
+        split.by, split.show.all.others, spatial.image.data)
 
     ### Add extra features
     if (!is.null(split.by)) {
@@ -290,6 +292,9 @@ dittoScatterPlot <- function(
         p <- .add_contours(p, Target_data, contour.color, contour.linetype)
     }
     
+    if (do.hover || !is.null(shape.by)) {
+        do.letter <- FALSE
+    }
     p <- .add_letters_ellipses_labels_if_discrete(
         p, Target_data, is.discrete = !is.numeric(Target_data$color),
         do.letter, do.ellipse, do.label,
@@ -354,7 +359,8 @@ dittoScatterPlot <- function(
     do.raster,
     raster.dpi,
     split.by,
-    split.show.all.others
+    split.show.all.others,
+    spatial.image.data = NULL
 ) {
     
     ### Set up plotting
@@ -403,6 +409,21 @@ dittoScatterPlot <- function(
     }
 
     ### Add data
+    # Spatial images first
+    
+    if (!is.null(spatial.image.data)) {
+        
+        p <- p + .geom_spatial(
+                data=spatial.image.data,
+                aes_string(grob="grob"),
+                x=0.5, y=0.5) +
+            # Set X/Y limits
+            coord_cartesian(expand=FALSE) +
+            xlim(0, max(spatial.image.data$width)) +
+            ylim(min(spatial.image.data$height), 0)
+    }
+    
+    # Data points
     # Others_data
     if (show.others) {
         if (!is.null(split.by) && split.show.all.others) {
