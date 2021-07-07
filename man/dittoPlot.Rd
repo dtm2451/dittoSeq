@@ -23,6 +23,8 @@ dittoPlot(
   swap.rownames = NULL,
   do.hover = FALSE,
   hover.data = var,
+  height = NULL,
+  width = NULL,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
   shape.panel = c(16, 15, 17, 23, 25, 8),
@@ -124,6 +126,10 @@ See details section for more info.}
 If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),}
 
 \item{hover.data}{String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.}
+
+\item{height}{Number that sets height of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise.}
+
+\item{width}{Number that sets width of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise.}
 
 \item{color.panel}{String vector which sets the colors to draw from for plot fills.
 Default = \code{dittoColors()}.}

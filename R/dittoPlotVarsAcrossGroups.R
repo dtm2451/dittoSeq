@@ -24,6 +24,8 @@
 #' }
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.
+#' @param height Number that sets height of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise. 
+#' @param width Number that sets width of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise. 
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
 #' (Provides an alternative to directly modifying \code{color.panel}.)
@@ -149,6 +151,8 @@ dittoPlotVarsAcrossGroups <- function(
     adjustment = "z-score",
     swap.rownames = NULL,
     do.hover = FALSE,
+    height = NULL,
+    width = NULL,
     main = NULL,
     sub = NULL,
     ylab = "make",
@@ -261,7 +265,7 @@ dittoPlotVarsAcrossGroups <- function(
     }
     
     if (do.hover) {
-        p <- .warn_or_jitter_plotly(p, plots)
+        p <- .warn_or_jitter_plotly(p, height = height, width = width, plots)
     }
     
     # DONE. Return the plot +/- data

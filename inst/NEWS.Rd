@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.5.2}{\itemize{
+\item Added `height` and `width` input to control plot size when `do.hover` is used.
+}}
+
 \section{Version 1.5.1}{\itemize{
 \item Build & Test Infrastructure Fix/Update: Removes the remaining Seurat code from the vignette and makes all unit-testing of Seurat interactions conditional on SCE to Seurat cnversion.
 \item Vignette Update: Adds a 'Quick-Reference: Seurat<=>dittoSeq' section

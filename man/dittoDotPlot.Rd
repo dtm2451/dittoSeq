@@ -25,6 +25,8 @@ dittoDotPlot(
   adjustment = NULL,
   swap.rownames = NULL,
   do.hover = FALSE,
+  height = NULL,
+  width = NULL,
   main = NULL,
   sub = NULL,
   ylab = group.by,
@@ -91,6 +93,10 @@ Any function can be used as long as it takes in a numeric vector and returns a s
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE} the object will be converted to an interactive plotly object in which underlying data for individual dots will be displayed when you hover your cursor over them.}
+
+\item{height}{Number that sets height of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise.}
+
+\item{width}{Number that sets width of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise.}
 
 \item{main}{String which sets the plot title.}
 

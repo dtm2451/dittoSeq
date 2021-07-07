@@ -18,6 +18,8 @@ dittoPlotVarsAcrossGroups(
   adjustment = "z-score",
   swap.rownames = NULL,
   do.hover = FALSE,
+  height = NULL,
+  width = NULL,
   main = NULL,
   sub = NULL,
   ylab = "make",
@@ -105,6 +107,10 @@ See details section for more info.}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.}
+
+\item{height}{Number that sets height of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise.}
+
+\item{width}{Number that sets width of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise.}
 
 \item{main}{String which sets the plot title.}
 

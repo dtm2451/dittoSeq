@@ -15,6 +15,8 @@
 #' (Provides an alternative to directly modifying \code{color.panel}.)
 #' @param scale "count" or "percent". Sets whether data should be shown as counts versus percentage.
 #' @param do.hover Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.
+#' @param height Number that sets height of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise. 
+#' @param width Number that sets width of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise. 
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
 #' Default = \code{theme_classic()}.
 #' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
@@ -130,6 +132,8 @@ dittoBarPlot <- function(
     retain.factor.levels = FALSE,
     data.out = FALSE,
     do.hover = FALSE,
+    height = NULL,
+    width = NULL,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
     split.nrow = NULL,
@@ -223,7 +227,7 @@ dittoBarPlot <- function(
     
     if (do.hover) {
         .error_if_no_plotly()
-        p <- plotly::ggplotly(p, tooltip = "text")
+        p <- plotly::ggplotly(p, height = height, width = width, tooltip = "text")
     }
 
     #DONE. Return the plot

@@ -14,6 +14,8 @@ dittoBarPlot(
   retain.factor.levels = FALSE,
   data.out = FALSE,
   do.hover = FALSE,
+  height = NULL,
+  width = NULL,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
   split.nrow = NULL,
@@ -64,6 +66,10 @@ but Note that this will also force retention of groupings that could otherwise b
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.}
 
 \item{do.hover}{Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.}
+
+\item{height}{Number that sets height of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise.}
+
+\item{width}{Number that sets width of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise.}
 
 \item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default.}
 
