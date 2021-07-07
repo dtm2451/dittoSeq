@@ -36,6 +36,8 @@
 #' @param legend.color.title,legend.size.title String or \code{NULL}, sets the title displayed above legend keys.
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} the object will be converted to an interactive plotly object in which underlying data for individual dots will be displayed when you hover your cursor over them.
+#' @param height Number that sets height of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise. 
+#' @param width Number that sets width of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise. 
 #'
 #' @inheritParams dittoPlotVarsAcrossGroups
 #' @inheritParams dittoScatterPlot
@@ -151,6 +153,8 @@ dittoDotPlot <- function(
     adjustment = NULL,
     swap.rownames = NULL,
     do.hover = FALSE,
+    height = NULL,
+    width = NULL,
     main = NULL,
     sub = NULL,
     ylab = group.by,
@@ -221,7 +225,7 @@ dittoDotPlot <- function(
 
     if (do.hover) {
         .error_if_no_plotly()
-        p <- plotly::ggplotly(p, tooltip = "text")
+        p <- plotly::ggplotly(p, height = height, width = width, tooltip = "text")
     }
     
     # DONE. Return

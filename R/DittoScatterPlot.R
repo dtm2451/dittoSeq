@@ -36,6 +36,8 @@
 #' \code{hover.data} argument is used to determine what data to use.
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
 #' @param hover.assay,hover.slot,hover.adjustment Similar to the x, y, color, and extra versions, when showing expression data upon hover, these set what data will be shown.
+#' @param height Number that sets height of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise. 
+#' @param width Number that sets width of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise. 
 #' @param shape.panel Vector of integers corresponding to ggplot shapes which sets what shapes to use.
 #' When discrete groupings are supplied by \code{shape.by}, this sets the panel of shapes.
 #' When nothing is supplied to \code{shape.by}, only the first value is used.
@@ -208,6 +210,8 @@ dittoScatterPlot <- function(
     hover.assay = .default_assay(object),
     hover.slot = .default_slot(object),
     hover.adjustment = NULL,
+    height = NULL,
+    width = NULL,
     do.contour = FALSE,
     contour.color = "black",
     contour.linetype = 1,
@@ -309,7 +313,7 @@ dittoScatterPlot <- function(
     
     if (do.hover) {
         .error_if_no_plotly()
-        p <- plotly::ggplotly(p, tooltip = "text")
+        p <- plotly::ggplotly(p, width = width, height = height, tooltip = "text")
     }
 
     ### RETURN the PLOT ###

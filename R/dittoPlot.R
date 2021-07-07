@@ -41,6 +41,8 @@
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),
 #' @param hover.data String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.
+#' @param height Number that sets height of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise. 
+#' @param width Number that sets width of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise. 
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' Default = \code{dittoColors()}.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
@@ -89,7 +91,6 @@
 #' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown when its shape is determined by \code{shape.by}.
 #' @param jitter.position.dodge Scalar which adjusts the relative distance between jitter widths when multiple subgroups exist per \code{group.by} grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
 #' Similar to \code{boxplot.position.dodge} input & defaults to the value of that input so that BOTH will actually be adjusted when only, say, \code{boxplot.position.dodge = 0.3} is given.
-#' @param do.raster Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 #' @param do.raster Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 #' This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.
 #' @param raster.dpi Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.
@@ -248,6 +249,8 @@ dittoPlot <- function(
     swap.rownames = NULL,
     do.hover = FALSE,
     hover.data = var,
+    height = NULL,
+    width = NULL,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
     shape.panel = c(16,15,17,23,25,8),
@@ -357,7 +360,7 @@ dittoPlot <- function(
     }
     
     if (do.hover) {
-        p <- .warn_or_jitter_plotly(p, plots)
+        p <- .warn_or_jitter_plotly(p, height, width, plots)
     }
     
     # DONE. Return the plot +/- data
@@ -574,16 +577,16 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     p
 }
 
-.warn_or_jitter_plotly <- function(p, plots) {
+.warn_or_jitter_plotly <- function(p, height, width, plots) {
     if ("ridgeplot" %in% plots) {
         warning("'do.hover = TRUE' request ignored because plotly does not support ridgeplots.")
     } else {
         .error_if_no_plotly()
         # Add hover.text to jitter, else just convert.
         if ("jitter" %in% plots) {
-            p <- plotly::ggplotly(p, tooltip = "text")
+            p <- plotly::ggplotly(p, height = height, width = width, tooltip = "text")
         } else {
-            p <- plotly::ggplotly(p)
+            p <- plotly::ggplotly(p, height = height, width = width)
         }
     }
     p

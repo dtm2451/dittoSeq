@@ -53,6 +53,8 @@ dittoScatterPlot(
   hover.assay = .default_assay(object),
   hover.slot = .default_slot(object),
   hover.adjustment = NULL,
+  height = NULL,
+  width = NULL,
   do.contour = FALSE,
   contour.color = "black",
   contour.linetype = 1,
@@ -172,6 +174,10 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 \item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.}
 
 \item{hover.assay, hover.slot, hover.adjustment}{Similar to the x, y, color, and extra versions, when showing expression data upon hover, these set what data will be shown.}
+
+\item{height}{Number that sets height of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise.}
+
+\item{width}{Number that sets width of plot in pixels when \code{do.hover} is set to \code{TRUE}. Ignored otherwise.}
 
 \item{do.contour}{Logical. Whether density-based contours should be displayed.}
 
