@@ -206,7 +206,7 @@ dittoHeatmap(myRNA, genes,
     annot.by = "clustering",
     order.by = "clustering",
     cluster_cols = FALSE)
-# 'order.by' can be multiple metadata/genes, or a vector of indexes directly
+# 'order.by' can be multiple metadata/genes, or a vector of indexes directly 
 dittoHeatmap(scRNA, genes,
     annot.by = "clustering",
     order.by = c("clustering", "timepoint"))

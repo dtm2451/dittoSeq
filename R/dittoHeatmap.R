@@ -379,10 +379,10 @@ dittoHeatmap <- function(
     args$mat <- args$mat/maxs
     args$scale <- "none"
     args$color <- heatmap.colors.max.scaled
-    if (is.na(args$legend_breaks)) {
+    if (identical(args$legend_breaks, NA)) {
         args$legend_breaks <- seq(0, 1, 0.2)
     }
-    if (is.na(args$breaks)) {
+    if (identical(args$breaks, NA)) {
         args$breaks <- seq(0, 1, length.out = length(args$color)+1)
     }
 
