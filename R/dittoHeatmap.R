@@ -31,7 +31,7 @@
 #' (Can be useful for troubleshooting or customization.)
 #' @param highlight.features String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.
 #' @param highlight.genes Deprecated, use \code{highlight.features} instead.
-#' @param cluster_cols,border_color,legend_breaks,breaks,... other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).
+#' @param cluster_cols,border_color,legend_breaks,breaks,drop_levels,... other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).
 #' @param show_colnames,show_rownames,scale,annotation_col,annotation_colors arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
 #' \itemize{
 #' \item show_colnames (& labels_col): if \code{cell.names.meta} is provided, pheatmaps's \code{labels_col} is utilized to show these names and \code{show_colnames} parameter is set to \code{TRUE}.
@@ -220,6 +220,7 @@ dittoHeatmap <- function(
     cluster_cols = isBulk(object),
     border_color = NA,
     legend_breaks = NA,
+    drop_levels = FALSE,
     breaks = NA,
     complex = FALSE,
     ...) {
@@ -291,12 +292,13 @@ dittoHeatmap <- function(
         heatmap.colors, scaled.to.max, heatmap.colors.max.scaled, annot.colors,
         annotation_col, annotation_colors, highlight.features, show_colnames,
         show_rownames, scale, cluster_cols, border_color, legend_breaks,
-        breaks, ...)
+        drop_levels, breaks, ...)
     
     if (data.out) {
         OUT <- args
     } else if (complex) {
         .error_if_no_complexHm()
+        args <- .adjust_for_complex(args)
         OUT <- do.call("pheatmap", args, envir = asNamespace("ComplexHeatmap"))
     } else {
         OUT <- do.call(pheatmap::pheatmap, args)
@@ -323,6 +325,7 @@ dittoHeatmap <- function(
     cluster_cols,
     border_color,
     legend_breaks,
+    drop_levels,
     breaks,
     ...) {
     
@@ -331,7 +334,8 @@ dittoHeatmap <- function(
         mat = data, main = main, show_colnames = show_colnames,
         show_rownames = show_rownames, color = heatmap.colors,
         cluster_cols = cluster_cols, border_color = border_color,
-        scale = scale, breaks = breaks, legend_breaks = legend_breaks, ...)
+        scale = scale, breaks = breaks, legend_breaks = legend_breaks,
+        drop_levels = drop_levels, ...)
     
     # Adjust data
     
@@ -346,7 +350,7 @@ dittoHeatmap <- function(
         }
         args$annotation_colors <- annotation_colors
         # Add any missing annotation colors
-        args <- .make_heatmap_annotation_colors(args, annot.colors)
+        args <- .make_heatmap_annotation_colors(args, annot.colors, drop_levels)
     }
 
     # Make a labels_row input for displaying only certain genes/variables if given to 'highlight.features'
@@ -375,10 +379,10 @@ dittoHeatmap <- function(
     args$mat <- args$mat/maxs
     args$scale <- "none"
     args$color <- heatmap.colors.max.scaled
-    if (is.na(args$legend_breaks)) {
+    if (identical(args$legend_breaks, NA)) {
         args$legend_breaks <- seq(0, 1, 0.2)
     }
-    if (is.na(args$breaks)) {
+    if (identical(args$breaks, NA)) {
         args$breaks <- seq(0, 1, length.out = length(args$color)+1)
     }
 
@@ -389,7 +393,7 @@ dittoHeatmap <- function(
     # list of character vectors, all named.
         # vector names = annotation titles
         # vector members' (colors') names = annotation identities
-.make_heatmap_annotation_colors <- function(args, annot.colors) {
+.make_heatmap_annotation_colors <- function(args, annot.colors, drop_levels) {
 
     # Extract a default color-set
     annot.colors.d <- annot.colors
@@ -409,7 +413,7 @@ dittoHeatmap <- function(
             dfcolors_out <- .pick_colors_for_df(
                 args$annotation_col[,make.these, drop = FALSE],
                 next.color.index.discrete, next.color.index.numeric,
-                annot.colors.d, annot.colors.n)
+                annot.colors.d, annot.colors.n, drop_levels)
             col_colors <- dfcolors_out$df_colors
             next.color.index.discrete <- dfcolors_out$next.color.index.discrete
             next.color.index.numeric <- dfcolors_out$next.color.index.numeric
@@ -423,7 +427,7 @@ dittoHeatmap <- function(
             dfcolors_out <- .pick_colors_for_df(
                 args$annotation_row[,make.these, drop = FALSE],
                 next.color.index.discrete, next.color.index.numeric,
-                annot.colors.d, annot.colors.n)
+                annot.colors.d, annot.colors.n, drop_levels)
             row_colors <- dfcolors_out$df_colors
         }
     }
@@ -440,7 +444,7 @@ dittoHeatmap <- function(
 .pick_colors_for_df <- function(
     annotation_df,
     next.color.index.discrete, next.color.index.numeric,
-    annot.colors.d, annot.colors.n
+    annot.colors.d, annot.colors.n, drop_levels
     ) {
 
     df_colors <- list()
@@ -450,6 +454,10 @@ dittoHeatmap <- function(
         if(!is.numeric(annotation_df[,i])){
             # Discrete, determine the distinct contents of the annotation first
             in.this.annot <- levels(as.factor(annotation_df[,i]))
+            if(drop_levels){
+                levels.with.data <- unique(as.character(annotation_df[,i]))
+                in.this.annot <- in.this.annot[in.this.annot %in% levels.with.data]
+            }
             
             # Take colors for each, and name them.
             new.colors <- annot.colors.d[
@@ -504,4 +512,15 @@ dittoHeatmap <- function(
     } 
 
     data
+}
+
+.adjust_for_complex <- function(args) {
+
+    # As of Sept 2021, CH complains when 'drop_levels' is given because its
+    # maintainer decided to enforced the input to always be TRUE.  We still get
+    # the effect via the 'annotation_colors' setup, so it should be safe to
+    # simply remove the input before passing along.
+    args$drop_levels <- NULL
+
+    args
 }

@@ -31,6 +31,7 @@ dittoHeatmap(
   cluster_cols = isBulk(object),
   border_color = NA,
   legend_breaks = NA,
+  drop_levels = FALSE,
   breaks = NA,
   complex = FALSE,
   ...
@@ -92,7 +93,7 @@ Default is a ramp from white to red with 25 slices.}
 but it is possible to set all or some manually. dittoSeq will just fill any left out annotations. Format is a named (annotation_col & annotation_row colnames) character vector list where individual color values can also be named.
 }}
 
-\item{cluster_cols, border_color, legend_breaks, breaks, ...}{other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).}
+\item{cluster_cols, border_color, legend_breaks, breaks, drop_levels, ...}{other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).}
 
 \item{complex}{Logical which sets whether the heatmap should be generated with ComplexHeatmap (\code{TRUE}) versus pheatmap (\code{FALSE}, default).}
 }
