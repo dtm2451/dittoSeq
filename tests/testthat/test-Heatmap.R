@@ -424,3 +424,21 @@ test_that("dittoHeatmap swap.rownames works", {
             )$mat),
         swap_genes)
 })
+
+test_that("dittoHeatmap drops levles from annotation_colors to allow 'drop_levels' to function",{
+    full <- dittoHeatmap(genes = genes, object = sce, data.out = TRUE,
+        annot.by = "clusters", cells.use = sce$clusters!="4",
+        drop_levels = FALSE)$annotation_colors$clusters
+    dropped <- dittoHeatmap(genes = genes, object = sce, data.out = TRUE,
+        annot.by = "clusters", cells.use = sce$clusters!="4",
+        drop_levels = TRUE)$annotation_colors$clusters
+    
+    expect_equal(length(full), length(dropped)+1)
+    
+    # Manual Check: Only three colors in the legend
+    expect_s3_class(
+        dittoHeatmap(genes = genes, object = sce,
+            annot.by = "clusters", cells.use = sce$clusters!="4",
+            drop_levels = TRUE),
+        "pheatmap")
+})

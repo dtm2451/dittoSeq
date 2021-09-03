@@ -263,6 +263,38 @@ test_that("dittoDimPlot can be labeled or circled", {
         "ggplot")
 })
 
+test_that("dittoDimPlot labeling is robust to NAs", {
+    ### Manual Check: Labels should repel in the first two (and move between
+    # plots), and 1&3 with background, 2&4 without, 5: smaller labels
+    na_in_clust <- sce
+    na_in_clust$clusters[1:5] <- NA
+    
+    # Manual Check: Should be all four labels!
+    # No warning
+    expect_warning(
+        dittoDimPlot(
+            "clusters", object=na_in_clust,
+            do.label = TRUE),
+        NA)
+    
+    na_in_tsne <- sce
+    tsne_na <- reducedDim(sce, "TSNE")
+    tsne_na[1,] <- NA
+    reducedDim(na_in_tsne, "TSNE") <- tsne_na
+    
+    # Manual Check: Should be all four labels!
+    # There should be a warning here form the x/y coords, but not the labeling
+    expect_true(
+        all(!grepl(
+            "label",
+            names(warnings(
+                dittoDimPlot("clusters", object=na_in_tsne, do.label = TRUE)
+            ))
+        ))
+    )
+    
+})
+
 test_that("dittoDimPlot trajectory adding works", {
     expect_s3_class(
         dittoDimPlot(

@@ -181,12 +181,12 @@
         cent.x = vapply(
             groups,
             function(level) {
-                median(x.y.group.df$X[x.y.group.df[,group.col]==level])
+                median(x.y.group.df$X[x.y.group.df[,group.col]==level], na.rm = TRUE)
             }, FUN.VALUE = numeric(1)),
         cent.y = vapply(
             groups,
             function(level) {
-                median(x.y.group.df$Y[x.y.group.df[,group.col]==level])
+                median(x.y.group.df$Y[x.y.group.df[,group.col]==level], na.rm = TRUE)
             }, FUN.VALUE = numeric(1)),
         label = groups)
 }
