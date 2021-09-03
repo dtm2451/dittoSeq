@@ -2,6 +2,11 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.5.2}{\itemize{
+\item Bug Fix: Make 'do.label' machinery robust to NAs.
+\item Bug Fix: Allows dittoHeatmap() to properly 'drop_levels' of annotations by ensuring 'annotation_colors' will not be populated with colors for the empty levels that need to be dropped.
+}}
+
 \section{Version 1.5.1}{\itemize{
 \item Build & Test Infrastructure Fix/Update: Removes the remaining Seurat code from the vignette and makes all unit-testing of Seurat interactions conditional on SCE to Seurat cnversion.
 \item Vignette Update: Adds a 'Quick-Reference: Seurat<=>dittoSeq' section
