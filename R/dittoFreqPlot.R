@@ -131,7 +131,6 @@ dittoFreqPlot <- function(
     vars.use = NULL,
     scale = c("percent", "count"),
     max.normalize = FALSE,
-    retain.factor.levels = FALSE,
     plots = c("boxplot","jitter"),
     split.nrow = NULL,
     split.ncol = NULL,
@@ -214,8 +213,8 @@ dittoFreqPlot <- function(
     data <- .dittoBarPlot_data_gather(
         object, var, group.by, split.by = c(sample.by, color.by),
         cells.use, x.reorder, x.labels,
-        var.labels.reorder, var.labels.rename, do.hover,
-        retain.factor.levels, max.normalize)
+        var.labels.reorder, var.labels.rename, do.hover, max.normalize,
+        TRUE, FALSE, TRUE, TRUE)
     
     # Subset to vars.use
     if (!is.null(vars.use)) {

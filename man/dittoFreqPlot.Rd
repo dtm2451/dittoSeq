@@ -13,7 +13,6 @@ dittoFreqPlot(
   vars.use = NULL,
   scale = c("percent", "count"),
   max.normalize = FALSE,
-  retain.factor.levels = FALSE,
   plots = c("boxplot", "jitter"),
   split.nrow = NULL,
   split.ncol = NULL,
@@ -90,10 +89,6 @@ Note: When \code{var.labels.rename} is jointly utilized to update how the \code{
 \item{max.normalize}{Logical which sets whether the data for each \code{var}-data value (each facet) should be normalized to have the same maximum value.
 
 When set to \code{TRUE}, lower frequency \code{var}-values will make use of just as much plot space as higher frequency vars.}
-
-\item{retain.factor.levels}{Logical which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
-Set to TRUE to faithfully reflect ordering of groupings encoded in factor levels,
-but Note that this will also force retention of groupings that could otherwise be removed via \code{cells.use}.}
 
 \item{plots}{String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
 
