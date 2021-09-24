@@ -317,7 +317,7 @@ myRNA$groups <- rep(c("A", "B"), each = 60)
 myRNA$subgroups <- rep(as.character(c(1:3,1:3,1:3,1:3)), each = 10)
 myRNA
 
-# There are three necessary inputs for this function.
+# There are three main inputs for this function, in addition to 'object'.
 #  var = typically this will be cell types annotations or clustering
 #  sample.by = the name of a metadata containing sample assignment of cells.
 #  group.by = how to group the data on the x-axis (y-axis for ridgeplots)
@@ -338,11 +338,34 @@ dittoFreqPlot(myRNA, "clustering",
     group.by = "groups", sample.by = "sample", color.by = "subgroups",
     vars.use = 1:2)
 
-# Lower frequency groups can be expanded to use the entire y-axis by turning
-#  on 'max.normalize'-ation: 
+# Lower frequency groups can be expanded to use the entire y-axis by:
+#  turning on 'max.normalize'-ation: 
 dittoFreqPlot(myRNA, "clustering",
     group.by = "groups", sample.by = "sample", color.by = "subgroups",
     max.normalize = TRUE)
+#  or by setting y-scale limits to be set by the contents of facets:
+dittoFreqPlot(myRNA, "clustering",
+    group.by = "groups", sample.by = "sample", color.by = "subgroups",
+    split.adjust = list(scales = "free_y")) 
+
+# Data representations can also be selected and reordered with the 'plots'
+#  input, and further adjusted with inputs applying to each representation.
+dittoFreqPlot(myRNA,
+    var = "clustering", sample.by = "sample", group.by = "groups",
+    plots = c("vlnplot", "boxplot", "jitter"),
+    vlnplot.lineweight = 0.2,
+    boxplot.fill = FALSE,
+    boxplot.lineweight = 0.2)
+
+# Finally, 'sample.by' is not technically required. When not given, a
+#  single-datapoint of overall composition stats will be shown for each
+#  grouping.
+#  Just note, all data representation other than "jitter" will complain
+#  due to there only being the one datapoint per group.
+dittoFreqPlot(myRNA,
+    var = "clustering", group.by = "groups", color.by = "subgroups",
+    plots = "jitter") 
+
 
 }
 \seealso{
