@@ -70,7 +70,9 @@ dittoFreqPlot(
 
 \item{sample.by}{String name of a metadata containing which samples each cell belongs to.
 
-Note that when this is not provided, there will only be one data point per grouping. A warning can be expected then for all \code{plot} options except \code{"jitter"}.}
+Note that when this is not provided, there will only be one data point per grouping.
+A warning can be expected then for all \code{plots} options except \code{"jitter"},
+but this can be a useful exercise when simply trying to quantify cell type frequency fluctuations among 2 particular metadata (given to group.by & color.by) combinations.}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 

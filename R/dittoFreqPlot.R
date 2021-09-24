@@ -5,7 +5,9 @@
 #' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}.
 #' @param sample.by String name of a metadata containing which samples each cell belongs to.
 #' 
-#' Note that when this is not provided, there will only be one data point per grouping. A warning can be expected then for all \code{plot} options except \code{"jitter"}.
+#' Note that when this is not provided, there will only be one data point per grouping.
+#' A warning can be expected then for all \code{plots} options except \code{"jitter"},
+#' but this can be a useful exercise when simply trying to quantify cell type frequency fluctuations among 2 particular metadata (given to group.by & color.by) combinations.
 #' @param vars.use String or string vector naming a subset of the values of \code{var}-data which should be shown.
 #' If left as \code{NULL}, all values are shown.
 #' 
