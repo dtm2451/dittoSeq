@@ -13,7 +13,6 @@ dittoFreqPlot(
   vars.use = NULL,
   scale = c("percent", "count"),
   max.normalize = FALSE,
-  retain.factor.levels = FALSE,
   plots = c("boxplot", "jitter"),
   split.nrow = NULL,
   split.ncol = NULL,
@@ -71,7 +70,9 @@ dittoFreqPlot(
 
 \item{sample.by}{String name of a metadata containing which samples each cell belongs to.
 
-Note that when this is not provided, there will only be one data point per grouping. A warning can be expected then for all \code{plot} options except \code{"jitter"}.}
+Note that when this is not provided, there will only be one data point per grouping.
+A warning can be expected then for all \code{plots} options except \code{"jitter"},
+but this can be a useful exercise when simply trying to quantify cell type frequency fluctuations among 2 particular metadata (given to group.by & color.by) combinations.}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
@@ -90,10 +91,6 @@ Note: When \code{var.labels.rename} is jointly utilized to update how the \code{
 \item{max.normalize}{Logical which sets whether the data for each \code{var}-data value (each facet) should be normalized to have the same maximum value.
 
 When set to \code{TRUE}, lower frequency \code{var}-values will make use of just as much plot space as higher frequency vars.}
-
-\item{retain.factor.levels}{Logical which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
-Set to TRUE to faithfully reflect ordering of groupings encoded in factor levels,
-but Note that this will also force retention of groupings that could otherwise be removed via \code{cells.use}.}
 
 \item{plots}{String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
 
@@ -254,18 +251,31 @@ Plot cell type/cluster/identity frequencies per sample and per grouping
 }
 \details{
 The function creates a dataframe containing counts and percent makeup of \code{var} identities per sample if \code{sample.by} is given, or per group if only \code{group.by} is given.
-Typically, \code{var} might be given clusters or cell type annotations, but it can be given any discrete data.
+\code{color.by} can optionally be used to add subgroupings to calculations and ultimate plots, or to convey super-groups of \code{group.by} groupings. 
+
+Typically, \code{var} will be pointed to clustering or cell type annotations, but in truth it can be given any discrete data.
 
 If a set of cells to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
 
-If a set of \code{var}-values to show is indicated with the \code{vars.use} input, the data.frame is trimmed to include only corresponding rows.
+If a set of \code{var}-values to show is indicated with the \code{vars.use} input, the data.frame is trimmed at the end to include only corresponding rows.
 
 If \code{max.normalized} is set to \code{TRUE}, counts and percent data are transformed to a 0-1 scale, which makes better use of white space for lower frequency \code{var}-values.
 
 Either percent of total (\code{scale = "percent"}), which is the default, or counts (if \code{scale = "count"})
 data is then (gg)plotted with the data representation types in \code{plots} by utilizing the same machinery as \code{\link{dittoPlot}}.
 Faceting by \code{var}-data values is utilized to achieve per \code{var}-value (e.g. cluster or cell type) granularity.
+
+See below for additional customization options!
 }
+\section{Calculation Details}{
+
+The function is restricted in that each samples' cells, indicated by the unique values of \code{sample.by}-data, must exist within single \code{group.by} and \code{color.by} groupings.
+Thus, in order to ensure all valid \code{var}-data composition data points are generated, prior to calculations... \itemize{
+\item \code{var}-data are ensured to be a factor, which ensures a calculation will be run for every \code{var}-value (a.k.a. cell type or cluster)
+\item \code{group.by}-data and \code{color-by}-data are treated as non-factor data, which ensures that calculations are run only for the groupings that each sample is associated with.
+}
+}
+
 \section{Plot Customization}{
 
 The \code{plots} argument determines the types of \strong{data representation} that will be generated, as well as their order from back to front.
@@ -307,7 +317,7 @@ myRNA$groups <- rep(c("A", "B"), each = 60)
 myRNA$subgroups <- rep(as.character(c(1:3,1:3,1:3,1:3)), each = 10)
 myRNA
 
-# There are three necessary inputs for this function.
+# There are three main inputs for this function, in addition to 'object'.
 #  var = typically this will be cell types annotations or clustering
 #  sample.by = the name of a metadata containing sample assignment of cells.
 #  group.by = how to group the data on the x-axis (y-axis for ridgeplots)
@@ -328,11 +338,34 @@ dittoFreqPlot(myRNA, "clustering",
     group.by = "groups", sample.by = "sample", color.by = "subgroups",
     vars.use = 1:2)
 
-# Lower frequency groups can be expanded to use the entire y-axis by turning
-#  on 'max.normalize'-ation: 
+# Lower frequency groups can be expanded to use the entire y-axis by:
+#  turning on 'max.normalize'-ation: 
 dittoFreqPlot(myRNA, "clustering",
     group.by = "groups", sample.by = "sample", color.by = "subgroups",
     max.normalize = TRUE)
+#  or by setting y-scale limits to be set by the contents of facets:
+dittoFreqPlot(myRNA, "clustering",
+    group.by = "groups", sample.by = "sample", color.by = "subgroups",
+    split.adjust = list(scales = "free_y")) 
+
+# Data representations can also be selected and reordered with the 'plots'
+#  input, and further adjusted with inputs applying to each representation.
+dittoFreqPlot(myRNA,
+    var = "clustering", sample.by = "sample", group.by = "groups",
+    plots = c("vlnplot", "boxplot", "jitter"),
+    vlnplot.lineweight = 0.2,
+    boxplot.fill = FALSE,
+    boxplot.lineweight = 0.2)
+
+# Finally, 'sample.by' is not technically required. When not given, a
+#  single-datapoint of overall composition stats will be shown for each
+#  grouping.
+#  Just note, all data representation other than "jitter" will complain
+#  due to there only being the one datapoint per group.
+dittoFreqPlot(myRNA,
+    var = "clustering", group.by = "groups", color.by = "subgroups",
+    plots = "jitter") 
+
 
 }
 \seealso{

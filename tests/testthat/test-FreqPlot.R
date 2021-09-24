@@ -23,6 +23,7 @@ sce$groups <- c(rep("A", 80), rep("B", 70))
 sce$subgroups <- rep(as.character(c(1:5,1:5,1:5)), each = 10)
 
 sce$clusters <- factor(sce$clusters, levels = 1:4)
+sce$clusters_char <- as.character(sce$clusters)
 
 grp1 <- "clusters"
 grp2 <- "sample"
@@ -118,7 +119,7 @@ test_that("dittoFreqPlot can trim to individual var-values with vars.use", {
 })
 
 test_that("dittoFreqPlot can max.normalize the data", {
-    # MANUAL: should refer to samples, not cells
+    # MANUAL: should refer to samples, not cells, and ymax = 1
     expect_s3_class(
         {p <- dittoFreqPlot(
             setBulk(sce), grp1, sample.by = grp2, group.by = grp3,
@@ -150,20 +151,22 @@ test_that("dittoFreqPlot properly checks if samples vs grouping-data has mismatc
         "ggplot")
 })
 
-test_that("dittoFreqPlot, 'retain.factor.level' can be used to respect factor levels", {
-    sce$var_factor <- factor(
-        meta(grp1, sce),
-        levels = rev(metaLevels(grp1, sce)))
-    sce$grp_factor <- factor(
-        meta(grp3, sce),
-        levels = rev(metaLevels(grp3, sce)))
-    
-    # MANUAL: var and group.by ordering should be reverse of alpha-numeric
-    #  & group.by-A should remain but be all zero.
-    expect_s3_class(
-        dittoFreqPlot(
-            sce, "var_factor", sample.by = grp2, group.by = "grp_factor",
-            retain.factor.levels = TRUE,
-            cells.use = meta("grp_factor",sce)!="A"),
-        "ggplot")
+test_that("dittoFreqPlot computes for all cells even when not factor and a sample has zero", {
+    sce$clusters_char[sce$clusters_char=="1" & sce$subgroups==5] <- "2"
+    (p <- dittoFreqPlot(
+        sce, "clusters_char", group.by = "subgroups", sample.by = "sample", data.out = TRUE,
+        plots = "jitter"
+    ))
+    # Checking 0 value ensures existence + equal to 0
+    expect_true(all(p$data$count[p$data$grouping=="5"&p$data$label=="1"]==0))
+})
+
+test_that("dittoFreqPlot computes for only one grouping per sample", {
+    data <- dittoFreqPlot(
+        sce, "clusters_char", group.by = "subgroups", sample.by = "sample", data.out = TRUE,
+        plots = "jitter"
+    )$data
+    expect_true(all(
+        rowSums(table(data$sample, data$grouping)!=0)==1
+        ))
 })

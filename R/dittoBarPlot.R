@@ -175,7 +175,8 @@ dittoBarPlot <- function(
     # Gather data
     data <- .dittoBarPlot_data_gather(
         object, var, group.by, split.by, cells.use, x.reorder, x.labels,
-        var.labels.reorder, var.labels.rename, do.hover, retain.factor.levels)
+        var.labels.reorder, var.labels.rename, do.hover, FALSE,
+        retain.factor.levels, retain.factor.levels)
     if (scale == "percent") {
         y.show <- "percent"
     } else {
@@ -240,7 +241,9 @@ dittoBarPlot <- function(
     object, var, group.by, split.by, cells.use,
     x.reorder, x.labels,
     var.labels.reorder, var.labels.rename,
-    do.hover, retain.factor.levels, max.normalize = FALSE
+    do.hover, max.normalize = FALSE,
+    retain.factor.levels.var, retain.factor.levels.group,
+    make.factor.var = FALSE, keep.level.order.group = FALSE
 ) {
     
     cells.use <- .which_cells(cells.use, object)
@@ -251,8 +254,14 @@ dittoBarPlot <- function(
     x.var <- .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use]
     
     # For pre-v1.4 compatibility
-    if(!retain.factor.levels) {
+    if(!retain.factor.levels.var) {
         y.var <- as.character(y.var)
+    }
+    if(make.factor.var) {
+        y.var <- as.factor(y.var)
+    }
+    x.levs <- levels(as.factor(x.var))
+    if(!retain.factor.levels.group) {
         x.var <- as.character(x.var)
     }
     
@@ -315,6 +324,9 @@ dittoBarPlot <- function(
     }
     
     # Rename/reorder
+    if(keep.level.order.group){
+        data$grouping <- factor(data$grouping, levels = x.levs)
+    }
     data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
     data$label <- .rename_and_or_reorder(
         data$label, var.labels.reorder, var.labels.rename)
