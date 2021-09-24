@@ -2,6 +2,10 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
+\section{Version 1.5.3}(\itermize{
+\item Bug Fix: Fix dittoFreqPlot calculation machinery to properly target all cell types and only necessary groupings for every sample. Removes the 'retain.factor.levels' input because proper calculations treat 'var'-data as a factor, and groupings data as non-factor.
+})
+
 \section{Version 1.5.2}{\itemize{
 \item Bug Fix: Make 'do.label' machinery robust to NAs.
 \item Bug Fix: Allows dittoHeatmap() to properly 'drop_levels' of annotations by ensuring 'annotation_colors' will not be populated with colors for the empty levels that need to be dropped.
