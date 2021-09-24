@@ -157,6 +157,7 @@ test_that("dittoFreqPlot computes for all cells even when not factor and a sampl
         sce, "clusters_char", group.by = "subgroups", sample.by = "sample", data.out = TRUE,
         plots = "jitter"
     ))
+    # Checking 0 value ensures existence + equal to 0
     expect_true(all(p$data$count[p$data$grouping=="5"&p$data$label=="1"]==0))
 })
 

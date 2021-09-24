@@ -251,18 +251,31 @@ Plot cell type/cluster/identity frequencies per sample and per grouping
 }
 \details{
 The function creates a dataframe containing counts and percent makeup of \code{var} identities per sample if \code{sample.by} is given, or per group if only \code{group.by} is given.
-Typically, \code{var} might be given clusters or cell type annotations, but it can be given any discrete data.
+\code{color.by} can optionally be used to add subgroupings to calculations and ultimate plots, or to convey super-groups of \code{group.by} groupings. 
+
+Typically, \code{var} will be pointed to clustering or cell type annotations, but in truth it can be given any discrete data.
 
 If a set of cells to use is indicated with the \code{cells.use} input, only those cells/samples are used for counts and percent makeup calculations.
 
-If a set of \code{var}-values to show is indicated with the \code{vars.use} input, the data.frame is trimmed to include only corresponding rows.
+If a set of \code{var}-values to show is indicated with the \code{vars.use} input, the data.frame is trimmed at the end to include only corresponding rows.
 
 If \code{max.normalized} is set to \code{TRUE}, counts and percent data are transformed to a 0-1 scale, which makes better use of white space for lower frequency \code{var}-values.
 
 Either percent of total (\code{scale = "percent"}), which is the default, or counts (if \code{scale = "count"})
 data is then (gg)plotted with the data representation types in \code{plots} by utilizing the same machinery as \code{\link{dittoPlot}}.
 Faceting by \code{var}-data values is utilized to achieve per \code{var}-value (e.g. cluster or cell type) granularity.
+
+See below for additional customization options!
 }
+\section{Calculation Details}{
+
+The function is restricted in that each samples' cells, indicated by the unique values of \code{sample.by}-data, must exist within single \code{group.by} and \code{color.by} groupings.
+Thus, in order to ensure all valid \code{var}-data composition data points are generated, prior to calculations... \itemize{
+\item \code{var}-data are ensured to be a factor, which ensures a calculation will be run for every \code{var}-value (a.k.a. cell type or cluster)
+\item \code{group.by}-data and \code{color-by}-data are treated as non-factor data, which ensures that calculations are run only for the groupings that each sample is associated with.
+}
+}
+
 \section{Plot Customization}{
 
 The \code{plots} argument determines the types of \strong{data representation} that will be generated, as well as their order from back to front.
