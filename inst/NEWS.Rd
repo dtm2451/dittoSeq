@@ -2,7 +2,7 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
-\section{Version 1.5.3}(\itermize{
+\section{Version 1.5.3}(\itemize{
 \item Bug Fix: Fix dittoFreqPlot calculation machinery to properly target all cell types and only necessary groupings for every sample. Removes the 'retain.factor.levels' input because proper calculations treat 'var'-data as a factor, and groupings data as non-factor.
 })
 
