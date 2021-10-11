@@ -2,9 +2,13 @@
 \title{dittoSeq News}
 \encoding{UTF-8}
 
-\section{Version 1.5.3}(\itemize{
+\section{Version 1.5.4}{\itemize{
+\item Fixed a minor bug in the NEWS file.
+}}
+
+\section{Version 1.5.3}{\itemize{
 \item Bug Fix: Fix dittoFreqPlot calculation machinery to properly target all cell types and only necessary groupings for every sample. Removes the 'retain.factor.levels' input because proper calculations treat 'var'-data as a factor, and groupings data as non-factor.
-})
+}}
 
 \section{Version 1.5.2}{\itemize{
 \item Bug Fix: Make 'do.label' machinery robust to NAs.
