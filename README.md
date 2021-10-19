@@ -17,41 +17,54 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 ![Overview](vignettes/dittoSeq.gif)
 
-### News: 
+### News:
 
-#### Updates in dittoSeq v1.4:
+#### Updates in dittoSeq v1.6 for Bioconductor 3.14, mostly minor:
 
-- Added 1 New Visualization Function: `dittoFreqPlot()`:
-  - Combines the population frequency summarization of `dittoBarPlot()` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons which focus on individual cell types / clusters!
-- Improved & expanded faceting capabilities with `split.by` inputs:
-    - Added `split.by` to functions which did not have it: `dittoBarPlot()`, `dittoDotPlot()`, and `dittoPlotVarsAcrossGroups()` 
-    - Added `split.adjust` input to allow tweaks to the underlying `facet_grid()` and `facet_wrap()` calls.
-    - Better compatibility with other features
-        - works with labeling of Dim/Scatter plots
-        - new `split.show.all.others` input now controls whether the full spectrum of points, versus just points excluded with `cells.use`, will be shown as light gray in the background of Dim/Scatter facets.
-- Improved `dittoPlot()`-plotting engine:
-    - y-axis plotting:
-        - geom dodging when `color.by` is used to add subgroupings now works for jitters too.
-        - added a `boxplot.lineweight` control option.
-    - x-axis / ridge-plotting:
-        - Added an alternative histogram-shaping option (Try adding `ridgeplot.shape = "hist"`!)
-        - Better use of white space (via adjustments to default plot grid expansion & exposure of a `ridgeplot.ymax.expansion` input to allow user override.)
-- Improved ordering capability for `dittoHeatmap()` & `dittoBarPlot()`:
-    - `dittoHeatmap()`: You can now give many metadata to `order.by` and it will use them all, prioritizing earliest items
-    - `dittoBarPlot()`: Factor-level ordering can now be retained in dittoBarPlot for `var` and `group.by` data, a typically expected behavior, by setting a new input `retain.factor.levels = TRUE`.
-- Added interaction with `rowData` of SE and SCEs:
-    - `swap.rownames` input allows indication of genes/rows by non-default rownames. E.g. for an `object` with Ensembl_IDs as the default and a rowData column named 'symbol' that contains gene symbols, those symbols can be used via `dittoFunction(..., var = "<gene_symbol>", swap.rownames = "symbol"`).
-- Quality of Life improvements:
-    - Standardized `data.out` & `do.hover` interplay to allow both plotly conversion and data output.
-    - Documentation Updates
+- Vignette Update: Added a 'Quick-Reference: Seurat<=>dittoSeq' section.
+- Build & Test Infrastructure Update: Removed Seurat dependency from all build and test materials by removing Seurat code from the vignette and making all unit-testing of Seurat interactions conditional on both presence of Seurat and successful SCE to Seurat cnversion.
+- Bug Fixes:
+
+  1. Fixed dittoFreqPlot calculation machinery to properly target all cell types but only necessary groupings for every sample. Removed the 'retain.factor.levels' input because proper calculations treat 'var'-data as a factor, and groupings data as non-factor.
+  2. Allowed dittoHeatmap() to properly 'drop_levels' of annotations by ensuring 'annotation_colors' is not populated with colors for empty levels which would be dropped.
+  3. Made 'do.label' machinery of scatter plots robust to NAs.
 
 #### Previous updates:
 
 <details>
 
-  <summary>Click to expand</summary>
+  <summary>Updates in dittoSeq v1.4, Bioconductor 3.13:</summary>
+
+  - Added 1 New Visualization Function: `dittoFreqPlot()`:
+    - Combines the population frequency summarization of `dittoBarPlot()` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons which focus on individual cell types / clusters!
+  - Improved & expanded faceting capabilities with `split.by` inputs:
+      - Added `split.by` to functions which did not have it: `dittoBarPlot()`, `dittoDotPlot()`, and `dittoPlotVarsAcrossGroups()` 
+      - Added `split.adjust` input to allow tweaks to the underlying `facet_grid()` and `facet_wrap()` calls.
+      - Better compatibility with other features
+          - works with labeling of Dim/Scatter plots
+          - new `split.show.all.others` input now controls whether the full spectrum of points, versus just points excluded with `cells.use`, will be shown as light gray in the background of Dim/Scatter facets.
+  - Improved `dittoPlot()`-plotting engine:
+      - y-axis plotting:
+          - geom dodging when `color.by` is used to add subgroupings now works for jitters too.
+          - added a `boxplot.lineweight` control option.
+      - x-axis / ridge-plotting:
+          - Added an alternative histogram-shaping option (Try adding `ridgeplot.shape = "hist"`!)
+          - Better use of white space (via adjustments to default plot grid expansion & exposure of a `ridgeplot.ymax.expansion` input to allow user override.)
+  - Improved ordering capability for `dittoHeatmap()` & `dittoBarPlot()`:
+      - `dittoHeatmap()`: You can now give many metadata to `order.by` and it will use them all, prioritizing earliest items
+      - `dittoBarPlot()`: Factor-level ordering can now be retained in dittoBarPlot for `var` and `group.by` data, a typically expected behavior, by setting a new input `retain.factor.levels = TRUE`.
+  - Added interaction with `rowData` of SE and SCEs:
+      - `swap.rownames` input allows indication of genes/rows by non-default rownames. E.g. for an `object` with Ensembl_IDs as the default and a rowData column named 'symbol' that contains gene symbols, those symbols can be used via `dittoFunction(..., var = "<gene_symbol>", swap.rownames = "symbol"`).
+  - Quality of Life improvements:
+      - Standardized `data.out` & `do.hover` interplay to allow both plotly conversion and data output.
+      - Documentation Updates
   
-  Updates in dittoSeq v1.2:
+</details>
+
+
+<details>
+
+  <summary>Updates in dittoSeq v1.2, Bioconductor 3.12:</summary>
   
   - Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimHex()` & `dittoScatterHex()`.
   - Expanded SummarizedExperiment compatibility across the entire toolset.
@@ -64,6 +77,14 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
   - Added `adj.fxn` input to `meta()` and `gene()` for added control of how data might be adjusted (but this is not yet implemented within data grab of visualization functions).
   - Replaced (deprecated) `highlight.genes` input with `highlight.features` in `dittoHeatmap()`.
   - Replaced (deprecated) `OUT.List` input with `list.out` for all `multi_*` plotters.
+  
+</details>
+
+<details>
+
+  <summary>Updates in dittoSeq v1.0, Bioconductor 3.11:</summary>
+  
+  - Submitted to Bioconductor
   
 </details>
 
