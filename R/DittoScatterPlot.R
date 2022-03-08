@@ -197,7 +197,7 @@ dittoScatterPlot <- function(
     max.color = "#0072B2",
     min = NULL,
     max = NULL,
-    order = c("unordered", "increasing", "decreasing"),
+    order = c("unordered", "increasing", "decreasing", "randomize"),
     xlab = x.var,
     ylab = y.var,
     main = "make",
@@ -258,11 +258,13 @@ dittoScatterPlot <- function(
     Target_data <- all_data[cells.use,]
     Others_data <- all_data[!(all.cells %in% cells.use),]
     
-    if (order != "unordered") {
+    if (order %in% c("increasing", "decreasing")) {
         decreasing <- switch(order,
             "decreasing" = TRUE,
             "increasing" = FALSE)
         Target_data <- Target_data[order(Target_data$color, decreasing = decreasing),]
+    } else if (order == "randomize") {
+        Target_data <- Target_data[sample(nrow(Target_data)),]
     }
 
     # Set title if "make"

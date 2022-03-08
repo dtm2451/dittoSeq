@@ -100,7 +100,8 @@
 #' @param max.color color for highest values of \code{var}/\code{max}.  Default = blue
 #' @param min Number which sets the value associated with the minimum color.
 #' @param max Number which sets the value associated with the maximum color.
-#' @param order String. If the data should be plotted based on the order of the color data, sets whether to plot in "increasing" or "decreasing" order.
+#' @param order String. If the data should be plotted based on the order of the color data, sets whether to plot (from back to front) in "increasing", "decreasing", "randomize" order.
+#' If left as "unordered", plot order is simply based on the order of cells within the \code{object}.
 #' @param legend.breaks Numeric vector which sets the discrete values to show in the color-scale legend for continuous data.
 #' @param legend.breaks.labels String vector, with same length as \code{legend.breaks}, which renames what's displayed next to the tick marks of the color-scale.
 #' @param do.letter Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
@@ -278,7 +279,7 @@ dittoDimPlot <- function(
     max.color = "#0072B2",
     min = NULL,
     max = NULL,
-    order = c("unordered", "increasing", "decreasing"),
+    order = c("unordered", "increasing", "decreasing", "randomize"),
     main = "make",
     sub = NULL,
     xlab = "make",

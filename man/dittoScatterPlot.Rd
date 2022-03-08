@@ -42,7 +42,7 @@ dittoScatterPlot(
   max.color = "#0072B2",
   min = NULL,
   max = NULL,
-  order = c("unordered", "increasing", "decreasing"),
+  order = c("unordered", "increasing", "decreasing", "randomize"),
   xlab = x.var,
   ylab = y.var,
   main = "make",
@@ -152,7 +152,8 @@ For these reasons, even as a color blind person myself writing this code, I reco
 
 \item{min, max}{Number which sets the values associated with the minimum or maximum colors.}
 
-\item{order}{String. If the data should be plotted based on the order of the color data, sets whether to plot in "increasing" or "decreasing" order.}
+\item{order}{String. If the data should be plotted based on the order of the color data, sets whether to plot (from back to front) in "increasing", "decreasing", "randomize" order.
+If left as "unordered", plot order is simply based on the order of cells within the \code{object}.}
 
 \item{xlab, ylab}{Strings which set the labels for the axes. To remove, set to \code{NULL}.}
 
