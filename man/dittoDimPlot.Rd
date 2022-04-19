@@ -32,7 +32,7 @@ dittoDimPlot(
   max.color = "#0072B2",
   min = NULL,
   max = NULL,
-  order = c("unordered", "increasing", "decreasing"),
+  order = c("unordered", "increasing", "decreasing", "randomize"),
   main = "make",
   sub = NULL,
   xlab = "make",
@@ -165,7 +165,8 @@ For these reasons, even as a color blind person myself writing this code, I reco
 
 \item{max}{Number which sets the value associated with the maximum color.}
 
-\item{order}{String. If the data should be plotted based on the order of the color data, sets whether to plot in "increasing" or "decreasing" order.}
+\item{order}{String. If the data should be plotted based on the order of the color data, sets whether to plot (from back to front) in "increasing", "decreasing", "randomize" order.
+If left as "unordered", plot order is simply based on the order of cells within the \code{object}.}
 
 \item{main}{String, sets the plot title.
 Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.}
@@ -367,6 +368,14 @@ dittoDimPlot(myRNA, "gene1",
     do.contour = TRUE,
     contour.color = "lightblue", # Optional, black by default
     contour.linetype = "dashed") # Optional, solid by default
+
+# Plotting ordering can also be adjusted with 'order':
+dittoDimPlot(myRNA, "timepoint", size = 20,
+    order = "increasing")
+dittoDimPlot(myRNA, "timepoint", size = 20,
+    order = "decreasing")
+dittoDimPlot(myRNA, "timepoint", size = 20,
+    order = "randomize")
 }
 \seealso{
 \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{split.by}, etc. options are of an \code{object}.
