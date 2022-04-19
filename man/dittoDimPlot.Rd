@@ -368,6 +368,14 @@ dittoDimPlot(myRNA, "gene1",
     do.contour = TRUE,
     contour.color = "lightblue", # Optional, black by default
     contour.linetype = "dashed") # Optional, solid by default
+
+# Plotting ordering can also be adjusted with 'order':
+dittoDimPlot(myRNA, "timepoint", size = 20,
+    order = "increasing")
+dittoDimPlot(myRNA, "timepoint", size = 20,
+    order = "decreasing")
+dittoDimPlot(myRNA, "timepoint", size = 20,
+    order = "randomize")
 }
 \seealso{
 \code{\link{getGenes}} and \code{\link{getMetas}} to see what the \code{var}, \code{split.by}, etc. options are of an \code{object}.

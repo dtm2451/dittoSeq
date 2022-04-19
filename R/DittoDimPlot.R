@@ -250,6 +250,14 @@
 #'     do.contour = TRUE,
 #'     contour.color = "lightblue", # Optional, black by default
 #'     contour.linetype = "dashed") # Optional, solid by default
+#' 
+#' # Plotting ordering can also be adjusted with 'order':
+#' dittoDimPlot(myRNA, "timepoint", size = 20,
+#'     order = "increasing")
+#' dittoDimPlot(myRNA, "timepoint", size = 20,
+#'     order = "decreasing")
+#' dittoDimPlot(myRNA, "timepoint", size = 20,
+#'     order = "randomize")
 
 dittoDimPlot <- function(
     object,
