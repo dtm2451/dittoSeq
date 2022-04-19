@@ -1,3 +1,7 @@
+# dittoSeq 1.7.1
+
+* Added 'randomize' option to 'order' input of 'dittoDimPlot()' and 'dittoScatterPlot()'
+
 # dittoSeq 1.6
 
 * Vignette Update: Added a 'Quick-Reference: Seurat<=>dittoSeq' section.
