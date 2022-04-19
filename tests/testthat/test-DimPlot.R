@@ -354,19 +354,42 @@ test_that("dittoDimPlot can remove axes numbers", {
         "ggplot")
 })
 
-test_that("dittoDimPlot plotting order can be ordered by the data", {
-    out <- dittoDimPlot(disc, object=sce, data.out = TRUE, size = 10, order = "decreasing")
+test_that("dittoDimPlot plotting order can be ordered by the data, or have order randomized", {
+    un <- dittoDimPlot(object=sce, var=disc, data.out = TRUE, size = 10, order = "unordered")
+    dec <- dittoDimPlot(object=sce, var=disc, data.out = TRUE, size = 10, order = "decreasing")
+    inc <- dittoDimPlot(object=sce, var=disc, data.out = TRUE, size = 10, order = "increasing")
+    set.seed(42) # Hopefully with 2 different seeds, we can ensure that 1 will diverge from the original
+    ran <- dittoDimPlot(object=sce, var=disc, data.out = TRUE, size = 10, order = "randomize")
+    set.seed(12345)
+    ran2 <- dittoDimPlot(object=sce, var=disc, data.out = TRUE, size = 10, order = "randomize")
     ### Manual Check: Orange always in front
     expect_s3_class(
-        out$p,
+        dec$p,
         "ggplot")
+    ### Manual Check: Plots different, with no color clearly in front
+    expect_s3_class(
+        un$p,
+        "ggplot")
+    expect_s3_class(
+        ran$p,
+        "ggplot")
+    expect_s3_class(
+        ran2$p,
+        "ggplot")
+    expect_false(
+        all(c(
+            identical(
+                rownames(un$Target_data),
+                rownames(ran$Target_data)),
+            identical(
+                rownames(un$Target_data),
+                rownames(ran2$Target_data))
+            ))
+    )
     ### Manual Check: Dark blue always in front
     expect_equal(
-        out$Target_data$color,
-        rev(
-            dittoDimPlot(
-                disc, object=sce, data.out = TRUE, size = 10, order = "increasing"
-                )$Target_data$color)
+        dec$Target_data$color,
+        rev(inc$Target_data$color)
     )
 })
 
