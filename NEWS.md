@@ -1,6 +1,6 @@
-# dittoSeq 1.7.1
+# dittoSeq 1.8
 
-* Added 'randomize' option to 'order' input of 'dittoDimPlot()' and 'dittoScatterPlot()'
+* Minor Feature Add: 'randomize' option for 'order' input of 'dittoDimPlot()' and 'dittoScatterPlot()'
 
 # dittoSeq 1.6
 
