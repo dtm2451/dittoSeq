@@ -19,17 +19,26 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 ### News:
 
-#### Updates in dittoSeq v1.6 for Bioconductor 3.14, mostly minor:
+#### Updates in dittoSeq v1.8 for Bioconductor 3.15, relatively minor:
 
-- Vignette Update: Added a 'Quick-Reference: Seurat<=>dittoSeq' section.
-- Build & Test Infrastructure Update: Removed Seurat dependency from all build and test materials by removing Seurat code from the vignette and making all unit-testing of Seurat interactions conditional on both presence of Seurat and successful SCE to Seurat cnversion.
-- Bug Fixes:
-
-  1. Fixed dittoFreqPlot calculation machinery to properly target all cell types but only necessary groupings for every sample. Removed the 'retain.factor.levels' input because proper calculations treat 'var'-data as a factor, and groupings data as non-factor.
-  2. Allowed dittoHeatmap() to properly 'drop_levels' of annotations by ensuring 'annotation_colors' is not populated with colors for empty levels which would be dropped.
-  3. Made 'do.label' machinery of scatter plots robust to NAs.
+- Added 'randomize' option for 'order' input of 'dittoDimPlot()' and 'dittoScatterPlot()'
 
 #### Previous updates:
+
+<details>
+
+  <summary>Updates in dittoSeq v1.6 for Bioconductor 3.14:</summary>
+  
+  - Vignette Update: Added a 'Quick-Reference: Seurat<=>dittoSeq' section.
+  - Build & Test Infrastructure Update: Removed Seurat dependency from all build and test materials by removing Seurat code from the vignette and making all unit-testing of Seurat interactions conditional on both presence of Seurat and successful SCE to Seurat cnversion.
+  - Bug Fixes:
+
+    1. Fixed dittoFreqPlot calculation machinery to properly target all cell types but only necessary groupings for every sample. Removed the 'retain.factor.levels' input because proper calculations treat 'var'-data as a factor, and groupings data as non-factor.
+    2. Allowed dittoHeatmap() to properly 'drop_levels' of annotations by ensuring 'annotation_colors' is not populated with colors for empty levels which would be dropped.
+    3. Made 'do.label' machinery of scatter plots robust to NAs.
+  
+</details>
+
 
 <details>
 
