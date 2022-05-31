@@ -18,8 +18,12 @@ dittoDotPlot(
   max.color = "#C51B7D",
   min = "make",
   max = NULL,
-  summary.fxn.color = function(x) {     mean(x[x != 0]) },
-  summary.fxn.size = function(x) {     mean(x != 0) },
+  summary.fxn.color = function(x) {
+     mean(x[x != 0])
+ },
+  summary.fxn.size = function(x) {
+     mean(x != 0)
+ },
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -76,9 +80,7 @@ Default = light grey and purple.}
 \item{summary.fxn.color, summary.fxn.size}{A function which sets how color or size will be used to summarize variables' data for each group.
 Any function can be used as long as it takes in a numeric vector and returns a single numeric value.}
 
-\item{assay}{single strings or integer that set which data to use when plotting expressin data. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
-
-\item{slot}{single strings or integer that set which data to use when plotting expressin data. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
+\item{assay, slot}{single strings or integer that set which data to use when plotting expressin data. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
 
 \item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be adjusted altogether before \code{cells.use} subsetting and splitting into groups?
 \itemize{
@@ -117,9 +119,7 @@ Set to \code{NULL} to remove.}
 
 \item{x.labels.rotate}{Logical which sets whether the var-labels should be rotated.}
 
-\item{split.nrow}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
-
-\item{split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
 \item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
 List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.

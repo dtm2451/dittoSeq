@@ -41,8 +41,12 @@ dittoDimPlot(
   rename.shape.groups = NULL,
   theme = theme_bw(),
   show.axes.numbers = TRUE,
-  show.grid.lines = if (is.character(reduction.use)) {     !grepl("umap|tsne",
-    tolower(reduction.use)) } else {     TRUE },
+  show.grid.lines = if (is.character(reduction.use)) {
+     !grepl("umap|tsne",
+    tolower(reduction.use))
+ } else {
+     TRUE
+ },
   do.letter = FALSE,
   do.ellipse = FALSE,
   do.label = FALSE,
