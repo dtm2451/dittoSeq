@@ -13,6 +13,13 @@
     # converts a 'cells.use' given as string, logical, or numeric vector
     # into the string vector format expected internally by dittoSeq functions
     all.cells <- .all_cells(object)
+    
+    if (is.null(all.cells)) {
+        stop(
+            "Given 'object' has no cell/column names, which will inhibit dittoSeq's data gathering functions. ",
+            "For most compatible 'object's, you can correct the issue with:\n    ",
+            "`colnames(<object>) <- paste0('cell', seq_len(ncol(<object>)))`")
+    }
 
     if (is.null(cells.use)) {
         # Returns all cells when 'cells.use' is NULL

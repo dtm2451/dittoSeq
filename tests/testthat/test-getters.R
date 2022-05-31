@@ -227,3 +227,27 @@ test_that(".which_cells errors when logical 'cells.use' is the wrong length", {
         "'cells.use' length must equal the number of cells/samples in 'object' when given in logical form",
         fixed = TRUE)
 })
+
+test_that(".which_cells errors when object is missing cell names", {
+    colnames(sce) <- NULL
+    expect_error(
+        .which_cells(NULL, sce),
+        "colnames(<object>)", fixed = TRUE
+    )
+
+    expect_error(
+        dittoPlot(
+            sce, "gene1", group.by = "groups"),
+        "colnames(<object>)", fixed = TRUE
+    )
+    expect_error(
+        dittoBarPlot(
+            sce, "clusters", group.by = "groups"),
+        "colnames(<object>)", fixed = TRUE
+    )
+    expect_error(
+        dittoDimPlot(
+            sce, "gene1"),
+        "colnames(<object>)", fixed = TRUE
+    )
+})

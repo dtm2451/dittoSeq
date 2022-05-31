@@ -122,11 +122,7 @@ Default = \code{dittoColors()}.}
 
 \item{y.breaks}{Numeric vector, a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.).}
 
-\item{min}{Scalars which control the zoom of the plot.
-These inputs set the minimum / maximum values of the data to show.
-Default = set based on the limits of the data in var.}
-
-\item{max}{Scalars which control the zoom of the plot.
+\item{min, max}{Scalars which control the zoom of the plot.
 These inputs set the minimum / maximum values of the data to show.
 Default = set based on the limits of the data in var.}
 
