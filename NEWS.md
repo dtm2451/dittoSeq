@@ -1,3 +1,7 @@
+# dittoSeq 1.9.1
+
+* Added a helpful error message to catch cases where 'object' does not have cell/column names, and suggest how to add them.
+
 # dittoSeq 1.8
 
 * Minor Feature Add: 'randomize' option for 'order' input of 'dittoDimPlot()' and 'dittoScatterPlot()'
@@ -5,7 +9,7 @@
 # dittoSeq 1.6
 
 * Vignette Update: Added a 'Quick-Reference: Seurat<=>dittoSeq' section.
-* Build & Test Infrastructure Update: Removed Seurat dependency from all build and test materials by removing Seurat code from the vignette and making all unit-testing of Seurat interactions conditional on both presence of Seurat and successful SCE to Seurat cnversion.
+* Build & Test Infrastructure Update: Removed Seurat dependency from all build and test materials by removing Seurat code from the vignette and making all unit-testing of Seurat interactions conditional on both presence of Seurat and successful SCE to Seurat conversion.
 * Bug Fixes:
 1- Fixed dittoFreqPlot calculation machinery to properly target all cell types but only necessary groupings for every sample. Removed the 'retain.factor.levels' input because proper calculations treat 'var'-data as a factor, and groupings data as non-factor.
 2- Allowed dittoHeatmap() to properly 'drop_levels' of annotations by ensuring 'annotation_colors' is not populated with colors for empty levels which would be dropped.
@@ -17,7 +21,7 @@
 * Added interaction with 'rowData' of SE and SCEs via a 'swap.rownames' input, e.g. to simplify provision of 'var's via symbols vs IDs.
 * Improved & expanded 'split.by' capabilities by:
 1- adding them to 'dittoBarPlot()', 'dittoDotPlot()', and 'dittoPlotVarsAcrossGroups()';
-2- adding 'split.adjust' input to all functions for passing adjudstments to underlying 'facet_grid()' and 'facet_wrap()' calls;
+2- adding 'split.adjust' input to all functions for passing adjustments to underlying 'facet_grid()' and 'facet_wrap()' calls;
 3- adding 'split.show.all.others' input to 'dittoDimPlot()' and 'dittoScatterPlot()' to allow the full spectrum of points, rather than just points excluded with 'cells.use', to be shown as light gray in the background of all facets;
 4- Bug fix: splitting now works with labeling of Dim/Scatter plots, with label position calculated per facet, and without affecting facet order.
 * Improved 'dittoPlot()'-plotting engine (also effects 'dittoPlotVarsAcrossGroups()', and 'dittoFreqPlot()') by:
