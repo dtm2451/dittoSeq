@@ -17,6 +17,7 @@ dittoPlot(
   extra.vars = NULL,
   cells.use = NULL,
   plots = c("jitter", "vlnplot"),
+  multivar.aes = c("split", "group", "color"),
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -33,7 +34,7 @@ dittoPlot(
   y.breaks = NULL,
   min = NULL,
   max = NULL,
-  xlab = group.by,
+  xlab = "make",
   x.labels = NULL,
   x.labels.rotate = NA,
   x.reorder = NULL,
@@ -81,7 +82,8 @@ dittoBoxPlot(..., plots = c("boxplot", "jitter"))
 \item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{var}{Single string representing the name of a metadata or gene, OR a vector with length equal to the total number of cells/samples in the dataset.
-This is the data that will be displayed.}
+Alternatively, a string vector naming multiple genes or metadata.
+This is the primary data that will be displayed.}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
@@ -109,6 +111,8 @@ Alternatively, a Logical vector, the same length as the number of cells in the o
 Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
 
 See details section for more info.}
+
+\item{multivar.aes}{"split", "group", or "color", the plot feature to utilize for displaying 'var' value when \code{var} is given multiple genes or metadata.}
 
 \item{assay, slot}{single strings or integer that set which data to use when plotting gene expression / feature data. See \code{\link{gene}} for more information.}
 

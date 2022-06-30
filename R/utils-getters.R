@@ -79,7 +79,9 @@
     }
 
     if (length(OUT)!=length(cells)) {
-        stop("'var' is not a metadata or gene nor equal in length to ncol('object')")
+        stop(
+            ifelse(length(var)==1, var, 'var'),
+            " is not a metadata or gene nor equal in length to ncol('object')")
     }
     names(OUT) <- cells
     OUT

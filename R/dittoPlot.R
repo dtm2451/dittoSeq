@@ -3,11 +3,13 @@
 #'
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var Single string representing the name of a metadata or gene, OR a vector with length equal to the total number of cells/samples in the dataset.
-#' This is the data that will be displayed.
+#' Alternatively, a string vector naming multiple genes or metadata.
+#' This is the primary data that will be displayed.
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
 #' @param color.by String representing the name of a metadata to use for setting fills.
 #' Great for highlighting supersets or subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
 #' @param shape.by Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.
+#' @param multivar.aes "split", "group", or "color", the plot feature to utilize for displaying 'var' value when \code{var} is given multiple genes or metadata.
 #' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #'
 #' When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
@@ -242,6 +244,7 @@ dittoPlot <- function(
     extra.vars = NULL,
     cells.use = NULL,
     plots = c("jitter","vlnplot"),
+    multivar.aes = c("split", "group", "color"),
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
@@ -258,7 +261,7 @@ dittoPlot <- function(
     y.breaks = NULL,
     min = NULL,
     max = NULL,
-    xlab = group.by,
+    xlab = "make",
     x.labels = NULL,
     x.labels.rotate = NA,
     x.reorder = NULL,
@@ -296,6 +299,7 @@ dittoPlot <- function(
     data.out = FALSE) {
 
     ridgeplot.shape <- match.arg(ridgeplot.shape)
+    multivar.aes <- match.arg(multivar.aes)
     
     #Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
@@ -310,6 +314,9 @@ dittoPlot <- function(
     ylab <- .leave_default_or_null(ylab,
         default = paste0(var,exp),
         null.if = !(length(var)==1 && is.character(var)))
+    xlab <- .leave_default_or_null(xlab,
+        default = group.by,
+        null.if = multivar.aes=="group" && length(var)>1 && length(var) != length(all.cells))
     main <- .leave_default_or_null(main, var,
         null.if = !(length(var)==1 && is.character(var)))
     legend.title <- .leave_default_or_null(legend.title, var,
@@ -318,7 +325,7 @@ dittoPlot <- function(
     # Grab the data
     Target_data <- .dittoPlot_data_gather(object, var, group.by, color.by,
         c(shape.by,split.by,extra.vars), cells.use, assay, slot, adjustment,
-        swap.rownames, do.hover, hover.data)$Target_data
+        swap.rownames, do.hover, hover.data, multivar.aes)
     Target_data$grouping <-
         .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
 
@@ -348,10 +355,15 @@ dittoPlot <- function(
             colors, y.breaks, min, max)
     }
     # Extra tweaks
-    if (!is.null(split.by)) {
+    if ("var" %in% names(Target_data) && multivar.aes=="split") {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, split.adjust)
+            p, 'var', split.nrow, split.ncol, split.adjust)
+    } else if (!is.null(split.by)) {
+        p <- .add_splitting(
+            p, split.by, split.nrow, split.ncol, split.adjust)
     }
+    
+    
     if (!legend.show) {
         p <- .remove_legend(p)
     }
@@ -590,20 +602,52 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 }
 
 .dittoPlot_data_gather <- function(
-    object, main.var, group.by = "Sample", color.by = group.by,
+    object, var, group.by, color.by = group.by,
     extra.vars = NULL, cells.use = NULL,
     assay, slot, adjustment,
     swap.rownames = NULL,
-    do.hover = FALSE, hover.data = c(main.var, extra.vars)) {
+    do.hover = FALSE, hover.data = c(var, extra.vars),
+    multivar.aes = "split") {
 
+    all.cells <- .all_cells(object)
+    
+    # Support multiple genes/metadata
+    if (length(var)>1 && length(var) != all.cells) {
+        return(do.call(rbind, lapply(
+            var, function(this.var) {
+                col <- switch(
+                    multivar.aes, "split"="var", "group"="grouping", "color"="color")
+                this.out <- .dittoPlot_data_gather_inner(
+                    object, this.var, group.by, color.by, extra.vars, cells.use,
+                    all.cells, assay, slot, adjustment, swap.rownames, do.hover,
+                    hover.data
+                )
+                this.out[[col]] <- this.var
+                this.out
+            }
+        )))
+    } else {
+        # Single var
+        return(.dittoPlot_data_gather_inner(
+            object, var, group.by, color.by, extra.vars, cells.use,
+            all.cells, assay, slot, adjustment, swap.rownames, do.hover,
+            hover.data
+        ))
+    }
+}
+
+.dittoPlot_data_gather_inner <- function(
+    object, var, group.by, color.by, extra.vars, cells.use, all.cells,
+    assay, slot, adjustment, swap.rownames, do.hover, hover.data
+) {
+    
     # Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
-    # Establish the full list of cell/sample names
-    all.cells <- .all_cells(object)
+    
     ### Make dataframe for storing the plotting data:
     full_data <- data.frame(
         var.data = .var_OR_get_meta_or_gene(
-            main.var, object, assay, slot, adjustment, swap.rownames),
+            var, object, assay, slot, adjustment, swap.rownames),
         grouping = meta(group.by, object),
         color = meta(color.by, object),
         row.names = all.cells)
@@ -616,7 +660,6 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
             hover.data, object, assay, slot, adjustment)
     }
 
-    return(list(Target_data = full_data[all.cells %in% cells.use,],
-                Others_data = full_data[!(all.cells %in% cells.use),]))
+    full_data[all.cells %in% cells.use,]
 }
 

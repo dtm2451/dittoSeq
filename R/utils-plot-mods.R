@@ -1,4 +1,4 @@
-.add_splitting <- function(p, split.by, nrow, ncol, object, split.args) {
+.add_splitting <- function(p, split.by, nrow, ncol, split.args) {
     
     # Adds ggplot faceting to go with 'split.by' utilization.
 
