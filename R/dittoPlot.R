@@ -10,17 +10,18 @@
 #' Great for highlighting supersets or subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
 #' @param shape.by Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.
 #' @param multivar.aes "split", "group", or "color", the plot feature to utilize for displaying 'var' value when \code{var} is given multiple genes or metadata.
+#' When set to "split", inputs \code{split.nrow}, \code{split.ncol}, and \code{split.adjust} can be used to 
 #' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #'
 #' When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
 #'
 #' When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
 #'
-#' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
+#' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}, or when multiple genes/metadata are given to \code{var} and \code{multivar.aes = "split"}.
 #' @param split.adjust A named list which allows extra parameters to be pushed through to the faceting function call.
 #' List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
 #' 
-#' For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+#' For options, when giving 1 metadata to \code{split.by} or if faceting is by a set of \code{var}s, see \code{\link[ggplot2]{facet_wrap}},
 #' OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'

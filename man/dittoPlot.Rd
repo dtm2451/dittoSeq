@@ -112,7 +112,8 @@ Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the b
 
 See details section for more info.}
 
-\item{multivar.aes}{"split", "group", or "color", the plot feature to utilize for displaying 'var' value when \code{var} is given multiple genes or metadata.}
+\item{multivar.aes}{"split", "group", or "color", the plot feature to utilize for displaying 'var' value when \code{var} is given multiple genes or metadata.
+When set to "split", inputs \code{split.nrow}, \code{split.ncol}, and \code{split.adjust} can be used to}
 
 \item{assay, slot}{single strings or integer that set which data to use when plotting gene expression / feature data. See \code{\link{gene}} for more information.}
 
@@ -175,12 +176,12 @@ Recommendation for advanced users: If you find yourself coming back to this inpu
 is to make the target data into a factor, and to put its levels in the desired order: \code{factor(data, levels = c("level1", "level2", ...))}.
 \code{\link{metaLevels}} can be used to quickly get the identities that need to be part of this 'levels' input.}
 
-\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}, or when multiple genes/metadata are given to \code{var} and \code{multivar.aes = "split"}.}
 
 \item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
 List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
 
-For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+For options, when giving 1 metadata to \code{split.by} or if faceting is by a set of \code{var}s, see \code{\link[ggplot2]{facet_wrap}},
 OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
