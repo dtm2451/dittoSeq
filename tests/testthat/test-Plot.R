@@ -478,4 +478,20 @@ test_that("dittoPlot swap.rownames works", {
         "ggplot")
 })
 
-## For Future: Could add checking of assay/slot/adjustments
+test_that("dittoPlot allows plotting of multiple vars, via various aesthetics", {
+    expect_s3_class(
+        print(dittoPlot(
+            sce, c("gene1","gene2","number"), grp,
+            multivar.aes = "split")),
+        "ggplot")
+    expect_s3_class(
+        print(dittoPlot(
+            sce, c("gene1","gene2","number"), grp,
+            multivar.aes = "group")),
+        "ggplot")
+    expect_s3_class(
+        print(dittoPlot(
+            sce, c("gene1","gene2","number"), grp,
+            multivar.aes = "color")),
+        "ggplot")
+})
