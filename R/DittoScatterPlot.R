@@ -168,6 +168,7 @@ dittoScatterPlot <- function(
     split.by = NULL,
     extra.vars = NULL,
     cells.use = NULL,
+    multivar.dir = "col",
     show.others = FALSE,
     split.show.all.others = TRUE,
     size = 1,
@@ -243,7 +244,7 @@ dittoScatterPlot <- function(
     all_data <- .scatter_data_gather(
         object = object, cells.use = cells.use, x.var = x.var, y.var = y.var,
         color.var = color.var, shape.by = shape.by, split.by = split.by,
-        extra.vars = extra.vars,
+        extra.vars = extra.vars, multivar.dir = multivar.dir,
         assay.x = assay.x, slot.x = slot.x, adjustment.x = adjustment.x,
         assay.y = assay.y, slot.y = slot.y, adjustment.y = adjustment.y,
         assay.color = assay.color, slot.color = slot.color,
@@ -253,16 +254,12 @@ dittoScatterPlot <- function(
         swap.rownames = swap.rownames,
         do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
         rename.color.groups, rename.shape.groups)
-
-    # Trim by cells.use, then order if wants
-    Target_data <- all_data[cells.use,]
-    Others_data <- all_data[!(all.cells %in% cells.use),]
+    Target_data <- all_data$Target_data
+    Others_data <- all_data$Others_data
+    split.by <- all_data$split.by
     
     if (order %in% c("increasing", "decreasing")) {
-        decreasing <- switch(order,
-            "decreasing" = TRUE,
-            "increasing" = FALSE)
-        Target_data <- Target_data[order(Target_data$color, decreasing = decreasing),]
+        Target_data <- Target_data[order(Target_data$color, decreasing = order==decreasing),]
     } else if (order == "randomize") {
         Target_data <- Target_data[sample(nrow(Target_data)),]
     }
@@ -488,6 +485,7 @@ dittoScatterPlot <- function(
     shape.by,
     split.by,
     extra.vars,
+    multivar.dir,
     assay.x,
     slot.x,
     adjustment.x,
@@ -511,7 +509,92 @@ dittoScatterPlot <- function(
     ) {
 
     all.cells <- .all_cells(object)
+    cells.use <- .which_cells(cells.use, object)
     object <- .swap_rownames(object, swap.rownames)
+    
+    # Support multiple genes/metadata
+    if (length(color.var)>1 && length(color.var) != all.cells) {
+        # Data
+        each_data <- lapply(
+            color.var, function(this.var) {
+                this.out <- .scatter_data_gather_inner(
+                    object, all.cells, x.var, y.var, this.var,
+                    shape.by, split.by, extra.vars, assay.x, slot.x, adjustment.x,
+                    assay.y, slot.y, adjustment.y, assay.color, slot.color,
+                    adjustment.color, assay.extra, slot.extra, adjustment.extra,
+                    do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
+                    rename.color.groups, rename.shape.groups)
+                this.out$color.vars <- this.var
+                this.out
+            }
+        )
+        if (any(unlist(lapply(each_data, function(x) { !is.numeric(x$color) })))) {
+            stop("Only numeric data supported when plotting multiple color.var")
+        }
+        out_data <-list(
+            Target_data = do.call(rbind, lapply(each_data, function(x) { x[cells.use,] } )),
+            Others_data = do.call(rbind, lapply(each_data, function(x) { x[!(all.cells %in% cells.use),] } ))
+        )
+        # Faceting plan
+        if (is.null(split.by)) {
+            split.by <- "color.vars"
+        } else {
+            if (length(split.by)>1) {
+                warning("'color.var' is prioiritized for faceting. The second split.by element will be ignored.")
+            }
+            split.by[2] <- "color.vars"
+            if (multivar.dir=="row") {
+                split.by <- rev(split.by)
+            }
+        }
+    } else {
+        # Single var
+        all_data <- .scatter_data_gather_inner(
+            object, all.cells, x.var, y.var, color.var,
+            shape.by, split.by, extra.vars, assay.x, slot.x, adjustment.x,
+            assay.y, slot.y, adjustment.y, assay.color, slot.color,
+            adjustment.color, assay.extra, slot.extra, adjustment.extra,
+            do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
+            rename.color.groups, rename.shape.groups)
+        out_data <-list(
+            Target_data = all_data[cells.use,],
+            Others_data = all_data[!(all.cells %in% cells.use),]
+        )
+    }
+    
+    out_data$split.by <- split.by
+    
+    out_data
+}
+
+.scatter_data_gather_inner <- function(
+    object,
+    all.cells,
+    x.var,
+    y.var,
+    color.var,
+    shape.by,
+    split.by,
+    extra.vars,
+    assay.x,
+    slot.x,
+    adjustment.x,
+    assay.y,
+    slot.y,
+    adjustment.y,
+    assay.color,
+    slot.color,
+    adjustment.color,
+    assay.extra,
+    slot.extra,
+    adjustment.extra,
+    do.hover,
+    hover.data,
+    hover.assay,
+    hover.slot,
+    hover.adjustment,
+    rename.color.groups,
+    rename.shape.groups) {
     
     # Make dataframe
     vars <- list(x.var, y.var, color.var, shape.by)

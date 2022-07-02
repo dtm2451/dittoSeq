@@ -17,6 +17,7 @@ dittoDimPlot(
   split.by = NULL,
   split.adjust = list(),
   extra.vars = NULL,
+  multivar.dir = "col",
   show.others = TRUE,
   split.show.all.others = TRUE,
   split.nrow = NULL,

@@ -160,6 +160,7 @@ dittoDimHex <- function(
     colors = seq_along(color.panel),
     split.by = NULL,
     extra.vars = NULL,
+    multivar.dir = "col",
     split.nrow = NULL,
     split.ncol = NULL,
     split.adjust = list(),
@@ -230,7 +231,7 @@ dittoDimHex <- function(
     p.df <- dittoScatterHex(
         object, xdat$embeddings, ydat$embeddings, color.var, bins,
         color.method, split.by,
-        extra.vars, cells.use, color.panel, colors,
+        extra.vars, cells.use, color.panel, colors, multivar.dir,
         split.nrow, split.ncol, split.adjust, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
         swap.rownames,
@@ -279,6 +280,7 @@ dittoScatterHex <- function(
     cells.use = NULL,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
+    multivar.dir = "col",
     split.nrow = NULL,
     split.ncol = NULL,
     split.adjust = list(),
@@ -337,11 +339,12 @@ dittoScatterHex <- function(
     # Make dataframe
     all_data <- .scatter_data_gather(
         object, cells.use, x.var, y.var, color.var, shape.by=NULL, split.by,
-        extra.vars, assay.x, slot.x, adjustment.x, assay.y, slot.y,
+        extra.vars, multivar.dir, assay.x, slot.x, adjustment.x, assay.y, slot.y,
         adjustment.y, assay.color, slot.color, adjustment.color, assay.extra,
         slot.extra, adjustment.extra, swap.rownames = swap.rownames,
         rename.color.groups = rename.color.groups)
-    data <- all_data[cells.use,]
+    data <- all_data$Target_data
+    split.by <- all_data$split.by
 
     # Parse coloring methods
     color_by_var <- FALSE
@@ -378,7 +381,11 @@ dittoScatterHex <- function(
             }
         )
     legend.color.title <- .leave_default_or_null(legend.color.title,
-        default = paste(color.var, color.method, sep = ",\n"))
+        default = ifelse(
+            length(color.var)==1,
+            paste(color.var, color.method, sep = ",\n"),
+            color.method)
+    )
 
     # Make the plot
     p <- .ditto_scatter_hex(

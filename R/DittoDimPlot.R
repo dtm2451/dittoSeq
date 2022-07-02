@@ -272,6 +272,7 @@ dittoDimPlot <- function(
     split.by = NULL,
     split.adjust = list(),
     extra.vars = NULL,
+    multivar.dir = "col",
     show.others = TRUE,
     split.show.all.others = TRUE,
     split.nrow = NULL,
@@ -355,7 +356,7 @@ dittoDimPlot <- function(
     # Make dataframes and plot
     p.df <- dittoScatterPlot(
         object, xdat$embeddings, ydat$embeddings, var, shape.by, split.by,
-        extra.vars, cells.use, show.others, split.show.all.others,
+        extra.vars, cells.use, multivar.dir, show.others, split.show.all.others,
         size, opacity, color.panel, colors,
         split.nrow, split.ncol, split.adjust, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay, slot, adjustment, swap.rownames,

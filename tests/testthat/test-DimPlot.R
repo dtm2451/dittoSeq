@@ -626,3 +626,34 @@ test_that("dittoDimPlot swap.rownames works", {
         dittoDimPlot(sce, "gene1_symb", swap.rownames = "symbol"),
         "ggplot")
 })
+
+test_that("dittoDimPlot allows plotting of multiple vars, via faceting", {
+    expect_s3_class(
+        dittoDimPlot(
+            sce, c("gene1","gene2","number")),
+        "ggplot")
+    
+    # These should have transposed facet grids
+    expect_s3_class(
+        print(dittoDimPlot(
+            sce, c("gene1","gene2","number"),
+            split.by = disc2)),
+        "ggplot")
+    expect_s3_class(
+        print(dittoDimPlot(
+            sce, c("gene1","gene2","number"),
+            split.by = disc2, multivar.dir = "row")),
+        "ggplot")
+    
+    expect_error(
+        dittoDimPlot(
+            sce, c(disc,"gene2","number")),
+        "Only numeric data")
+    
+    expect_warning(
+        dittoDimPlot(
+            sce, c("gene1","gene2","number"),
+            split.by = c(disc2,disc)),
+        "second split.by element will be ignored")
+})
+
