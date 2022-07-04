@@ -168,7 +168,7 @@ dittoScatterPlot <- function(
     split.by = NULL,
     extra.vars = NULL,
     cells.use = NULL,
-    multivar.dir = "col",
+    multivar.split.dir = "col",
     show.others = FALSE,
     split.show.all.others = TRUE,
     size = 1,
@@ -244,7 +244,7 @@ dittoScatterPlot <- function(
     all_data <- .scatter_data_gather(
         object = object, cells.use = cells.use, x.var = x.var, y.var = y.var,
         color.var = color.var, shape.by = shape.by, split.by = split.by,
-        extra.vars = extra.vars, multivar.dir = multivar.dir,
+        extra.vars = extra.vars, multivar.split.dir = multivar.split.dir,
         assay.x = assay.x, slot.x = slot.x, adjustment.x = adjustment.x,
         assay.y = assay.y, slot.y = slot.y, adjustment.y = adjustment.y,
         assay.color = assay.color, slot.color = slot.color,
@@ -485,7 +485,7 @@ dittoScatterPlot <- function(
     shape.by,
     split.by,
     extra.vars,
-    multivar.dir,
+    multivar.split.dir,
     assay.x,
     slot.x,
     adjustment.x,
@@ -524,7 +524,7 @@ dittoScatterPlot <- function(
                     adjustment.color, assay.extra, slot.extra, adjustment.extra,
                     do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
                     rename.color.groups, rename.shape.groups)
-                this.out$color.vars <- this.var
+                this.out$color.var <- this.var
                 this.out
             }
         )
@@ -535,18 +535,8 @@ dittoScatterPlot <- function(
             Target_data = do.call(rbind, lapply(each_data, function(x) { x[cells.use,] } )),
             Others_data = do.call(rbind, lapply(each_data, function(x) { x[!(all.cells %in% cells.use),] } ))
         )
-        # Faceting plan
-        if (is.null(split.by)) {
-            split.by <- "color.vars"
-        } else {
-            if (length(split.by)>1) {
-                warning("'color.var' is prioiritized for faceting. The second split.by element will be ignored.")
-            }
-            split.by[2] <- "color.vars"
-            if (multivar.dir=="row") {
-                split.by <- rev(split.by)
-            }
-        }
+        .multivar_adjust_split_by(
+            split.by, multivar.split.dir, multivar.col.name = "color.var")
     } else {
         # Single var
         all_data <- .scatter_data_gather_inner(
@@ -620,4 +610,19 @@ dittoScatterPlot <- function(
     }
     
     dat
+}
+
+.multivar_adjust_split_by <- function(split.by, multivar.split.dir, multivar.col.name) {
+    if (is.null(split.by)) {
+        split.by <- multivar.col.name
+    } else {
+        if (length(split.by)>1) {
+            warning("multi-feature '", multivar.col.name, "' is prioiritized for faceting. The second 'split.by' element will be ignored.")
+        }
+        split.by[2] <- multivar.col.name
+        if (multivar.split.dir=="row") {
+            split.by <- rev(split.by)
+        }
+    }
+    split.by
 }

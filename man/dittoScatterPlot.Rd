@@ -13,7 +13,7 @@ dittoScatterPlot(
   split.by = NULL,
   extra.vars = NULL,
   cells.use = NULL,
-  multivar.dir = "col",
+  multivar.split.dir = "col",
   show.others = FALSE,
   split.show.all.others = TRUE,
   size = 1,

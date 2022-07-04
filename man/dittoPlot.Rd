@@ -18,6 +18,7 @@ dittoPlot(
   cells.use = NULL,
   plots = c("jitter", "vlnplot"),
   multivar.aes = c("split", "group", "color"),
+  multivar.split.dir = "col",
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,

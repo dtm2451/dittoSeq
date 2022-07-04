@@ -375,7 +375,7 @@ test_that("dittoDimHex allows plotting of multiple vars, via faceting", {
     expect_s3_class(
         print(dittoDimHex(
             sce, c("gene1","gene2","number"),
-            split.by = disc2, multivar.dir = "row")),
+            split.by = disc2, multivar.split.dir = "row")),
         "ggplot")
     
     expect_error(

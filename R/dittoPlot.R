@@ -246,6 +246,7 @@ dittoPlot <- function(
     cells.use = NULL,
     plots = c("jitter","vlnplot"),
     multivar.aes = c("split", "group", "color"),
+    multivar.split.dir = "col",
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
@@ -324,11 +325,12 @@ dittoPlot <- function(
         null.if = is.null(shape.by))
 
     # Grab the data
-    Target_data <- .dittoPlot_data_gather(object, var, group.by, color.by,
+    gather_out <- .dittoPlot_data_gather(object, var, group.by, color.by,
         c(shape.by,split.by,extra.vars), cells.use, assay, slot, adjustment,
-        swap.rownames, do.hover, hover.data, multivar.aes)
-    Target_data$grouping <-
-        .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
+        swap.rownames, do.hover, hover.data, x.reorder, x.labels,
+        split.by, multivar.aes, multivar.split.dir)
+    Target_data <- gather_out$Target_data
+    split.by <- gather_out$split.by
 
     # Make the plot
     p <- ggplot(Target_data, aes_string(fill="color")) +
@@ -356,14 +358,10 @@ dittoPlot <- function(
             colors, y.breaks, min, max)
     }
     # Extra tweaks
-    if ("var" %in% names(Target_data) && multivar.aes=="split") {
-        p <- .add_splitting(
-            p, 'var', split.nrow, split.ncol, split.adjust)
-    } else if (!is.null(split.by)) {
+    if (!is.null(split.by)) {
         p <- .add_splitting(
             p, split.by, split.nrow, split.ncol, split.adjust)
     }
-    
     
     if (!legend.show) {
         p <- .remove_legend(p)
@@ -603,43 +601,50 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 }
 
 .dittoPlot_data_gather <- function(
-    object, var, group.by, color.by = group.by,
-    extra.vars = NULL, cells.use = NULL,
+    object, var, group.by, color.by,
+    extra.vars, cells.use,
     assay, slot, adjustment,
-    swap.rownames = NULL,
-    do.hover = FALSE, hover.data = c(var, extra.vars),
-    multivar.aes = "split") {
+    swap.rownames,
+    do.hover, hover.data = c(var, extra.vars),
+    x.reorder, x.labels,
+    split.by, multivar.aes, multivar.split.dir) {
 
     all.cells <- .all_cells(object)
     
     # Support multiple genes/metadata
     if (length(var)>1 && length(var) != all.cells) {
-        return(do.call(rbind, lapply(
+        Target_data <- do.call(rbind, lapply(
             var, function(this.var) {
                 col <- switch(
                     multivar.aes, "split"="var", "group"="grouping", "color"="color")
                 this.out <- .dittoPlot_data_gather_inner(
                     object, this.var, group.by, color.by, extra.vars, cells.use,
                     all.cells, assay, slot, adjustment, swap.rownames, do.hover,
-                    hover.data
+                    hover.data, x.reorder, x.labels
                 )
                 this.out[[col]] <- this.var
                 this.out
             }
-        )))
+        ))
+        if (multivar.aes == "split") {
+            split.by <- .multivar_adjust_split_by(
+                split.by, multivar.split.dir, multivar.col.name = "var")
+        }
     } else {
         # Single var
-        return(.dittoPlot_data_gather_inner(
+        Target_data <- .dittoPlot_data_gather_inner(
             object, var, group.by, color.by, extra.vars, cells.use,
             all.cells, assay, slot, adjustment, swap.rownames, do.hover,
-            hover.data
-        ))
+            hover.data, x.reorder, x.labels
+        )
     }
+    list(Target_data = Target_data, split.by = split.by)
 }
 
 .dittoPlot_data_gather_inner <- function(
     object, var, group.by, color.by, extra.vars, cells.use, all.cells,
-    assay, slot, adjustment, swap.rownames, do.hover, hover.data
+    assay, slot, adjustment, swap.rownames, do.hover, hover.data,
+    x.reorder, x.labels
 ) {
     
     # Populate cells.use with a list of names if it was given anything else.
@@ -655,12 +660,18 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     # Add split and extra data
     full_data <- .add_by_cell(full_data, extra.vars, extra.vars, object, assay,
         slot, adjustment, mult = TRUE)
+    
     # Add hover strings
     if (do.hover) {
         full_data$hover.string <- .make_hover_strings_from_vars(
             hover.data, object, assay, slot, adjustment)
     }
 
-    full_data[all.cells %in% cells.use,]
+    Target_data <- full_data[all.cells %in% cells.use,]
+    # Reorder / Relabel grouping data
+    Target_data$grouping <-
+        .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
+    
+    Target_data
 }
 

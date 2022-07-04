@@ -642,7 +642,7 @@ test_that("dittoDimPlot allows plotting of multiple vars, via faceting", {
     expect_s3_class(
         print(dittoDimPlot(
             sce, c("gene1","gene2","number"),
-            split.by = disc2, multivar.dir = "row")),
+            split.by = disc2, multivar.split.dir = "row")),
         "ggplot")
     
     expect_error(
@@ -654,6 +654,6 @@ test_that("dittoDimPlot allows plotting of multiple vars, via faceting", {
         dittoDimPlot(
             sce, c("gene1","gene2","number"),
             split.by = c(disc2,disc)),
-        "second split.by element will be ignored")
+        "second 'split.by' element will be ignored")
 })
 
