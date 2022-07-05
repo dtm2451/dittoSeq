@@ -497,20 +497,20 @@ test_that("dittoPlot allows plotting of multiple vars, via various aesthetics", 
     
     # These should have transposed facet grids
     expect_s3_class(
-        print(dittoDimPlot(
+        print(dittoPlot(
             sce, c("gene1","gene2","number"), grp,
-            multivar.aes = "split", split.by = disc2)),
+            multivar.aes = "split", split.by = clr2)),
         "ggplot")
     expect_s3_class(
         print(dittoPlot(
             sce, c("gene1","gene2","number"), grp,
-            multivar.aes = "split", split.by = disc2,
+            multivar.aes = "split", split.by = clr2,
             multivar.split.dir = "row")),
         "ggplot")
     
     expect_warning(
         dittoPlot(
             sce, c("gene1","gene2","number"), grp,
-            split.by = c(disc2,disc)),
+            split.by = c(clr2,clr)),
         "second 'split.by' element will be ignored")
 })

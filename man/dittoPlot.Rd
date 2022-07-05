@@ -18,7 +18,7 @@ dittoPlot(
   cells.use = NULL,
   plots = c("jitter", "vlnplot"),
   multivar.aes = c("split", "group", "color"),
-  multivar.split.dir = "col",
+  multivar.split.dir = c("col", "row"),
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -115,6 +115,8 @@ See details section for more info.}
 
 \item{multivar.aes}{"split", "group", or "color", the plot feature to utilize for displaying 'var' value when \code{var} is given multiple genes or metadata.
 When set to "split", inputs \code{split.nrow}, \code{split.ncol}, and \code{split.adjust} can be used to}
+
+\item{multivar.split.dir}{"row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, when \code{multivar.aes = "split"}, and when \code{split.by} is used to provide additional data to facet by.}
 
 \item{assay, slot}{single strings or integer that set which data to use when plotting gene expression / feature data. See \code{\link{gene}} for more information.}
 

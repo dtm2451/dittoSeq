@@ -17,7 +17,7 @@ dittoDimPlot(
   split.by = NULL,
   split.adjust = list(),
   extra.vars = NULL,
-  multivar.split.dir = "col",
+  multivar.split.dir = c("col", "row"),
   show.others = TRUE,
   split.show.all.others = TRUE,
   split.nrow = NULL,
@@ -85,7 +85,7 @@ dittoDimPlot(
 \item{var}{String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 This is the data that will be displayed for each cell/sample. Discrete or continuous data both work.
 
-Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.}
+Alternatively, a string vector naming multiple genes or metadata, OR a vector of the same length as there are cells/samples in the \code{object} which provides per-cell data directly.}
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 
@@ -130,6 +130,8 @@ OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_gr
 \item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 
 Useful for making custom splitting/faceting or other additional alterations \emph{after} dittoSeq plot generation.}
+
+\item{multivar.split.dir}{"row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, and when \code{split.by} is used to provide additional data to facet by.}
 
 \item{show.others}{Logical. Whether other cells should be shown in the background in light gray. Default = TRUE.}
 

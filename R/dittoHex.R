@@ -11,8 +11,6 @@
 #' @param assay,slot,adjustment,assay.x,assay.y,assay.color,assay.extra,slot.x,slot.y,slot.color,slot.extra,adjustment.x,adjustment.y,adjustment.color,adjustment.extra
 #' assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.
 #' @param xlab,ylab Strings which set the labels for the axes. To remove, set to \code{NULL}.
-#' 
-#' 
 #' @param bins Numeric or numeric vector giving the number of haxagonal bins in the x and y directions. Set to 30 by default.
 #' @param color.method Works differently depending on whether the color.var is continous versus discrete:
 #' 
@@ -160,7 +158,7 @@ dittoDimHex <- function(
     colors = seq_along(color.panel),
     split.by = NULL,
     extra.vars = NULL,
-    multivar.split.dir = "col",
+    multivar.split.dir = c("col", "row"),
     split.nrow = NULL,
     split.ncol = NULL,
     split.adjust = list(),
@@ -209,6 +207,8 @@ dittoDimHex <- function(
     legend.density.breaks = waiver(),
     legend.density.breaks.labels = waiver()
     ) {
+    
+    multivar.split.dir <- match.arg(multivar.split.dir)
 
     # Generate the x/y dimensional reduction data and plot titles.
     xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
@@ -280,7 +280,7 @@ dittoScatterHex <- function(
     cells.use = NULL,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
-    multivar.split.dir = "col",
+    multivar.split.dir = c("col", "row"),
     split.nrow = NULL,
     split.ncol = NULL,
     split.adjust = list(),
@@ -335,6 +335,7 @@ dittoScatterHex <- function(
 
     # Standardize cells/samples vectors.
     cells.use <- .which_cells(cells.use, object)
+    multivar.split.dir <- match.arg(multivar.split.dir)
 
     # Make dataframe
     all_data <- .scatter_data_gather(
@@ -384,7 +385,8 @@ dittoScatterHex <- function(
         default = ifelse(
             length(color.var)==1,
             paste(color.var, color.method, sep = ",\n"),
-            color.method)
+            color.method),
+        null.if = is.null(color.var)
     )
 
     # Make the plot
@@ -413,7 +415,8 @@ dittoScatterHex <- function(
     
     if (is.list(add.trajectory.lineages)) {
         p <- .add_trajectory_lineages(
-            p, all_data, add.trajectory.lineages, trajectory.cluster.meta,
+            p, rbind(all_data$Target_data, all_data$Others_data),
+            add.trajectory.lineages, trajectory.cluster.meta,
             trajectory.arrow.size, object)
     }
     

@@ -9,7 +9,7 @@
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 #' This is the data that will be displayed for each cell/sample. Discrete or continuous data both work.
 #'
-#' Alternatively, can be a vector of same length as there are cells/samples in the \code{object}.
+#' Alternatively, a string vector naming multiple genes or metadata, OR a vector of the same length as there are cells/samples in the \code{object} which provides per-cell data directly.
 #' @param reduction.use String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
 #'
 #' Default = the first dimensionality reduction slot inside the object with "umap", "tsne", or "pca" within its name, (priority: UMAP > t-SNE > PCA) or the first dimensionality reduction slot if none of those exist.
@@ -38,6 +38,7 @@
 #'
 #' Note: shapes can be harder to see, and to process mentally, than colors.
 #' Even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.
+#' @param multivar.split.dir "row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, and when \code{split.by} is used to provide additional data to facet by.
 #' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #'
 #' When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
@@ -272,7 +273,7 @@ dittoDimPlot <- function(
     split.by = NULL,
     split.adjust = list(),
     extra.vars = NULL,
-    multivar.split.dir = "col",
+    multivar.split.dir = c("col", "row"),
     show.others = TRUE,
     split.show.all.others = TRUE,
     split.nrow = NULL,
@@ -329,6 +330,7 @@ dittoDimPlot <- function(
     data.out = FALSE) {
 
     order <- match.arg(order)
+    multivar.split.dir <- match.arg(multivar.split.dir)
     
     if (do.hover || !is.null(shape.by)) {
         do.letter <- FALSE

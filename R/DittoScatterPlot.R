@@ -168,7 +168,7 @@ dittoScatterPlot <- function(
     split.by = NULL,
     extra.vars = NULL,
     cells.use = NULL,
-    multivar.split.dir = "col",
+    multivar.split.dir = c("col", "row"),
     show.others = FALSE,
     split.show.all.others = TRUE,
     size = 1,
@@ -235,6 +235,7 @@ dittoScatterPlot <- function(
     data.out = FALSE) {
 
     order <- match.arg(order)
+    multivar.split.dir <- match.arg(multivar.split.dir)
     
     # Standardize cells/samples vectors.
     cells.use <- .which_cells(cells.use, object)
@@ -259,7 +260,7 @@ dittoScatterPlot <- function(
     split.by <- all_data$split.by
     
     if (order %in% c("increasing", "decreasing")) {
-        Target_data <- Target_data[order(Target_data$color, decreasing = order==decreasing),]
+        Target_data <- Target_data[order(Target_data$color, decreasing = order=="decreasing"),]
     } else if (order == "randomize") {
         Target_data <- Target_data[sample(nrow(Target_data)),]
     }
@@ -297,7 +298,7 @@ dittoScatterPlot <- function(
     
     if (is.list(add.trajectory.lineages)) {
         p <- .add_trajectory_lineages(
-            p, all_data, add.trajectory.lineages,
+            p, rbind(Target_data, Others_data), add.trajectory.lineages,
             trajectory.cluster.meta, trajectory.arrow.size, object)
     }
     

@@ -19,7 +19,7 @@ dittoDimHex(
   colors = seq_along(color.panel),
   split.by = NULL,
   extra.vars = NULL,
-  multivar.split.dir = "col",
+  multivar.split.dir = c("col", "row"),
   split.nrow = NULL,
   split.ncol = NULL,
   split.adjust = list(),
@@ -81,7 +81,7 @@ dittoScatterHex(
   cells.use = NULL,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
-  multivar.split.dir = "col",
+  multivar.split.dir = c("col", "row"),
   split.nrow = NULL,
   split.ncol = NULL,
   split.adjust = list(),
@@ -182,6 +182,8 @@ When 1 metadata is named, shape control can be achieved with \code{split.nrow} a
 \item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 
 Useful for making custom alterations \emph{after} dittoSeq plot generation.}
+
+\item{multivar.split.dir}{"row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, and when \code{split.by} is used to provide additional data to facet by.}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 

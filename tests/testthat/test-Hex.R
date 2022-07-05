@@ -387,7 +387,7 @@ test_that("dittoDimHex allows plotting of multiple vars, via faceting", {
         dittoDimHex(
             sce, c("gene1","gene2","number"),
             split.by = c(disc2,disc)),
-        "second split.by element will be ignored")
+        "second 'split.by' element will be ignored")
 })
 
 

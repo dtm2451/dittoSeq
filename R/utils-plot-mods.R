@@ -197,8 +197,8 @@
     # (Dim and Scatter plots)
     #
     # p = a ggplot to add to
-    # data = data for all cells/samples with columns X and Y
-    # clusters = the name of the metadata slot that holds the clusters which were used for cluster-based trajectory analysis
+    # data = data for all cells/samples with columns including 'X' and 'Y'
+    # clusters = the name of the metadata slot that holds the clusters which were used for cluster-based trajectory analysis.
     # trajectories = List of lists of cluster-to-cluster paths. Also, the output of SlingshotDataSet(SCE_with_slingshot)$lineages
     # arrow.size = numeric scalar that sets the arrow length (in inches) at the endpoints of trajectory lines.
 

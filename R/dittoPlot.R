@@ -11,6 +11,7 @@
 #' @param shape.by Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.
 #' @param multivar.aes "split", "group", or "color", the plot feature to utilize for displaying 'var' value when \code{var} is given multiple genes or metadata.
 #' When set to "split", inputs \code{split.nrow}, \code{split.ncol}, and \code{split.adjust} can be used to 
+#' @param multivar.split.dir "row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, when \code{multivar.aes = "split"}, and when \code{split.by} is used to provide additional data to facet by.
 #' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #'
 #' When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
@@ -246,7 +247,7 @@ dittoPlot <- function(
     cells.use = NULL,
     plots = c("jitter","vlnplot"),
     multivar.aes = c("split", "group", "color"),
-    multivar.split.dir = "col",
+    multivar.split.dir = c("col", "row"),
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
@@ -302,6 +303,7 @@ dittoPlot <- function(
 
     ridgeplot.shape <- match.arg(ridgeplot.shape)
     multivar.aes <- match.arg(multivar.aes)
+    multivar.split.dir <- match.arg(multivar.split.dir)
     
     #Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)

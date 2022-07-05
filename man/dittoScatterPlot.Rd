@@ -13,7 +13,7 @@ dittoScatterPlot(
   split.by = NULL,
   extra.vars = NULL,
   cells.use = NULL,
-  multivar.split.dir = "col",
+  multivar.split.dir = c("col", "row"),
   show.others = FALSE,
   split.show.all.others = TRUE,
   size = 1,
@@ -109,6 +109,8 @@ Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 \item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
+
+\item{multivar.split.dir}{"row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, and when \code{split.by} is used to provide additional data to facet by.}
 
 \item{show.others}{Logical. FALSE by default, whether other cells should be shown in the background in light gray.}
 
