@@ -1,3 +1,9 @@
+# dittoSeq 1.9.2
+
+* Added ability to plot multiple 'var' in a single 'dittoPlot()', 'dittoDimPlot()', 'dittoScatterPlot()', 'dittoDimHex()', and 'dittoScatterHex()' by giving a vector of genes or continuous metadata to their 'var' or 'color.var' input. New inputs to these functions allow control of:
+1- 'multivar.aes' (context: 'dittoPlot()' only) - which plot aesthetic is utilized for displaying var-values.
+2- 'multivar.split.dir' - faceting direction to use for var-data when combining with 'split.by'.  
+
 # dittoSeq 1.9.1
 
 * Added a helpful error message to catch cases where 'object' does not have cell/column names, and suggest how to add them.
