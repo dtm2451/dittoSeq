@@ -19,6 +19,7 @@ dittoDimHex(
   colors = seq_along(color.panel),
   split.by = NULL,
   extra.vars = NULL,
+  multivar.split.dir = c("col", "row"),
   split.nrow = NULL,
   split.ncol = NULL,
   split.adjust = list(),
@@ -80,6 +81,7 @@ dittoScatterHex(
   cells.use = NULL,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
+  multivar.split.dir = c("col", "row"),
   split.nrow = NULL,
   split.ncol = NULL,
   split.adjust = list(),
@@ -180,6 +182,8 @@ When 1 metadata is named, shape control can be achieved with \code{split.nrow} a
 \item{extra.vars}{String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 
 Useful for making custom alterations \emph{after} dittoSeq plot generation.}
+
+\item{multivar.split.dir}{"row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, and when \code{split.by} is used to provide additional data to facet by.}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
@@ -367,6 +371,20 @@ dittoDimHex(myRNA, color.var = "gene1", bins = 10,
 dittoDimHex(myRNA, bins = 10, split.by = "groups")
 dittoDimHex(myRNA, bins = 10, split.by = c("groups", "clustering"))
 
+# Faceting can also be used to show multiple continuous variables side-by-side
+#   by giving a vector of continuous metadata or gene names to 'color.var'.
+#   This can also be combined with 1 'split.by' variable, with direction then
+#   controlled via 'multivar.split.dir':
+dittoDimHex(myRNA, bins = 10,
+    color.var = c("gene1", "gene2"))
+dittoDimHex(myRNA, bins = 10,
+    color.var = c("gene1", "gene2"),
+    split.by = "groups")
+dittoDimHex(myRNA, bins = 10,
+    color.var = c("gene1", "gene2"),
+    split.by = "groups",
+    multivar.split.dir = "row")
+
 # Underlying data output with 'data.out = TRUE'
 dittoDimHex(myRNA, data.out = TRUE)
 
@@ -376,7 +394,7 @@ dittoDimHex(myRNA, bins = 10,
     contour.color = "lightblue", # Optional, black by default
     contour.linetype = "dashed") # Optional, solid by default
 
-# Trajectories can be added to dittoDimHex plots (see above for details)
+# Trajectories can be added to dittoDimHex plots
 dittoDimHex(myRNA, bins = 10,
     add.trajectory.lineages = list(c(1,2,4), c(1,4), c(1,3)),
     trajectory.cluster.meta = "clustering")

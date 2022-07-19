@@ -39,6 +39,12 @@
 #' @param min,max Scalars which control the zoom of the plot.
 #' These inputs set the minimum / maximum values of the y-axis.
 #' Default = set based on the limits of the data, 0 to 1 for \code{scale = "percent"}, or 0 to maximum count for 0 to 1 for \code{scale = "count"}.
+#' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
+#' @param split.adjust A named list which allows extra parameters to be pushed through to the faceting function call.
+#' List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+#' 
+#' For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+#' OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.
 #' @param main String, sets the plot title
 #' @param sub String, sets the plot subtitle
 #' @param var.labels.rename String vector for renaming the distinct identities of \code{var} values.
@@ -215,7 +221,7 @@ dittoBarPlot <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, split.adjust)
+            p, split.by, split.nrow, split.ncol, split.adjust)
     }
 
     if (!legend.show) {

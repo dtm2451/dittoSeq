@@ -3,22 +3,26 @@
 #'
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var Single string representing the name of a metadata or gene, OR a vector with length equal to the total number of cells/samples in the dataset.
-#' This is the data that will be displayed.
+#' Alternatively, a string vector naming multiple genes or metadata.
+#' This is the primary data that will be displayed.
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
 #' @param color.by String representing the name of a metadata to use for setting fills.
 #' Great for highlighting supersets or subgroups when wanted, but it defaults to \code{group.by} so this input can be skipped otherwise.
 #' @param shape.by Single string representing the name of a metadata to use for setting the shapes of the jitter points.  When not provided, all cells/samples will be represented with dots.
+#' @param multivar.aes "split", "group", or "color", the plot feature to utilize for displaying 'var' value when \code{var} is given multiple genes or metadata.
+#' When set to "split", inputs \code{split.nrow}, \code{split.ncol}, and \code{split.adjust} can be used to 
+#' @param multivar.split.dir "row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, when \code{multivar.aes = "split"}, and when \code{split.by} is used to provide additional data to facet by.
 #' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #'
 #' When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
 #'
 #' When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
 #'
-#' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
+#' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}, or when multiple genes/metadata are given to \code{var} and \code{multivar.aes = "split"}.
 #' @param split.adjust A named list which allows extra parameters to be pushed through to the faceting function call.
 #' List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
 #' 
-#' For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+#' For options, when giving 1 metadata to \code{split.by} or if faceting is by a set of \code{var}s, see \code{\link[ggplot2]{facet_wrap}},
 #' OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.
 #' @param extra.vars String vector providing names of any extra metadata to be stashed in the dataframe supplied to \code{ggplot(data)}.
 #'
@@ -191,6 +195,8 @@
 #' # Color distinctly from the grouping variable using 'color.by'
 #' dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint",
 #'     color.by = "conditions")
+#' dittoPlot(object = myRNA, var = "gene1", group.by = "conditions",
+#'     color.by = "timepoint")
 #'
 #' # Update the 'plots' input to change / reorder the data representations
 #' dittoPlot(myRNA, "gene1", "timepoint",
@@ -198,6 +204,14 @@
 #' dittoPlot(myRNA, "gene1", "timepoint",
 #'     plots = c("ridgeplot", "jitter"))
 #'
+#' ### Provided wrappers enable certain easy adjustments of the 'plots' parameter.
+#' # Quickly make a Boxplot
+#' dittoBoxPlot(myRNA, "gene1", group.by = "timepoint")
+#' # Quickly make a Ridgeplot, with or without jitter
+#' dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
+#' dittoRidgeJitter(myRNA, "gene1", group.by = "timepoint")
+#'
+#' ### Additional Functionality
 #' # Modify the look with intuitive inputs
 #' dittoPlot(myRNA, "gene1", "timepoint",
 #'     plots = c("vlnplot", "boxplot", "jitter"),
@@ -214,20 +228,25 @@
 #'     plots = c("vlnplot", "boxplot", "jitter"),
 #'     split.by = c("groups","SNP")) # row and col split.by elements
 #'
+#' # Multiple genes or continuous metadata can also be plotted by giving them as
+#' #   a vector to 'var'. One aesthetic of the plot will then be used to display
+#' #   'var'-info, and you can control which (faceting / "split", x-axis grouping
+#' #   / "group", or color / "color") with 'multivar.aes':
+#' dittoPlot(object = myRNA, group.by = "timepoint",
+#'     var = c("gene1", "gene2"))
+#' dittoPlot(object = myRNA, group.by = "timepoint",
+#'     var = c("gene1", "gene2"),
+#'     multivar.aes = "group")
+#' dittoPlot(object = myRNA, group.by = "timepoint",
+#'     var = c("gene1", "gene2"),
+#'     multivar.aes = "color")
+#' 
 #' # For faceting, instead of using 'split.by', the target data can alternatively
-#' # be given to 'extra.var' to have it added in the underlying dataframe, then
-#' # faceting can be added manually for extra flexibility
+#' #   be given to 'extra.var' to have it added in the underlying dataframe, then
+#' #   faceting can be added manually for extra flexibility
 #' dittoPlot(myRNA, "gene1", "clustering",
 #'     plots = c("vlnplot", "boxplot", "jitter"),
 #'     extra.var = "SNP") + facet_wrap("SNP", ncol = 1, strip.position = "left")
-#'
-#' ### Provided wrappers enable certain easy adjustments of the 'plots' parameter.
-#' # Quickly make a Boxplot
-#' dittoBoxPlot(myRNA, "gene1", group.by = "timepoint")
-#' 
-#' # Quickly make a Ridgeplot, with or without jitter
-#' dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
-#' dittoRidgeJitter(myRNA, "gene1", group.by = "timepoint")
 #'
 #' @author Daniel Bunis
 #' @export
@@ -242,6 +261,8 @@ dittoPlot <- function(
     extra.vars = NULL,
     cells.use = NULL,
     plots = c("jitter","vlnplot"),
+    multivar.aes = c("split", "group", "color"),
+    multivar.split.dir = c("col", "row"),
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
@@ -258,7 +279,7 @@ dittoPlot <- function(
     y.breaks = NULL,
     min = NULL,
     max = NULL,
-    xlab = group.by,
+    xlab = "make",
     x.labels = NULL,
     x.labels.rotate = NA,
     x.reorder = NULL,
@@ -296,6 +317,8 @@ dittoPlot <- function(
     data.out = FALSE) {
 
     ridgeplot.shape <- match.arg(ridgeplot.shape)
+    multivar.aes <- match.arg(multivar.aes)
+    multivar.split.dir <- match.arg(multivar.split.dir)
     
     #Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
@@ -310,17 +333,21 @@ dittoPlot <- function(
     ylab <- .leave_default_or_null(ylab,
         default = paste0(var,exp),
         null.if = !(length(var)==1 && is.character(var)))
+    xlab <- .leave_default_or_null(xlab,
+        default = group.by,
+        null.if = multivar.aes=="group" && length(var)>1 && length(var) != length(all.cells))
     main <- .leave_default_or_null(main, var,
         null.if = !(length(var)==1 && is.character(var)))
     legend.title <- .leave_default_or_null(legend.title, var,
         null.if = is.null(shape.by))
 
     # Grab the data
-    Target_data <- .dittoPlot_data_gather(object, var, group.by, color.by,
+    gather_out <- .dittoPlot_data_gather(object, var, group.by, color.by,
         c(shape.by,split.by,extra.vars), cells.use, assay, slot, adjustment,
-        swap.rownames, do.hover, hover.data)$Target_data
-    Target_data$grouping <-
-        .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
+        swap.rownames, do.hover, hover.data, x.reorder, x.labels,
+        split.by, multivar.aes, multivar.split.dir)
+    Target_data <- gather_out$Target_data
+    split.by <- gather_out$split.by
 
     # Make the plot
     p <- ggplot(Target_data, aes_string(fill="color")) +
@@ -350,8 +377,9 @@ dittoPlot <- function(
     # Extra tweaks
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, split.adjust)
+            p, split.by, split.nrow, split.ncol, split.adjust)
     }
+    
     if (!legend.show) {
         p <- .remove_legend(p)
     }
@@ -590,33 +618,77 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
 }
 
 .dittoPlot_data_gather <- function(
-    object, main.var, group.by = "Sample", color.by = group.by,
-    extra.vars = NULL, cells.use = NULL,
+    object, var, group.by, color.by,
+    extra.vars, cells.use,
     assay, slot, adjustment,
-    swap.rownames = NULL,
-    do.hover = FALSE, hover.data = c(main.var, extra.vars)) {
+    swap.rownames,
+    do.hover, hover.data = c(var, extra.vars),
+    x.reorder, x.labels,
+    split.by, multivar.aes, multivar.split.dir) {
 
+    all.cells <- .all_cells(object)
+    
+    # Support multiple genes/metadata
+    if (length(var)>1 && length(var) != all.cells) {
+        Target_data <- do.call(rbind, lapply(
+            var, function(this.var) {
+                col <- switch(
+                    multivar.aes, "split"="var", "group"="grouping", "color"="color")
+                this.out <- .dittoPlot_data_gather_inner(
+                    object, this.var, group.by, color.by, extra.vars, cells.use,
+                    all.cells, assay, slot, adjustment, swap.rownames, do.hover,
+                    hover.data, x.reorder, x.labels
+                )
+                this.out[[col]] <- this.var
+                this.out
+            }
+        ))
+        if (multivar.aes == "split") {
+            split.by <- .multivar_adjust_split_by(
+                split.by, multivar.split.dir, multivar.col.name = "var")
+        }
+    } else {
+        # Single var
+        Target_data <- .dittoPlot_data_gather_inner(
+            object, var, group.by, color.by, extra.vars, cells.use,
+            all.cells, assay, slot, adjustment, swap.rownames, do.hover,
+            hover.data, x.reorder, x.labels
+        )
+    }
+    list(Target_data = Target_data, split.by = split.by)
+}
+
+.dittoPlot_data_gather_inner <- function(
+    object, var, group.by, color.by, extra.vars, cells.use, all.cells,
+    assay, slot, adjustment, swap.rownames, do.hover, hover.data,
+    x.reorder, x.labels
+) {
+    
     # Populate cells.use with a list of names if it was given anything else.
     cells.use <- .which_cells(cells.use, object)
-    # Establish the full list of cell/sample names
-    all.cells <- .all_cells(object)
+    
     ### Make dataframe for storing the plotting data:
     full_data <- data.frame(
         var.data = .var_OR_get_meta_or_gene(
-            main.var, object, assay, slot, adjustment, swap.rownames),
+            var, object, assay, slot, adjustment, swap.rownames),
         grouping = meta(group.by, object),
         color = meta(color.by, object),
         row.names = all.cells)
     # Add split and extra data
     full_data <- .add_by_cell(full_data, extra.vars, extra.vars, object, assay,
         slot, adjustment, mult = TRUE)
+    
     # Add hover strings
     if (do.hover) {
         full_data$hover.string <- .make_hover_strings_from_vars(
             hover.data, object, assay, slot, adjustment)
     }
 
-    return(list(Target_data = full_data[all.cells %in% cells.use,],
-                Others_data = full_data[!(all.cells %in% cells.use),]))
+    Target_data <- full_data[all.cells %in% cells.use,]
+    # Reorder / Relabel grouping data
+    Target_data$grouping <-
+        .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
+    
+    Target_data
 }
 

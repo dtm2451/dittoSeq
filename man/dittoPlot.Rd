@@ -17,6 +17,8 @@ dittoPlot(
   extra.vars = NULL,
   cells.use = NULL,
   plots = c("jitter", "vlnplot"),
+  multivar.aes = c("split", "group", "color"),
+  multivar.split.dir = c("col", "row"),
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -33,7 +35,7 @@ dittoPlot(
   y.breaks = NULL,
   min = NULL,
   max = NULL,
-  xlab = group.by,
+  xlab = "make",
   x.labels = NULL,
   x.labels.rotate = NA,
   x.reorder = NULL,
@@ -81,7 +83,8 @@ dittoBoxPlot(..., plots = c("boxplot", "jitter"))
 \item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{var}{Single string representing the name of a metadata or gene, OR a vector with length equal to the total number of cells/samples in the dataset.
-This is the data that will be displayed.}
+Alternatively, a string vector naming multiple genes or metadata.
+This is the primary data that will be displayed.}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
@@ -109,6 +112,11 @@ Alternatively, a Logical vector, the same length as the number of cells in the o
 Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
 
 See details section for more info.}
+
+\item{multivar.aes}{"split", "group", or "color", the plot feature to utilize for displaying 'var' value when \code{var} is given multiple genes or metadata.
+When set to "split", inputs \code{split.nrow}, \code{split.ncol}, and \code{split.adjust} can be used to}
+
+\item{multivar.split.dir}{"row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, when \code{multivar.aes = "split"}, and when \code{split.by} is used to provide additional data to facet by.}
 
 \item{assay, slot}{single strings or integer that set which data to use when plotting gene expression / feature data. See \code{\link{gene}} for more information.}
 
@@ -171,12 +179,12 @@ Recommendation for advanced users: If you find yourself coming back to this inpu
 is to make the target data into a factor, and to put its levels in the desired order: \code{factor(data, levels = c("level1", "level2", ...))}.
 \code{\link{metaLevels}} can be used to quickly get the identities that need to be part of this 'levels' input.}
 
-\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}, or when multiple genes/metadata are given to \code{var} and \code{multivar.aes = "split"}.}
 
 \item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
 List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
 
-For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+For options, when giving 1 metadata to \code{split.by} or if faceting is by a set of \code{var}s, see \code{\link[ggplot2]{facet_wrap}},
 OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
@@ -335,6 +343,8 @@ dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint")
 # Color distinctly from the grouping variable using 'color.by'
 dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint",
     color.by = "conditions")
+dittoPlot(object = myRNA, var = "gene1", group.by = "conditions",
+    color.by = "timepoint")
 
 # Update the 'plots' input to change / reorder the data representations
 dittoPlot(myRNA, "gene1", "timepoint",
@@ -342,6 +352,14 @@ dittoPlot(myRNA, "gene1", "timepoint",
 dittoPlot(myRNA, "gene1", "timepoint",
     plots = c("ridgeplot", "jitter"))
 
+### Provided wrappers enable certain easy adjustments of the 'plots' parameter.
+# Quickly make a Boxplot
+dittoBoxPlot(myRNA, "gene1", group.by = "timepoint")
+# Quickly make a Ridgeplot, with or without jitter
+dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
+dittoRidgeJitter(myRNA, "gene1", group.by = "timepoint")
+
+### Additional Functionality
 # Modify the look with intuitive inputs
 dittoPlot(myRNA, "gene1", "timepoint",
     plots = c("vlnplot", "boxplot", "jitter"),
@@ -358,20 +376,25 @@ dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint",
     plots = c("vlnplot", "boxplot", "jitter"),
     split.by = c("groups","SNP")) # row and col split.by elements
 
+# Multiple genes or continuous metadata can also be plotted by giving them as
+#   a vector to 'var'. One aesthetic of the plot will then be used to display
+#   'var'-info, and you can control which (faceting / "split", x-axis grouping
+#   / "group", or color / "color") with 'multivar.aes':
+dittoPlot(object = myRNA, group.by = "timepoint",
+    var = c("gene1", "gene2"))
+dittoPlot(object = myRNA, group.by = "timepoint",
+    var = c("gene1", "gene2"),
+    multivar.aes = "group")
+dittoPlot(object = myRNA, group.by = "timepoint",
+    var = c("gene1", "gene2"),
+    multivar.aes = "color")
+
 # For faceting, instead of using 'split.by', the target data can alternatively
-# be given to 'extra.var' to have it added in the underlying dataframe, then
-# faceting can be added manually for extra flexibility
+#   be given to 'extra.var' to have it added in the underlying dataframe, then
+#   faceting can be added manually for extra flexibility
 dittoPlot(myRNA, "gene1", "clustering",
     plots = c("vlnplot", "boxplot", "jitter"),
     extra.var = "SNP") + facet_wrap("SNP", ncol = 1, strip.position = "left")
-
-### Provided wrappers enable certain easy adjustments of the 'plots' parameter.
-# Quickly make a Boxplot
-dittoBoxPlot(myRNA, "gene1", group.by = "timepoint")
-
-# Quickly make a Ridgeplot, with or without jitter
-dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
-dittoRidgeJitter(myRNA, "gene1", group.by = "timepoint")
 
 }
 \seealso{

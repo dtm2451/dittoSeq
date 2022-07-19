@@ -13,6 +13,7 @@ dittoScatterPlot(
   split.by = NULL,
   extra.vars = NULL,
   cells.use = NULL,
+  multivar.split.dir = c("col", "row"),
   show.others = FALSE,
   split.show.all.others = TRUE,
   size = 1,
@@ -68,7 +69,7 @@ dittoScatterPlot(
   labels.repel = TRUE,
   labels.split.by = split.by,
   legend.show = TRUE,
-  legend.color.title = color.var,
+  legend.color.title = "make",
   legend.color.size = 5,
   legend.color.breaks = waiver(),
   legend.color.breaks.labels = waiver(),
@@ -108,6 +109,8 @@ Useful for making custom alterations \emph{after} dittoSeq plot generation.}
 \item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
+
+\item{multivar.split.dir}{"row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, and when \code{split.by} is used to provide additional data to facet by.}
 
 \item{show.others}{Logical. FALSE by default, whether other cells should be shown in the background in light gray.}
 
@@ -307,9 +310,24 @@ dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
     extra.vars = c("SNP")) +
     facet_wrap("SNP", ncol = 1, strip.position = "left")
 
-# Countours can also be added to help illumunate overlapping samples
+# Countours can also be added to help illuminate overlapping samples
 dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
     do.contour = TRUE)
+
+# Multiple continuous metadata or genes can also be plotted together by
+#   giving that vector to 'color.var':
+dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
+    color.var = c("gene3", "gene4"))
+# This functionality can be combined with 1 additional 'split.by' variable,
+#   with the directionality then controlled via 'multivar.split.dir':
+dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
+    color.var = c("gene3", "gene4"),
+    split.by = "timepoint",
+    multivar.split.dir = "col")
+dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
+    color.var = c("gene3", "gene4"),
+    split.by = "timepoint",
+    multivar.split.dir = "row")
 
 }
 \seealso{

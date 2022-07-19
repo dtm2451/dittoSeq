@@ -360,9 +360,39 @@ test_that("dittoDimHex ignores do.label/do.ellipse for continuous data", {
         NA)
 })
 
+test_that("dittoDimHex allows plotting of multiple vars, via faceting", {
+    expect_s3_class(
+        dittoDimHex(
+            sce, c("gene1","gene2","number")),
+        "ggplot")
+    
+    # These should have transposed facet grids
+    expect_s3_class(
+        print(dittoDimHex(
+            sce, c("gene1","gene2","number"),
+            split.by = disc2)),
+        "ggplot")
+    expect_s3_class(
+        print(dittoDimHex(
+            sce, c("gene1","gene2","number"),
+            split.by = disc2, multivar.split.dir = "row")),
+        "ggplot")
+    
+    expect_error(
+        dittoDimHex(
+            sce, c(disc,"gene2","number")),
+        "Only numeric data")
+    
+    expect_warning(
+        dittoDimHex(
+            sce, c("gene1","gene2","number"),
+            split.by = c(disc2,disc)),
+        "second 'split.by' element will be ignored")
+})
+
 
 ##########
-# Addition checks for Scatter
+# Additional checks for Scatter
 ##########
 
 # assay/adjustment Scatter

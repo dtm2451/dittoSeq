@@ -155,9 +155,24 @@
 #'     extra.vars = c("SNP")) +
 #'     facet_wrap("SNP", ncol = 1, strip.position = "left")
 #' 
-#' # Countours can also be added to help illumunate overlapping samples
+#' # Countours can also be added to help illuminate overlapping samples
 #' dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
 #'     do.contour = TRUE)
+#' 
+#' # Multiple continuous metadata or genes can also be plotted together by
+#' #   giving that vector to 'color.var':
+#' dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
+#'     color.var = c("gene3", "gene4"))
+#' # This functionality can be combined with 1 additional 'split.by' variable,
+#' #   with the directionality then controlled via 'multivar.split.dir':
+#' dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
+#'     color.var = c("gene3", "gene4"),
+#'     split.by = "timepoint",
+#'     multivar.split.dir = "col")
+#' dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
+#'     color.var = c("gene3", "gene4"),
+#'     split.by = "timepoint",
+#'     multivar.split.dir = "row")
 #'
 dittoScatterPlot <- function(
     object,
@@ -168,6 +183,7 @@ dittoScatterPlot <- function(
     split.by = NULL,
     extra.vars = NULL,
     cells.use = NULL,
+    multivar.split.dir = c("col", "row"),
     show.others = FALSE,
     split.show.all.others = TRUE,
     size = 1,
@@ -223,7 +239,7 @@ dittoScatterPlot <- function(
     labels.repel = TRUE,
     labels.split.by = split.by,
     legend.show = TRUE,
-    legend.color.title = color.var,
+    legend.color.title = "make",
     legend.color.size = 5,
     legend.color.breaks = waiver(),
     legend.color.breaks.labels = waiver(),
@@ -234,6 +250,7 @@ dittoScatterPlot <- function(
     data.out = FALSE) {
 
     order <- match.arg(order)
+    multivar.split.dir <- match.arg(multivar.split.dir)
     
     # Standardize cells/samples vectors.
     cells.use <- .which_cells(cells.use, object)
@@ -243,7 +260,7 @@ dittoScatterPlot <- function(
     all_data <- .scatter_data_gather(
         object = object, cells.use = cells.use, x.var = x.var, y.var = y.var,
         color.var = color.var, shape.by = shape.by, split.by = split.by,
-        extra.vars = extra.vars,
+        extra.vars = extra.vars, multivar.split.dir = multivar.split.dir,
         assay.x = assay.x, slot.x = slot.x, adjustment.x = adjustment.x,
         assay.y = assay.y, slot.y = slot.y, adjustment.y = adjustment.y,
         assay.color = assay.color, slot.color = slot.color,
@@ -253,23 +270,22 @@ dittoScatterPlot <- function(
         swap.rownames = swap.rownames,
         do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
         rename.color.groups, rename.shape.groups)
-
-    # Trim by cells.use, then order if wants
-    Target_data <- all_data[cells.use,]
-    Others_data <- all_data[!(all.cells %in% cells.use),]
+    Target_data <- all_data$Target_data
+    Others_data <- all_data$Others_data
+    split.by <- all_data$split.by
     
     if (order %in% c("increasing", "decreasing")) {
-        decreasing <- switch(order,
-            "decreasing" = TRUE,
-            "increasing" = FALSE)
-        Target_data <- Target_data[order(Target_data$color, decreasing = decreasing),]
+        Target_data <- Target_data[order(Target_data$color, decreasing = order=="decreasing"),]
     } else if (order == "randomize") {
         Target_data <- Target_data[sample(nrow(Target_data)),]
     }
 
     # Set title if "make"
     main <- .leave_default_or_null(main,
-        paste0(c(color.var, shape.by), collapse = " and "))
+        paste0(c(color.var, shape.by), collapse = " and "),
+        null.if = length(color.var)>1)
+    legend.color.title <- .leave_default_or_null(
+        legend.color.title, color.var, null.if = length(color.var)>1)
 
     # Make the plot
     p <- .ditto_scatter_plot(Target_data, Others_data,
@@ -285,7 +301,7 @@ dittoScatterPlot <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, split.adjust)
+            p, split.by, split.nrow, split.ncol, split.adjust)
     }
     
     if (do.contour) {
@@ -300,7 +316,7 @@ dittoScatterPlot <- function(
     
     if (is.list(add.trajectory.lineages)) {
         p <- .add_trajectory_lineages(
-            p, all_data, add.trajectory.lineages,
+            p, rbind(Target_data, Others_data), add.trajectory.lineages,
             trajectory.cluster.meta, trajectory.arrow.size, object)
     }
     
@@ -488,6 +504,7 @@ dittoScatterPlot <- function(
     shape.by,
     split.by,
     extra.vars,
+    multivar.split.dir,
     assay.x,
     slot.x,
     adjustment.x,
@@ -511,7 +528,82 @@ dittoScatterPlot <- function(
     ) {
 
     all.cells <- .all_cells(object)
+    cells.use <- .which_cells(cells.use, object)
     object <- .swap_rownames(object, swap.rownames)
+    
+    # Support multiple genes/metadata
+    if (length(color.var)>1 && length(color.var) != all.cells) {
+        # Data
+        each_data <- lapply(
+            color.var, function(this.var) {
+                this.out <- .scatter_data_gather_inner(
+                    object, all.cells, x.var, y.var, this.var,
+                    shape.by, split.by, extra.vars, assay.x, slot.x, adjustment.x,
+                    assay.y, slot.y, adjustment.y, assay.color, slot.color,
+                    adjustment.color, assay.extra, slot.extra, adjustment.extra,
+                    do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
+                    rename.color.groups, rename.shape.groups)
+                this.out$color.var <- this.var
+                this.out
+            }
+        )
+        if (any(unlist(lapply(each_data, function(x) { !is.numeric(x$color) })))) {
+            stop("Only numeric data supported when plotting multiple color.var")
+        }
+        out_data <-list(
+            Target_data = do.call(rbind, lapply(each_data, function(x) { x[cells.use,] } )),
+            Others_data = do.call(rbind, lapply(each_data, function(x) { x[!(all.cells %in% cells.use),] } ))
+        )
+        split.by <- .multivar_adjust_split_by(
+            split.by, multivar.split.dir, multivar.col.name = "color.var")
+    } else {
+        # Single var
+        all_data <- .scatter_data_gather_inner(
+            object, all.cells, x.var, y.var, color.var,
+            shape.by, split.by, extra.vars, assay.x, slot.x, adjustment.x,
+            assay.y, slot.y, adjustment.y, assay.color, slot.color,
+            adjustment.color, assay.extra, slot.extra, adjustment.extra,
+            do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
+            rename.color.groups, rename.shape.groups)
+        out_data <-list(
+            Target_data = all_data[cells.use,],
+            Others_data = all_data[!(all.cells %in% cells.use),]
+        )
+    }
+    
+    out_data$split.by <- split.by
+    
+    out_data
+}
+
+.scatter_data_gather_inner <- function(
+    object,
+    all.cells,
+    x.var,
+    y.var,
+    color.var,
+    shape.by,
+    split.by,
+    extra.vars,
+    assay.x,
+    slot.x,
+    adjustment.x,
+    assay.y,
+    slot.y,
+    adjustment.y,
+    assay.color,
+    slot.color,
+    adjustment.color,
+    assay.extra,
+    slot.extra,
+    adjustment.extra,
+    do.hover,
+    hover.data,
+    hover.assay,
+    hover.slot,
+    hover.adjustment,
+    rename.color.groups,
+    rename.shape.groups) {
     
     # Make dataframe
     vars <- list(x.var, y.var, color.var, shape.by)
@@ -537,4 +629,19 @@ dittoScatterPlot <- function(
     }
     
     dat
+}
+
+.multivar_adjust_split_by <- function(split.by, multivar.split.dir, multivar.col.name) {
+    if (is.null(split.by)) {
+        split.by <- multivar.col.name
+    } else {
+        if (length(split.by)>1) {
+            warning("multi-feature '", multivar.col.name, "' is prioiritized for faceting. The second 'split.by' element will be ignored.")
+        }
+        split.by[2] <- multivar.col.name
+        if (multivar.split.dir=="row") {
+            split.by <- rev(split.by)
+        }
+    }
+    split.by
 }

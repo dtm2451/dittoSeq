@@ -11,8 +11,6 @@
 #' @param assay,slot,adjustment,assay.x,assay.y,assay.color,assay.extra,slot.x,slot.y,slot.color,slot.extra,adjustment.x,adjustment.y,adjustment.color,adjustment.extra
 #' assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.
 #' @param xlab,ylab Strings which set the labels for the axes. To remove, set to \code{NULL}.
-#' 
-#' 
 #' @param bins Numeric or numeric vector giving the number of haxagonal bins in the x and y directions. Set to 30 by default.
 #' @param color.method Works differently depending on whether the color.var is continous versus discrete:
 #' 
@@ -130,6 +128,20 @@
 #' dittoDimHex(myRNA, bins = 10, split.by = "groups")
 #' dittoDimHex(myRNA, bins = 10, split.by = c("groups", "clustering"))
 #' 
+#' # Faceting can also be used to show multiple continuous variables side-by-side
+#' #   by giving a vector of continuous metadata or gene names to 'color.var'.
+#' #   This can also be combined with 1 'split.by' variable, with direction then
+#' #   controlled via 'multivar.split.dir':
+#' dittoDimHex(myRNA, bins = 10,
+#'     color.var = c("gene1", "gene2"))
+#' dittoDimHex(myRNA, bins = 10,
+#'     color.var = c("gene1", "gene2"),
+#'     split.by = "groups")
+#' dittoDimHex(myRNA, bins = 10,
+#'     color.var = c("gene1", "gene2"),
+#'     split.by = "groups",
+#'     multivar.split.dir = "row")
+#' 
 #' # Underlying data output with 'data.out = TRUE'
 #' dittoDimHex(myRNA, data.out = TRUE)
 #' 
@@ -139,7 +151,7 @@
 #'     contour.color = "lightblue", # Optional, black by default
 #'     contour.linetype = "dashed") # Optional, solid by default
 #' 
-#' # Trajectories can be added to dittoDimHex plots (see above for details)
+#' # Trajectories can be added to dittoDimHex plots
 #' dittoDimHex(myRNA, bins = 10,
 #'     add.trajectory.lineages = list(c(1,2,4), c(1,4), c(1,3)),
 #'     trajectory.cluster.meta = "clustering")
@@ -160,6 +172,7 @@ dittoDimHex <- function(
     colors = seq_along(color.panel),
     split.by = NULL,
     extra.vars = NULL,
+    multivar.split.dir = c("col", "row"),
     split.nrow = NULL,
     split.ncol = NULL,
     split.adjust = list(),
@@ -208,6 +221,8 @@ dittoDimHex <- function(
     legend.density.breaks = waiver(),
     legend.density.breaks.labels = waiver()
     ) {
+    
+    multivar.split.dir <- match.arg(multivar.split.dir)
 
     # Generate the x/y dimensional reduction data and plot titles.
     xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
@@ -230,7 +245,7 @@ dittoDimHex <- function(
     p.df <- dittoScatterHex(
         object, xdat$embeddings, ydat$embeddings, color.var, bins,
         color.method, split.by,
-        extra.vars, cells.use, color.panel, colors,
+        extra.vars, cells.use, color.panel, colors, multivar.split.dir,
         split.nrow, split.ncol, split.adjust, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
         swap.rownames,
@@ -279,6 +294,7 @@ dittoScatterHex <- function(
     cells.use = NULL,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
+    multivar.split.dir = c("col", "row"),
     split.nrow = NULL,
     split.ncol = NULL,
     split.adjust = list(),
@@ -333,15 +349,17 @@ dittoScatterHex <- function(
 
     # Standardize cells/samples vectors.
     cells.use <- .which_cells(cells.use, object)
+    multivar.split.dir <- match.arg(multivar.split.dir)
 
     # Make dataframe
     all_data <- .scatter_data_gather(
         object, cells.use, x.var, y.var, color.var, shape.by=NULL, split.by,
-        extra.vars, assay.x, slot.x, adjustment.x, assay.y, slot.y,
+        extra.vars, multivar.split.dir, assay.x, slot.x, adjustment.x, assay.y, slot.y,
         adjustment.y, assay.color, slot.color, adjustment.color, assay.extra,
         slot.extra, adjustment.extra, swap.rownames = swap.rownames,
         rename.color.groups = rename.color.groups)
-    data <- all_data[cells.use,]
+    data <- all_data$Target_data
+    split.by <- all_data$split.by
 
     # Parse coloring methods
     color_by_var <- FALSE
@@ -378,7 +396,12 @@ dittoScatterHex <- function(
             }
         )
     legend.color.title <- .leave_default_or_null(legend.color.title,
-        default = paste(color.var, color.method, sep = ",\n"))
+        default = ifelse(
+            length(color.var)==1,
+            paste(color.var, color.method, sep = ",\n"),
+            color.method),
+        null.if = is.null(color.var)
+    )
 
     # Make the plot
     p <- .ditto_scatter_hex(
@@ -392,7 +415,7 @@ dittoScatterHex <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, split.adjust)
+            p, split.by, split.nrow, split.ncol, split.adjust)
     }
     
     if (do.contour) {
@@ -406,7 +429,8 @@ dittoScatterHex <- function(
     
     if (is.list(add.trajectory.lineages)) {
         p <- .add_trajectory_lineages(
-            p, all_data, add.trajectory.lineages, trajectory.cluster.meta,
+            p, rbind(all_data$Target_data, all_data$Others_data),
+            add.trajectory.lineages, trajectory.cluster.meta,
             trajectory.arrow.size, object)
     }
     

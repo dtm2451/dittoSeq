@@ -27,6 +27,12 @@
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
 #' (Provides an alternative to directly modifying \code{color.panel}.)
+#' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
+#' @param split.adjust A named list which allows extra parameters to be pushed through to the faceting function call.
+#' List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+#' 
+#' For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+#' OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.
 #' @param main String which sets the plot title.
 #' @param sub String which sets the plot subtitle.
 #' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
@@ -253,7 +259,7 @@ dittoPlotVarsAcrossGroups <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, object, split.adjust)
+            p, split.by, split.nrow, split.ncol, split.adjust)
     }
     
     if (!legend.show) {

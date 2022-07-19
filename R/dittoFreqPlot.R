@@ -300,7 +300,7 @@ dittoFreqPlot <- function(
     
     # Split by 'var' to have the desired per element effect!
     p <- .add_splitting(
-        p, "label", split.nrow, split.ncol, object, split.adjust)
+        p, "label", split.nrow, split.ncol, split.adjust)
     
     ### Add extra features
     if (!legend.show) {
