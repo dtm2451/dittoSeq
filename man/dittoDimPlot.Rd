@@ -331,6 +331,11 @@ dittoDimPlot(myRNA, "clustering")
 # Display continuous data:
 dittoDimPlot(myRNA, "gene1")
 
+# You can also plot multiple sets of continuous data:
+dittoDimPlot(myRNA, c("gene1", "gene2"))
+# (See ?multi_dittoDimPlot if you would like to have wholy separate
+# plots/scales/legends for each set.)
+
 # To show currently set clustering for seurat objects, you can use "ident".
 # To change the dimensional reduction type, use 'reduction.use'.
 dittoDimPlot(myRNA, "clustering",

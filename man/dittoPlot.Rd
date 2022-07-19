@@ -343,6 +343,8 @@ dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint")
 # Color distinctly from the grouping variable using 'color.by'
 dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint",
     color.by = "conditions")
+dittoPlot(object = myRNA, var = "gene1", group.by = "conditions",
+    color.by = "timepoint")
 
 # Update the 'plots' input to change / reorder the data representations
 dittoPlot(myRNA, "gene1", "timepoint",
@@ -350,6 +352,14 @@ dittoPlot(myRNA, "gene1", "timepoint",
 dittoPlot(myRNA, "gene1", "timepoint",
     plots = c("ridgeplot", "jitter"))
 
+### Provided wrappers enable certain easy adjustments of the 'plots' parameter.
+# Quickly make a Boxplot
+dittoBoxPlot(myRNA, "gene1", group.by = "timepoint")
+# Quickly make a Ridgeplot, with or without jitter
+dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
+dittoRidgeJitter(myRNA, "gene1", group.by = "timepoint")
+
+### Additional Functionality
 # Modify the look with intuitive inputs
 dittoPlot(myRNA, "gene1", "timepoint",
     plots = c("vlnplot", "boxplot", "jitter"),
@@ -366,20 +376,25 @@ dittoPlot(object = myRNA, var = "gene1", group.by = "timepoint",
     plots = c("vlnplot", "boxplot", "jitter"),
     split.by = c("groups","SNP")) # row and col split.by elements
 
+# Multiple genes or continuous metadata can also be plotted by giving them as
+#   a vector to 'var'. One aesthetic of the plot will then be used to display
+#   'var'-info, and you can control which (faceting / "split", x-axis grouping
+#   / "group", or color / "color") with 'multivar.aes':
+dittoPlot(object = myRNA, group.by = "timepoint",
+    var = c("gene1", "gene2"))
+dittoPlot(object = myRNA, group.by = "timepoint",
+    var = c("gene1", "gene2"),
+    multivar.aes = "group")
+dittoPlot(object = myRNA, group.by = "timepoint",
+    var = c("gene1", "gene2"),
+    multivar.aes = "color")
+
 # For faceting, instead of using 'split.by', the target data can alternatively
-# be given to 'extra.var' to have it added in the underlying dataframe, then
-# faceting can be added manually for extra flexibility
+#   be given to 'extra.var' to have it added in the underlying dataframe, then
+#   faceting can be added manually for extra flexibility
 dittoPlot(myRNA, "gene1", "clustering",
     plots = c("vlnplot", "boxplot", "jitter"),
     extra.var = "SNP") + facet_wrap("SNP", ncol = 1, strip.position = "left")
-
-### Provided wrappers enable certain easy adjustments of the 'plots' parameter.
-# Quickly make a Boxplot
-dittoBoxPlot(myRNA, "gene1", group.by = "timepoint")
-
-# Quickly make a Ridgeplot, with or without jitter
-dittoRidgePlot(myRNA, "gene1", group.by = "timepoint")
-dittoRidgeJitter(myRNA, "gene1", group.by = "timepoint")
 
 }
 \seealso{

@@ -128,6 +128,20 @@
 #' dittoDimHex(myRNA, bins = 10, split.by = "groups")
 #' dittoDimHex(myRNA, bins = 10, split.by = c("groups", "clustering"))
 #' 
+#' # Faceting can also be used to show multiple continuous variables side-by-side
+#' #   by giving a vector of continuous metadata or gene names to 'color.var'.
+#' #   This can also be combined with 1 'split.by' variable, with direction then
+#' #   controlled via 'multivar.split.dir':
+#' dittoDimHex(myRNA, bins = 10,
+#'     color.var = c("gene1", "gene2"))
+#' dittoDimHex(myRNA, bins = 10,
+#'     color.var = c("gene1", "gene2"),
+#'     split.by = "groups")
+#' dittoDimHex(myRNA, bins = 10,
+#'     color.var = c("gene1", "gene2"),
+#'     split.by = "groups",
+#'     multivar.split.dir = "row")
+#' 
 #' # Underlying data output with 'data.out = TRUE'
 #' dittoDimHex(myRNA, data.out = TRUE)
 #' 
@@ -137,7 +151,7 @@
 #'     contour.color = "lightblue", # Optional, black by default
 #'     contour.linetype = "dashed") # Optional, solid by default
 #' 
-#' # Trajectories can be added to dittoDimHex plots (see above for details)
+#' # Trajectories can be added to dittoDimHex plots
 #' dittoDimHex(myRNA, bins = 10,
 #'     add.trajectory.lineages = list(c(1,2,4), c(1,4), c(1,3)),
 #'     trajectory.cluster.meta = "clustering")
