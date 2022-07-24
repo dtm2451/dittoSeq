@@ -532,7 +532,7 @@ dittoScatterPlot <- function(
     object <- .swap_rownames(object, swap.rownames)
     
     # Support multiple genes/metadata
-    if (length(color.var)>1 && length(color.var) != all.cells) {
+    if (length(color.var)>1 && length(color.var) != length(all.cells)) {
         # Data
         each_data <- lapply(
             color.var, function(this.var) {
