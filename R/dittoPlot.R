@@ -629,7 +629,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     all.cells <- .all_cells(object)
     
     # Support multiple genes/metadata
-    if (length(var)>1 && length(var) != all.cells) {
+    if (length(var)>1 && length(var) != length(all.cells)) {
         Target_data <- do.call(rbind, lapply(
             var, function(this.var) {
                 col <- switch(
