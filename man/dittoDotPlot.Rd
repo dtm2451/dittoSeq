@@ -17,7 +17,7 @@ dittoDotPlot(
   min.color = "grey90",
   max.color = "#C51B7D",
   min = "make",
-  max = NULL,
+  max = NA,
   summary.fxn.color = function(x) {
      mean(x[x != 0])
  },

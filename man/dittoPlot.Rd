@@ -33,8 +33,8 @@ dittoPlot(
   sub = NULL,
   ylab = "make",
   y.breaks = NULL,
-  min = NULL,
-  max = NULL,
+  min = NA,
+  max = NA,
   xlab = "make",
   x.labels = NULL,
   x.labels.rotate = NA,
@@ -295,13 +295,13 @@ to make such plots even easier to produce.
 }
 \section{Functions}{
 \itemize{
-\item \code{dittoRidgePlot}: Plots continuous data for customizeable cells'/samples' groupings horizontally in a density representation
+\item \code{dittoRidgePlot()}: Plots continuous data for customizeable cells'/samples' groupings horizontally in a density representation
 
-\item \code{dittoRidgeJitter}: dittoRidgePlot, but with jitter overlaid
+\item \code{dittoRidgeJitter()}: dittoRidgePlot, but with jitter overlaid
 
-\item \code{dittoBoxPlot}: Plots continuous data for customizeable cells'/samples' groupings in boxplot form
+\item \code{dittoBoxPlot()}: Plots continuous data for customizeable cells'/samples' groupings in boxplot form
+
 }}
-
 \section{Many characteristics of the plot can be adjusted using discrete inputs}{
 
 The \code{plots} argument determines the types of \strong{data representation} that will be generated, as well as their order from back to front.

@@ -302,11 +302,11 @@ If \code{split.by} was used, the plot will be split into a matrix of panels base
 }
 \section{Functions}{
 \itemize{
-\item \code{dittoDimHex}: Show RNAseq data overlayed on a tsne, pca, or similar, grouped into hexagonal bins
+\item \code{dittoDimHex()}: Show RNAseq data overlayed on a tsne, pca, or similar, grouped into hexagonal bins
 
-\item \code{dittoScatterHex}: Make a scatter plot of RNAseq data, grouped into hexagonal bins
+\item \code{dittoScatterHex()}: Make a scatter plot of RNAseq data, grouped into hexagonal bins
+
 }}
-
 \section{Many characteristics of the plot can be adjusted using discrete inputs}{
 
 \itemize{

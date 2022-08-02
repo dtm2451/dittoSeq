@@ -277,8 +277,8 @@ dittoPlot <- function(
     sub = NULL,
     ylab = "make",
     y.breaks = NULL,
-    min = NULL,
-    max = NULL,
+    min = NA,
+    max = NA,
     xlab = "make",
     x.labels = NULL,
     x.labels.rotate = NA,
@@ -430,13 +430,9 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     if (!is.null(y.breaks)) {
         p <- p + scale_y_continuous(breaks = y.breaks)
     }
-    if (is.null(min)) {
-        min <- min(Target_data$var.data)
+    if (!is.na(min) || !is.na(max)) {
+        p <- p + coord_cartesian(ylim=c(min,max))
     }
-    if (is.null(max)) {
-        max <- max(Target_data$var.data)
-    }
-    p <- p + coord_cartesian(ylim=c(min,max))
 
     # Add Plots
     for (i in seq_along(plots)) {
@@ -550,13 +546,9 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     if (!is.null(y.breaks)) {
         p <- p + scale_x_continuous(breaks = y.breaks)
     }
-    if (is.null(min)) {
-        min <- min(Target_data$var.data)
+    if (!is.na(min) || !is.a(max)) {
+        p <- p + coord_cartesian(xlim=c(min,max))
     }
-    if (is.null(max)) {
-        max <- max(Target_data$var.data)
-    }
-    p <- p + coord_cartesian(xlim=c(min,max))
     
     # For stylistic issues with plotting defaults, also adjust grouping-axis limits
     if (is.na(ridgeplot.ymax.expansion)) {
