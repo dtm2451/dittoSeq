@@ -117,7 +117,8 @@ Set to \code{NULL} to remove.}
 \item{y.breaks}{Numeric vector, a set of breaks that should be used as major grid lines. c(break1,break2,break3,etc.).}
 
 \item{min, max}{Scalars which control the zoom of the plot.
-These inputs set the minimum / maximum values of the data to show.}
+These inputs set the minimum / maximum values of the data to display.
+Default = NA, which allows ggplot to set these limits based on the range of all data being shown.}
 
 \item{xlab}{String which sets the grouping-axis label (=x-axis for box and violin plots, y-axis for ridgeplots).
 Set to \code{NULL} to remove.}

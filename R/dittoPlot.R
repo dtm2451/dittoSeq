@@ -64,8 +64,8 @@
 #' Defaults to "\code{var}" or "\code{var} expression" if \code{var} is a gene.
 #' @param y.breaks Numeric vector, a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.).
 #' @param min,max Scalars which control the zoom of the plot.
-#' These inputs set the minimum / maximum values of the data to show.
-#' Default = set based on the limits of the data in var.
+#' These inputs set the minimum / maximum values of the data to display.
+#' Default = NA, which allows ggplot to set these limits based on the range of all data being shown.
 #' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of groupings.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
 #'
