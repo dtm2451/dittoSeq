@@ -42,8 +42,6 @@
 #' Default = a combination of the name of the summary function + \code{adjustment} + "expression".
 #' Set to \code{NULL} to remove.
 #' @param y.breaks Numeric vector, a set of breaks that should be used as major grid lines. c(break1,break2,break3,etc.).
-#' @param min,max Scalars which control the zoom of the plot.
-#' These inputs set the minimum / maximum values of the data to show.
 #' 
 #' @inheritParams dittoPlot
 #' 
@@ -159,8 +157,8 @@ dittoPlotVarsAcrossGroups <- function(
     sub = NULL,
     ylab = "make",
     y.breaks = NULL,
-    min = NULL,
-    max = NULL,
+    min = NA,
+    max = NA,
     xlab = group.by,
     x.labels = NULL,
     x.labels.rotate = NA,

@@ -178,7 +178,7 @@ dittoFreqPlot <- function(
     colors = seq_along(color.panel),
     y.breaks = NULL,
     min = 0,
-    max = NULL,
+    max = NA,
     var.labels.rename = NULL,
     var.labels.reorder = NULL,
     x.labels = NULL,

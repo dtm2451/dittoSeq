@@ -211,8 +211,8 @@ dittoScatterPlot <- function(
     rename.shape.groups = NULL,
     min.color = "#F0E442",
     max.color = "#0072B2",
-    min = NULL,
-    max = NULL,
+    min = NA,
+    max = NA,
     order = c("unordered", "increasing", "decreasing", "randomize"),
     xlab = x.var,
     ylab = y.var,
@@ -392,9 +392,7 @@ dittoScatterPlot <- function(
             p <- p +
             scale_colour_gradient(
                 name = legend.color.title, low= min.color, high = max.color,
-                limits = c(
-                    ifelse(is.null(min), min(Target_data$color), min),
-                    ifelse(is.null(max), max(Target_data$color), max)),
+                limits = c(min, max),
                 breaks = legend.color.breaks,
                 labels = legend.color.breaks.labels)
         } else {

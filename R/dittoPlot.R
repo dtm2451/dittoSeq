@@ -64,8 +64,8 @@
 #' Defaults to "\code{var}" or "\code{var} expression" if \code{var} is a gene.
 #' @param y.breaks Numeric vector, a set of breaks that should be used as major gridlines. c(break1,break2,break3,etc.).
 #' @param min,max Scalars which control the zoom of the plot.
-#' These inputs set the minimum / maximum values of the data to show.
-#' Default = set based on the limits of the data in var.
+#' These inputs set the minimum / maximum values of the data to display.
+#' Default = NA, which allows ggplot to set these limits based on the range of all data being shown.
 #' @param x.labels String vector, c("label1","label2","label3",...) which overrides the names of groupings.
 #' @param x.reorder Integer vector. A sequence of numbers, from 1 to the number of groupings, for rearranging the order of x-axis groupings.
 #'
@@ -277,8 +277,8 @@ dittoPlot <- function(
     sub = NULL,
     ylab = "make",
     y.breaks = NULL,
-    min = NULL,
-    max = NULL,
+    min = NA,
+    max = NA,
     xlab = "make",
     x.labels = NULL,
     x.labels.rotate = NA,
@@ -430,13 +430,9 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     if (!is.null(y.breaks)) {
         p <- p + scale_y_continuous(breaks = y.breaks)
     }
-    if (is.null(min)) {
-        min <- min(Target_data$var.data)
+    if (!is.na(min) || !is.na(max)) {
+        p <- p + coord_cartesian(ylim=c(min,max))
     }
-    if (is.null(max)) {
-        max <- max(Target_data$var.data)
-    }
-    p <- p + coord_cartesian(ylim=c(min,max))
 
     # Add Plots
     for (i in seq_along(plots)) {
@@ -550,13 +546,9 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     if (!is.null(y.breaks)) {
         p <- p + scale_x_continuous(breaks = y.breaks)
     }
-    if (is.null(min)) {
-        min <- min(Target_data$var.data)
+    if (!is.na(min) || !is.na(max)) {
+        p <- p + coord_cartesian(xlim=c(min,max))
     }
-    if (is.null(max)) {
-        max <- max(Target_data$var.data)
-    }
-    p <- p + coord_cartesian(xlim=c(min,max))
     
     # For stylistic issues with plotting defaults, also adjust grouping-axis limits
     if (is.na(ridgeplot.ymax.expansion)) {

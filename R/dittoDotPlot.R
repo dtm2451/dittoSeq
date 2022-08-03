@@ -143,7 +143,7 @@ dittoDotPlot <- function(
     min.color = "grey90",
     max.color = "#C51B7D",
     min = "make",
-    max = NULL,
+    max = NA,
     summary.fxn.color = function(x) {mean(x[x!=0])},
     summary.fxn.size = function(x) {mean(x!=0)},
     assay = .default_assay(object),
@@ -177,7 +177,7 @@ dittoDotPlot <- function(
         default = ifelse(scale,"relative\nexpression","average\nexpression"))
     min <- .leave_default_or_null(
         min,
-        default = if (scale) {NULL} else {0})
+        default = if (scale) {NA} else {0})
 
     # Create data table summarizing vars data for each group
     data <- .data_gather_summarize_vars_by_groups(
@@ -268,9 +268,7 @@ dittoDotPlot <- function(
         scale_color_gradient(
             name = legend.color.title,
             low= min.color, high = max.color,
-            limits = c(
-                ifelse(is.null(min), min(data$color), min),
-                ifelse(is.null(max), max(data$color), max)),
+            limits = c(min,max),
             breaks = legend.color.breaks,
             labels = legend.color.breaks.labels)
     
