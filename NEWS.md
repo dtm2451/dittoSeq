@@ -1,3 +1,7 @@
+# dittoSeq 1.9.3
+
+* Improved the compatibility of dittoSeq code with 'split.by'/faceting customizations. Specifically, makes implementation of 'min'/'max' inputs less intrusive by utilizing 'NA' for un-set values rather than always setting 'min' and 'max' values. Note: The removal of these explicit plot bounds can minorly alter the default output of some plotters, but the difference is very minor. Compatibility with 'split.adjust = list(scales = "free")' seems far more important than exactly preserving the previously hard-set plot bounds.
+
 # dittoSeq 1.9.2
 
 * Added ability to plot multiple 'var' in a single 'dittoPlot()', 'dittoDimPlot()', 'dittoScatterPlot()', 'dittoDimHex()', and 'dittoScatterHex()' by giving a vector of genes or continuous metadata to their 'var' or 'color.var' input. New inputs to these functions allow control of:
