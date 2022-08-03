@@ -546,7 +546,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     if (!is.null(y.breaks)) {
         p <- p + scale_x_continuous(breaks = y.breaks)
     }
-    if (!is.na(min) || !is.a(max)) {
+    if (!is.na(min) || !is.na(max)) {
         p <- p + coord_cartesian(xlim=c(min,max))
     }
     
