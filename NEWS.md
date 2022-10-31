@@ -1,16 +1,10 @@
-# dittoSeq 1.9.3
+# dittoSeq 1.10
 
-* Improved the compatibility of dittoSeq code with 'split.by'/faceting customizations. Specifically, makes implementation of 'min'/'max' inputs less intrusive by utilizing 'NA' for un-set values rather than always setting 'min' and 'max' values. Note: The removal of these explicit plot bounds can minorly alter the default output of some plotters, but the difference is very minor. Compatibility with 'split.adjust = list(scales = "free")' seems far more important than exactly preserving the previously hard-set plot bounds.
-
-# dittoSeq 1.9.2
-
-* Added ability to plot multiple 'var' in a single 'dittoPlot()', 'dittoDimPlot()', 'dittoScatterPlot()', 'dittoDimHex()', and 'dittoScatterHex()' by giving a vector of genes or continuous metadata to their 'var' or 'color.var' input. New inputs to these functions allow control of:
+* Added ability to plot multiple 'var' in a single 'dittoPlot()', 'dittoDimPlot()', 'dittoScatterPlot()', 'dittoDimHex()', and 'dittoScatterHex()' call by giving a vector of genes or continuous metadata to the 'var' or 'color.var' input. Customization of how the "multivar" data is displayed can be controlled with:
 1- 'multivar.aes' (context: 'dittoPlot()' only) - which plot aesthetic is utilized for displaying var-values.
-2- 'multivar.split.dir' - faceting direction to use for var-data when combining with 'split.by'.  
-
-# dittoSeq 1.9.1
-
-* Added a helpful error message to catch cases where 'object' does not have cell/column names, and suggest how to add them.
+2- 'multivar.split.dir' - faceting direction to use for var-data when combining with an additional 'split.by' variable.
+* Improved the compatibility with 'split.by'/faceting customizations, specifically with 'split.adjust = list(scales = "free")', by making implementations of 'min'/'max' inputs less intrusive. Note: This change very minorly alters the default output of some plotters.
+* Improved error messaging for cases where 'object' does not have cell/column names.
 
 # dittoSeq 1.8
 
