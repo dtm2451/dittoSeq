@@ -361,6 +361,14 @@ dittoDotPlot <- function(
                     }
                 }
                 
+                # Respect factor level ordering of group.by
+                if (is.factor(groupings)) {
+                    new_data$grouping = factor(
+                        new_data$grouping,
+                        levels = levels(groupings)
+                    )
+                }
+                
                 new_data
             }
         )
