@@ -19,15 +19,35 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 ### News:
 
-#### Updates in dittoSeq v1.8 for Bioconductor 3.15, relatively minor:
+**dittoSeq has been stable for the past 2 Bioconductor release cycles, but new feature development has resumed!**
 
-- Added 'randomize' option for 'order' input of 'dittoDimPlot()' and 'dittoScatterPlot()'
+Current updates in 'devel':
+
+- Improved 'group.by' order control for 'dittoDotPlot()' and 'dittoPlotVarsAcrossGroups()' via retention of original 'group.by'-data factor levels, with added control via a new 'groupings.drop.unused' input.
 
 #### Previous updates:
 
 <details>
 
-  <summary>Updates in dittoSeq v1.6 for Bioconductor 3.14:</summary>
+  <summary>Updates in dittoSeq v1.10 & v1.12 for Bioconductor 3.16 and 3.17</summary>
+  
+  - No code updates, Bioconductor-maintained version number updates only
+  
+</details>
+
+
+<details>
+
+  <summary>Updates in dittoSeq v1.8 for Bioconductor 3.15</summary>
+  
+  - Added 'randomize' option for 'order' input of 'dittoDimPlot()' and 'dittoScatterPlot()'
+  
+</details>
+
+
+<details>
+
+  <summary>Updates in dittoSeq v1.6 for Bioconductor 3.14</summary>
   
   - Vignette Update: Added a 'Quick-Reference: Seurat<=>dittoSeq' section.
   - Build & Test Infrastructure Update: Removed Seurat dependency from all build and test materials by removing Seurat code from the vignette and making all unit-testing of Seurat interactions conditional on both presence of Seurat and successful SCE to Seurat cnversion.
@@ -42,7 +62,7 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 <details>
 
-  <summary>Updates in dittoSeq v1.4, Bioconductor 3.13:</summary>
+  <summary>Updates in dittoSeq v1.4, Bioconductor 3.13</summary>
 
   - Added 1 New Visualization Function: `dittoFreqPlot()`:
     - Combines the population frequency summarization of `dittoBarPlot()` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons which focus on individual cell types / clusters!
@@ -73,7 +93,7 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 <details>
 
-  <summary>Updates in dittoSeq v1.2, Bioconductor 3.12:</summary>
+  <summary>Updates in dittoSeq v1.2, Bioconductor 3.12</summary>
   
   - Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimHex()` & `dittoScatterHex()`.
   - Expanded SummarizedExperiment compatibility across the entire toolset.
@@ -91,7 +111,7 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 <details>
 
-  <summary>Updates in dittoSeq v1.0, Bioconductor 3.11:</summary>
+  <summary>Updates in dittoSeq v1.0, Bioconductor 3.11</summary>
   
   - Submitted to Bioconductor
   
