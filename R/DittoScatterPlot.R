@@ -410,7 +410,7 @@ dittoScatterPlot <- function(
         
         p <- p +
             scale_shape_manual(
-                values = shape.panel[seq_along(levels(Target_data$shape))],
+                values = shape.panel[seq_along(levels(as.factor(Target_data$shape)))],
                 name = legend.shape.title) +
             guides(shape = guide_legend(override.aes = list(size=legend.shape.size)))
     

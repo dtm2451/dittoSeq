@@ -158,6 +158,7 @@ dittoDotPlot <- function(
     y.reorder = NULL,
     xlab = NULL,
     x.labels.rotate = TRUE,
+    groupings.drop.unused = TRUE,
     split.nrow = NULL,
     split.ncol = NULL,
     split.adjust = list(),
@@ -184,7 +185,8 @@ dittoDotPlot <- function(
         object, vars, group.by, split.by,
         list(summary.fxn.color, summary.fxn.size),
         c("color", "size"),
-        cells.use, assay, slot, adjustment, swap.rownames, do.hover)
+        cells.use, assay, slot, adjustment, swap.rownames, do.hover,
+        groupings.drop.unused)
     data$var <- factor(data$var, levels = vars)
     data$grouping <-
         .rename_and_or_reorder(data$grouping, y.reorder, y.labels)
@@ -303,6 +305,7 @@ dittoDotPlot <- function(
     adjustment,
     swap.rownames,
     do.hover,
+    groupings.drop.unused,
     numeric.only = TRUE) {
     
     object <- .swap_rownames(object, swap.rownames)
@@ -365,6 +368,12 @@ dittoDotPlot <- function(
             }
         )
     )
+    
+    # Respect factor level ordering of group.by
+    data$grouping <- .keep_levels_if_factor(
+        data$grouping,
+        groupings,
+        groupings.drop.unused)
 
     if (do.hover) {
         data$hover.string <- .make_hover_strings_from_df(data)

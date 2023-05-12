@@ -28,6 +28,7 @@ dittoPlotVarsAcrossGroups(
   x.labels = NULL,
   x.labels.rotate = NA,
   x.reorder = NULL,
+  groupings.drop.unused = TRUE,
   color.panel = dittoColors(),
   colors = c(seq_along(color.panel)),
   theme = theme_classic(),
@@ -137,6 +138,9 @@ Values of x.reorder should be these indices, but in the order that you would lik
 Recommendation for advanced users: If you find yourself coming back to this input too many times, an alternative solution that can be easier long-term
 is to make the target data into a factor, and to put its levels in the desired order: \code{factor(data, levels = c("level1", "level2", ...))}.
 \code{\link{metaLevels}} can be used to quickly get the identities that need to be part of this 'levels' input.}
+
+\item{groupings.drop.unused}{Logical. \code{TRUE} by default. If \code{group.by}-data is a factor, factor levels are retained for ordering purposes, but some level(s) can end up with zero cells left after \code{cells.use} subsetting.
+By default, we remove them, but you can set this input to \code{FALSE} to keep them.}
 
 \item{color.panel}{String vector which sets the colors to draw from for plot fills.}
 

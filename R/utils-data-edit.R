@@ -52,7 +52,9 @@
     # Turns character vectors into factors
     # Reorders the level of the factor based on indices provided to 'reorder'
     # Re-labels the levels of the factor based on lebels provided to 'relabels'
-    if (is.numeric(orig.data)) {
+    
+    # Need to skip if no reorder or relabels demands because without them, the factor() call at the end will drop unused levels!
+    if (is.numeric(orig.data) || is.null(reorder) && is.null(relabels)) {
         return(orig.data)
     }
     rename.args <- list(x = orig.data)
@@ -69,6 +71,23 @@
         rename.args$labels <- relabels
     }
     do.call(factor, args = rename.args)
+}
+
+.keep_levels_if_factor <- function(current.values, orig.structure, drop.unused = TRUE) {
+    # current.values should be the column as it exists in the to-plot-dataframe
+    # orig.structure should be the original values from the object, already subset by cells.use
+    if (is.factor(orig.structure)) {
+        levs_use <- levels(orig.structure)
+        if (drop.unused) {
+            levs_keep <- unique(as.character(orig.structure))
+            levs_use <- levs_use[levs_use %in% levs_keep]
+        }
+        current.values <- factor(
+            current.values,
+            levels = levs_use
+        )
+    }
+    current.values
 }
 
 .swap_rownames <- function(object, swap.rownames = NULL) {

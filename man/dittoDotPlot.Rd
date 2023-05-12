@@ -36,6 +36,7 @@ dittoDotPlot(
   y.reorder = NULL,
   xlab = NULL,
   x.labels.rotate = TRUE,
+  groupings.drop.unused = TRUE,
   split.nrow = NULL,
   split.ncol = NULL,
   split.adjust = list(),
@@ -118,6 +119,9 @@ is to make the target data into a factor, and to put its levels in the desired o
 Set to \code{NULL} to remove.}
 
 \item{x.labels.rotate}{Logical which sets whether the var-labels should be rotated.}
+
+\item{groupings.drop.unused}{Logical. \code{TRUE} by default. If \code{group.by}-data is a factor, factor levels are retained for ordering purposes, but some level(s) can end up with zero cells left after \code{cells.use} subsetting.
+By default, we remove them, but you can set this input to \code{FALSE} to keep them.}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 

@@ -22,6 +22,8 @@
 #' \item{NULL: no adjustment, the normal method for all other ditto expression plotting}
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 #' }
+#' @param groupings.drop.unused Logical. \code{TRUE} by default. If \code{group.by}-data is a factor, factor levels are retained for ordering purposes, but some level(s) can end up with zero cells left after \code{cells.use} subsetting.
+#' By default, we remove them, but you can set this input to \code{FALSE} to keep them.
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
@@ -163,6 +165,7 @@ dittoPlotVarsAcrossGroups <- function(
     x.labels = NULL,
     x.labels.rotate = NA,
     x.reorder = NULL,
+    groupings.drop.unused = TRUE,
     color.panel = dittoColors(),
     colors = c(seq_along(color.panel)),
     theme = theme_classic(),
@@ -213,7 +216,7 @@ dittoPlotVarsAcrossGroups <- function(
     data <- .data_gather_summarize_vars_by_groups(
         object, vars, group.by, split.by,
         list(summary.fxn), "var.data", cells.use,
-        assay, slot, adjustment, swap.rownames, do.hover)
+        assay, slot, adjustment, swap.rownames, do.hover, groupings.drop.unused)
     
     data$grouping <-
         .rename_and_or_reorder(data$grouping, x.reorder, x.labels)

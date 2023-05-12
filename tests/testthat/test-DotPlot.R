@@ -238,3 +238,46 @@ test_that("dittoDotPlot split.by works", {
         split2$p,
         "ggplot")
 })
+
+test_that("dittoDotPlot retains group factor levels and optionally drops unused ones", {
+    not_factor <- dittoDotPlot(
+        sce, genes, "groups", data.out = TRUE,
+        split.by = disc2)
+    
+    sce$groups <- factor(sce$groups)
+    with_gE <- dittoDotPlot(
+        sce, genes, "groups", data.out = TRUE,
+        split.by = disc2)
+    without_gE <- dittoDotPlot(
+        sce, genes, "groups", data.out = TRUE,
+        split.by = disc2,
+        cells.use = sce$groups!="E")
+    without_gE_no_drop <- dittoDotPlot(
+        sce, genes, "groups", data.out = TRUE,
+        split.by = disc2,
+        cells.use = sce$groups!="E",
+        groupings.drop.unused = FALSE)
+    
+    # Plots made
+    expect_s3_class(
+        with_gE$p,
+        "ggplot")
+    expect_s3_class(
+        without_gE$p,
+        "ggplot")
+    expect_s3_class(
+        without_gE_no_drop$p,
+        "ggplot")
+    
+    # Factor if originally factor, not if not
+    expect_type(not_factor$data$grouping, "character")
+    expect_type(with_gE$data$grouping, "integer")
+    
+    # Drop is optional
+    expect_equal(
+        levels(with_gE$data$grouping),
+        levels(without_gE_no_drop$data$grouping))
+    expect_true(
+        length(levels(with_gE$data$grouping)) >
+        length(levels(without_gE$data$grouping)))
+})
