@@ -1,3 +1,11 @@
+# dittoSeq 1.13.1
+
+* Improved group ordering control for 'dittoDotPlot()' and 'dittoPlotVarsAcrossGroups()'. Factor level order of original 'group.by'-data data will now be retained, with added control of whether to unused (empty) levels should be kept via a new 'groupings.drop.unused' input.
+
+# dittoSeq 1.12
+
+* No code updates. (Bioconductor version number updates only)
+
 # dittoSeq 1.10
 
 * Added ability to plot multiple 'var' in a single 'dittoPlot()', 'dittoDimPlot()', 'dittoScatterPlot()', 'dittoDimHex()', and 'dittoScatterHex()' call by giving a vector of genes or continuous metadata to the 'var' or 'color.var' input. Customization of how the "multivar" data is displayed can be controlled with:
