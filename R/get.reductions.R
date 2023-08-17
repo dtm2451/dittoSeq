@@ -18,15 +18,18 @@
 getReductions <- function(object){
 
     if (is(object,"SingleCellExperiment")) {
-        return(SingleCellExperiment::reducedDimNames(object))
+        red <- SingleCellExperiment::reducedDimNames(object)
     }
     if (is(object,"Seurat")) {
         .error_if_no_Seurat()
-        return(Seurat::Reductions(object))
+        red <- Seurat::Reductions(object)
     }
     if (is(object,"seurat")) {
-        return(names(object@dr))
+        red <- names(object@dr)
     }
     
-    NULL
+    red.len <- length(red)
+    red <- if(red.len==0) NULL else red
+    return(red)
+    
 }
