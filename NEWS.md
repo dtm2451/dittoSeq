@@ -1,3 +1,7 @@
+# dittoSeq 1.13.2
+
+* Bug Fix: Update 'getReductions()' to correctly return NULL when the 'object' contains no dimensionality reductions.
+
 # dittoSeq 1.13.1
 
 * Improved group ordering control for 'dittoDotPlot()' and 'dittoPlotVarsAcrossGroups()'. Factor level order of original 'group.by'-data data will now be retained, with added control of whether to unused (empty) levels should be kept via a new 'groupings.drop.unused' input.
