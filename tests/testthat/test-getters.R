@@ -1,5 +1,5 @@
 # Tests for visualization functions
-# library(dittoSeq); library(testthat); source("setup.R"); source("../../R/utils-getters.R"); source("test-getters.R")
+# library(dittoSeq); library(testthat); source("setup.R"); source("../../R/utils.R"); source("../../R/utils-getters.R"); source("../../R/get.reductions.R"); source("../../R/utils-defaulting.R"); source("test-getters.R")
 
 # Make Seurat, if can
 try(seurat <- Seurat::as.Seurat(sce), silent = TRUE)
@@ -179,6 +179,28 @@ test_that("getReductions works for Seurat and SCE", {
     
     skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
     expect_equal(reductions, getReductions(seurat))
+})
+
+test_that(".defult_reduction errors properly when no reductions in object", {
+    sce_no_dimreds <- sce
+    reducedDims(sce_no_dimreds) <- NULL
+    expect_error(
+        .default_reduction(sce_no_dimreds),
+        "No dimensionality reduction slots"
+    )
+    
+    expect_error(
+        .default_reduction(bulk_se),
+        "No dimensionality reduction slots"
+    )
+    
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    seurat@reductions <- list()
+    expect_error(
+        .default_reduction(seurat),
+        "No dimensionality reduction slots"
+    )
+    
 })
 
 test_that(".var_or_get_meta_or_gene gets metas, genes, spits back var, or errors if wrong length", {

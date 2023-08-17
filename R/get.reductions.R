@@ -17,19 +17,22 @@
 
 getReductions <- function(object){
 
+    reds <- NULL
     if (is(object,"SingleCellExperiment")) {
-        red <- SingleCellExperiment::reducedDimNames(object)
+        reds <- SingleCellExperiment::reducedDimNames(object)
     }
     if (is(object,"Seurat")) {
         .error_if_no_Seurat()
-        red <- Seurat::Reductions(object)
+        reds <- Seurat::Reductions(object)
     }
     if (is(object,"seurat")) {
-        red <- names(object@dr)
+        reds <- names(object@dr)
     }
     
-    red.len <- length(red)
-    red <- if(red.len==0) NULL else red
-    return(red)
+    # Standardize non-existent reductions output
+    if (identical(reds, NA) || length(reds)==0) {
+        reds <- NULL
+    }
     
+    reds
 }
