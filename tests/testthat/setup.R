@@ -51,13 +51,27 @@ sce <- SingleCellExperiment(
         symbol = paste(rownames(exp), "symb", sep = "_"))
 )
 
-# Remove the unneeded external data
-rm(exp,exp.vec,logexp,pca,tsne,l1,l2,clusters,groups,age,score,score2,score3)
-
 # Manually make bulk
 bulk <- sce
 int_metadata(bulk) <- c(
     int_metadata(bulk),
     dittoSeqVersion = packageVersion("dittoSeq"),
     bulk = TRUE)
+
+bulk_se <- SummarizedExperiment(
+    assays = list(counts = exp,
+                  logcounts = logexp),
+    colData = DataFrame(clusters = clusters,
+                        groups = groups,
+                        age = age,
+                        score = score,
+                        score2 = score2,
+                        score3 = score3),
+    rowData = DataFrame(
+        rows = rownames(exp),
+        symbol = paste(rownames(exp), "symb", sep = "_"))
+)
+
+# Remove the unneeded external data
+rm(exp,exp.vec,logexp,pca,tsne,l1,l2,clusters,groups,age,score,score2,score3)
 
