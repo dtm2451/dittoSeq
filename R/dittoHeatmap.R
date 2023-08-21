@@ -276,6 +276,9 @@ dittoHeatmap <- function(
         stop("rows of 'annotation_col' must be cell/sample names of all cells/samples being displayed")
     }
     if (!is.null(annot.by)) {
+        if ("ident" %in% annot.by && isMeta("ident", object) && !"ident" %in% getMetas(object)) {
+            object$ident <- meta("ident", object)
+        }
         annotation_col <- rbind(
             as.data.frame(getMetas(object, names.only = FALSE)[cells.use, annot.by, drop = FALSE]),
             annotation_col[cells.use, , drop=FALSE])

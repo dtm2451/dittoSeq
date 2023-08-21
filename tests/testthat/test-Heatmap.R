@@ -1,6 +1,15 @@
 # Tests for visualization functions
 # library(dittoSeq); library(testthat); source("setup.R"); source("test-Heatmap.R")
 
+# Make Seurat, if can
+try(seurat <- Seurat::as.Seurat(sce), silent = TRUE)
+seurat_conversion_worked <- exists("seurat")
+
+# Ensure metadata has row.names (a past issue with the fxn)
+if (seurat_conversion_worked) {
+    rownames(seurat@meta.data) <- colnames(seurat)
+}
+
 sce$number <- as.numeric(seq_along(colnames(sce)))
 sce$number2 <- as.numeric(rev(seq_along(colnames(sce))))
 genes <- getGenes(sce)[1:9]
@@ -440,5 +449,25 @@ test_that("dittoHeatmap drops levles from annotation_colors to allow 'drop_level
         dittoHeatmap(genes = genes, object = sce,
             annot.by = "clusters", cells.use = sce$clusters!="4",
             drop_levels = TRUE),
+        "pheatmap")
+})
+
+### Seurat test
+test_that("dittoHeatmap allows annotation by 'ident' as would be expected", {
+    # errors if not Seurat
+    expect_error(
+        dittoHeatmap(
+            genes = genes,
+            object = sce,
+            annot.by = "ident"),
+        "ident is not a metadata", fixed = TRUE)
+
+    # works if Seurat
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_s3_class(
+        dittoHeatmap(
+            genes = genes,
+            object = seurat,
+            annot.by = "ident"),
         "pheatmap")
 })
