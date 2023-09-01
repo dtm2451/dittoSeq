@@ -1,3 +1,7 @@
+# dittoSeq 1.13.3
+
+* Allow 'annot.by = "ident"' to pull from Seurat clusters for 'dittoHeatmap()' as users likely expect it would do.
+
 # dittoSeq 1.13.2
 
 * Bug Fix: Update 'getReductions()' to correctly return NULL when the 'object' contains no dimensionality reductions.
