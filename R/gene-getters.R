@@ -83,6 +83,19 @@ getGenes <- function(
     
     object <- .swap_rownames(object, swap.rownames)
     
+    if (length(assay)>1) {
+        return(
+            do.call(
+                c,
+                lapply(
+                    assay,
+                    function(this_assay) {
+                        getGenes(object, this_assay)
+                    })
+            )
+        )
+    }
+    
     rownames(.which_data(object=object,assay = assay))
 }
 
@@ -148,6 +161,9 @@ gene <- function(
     }
     
     # Retrieve target values
+    if (length(assay)>1) {
+        assay  <- names(.which_assay(gene, assay, object))
+    }
     exp <- as.vector(.which_data(assay, slot, object)[gene,])
     
     # Add adjustments
