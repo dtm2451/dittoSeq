@@ -42,8 +42,8 @@
 
 .which_assay <- function(genes, assays, object) {
     # Determines which assay, from set of given assays, all genes are a part of
-    if (is(object,"SummarizedExperiment")) { # && !is(object,"SingleCellExperiment")) {
-        stop("Bug: path should not be reached for objects of this type.")
+    if ( !(is(object, "SingleCellExperiment") || is(object, "Seurat")) ) {
+        stop("Multi-assay retrieval is not implemented for 'object' of class ", class(object), ".")
     }
 
     assay_inclusion <- lapply(assays, function(assay_check) {
@@ -103,6 +103,23 @@
     }
 
     if (is(object,"SummarizedExperiment")) {
+        if (is(object,"SingleCellExperiment")) {
+            # altExp compatibility
+            if (any(SingleCellExperiment::altExpNames(object) %in% c(assay, names(assay)))) {
+                if (identical(NULL, names(assay))) {
+                    return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object, assay)))
+                } else {
+                    return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object, names(assay)), assay))
+                }
+            }
+            if ('altexp' %in% tolower(c(assay, names(assay)))) {
+                if (identical(NULL, names(assay))) {
+                    return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object)))
+                } else {
+                    return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object), assay))
+                }
+            }
+        }
         return(SummarizedExperiment::assay(object, assay))
     }
     if (is(object,"Seurat")) {
