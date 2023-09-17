@@ -96,18 +96,47 @@
         return(object)
     }
 
-    if (length(swap.rownames) > 1) {
-        for (i in seq_along(swap.rownames)) {
-            object <- .swap_rownames(object, swap.rownames[i])
-        }
-        return(object)
-    }
-
     # SummarizedExperiment / SCEs only
-    if (is(object, "SummarizedExperiment")) {
+    if (is(object, "SummarizedExperiment") ) {
 
-        # alternate experiments
-        if (!identical(NULL, names(swap.rownames)) && !identical('', names(swap.rownames)) && is(object,"SingleCellExperiment")) {
+        # Alternate experiments, simplified usage = find unnamed swap.rownames elements, prioritized by order, in all experiments and swap to them.
+        if (is(object,"SingleCellExperiment") && length(SingleCellExperiment::altExpNames(object))>0 && identical(NULL, names(swap.rownames))) {
+
+            .which_swap_rownames <- function(swaps = swap.rownames, exp, name) {
+                use <- swaps[swaps %in% names(SummarizedExperiment::rowData(exp))]
+                if (length(use)==0) {
+                    warning("Skipping swapping rownames for ", name," experiment because no 'swap.rownames' elements are a rowData column name.")
+                    return(NULL)
+                } else {
+                    use[1]
+                }
+            }
+            # Determine explicit swaps needed for main and alternate experiments
+            # main
+            new_swaps <- c('main' = .which_swap_rownames(swap.rownames, object, 'main'))
+            # alternates
+            for (expName in SingleCellExperiment::altExpNames(object)) {
+                next_new <- .which_swap_rownames(swap.rownames, SingleCellExperiment::altExp(object, expName), expName)
+                if (!identical(next_new, NULL)) {
+                    names(next_new) <- expName
+                    new_swaps <- c(new_swaps, next_new)
+                }
+            }
+
+            # Execute with determined explicit swaps
+            return(.swap_rownames(object, new_swaps))
+        }
+
+        # Recursion if length > 1
+        if (length(swap.rownames) > 1) {
+            for (i in seq_along(swap.rownames)) {
+                object <- .swap_rownames(object, swap.rownames[i])
+            }
+            return(object)
+        }
+
+        # alternate experiments, explicit usage
+        if (!identical(NULL, names(swap.rownames)) && !names(swap.rownames) %in% c('', 'main') && is(object,"SingleCellExperiment")) {
             if (!is(object,"SingleCellExperiment")) {
                 warning("Ignoring names in 'swap.rownames' for non-SCE 'object'.")
             } else {
