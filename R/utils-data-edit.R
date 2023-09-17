@@ -91,16 +91,48 @@
 }
 
 .swap_rownames <- function(object, swap.rownames = NULL) {
-    
-    if (!identical(swap.rownames, NULL) && is(object, "SummarizedExperiment")) {
-        
+
+    if (identical(swap.rownames, NULL)) {
+        return(object)
+    }
+
+    if (length(swap.rownames) > 1) {
+        for (i in seq_along(swap.rownames)) {
+            object <- .swap_rownames(object, swap.rownames[i])
+        }
+        return(object)
+    }
+
+    # SummarizedExperiment / SCEs only
+    if (is(object, "SummarizedExperiment")) {
+
+        # alternate experiments
+        if (!identical(NULL, names(swap.rownames)) && !identical('', names(swap.rownames)) && is(object,"SingleCellExperiment")) {
+            if (!is(object,"SingleCellExperiment")) {
+                warning("Ignoring names in 'swap.rownames' for non-SCE 'object'.")
+            } else {
+                if (names(swap.rownames) == 'altexp') {
+                    names(swap.rownames) <- SingleCellExperiment::altExpNames(object)[1]
+                }
+                if (!names(swap.rownames) %in% SingleCellExperiment::altExpNames(object)) {
+                    stop("A 'swap.rownames' element has a name that is not either the name of an alternate experiment within 'object' or the generic \"altexp\".")
+                }
+                if (!swap.rownames %in% colnames(SummarizedExperiment::rowData(SingleCellExperiment::altExp(object, names(swap.rownames))))) {
+                    stop("'swap.rownames' is not a rowData column of this object's ", names(swap.rownames), " alternate experiment.")
+                }
+                rownames(SingleCellExperiment::altExp(object, names(swap.rownames))) <- rowData(SingleCellExperiment::altExp(object, names(swap.rownames)))[,swap.rownames]
+                return(object)
+            }
+        }
+
+        # 'main' experiments and SEs
         if (!swap.rownames %in% names(SummarizedExperiment::rowData(object))) {
             stop("'swap.rownames' is not a column of 'rowData(object)'")
         }
-        
         rownames(object) <- rowData(object)[,swap.rownames]
+
     }
-    
+
     object
 }
 
