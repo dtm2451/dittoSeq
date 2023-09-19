@@ -1,5 +1,5 @@
 # Tests for visualization functions
-# library(dittoSeq); library(testthat); source("setup.R"); for (file in list.files("../../R", "utils", full.names = TRUE)) {source(file)};
+# library(dittoSeq); library(testthat); source("setup.R"); for (file in list.files("../../R", "utils", full.names = TRUE)) {source(file)}; source("test-editors.R")
 
 sce_alts <- sce
 ori <- rownames(sce_alts)

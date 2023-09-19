@@ -88,9 +88,9 @@ getGenes <- function(
             do.call(
                 c,
                 lapply(
-                    assay,
-                    function(this_assay) {
-                        getGenes(object, this_assay)
+                    seq_along(assay),
+                    function(i) {
+                        getGenes(object, assay[i])
                     })
             )
         )
@@ -161,9 +161,6 @@ gene <- function(
     }
     
     # Retrieve target values
-    if (length(assay)>1) {
-        assay  <- names(.which_assay(gene, assay, object))
-    }
     exp <- as.vector(.which_data(assay, slot, object)[gene,])
     
     # Add adjustments

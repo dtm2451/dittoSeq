@@ -40,49 +40,49 @@
     cells.use
 }
 
-.which_assay <- function(genes, assays, object) {
-    # Determines which assay, from set of given assays, all genes are a part of
-    if ( !(is(object, "SingleCellExperiment") || is(object, "Seurat")) ) {
-        stop("Multi-assay retrieval is not implemented for 'object' of class ", class(object), ".")
-    }
-
-    assay_inclusion <- lapply(assays, function(assay_check) {
-        isGene(genes, object, assay = assay_check)
-    })
-    names(assay_inclusion) <- assays
-    inclusion_df <- do.call(data.frame, c(assay_inclusion, row.names = genes))
-
-    # Check for errors
-    inclusions <- apply(inclusion_df, 1, sum)
-    conflicts <- genes[inclusions > 1]
-    if (length(conflicts > 0)) {
-        stop(
-            "Assay determination failure: gene(s) appear in multiple target 'assays': ",
-            paste0(conflicts, combine = ", ")
-        )
-    }
-    missing <- genes[inclusions = 0]
-    if (length(missing > 0)) {
-        stop(
-            "Assay determination failure: gene(s) do not exist in any target 'assays': ",
-            paste0(missing, combine = ", ")
-        )
-    }
-
-    # Transform to structure: list with names = assays and contents = string vector of the targeted genes in that assay.
-    out <- lapply(assay_inclusion, function(in_this_assay) {
-        genes[in_this_assay]
-    })
-    names(out) <- names(assay_inclusion)
-    # Remove assays with no targeted genes
-    for (i in names(out)) {
-        if (length(out[[i]])==0) {
-            out[[i]] <- NULL
-        }
-    }
-
-    out
-}
+# .which_assay <- function(genes, assays, object) {
+#     # Determines which assay, from set of given assays, all genes are a part of
+#     if ( !(is(object, "SingleCellExperiment") || is(object, "Seurat")) ) {
+#         stop("Multi-assay retrieval is not implemented for 'object' of class ", class(object), ".")
+#     }
+#
+#     assay_inclusion <- lapply(assays, function(assay_check) {
+#         isGene(genes, object, assay = assay_check)
+#     })
+#     names(assay_inclusion) <- assays
+#     inclusion_df <- do.call(data.frame, c(assay_inclusion, row.names = genes))
+#
+#     # Check for errors
+#     inclusions <- apply(inclusion_df, 1, sum)
+#     conflicts <- genes[inclusions > 1]
+#     if (length(conflicts > 0)) {
+#         stop(
+#             "Assay determination failure: gene(s) appear in multiple target 'assays': ",
+#             paste0(conflicts, combine = ", ")
+#         )
+#     }
+#     missing <- genes[inclusions = 0]
+#     if (length(missing > 0)) {
+#         stop(
+#             "Assay determination failure: gene(s) do not exist in any target 'assays': ",
+#             paste0(missing, combine = ", ")
+#         )
+#     }
+#
+#     # Transform to structure: list with names = assays and contents = string vector of the targeted genes in that assay.
+#     out <- lapply(assay_inclusion, function(in_this_assay) {
+#         genes[in_this_assay]
+#     })
+#     names(out) <- names(assay_inclusion)
+#     # Remove assays with no targeted genes
+#     for (i in names(out)) {
+#         if (length(out[[i]])==0) {
+#             out[[i]] <- NULL
+#         }
+#     }
+#
+#     out
+# }
 
 #' @importFrom SummarizedExperiment assay
 .which_data <- function(
@@ -94,9 +94,9 @@
             do.call(
                 rbind,
                 lapply(
-                    assay,
-                    function(this_assay) {
-                        .which_data(this_assay, slot, object)
+                    seq_along(assay),
+                    function(i) {
+                        .which_data(assay[i], slot, object)
                     })
             )
         )
@@ -106,14 +106,14 @@
         if (is(object,"SingleCellExperiment")) {
             # altExp compatibility
             if (any(SingleCellExperiment::altExpNames(object) %in% c(assay, names(assay)))) {
-                if (identical(NULL, names(assay))) {
+                if (identical(NULL, names(assay)) || identical('', names(assay))) {
                     return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object, assay)))
                 } else {
                     return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object, names(assay)), assay))
                 }
             }
             if ('altexp' %in% tolower(c(assay, names(assay)))) {
-                if (identical(NULL, names(assay))) {
+                if (identical(NULL, names(assay)) || identical('', names(assay))) {
                     return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object)))
                 } else {
                     return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object), assay))
