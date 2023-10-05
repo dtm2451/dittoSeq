@@ -1,3 +1,7 @@
+# dittoSeq 1.13.4
+
+* Bug Fix: Allow 'dittoHeatmap()' to plot from pre-scaled data by fixing internal data check to actually look for non-zero values instead of a non-zero sum.
+
 # dittoSeq 1.13.3
 
 * Allow 'annot.by = "ident"' to pull from Seurat clusters for 'dittoHeatmap()' as users likely expect it would do.
