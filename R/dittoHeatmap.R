@@ -506,8 +506,8 @@ dittoHeatmap <- function(
         stop("No 'genes' or 'metas' requested") 
     } 
 
-    if (any(rowSums(data)==0)) { 
-        data <- data[rowSums(data)!=0,] 
+    if (any(rowSums(data!=0)==0)) {
+        data <- data[rowSums(data!=0)!=0,]
         if (nrow(data)==0) { 
             stop("No target genes/metadata features have non-zero values in the 'cells.use' subset") 
         } 
