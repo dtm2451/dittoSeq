@@ -1,18 +1,11 @@
-# dittoSeq 1.13.4
+# dittoSeq 1.14
 
-* Bug Fix: Allow 'dittoHeatmap()' to plot from pre-scaled data by fixing internal data check to actually look for non-zero values instead of a non-zero sum.
-
-# dittoSeq 1.13.3
-
-* Allow 'annot.by = "ident"' to pull from Seurat clusters for 'dittoHeatmap()' as users likely expect it would do.
-
-# dittoSeq 1.13.2
-
-* Bug Fix: Update 'getReductions()' to correctly return NULL when the 'object' contains no dimensionality reductions.
-
-# dittoSeq 1.13.1
-
-* Improved group ordering control for 'dittoDotPlot()' and 'dittoPlotVarsAcrossGroups()'. Factor level order of original 'group.by'-data data will now be retained, with added control of whether to unused (empty) levels should be kept via a new 'groupings.drop.unused' input.
+* Feature Extensions:
+  1. 'dittoDotPlot()' & 'dittoPlotVarsAcrossGroups()': Improved 'group.by' ordering control via retention of factor levels and addition of a new 'groupings.drop.unused' input to control retention of empty levels.
+  2. 'dittoHeatmap()': Targeting Seurat clusters with the "ident" shortcut now works for the 'annot.by' input of 'dittoHeatmap()'.
+* Bug Fixes:
+  1. 'dittoHeatmap()': Fixed a feature exclusion check in 'dittoHeatmap()' meant to remove features without any non-zero values. Previously, it removed all features with a mean of zero, which blocked plotting from pre-scaled data.
+  2. 'dittoDimPlot()' & 'getReductions()': Eliminated cases where 'getReductions()' did not return NULL for 'object's containing zero dimensionality reductions. This fix also improves associated error messaging of 'dittoDimPlot()' where such cases were missed.
 
 # dittoSeq 1.12
 
