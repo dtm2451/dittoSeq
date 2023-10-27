@@ -157,7 +157,7 @@ gene <- function(
     object <- .swap_rownames(object, swap.rownames)
 
     if (!isGene(gene, object, assay)) {
-        stop(dQuote(gene)," is not a gene of 'object'")
+        stop(dQuote(gene)," is not a gene/feature of the targeted assay(s) of 'object'")
     }
     
     # Retrieve target values

@@ -420,7 +420,7 @@ dittoDotPlot <- function(
     gene_gets <- isGene(gets[!call_meta], object, assay, return.values = TRUE)
     
     if (!all(gets %in% c(meta_gets, gene_gets))) {
-        stop("All 'vars' and 'split.by' must be a metadata or gene")
+        stop("All 'vars' and 'split.by' must be a metadata or gene/feature of the targeted assay(s)")
     }
     
     if (length(vars) <= 1) {

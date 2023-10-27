@@ -147,7 +147,7 @@
                     stop("A 'swap.rownames' element has a name that is not either the name of an alternate experiment within 'object' or the generic \"altexp\".")
                 }
                 if (!swap.rownames %in% colnames(SummarizedExperiment::rowData(SingleCellExperiment::altExp(object, names(swap.rownames))))) {
-                    stop("'swap.rownames' is not a rowData column of this object's ", names(swap.rownames), " alternate experiment.")
+                    stop("A 'swap.rownames' value is not a rowData column of this object's ", names(swap.rownames), " alternate experiment.")
                 }
                 rownames(SingleCellExperiment::altExp(object, names(swap.rownames))) <- rowData(SingleCellExperiment::altExp(object, names(swap.rownames)))[,swap.rownames]
                 return(object)
