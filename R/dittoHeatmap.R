@@ -30,7 +30,6 @@
 #' @param data.out Logical. When set to \code{TRUE}, changes the output from the heatmat itself, to a list containing all arguments that would have be passed to \code{\link{pheatmap}} for heatmap generation.
 #' (Can be useful for troubleshooting or customization.)
 #' @param highlight.features String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.
-#' @param highlight.genes Deprecated, use \code{highlight.features} instead.
 #' @param cluster_cols,border_color,legend_breaks,breaks,drop_levels,... other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).
 #' @param show_colnames,show_rownames,scale,annotation_col,annotation_colors arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
 #' \itemize{
@@ -213,7 +212,6 @@ dittoHeatmap <- function(
     annotation_colors = NULL,
     data.out=FALSE,
     highlight.features = NULL,
-    highlight.genes = NULL, 
     show_colnames = isBulk(object),
     show_rownames = TRUE,
     scale = "row",
@@ -228,15 +226,6 @@ dittoHeatmap <- function(
     # If cells.use given as logical, populate as names.
     cells.use <- .which_cells(cells.use, object)
     all.cells <- .all_cells(object)
-
-    # Handle deprecated argument
-    if (!is.null(highlight.genes)) {
-        if (!is.null(highlight.features)) {
-            stop("you can only specify one of 'highlight.genes' or 'highlight.features'")
-        }
-        .Deprecated(msg="argument 'highlight.genes' is deprecated, please use 'highlight.features' instead")
-        highlight.features <- highlight.genes
-    }
 
     ### Obtain all needed data
     object <- .swap_rownames(object, swap.rownames)

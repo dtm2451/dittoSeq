@@ -24,7 +24,6 @@ dittoHeatmap(
   annotation_colors = NULL,
   data.out = FALSE,
   highlight.features = NULL,
-  highlight.genes = NULL,
   show_colnames = isBulk(object),
   show_rownames = TRUE,
   scale = "row",
@@ -80,8 +79,6 @@ Default is a ramp from white to red with 25 slices.}
 (Can be useful for troubleshooting or customization.)}
 
 \item{highlight.features}{String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.}
-
-\item{highlight.genes}{Deprecated, use \code{highlight.features} instead.}
 
 \item{show_colnames, show_rownames, scale, annotation_col, annotation_colors}{arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
 \itemize{
