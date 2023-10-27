@@ -152,7 +152,7 @@ test_that("gene works for Seurat and SCE (+ assay/slot & adjustment/adj.fxn)", {
 
 test_that("gene gives error when given a non-gene", {
     expect_error(gene("a", sce),
-        "is not a gene of 'object'", fixed = TRUE)
+        "is not a gene/feature of the targeted assay(s) of 'object'", fixed = TRUE)
 })
 
 test_that("gene, isGene, and getGenes work with swap.rownames",{
