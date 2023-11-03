@@ -198,6 +198,7 @@ dittoFreqPlot <- function(
     boxplot.width = 0.4,
     boxplot.color = "black",
     boxplot.show.outliers = NA,
+    boxplot.outlier.size = 1.5,
     boxplot.fill = TRUE,
     boxplot.position.dodge = vlnplot.width,
     boxplot.lineweight = 1,
@@ -284,7 +285,8 @@ dittoFreqPlot <- function(
             p, data, plots, xlab, ylab, NULL, jitter.size, jitter.width,
             jitter.color, 16, NA, TRUE, jitter.position.dodge,
             do.raster, raster.dpi,
-            boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
+            boxplot.width, boxplot.color, boxplot.show.outliers,
+            boxplot.outlier.size, boxplot.fill,
             boxplot.position.dodge, boxplot.lineweight, vlnplot.lineweight,
             vlnplot.width, vlnplot.scaling, add.line, line.linetype,
             line.color, x.labels.rotate, do.hover, y.breaks, min, max, object)

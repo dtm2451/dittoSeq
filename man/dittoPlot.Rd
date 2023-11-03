@@ -53,6 +53,7 @@ dittoPlot(
   boxplot.width = 0.2,
   boxplot.color = "black",
   boxplot.show.outliers = NA,
+  boxplot.outlier.size = 1.5,
   boxplot.fill = TRUE,
   boxplot.position.dodge = vlnplot.width,
   boxplot.lineweight = 1,
@@ -215,6 +216,8 @@ Similar to \code{boxplot.position.dodge} input & defaults to the value of that i
 
 \item{boxplot.show.outliers}{Logical, whether outliers should by including in the boxplot.
 Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is no jitter.}
+
+\item{boxplot.outlier.size}{Scalar which adjusts the size of points used to mark outliers}
 
 \item{boxplot.fill}{Logical, whether the boxplot should be filled in or not.
 Known bug: when boxplot fill is turned off, outliers do not render.}
