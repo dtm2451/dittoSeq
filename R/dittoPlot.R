@@ -112,6 +112,7 @@
 #' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to each other.
 #' Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
 #' For an explanation of each, see \code{\link{geom_violin}}.
+#' @param vlnplot.quantiles Numeric vector naming quantiles at which to draw a line in each violin plot.
 #' @param ridgeplot.lineweight Scalar which sets the thickness of the ridgeplot outline.
 #' @param ridgeplot.scale Scalar which sets the distance/overlap between ridgeplots.
 #' A value of 1 means the tallest density curve just touches the baseline of the next higher one.
@@ -305,6 +306,7 @@ dittoPlot <- function(
     vlnplot.lineweight = 1,
     vlnplot.width = 1,
     vlnplot.scaling = "area",
+    vlnplot.quantiles = NULL,
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
     ridgeplot.ymax.expansion = NA,
@@ -366,6 +368,7 @@ dittoPlot <- function(
             boxplot.outlier.size, boxplot.fill,
             boxplot.position.dodge, boxplot.lineweight,
             vlnplot.lineweight, vlnplot.width, vlnplot.scaling,
+            vlnplot.quantiles,
             add.line, line.linetype, line.color,
             x.labels.rotate, do.hover, y.breaks, min, max, object)
     } else {
@@ -420,8 +423,9 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     do.raster, raster.dpi,
     boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.outlier.size,
     boxplot.fill, boxplot.position.dodge, boxplot.lineweight,
-    vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
-    line.linetype, line.color, x.labels.rotate, do.hover, y.breaks, min, max,
+    vlnplot.lineweight, vlnplot.width, vlnplot.scaling, vlnplot.quantiles,
+    add.line, line.linetype, line.color,
+    x.labels.rotate, do.hover, y.breaks, min, max,
     object) {
     # This function takes in a partial dittoPlot ggplot object without any data
     # overlay, and parses adding the main data visualizations.
@@ -444,6 +448,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 size = vlnplot.lineweight,
                 width = vlnplot.width,
                 scale = vlnplot.scaling,
+                draw_quantiles = vlnplot.quantiles,
                 na.rm = TRUE)
         }
 

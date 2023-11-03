@@ -48,6 +48,7 @@ dittoPlotVarsAcrossGroups(
   vlnplot.lineweight = 1,
   vlnplot.width = 1,
   vlnplot.scaling = "area",
+  vlnplot.quantiles = NULL,
   ridgeplot.lineweight = 1,
   ridgeplot.scale = 1.25,
   ridgeplot.ymax.expansion = NA,
@@ -193,6 +194,8 @@ By default, this input actually controls the value of \code{jitter.position.dodg
 \item{vlnplot.scaling}{String which sets how the widths of the of violin plots are set in relation to each other.
 Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
 For an explanation of each, see \code{\link{geom_violin}}.}
+
+\item{vlnplot.quantiles}{Numeric vector naming quantiles at which to draw a line in each violin plot.}
 
 \item{ridgeplot.lineweight}{Scalar which sets the thickness of the ridgeplot outline.}
 
