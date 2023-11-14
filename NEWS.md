@@ -1,3 +1,7 @@
+# dittoSeq 1.15.1
+
+* Added 'vlnplot.quantiles' and 'boxplot.outlier.size' inputs to 'dittoPlot()', 'dittoPlotVarsAcrossGroups()', and 'dittoFreqPlot()' functions.
+
 # dittoSeq 1.14
 
 * Feature Extensions:
