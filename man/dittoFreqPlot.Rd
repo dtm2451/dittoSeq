@@ -209,7 +209,7 @@ By default, this input actually controls the value of \code{jitter.position.dodg
 Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
 For an explanation of each, see \code{\link{geom_violin}}.}
 
-\item{vlnplot.quantiles}{Numeric vector naming quantiles at which to draw a line in each violin plot.}
+\item{vlnplot.quantiles}{Single number or numeric vector of values in [0,1] naming quantiles at which to draw a horizontal line within each violin plot. Example: \code{c(0.1, 0.5, 0.9)}}
 
 \item{ridgeplot.lineweight}{Scalar which sets the thickness of the ridgeplot outline.}
 

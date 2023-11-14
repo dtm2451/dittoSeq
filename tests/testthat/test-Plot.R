@@ -314,20 +314,22 @@ test_that("dittoPlot jitter adjustments work", {
 
 test_that("dittoPlot boxplot adjustments work", {
     # Manuel Check: Blue boxplots that touch eachother, with jitter visible behind.
-    # Not actually checked here manually: whether outliers are shown cuz there are none.
     expect_s3_class(
         dittoPlot(
             "number", object=sce, group.by = grp, plots = c("jitter", "boxplot"),
-            boxplot.width = 1, boxplot.color = "blue", boxplot.fill = FALSE,
-            boxplot.show.outliers = TRUE),
+            boxplot.width = 1, boxplot.color = "blue", boxplot.fill = FALSE),
         "ggplot")
     # Manual Check: boxplots that overlap, with thick lines
+    sce$number[75]<- 100
     expect_s3_class(
         dittoPlot(
             "number", object=sce, group.by = grp, plots = c("jitter","boxplot"),
             color.by = clr,
             boxplot.width = 0.4, boxplot.position.dodge = 0.2,
-            boxplot.lineweight = 2),
+            boxplot.lineweight = 2,
+            boxplot.outlier.size = 15,
+            boxplot.show.outliers = TRUE
+            ),
         "ggplot")
 })
 
@@ -353,6 +355,11 @@ test_that("dittoPlot violin plot adjustments work", {
         dittoPlot(
             "number", object=sce, group.by = grp,
             vlnplot.scaling = "width"),
+        "ggplot")
+    expect_s3_class(
+        dittoPlot(
+            "number", object=sce, group.by = grp,
+            vlnplot.quantiles = c(0.25, 0.5, 0.75)),
         "ggplot")
 })
 

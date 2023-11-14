@@ -112,7 +112,7 @@
 #' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to each other.
 #' Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
 #' For an explanation of each, see \code{\link{geom_violin}}.
-#' @param vlnplot.quantiles Numeric vector naming quantiles at which to draw a line in each violin plot.
+#' @param vlnplot.quantiles Single number or numeric vector of values in [0,1] naming quantiles at which to draw a horizontal line within each violin plot. Example: \code{c(0.1, 0.5, 0.9)}
 #' @param ridgeplot.lineweight Scalar which sets the thickness of the ridgeplot outline.
 #' @param ridgeplot.scale Scalar which sets the distance/overlap between ridgeplots.
 #' A value of 1 means the tallest density curve just touches the baseline of the next higher one.
