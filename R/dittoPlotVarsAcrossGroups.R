@@ -178,12 +178,14 @@ dittoPlotVarsAcrossGroups <- function(
     boxplot.width = 0.2,
     boxplot.color = "black",
     boxplot.show.outliers = NA,
+    boxplot.outlier.size = 1.5,
     boxplot.fill = TRUE,
     boxplot.position.dodge = vlnplot.width,
     boxplot.lineweight = 1,
     vlnplot.lineweight = 1,
     vlnplot.width = 1,
     vlnplot.scaling = "area",
+    vlnplot.quantiles = NULL,
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
     ridgeplot.ymax.expansion = NA,
@@ -243,10 +245,12 @@ dittoPlotVarsAcrossGroups <- function(
         p <- .dittoPlot_add_data_y_direction(
             p, data, plots, xlab, ylab, NULL, jitter.size, jitter.width,
             jitter.color, 16, NA, TRUE, jitter.position.dodge, do.raster, raster.dpi,
-            boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
+            boxplot.width, boxplot.color, boxplot.show.outliers,
+            boxplot.outlier.size, boxplot.fill,
             boxplot.position.dodge, boxplot.lineweight, vlnplot.lineweight,
-            vlnplot.width, vlnplot.scaling, add.line, line.linetype,
-            line.color, x.labels.rotate, do.hover, y.breaks, min, max, object)
+            vlnplot.width, vlnplot.scaling, vlnplot.quantiles,
+            add.line, line.linetype, line.color,
+            x.labels.rotate, do.hover, y.breaks, min, max, object)
     } else {
         p <- .dittoPlot_add_data_x_direction(
             p, data, plots, xlab, ylab, jitter.size, jitter.color,

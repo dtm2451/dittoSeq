@@ -41,12 +41,14 @@ dittoPlotVarsAcrossGroups(
   boxplot.width = 0.2,
   boxplot.color = "black",
   boxplot.show.outliers = NA,
+  boxplot.outlier.size = 1.5,
   boxplot.fill = TRUE,
   boxplot.position.dodge = vlnplot.width,
   boxplot.lineweight = 1,
   vlnplot.lineweight = 1,
   vlnplot.width = 1,
   vlnplot.scaling = "area",
+  vlnplot.quantiles = NULL,
   ridgeplot.lineweight = 1,
   ridgeplot.scale = 1.25,
   ridgeplot.ymax.expansion = NA,
@@ -175,6 +177,8 @@ This can be useful for editing in external programs (e.g. Illustrator) when ther
 \item{boxplot.show.outliers}{Logical, whether outliers should by including in the boxplot.
 Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is no jitter.}
 
+\item{boxplot.outlier.size}{Scalar which adjusts the size of points used to mark outliers}
+
 \item{boxplot.fill}{Logical, whether the boxplot should be filled in or not.
 Known bug: when boxplot fill is turned off, outliers do not render.}
 
@@ -190,6 +194,8 @@ By default, this input actually controls the value of \code{jitter.position.dodg
 \item{vlnplot.scaling}{String which sets how the widths of the of violin plots are set in relation to each other.
 Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
 For an explanation of each, see \code{\link{geom_violin}}.}
+
+\item{vlnplot.quantiles}{Single number or numeric vector of values in [0,1] naming quantiles at which to draw a horizontal line within each violin plot. Example: \code{c(0.1, 0.5, 0.9)}}
 
 \item{ridgeplot.lineweight}{Scalar which sets the thickness of the ridgeplot outline.}
 

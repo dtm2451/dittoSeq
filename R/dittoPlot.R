@@ -101,6 +101,7 @@
 #' @param boxplot.color String which sets the color of the lines of the boxplot
 #' @param boxplot.show.outliers Logical, whether outliers should by including in the boxplot.
 #' Default is \code{FALSE} when there is a jitter plotted, \code{TRUE} if there is no jitter.
+#' @param boxplot.outlier.size Scalar which adjusts the size of points used to mark outliers
 #' @param boxplot.fill Logical, whether the boxplot should be filled in or not.
 #' Known bug: when boxplot fill is turned off, outliers do not render.
 #' @param boxplot.position.dodge Scalar which adjusts the relative distance between boxplots when multiple are drawn per grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
@@ -111,6 +112,7 @@
 #' @param vlnplot.scaling String which sets how the widths of the of violin plots are set in relation to each other.
 #' Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
 #' For an explanation of each, see \code{\link{geom_violin}}.
+#' @param vlnplot.quantiles Single number or numeric vector of values in [0,1] naming quantiles at which to draw a horizontal line within each violin plot. Example: \code{c(0.1, 0.5, 0.9)}
 #' @param ridgeplot.lineweight Scalar which sets the thickness of the ridgeplot outline.
 #' @param ridgeplot.scale Scalar which sets the distance/overlap between ridgeplots.
 #' A value of 1 means the tallest density curve just touches the baseline of the next higher one.
@@ -297,12 +299,14 @@ dittoPlot <- function(
     boxplot.width = 0.2,
     boxplot.color = "black",
     boxplot.show.outliers = NA,
+    boxplot.outlier.size = 1.5,
     boxplot.fill = TRUE,
     boxplot.position.dodge = vlnplot.width,
     boxplot.lineweight = 1,
     vlnplot.lineweight = 1,
     vlnplot.width = 1,
     vlnplot.scaling = "area",
+    vlnplot.quantiles = NULL,
     ridgeplot.lineweight = 1,
     ridgeplot.scale = 1.25,
     ridgeplot.ymax.expansion = NA,
@@ -360,9 +364,11 @@ dittoPlot <- function(
             jitter.width, jitter.color, shape.panel, jitter.shape.legend.size,
             jitter.shape.legend.show, jitter.position.dodge,
             do.raster, raster.dpi,
-            boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
+            boxplot.width, boxplot.color, boxplot.show.outliers,
+            boxplot.outlier.size, boxplot.fill,
             boxplot.position.dodge, boxplot.lineweight,
             vlnplot.lineweight, vlnplot.width, vlnplot.scaling,
+            vlnplot.quantiles,
             add.line, line.linetype, line.color,
             x.labels.rotate, do.hover, y.breaks, min, max, object)
     } else {
@@ -415,10 +421,11 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     jitter.size, jitter.width, jitter.color,shape.panel,
     jitter.shape.legend.size, jitter.shape.legend.show, jitter.position.dodge,
     do.raster, raster.dpi,
-    boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.fill,
-    boxplot.position.dodge, boxplot.lineweight,
-    vlnplot.lineweight, vlnplot.width, vlnplot.scaling, add.line,
-    line.linetype, line.color, x.labels.rotate, do.hover, y.breaks, min, max,
+    boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.outlier.size,
+    boxplot.fill, boxplot.position.dodge, boxplot.lineweight,
+    vlnplot.lineweight, vlnplot.width, vlnplot.scaling, vlnplot.quantiles,
+    add.line, line.linetype, line.color,
+    x.labels.rotate, do.hover, y.breaks, min, max,
     object) {
     # This function takes in a partial dittoPlot ggplot object without any data
     # overlay, and parses adding the main data visualizations.
@@ -441,6 +448,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 size = vlnplot.lineweight,
                 width = vlnplot.width,
                 scale = vlnplot.scaling,
+                draw_quantiles = vlnplot.quantiles,
                 na.rm = TRUE)
         }
 
@@ -451,6 +459,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 lwd = boxplot.lineweight,
                 alpha = ifelse(boxplot.fill, 1, 0),
                 position = position_dodge(width = boxplot.position.dodge),
+                outlier.size = boxplot.outlier.size,
                 na.rm = TRUE)
             if (is.na(boxplot.show.outliers)) {
                 boxplot.show.outliers <- ifelse("jitter" %in% plots, FALSE, TRUE)
