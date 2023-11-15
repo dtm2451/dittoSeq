@@ -8,6 +8,17 @@ rowData(sce_alts)$symbol <- symbols
 altExp(sce_alts) <- sce_alts[34:66,]
 altExp(sce_alts, 'ADT') <- sce_alts[67:100,]
 sce_alts <- sce_alts[1:33,]
+# And a rowData that's only in the primary assay
+rowData(sce_alts)$id <- paste0('id.', rownames(sce_alts))
+
+# Additional altExp where:
+# - new altexp name overlaps with an assay name (logcounts)
+# - data are 0s or 1s for easy confirmation of grabbed data
+sce_alts_overlaps <- sce_alts
+new_alt <- sce_alts[1:33,]
+counts(new_alt, withDimnames=FALSE) <- matrix(data = 0, nrow = nrow(new_alt), ncol = ncol(new_alt))
+logcounts(new_alt, withDimnames=FALSE) <- matrix(data = 1, nrow = nrow(new_alt), ncol = ncol(new_alt))
+altExp(sce_alts_overlaps, 'logcounts') <- new_alt
 
 # Make Seurat, if can
 try({
@@ -91,4 +102,148 @@ test_that(".var_or_get_meta_or_gene works across assays for Seurat and altExps f
         seq_len(ncol(seurat)),
         as.vector(.var_OR_get_meta_or_gene(
             seq_len(ncol(seurat)), seurat, assay = c('originalexp', 'RNA', 'ADT'))))
+})
+
+test_that("multi-assay edge cases", {
+    # 'main' optionally specifies top-level data
+    expect_true(
+        identical(
+            gene("gene1", sce_alts, assay = c(main='logcounts')),
+            gene("gene1", sce_alts, assay = c('logcounts'))
+        )
+    )
+    # 'altexp' alone specifies first-altExp's first assay
+    expect_true(
+        identical(
+            gene("gene34", sce_alts, assay = c('altexp')),
+            gene("gene34", sce_alts, assay = c('unnamed1'='counts'))
+        )
+    )
+
+    # Priority to primary modality assay if overlap with an altExp name, & only grabs one
+    expect_true(
+        identical(
+            gene("gene1", sce_alts_overlaps, assay = 'logcounts'),
+            gene("gene1", sce_alts_overlaps, assay = c(main='logcounts'))
+        )
+    )
+    expect_true(
+        identical(
+            gene("gene1", sce_alts_overlaps, assay = c('logcounts', logcounts='counts')),
+            gene("gene1", sce_alts_overlaps, assay = c(main='logcounts'))
+        )
+    )
+    expect_false(
+        identical(
+            gene("gene1", sce_alts_overlaps, assay = c('logcounts', logcounts='counts')),
+            gene("gene1", sce_alts_overlaps, assay = c(logcounts='counts'))
+        )
+    )
+})
+
+test_that("multi-assay swap.rownames works as expected", {
+    # Simple method: swaps for all modalities with the given rowData
+    expect_true(
+        all(
+            isGene(c("symb.gene1", "symb.gene50"), object = sce_alts, assay = c('main', 'altexp'), swap.rownames = "symbol")
+        )
+    )
+    # Simple method: swaps for any modality with the given rowData, warning for modalities without any
+    expect_true(
+        all(suppressWarnings(
+            isGene(c("id.gene1", "gene50"), object = sce_alts, assay = c('main', 'altexp'), swap.rownames = "id")
+        ))
+    )
+    # Simple method: prioritizes in given order
+    expect_true(
+        all(
+            isGene(c("id.gene1", "symb.gene50"), object = sce_alts, assay = c('main', 'altexp'), swap.rownames = c("id", "symbol"))
+        )
+    )
+    # Simple method warns when no swap.rownames found
+    expect_warning(
+        isGene(c("id.gene1", "gene50"), object = sce_alts, assay = c('main', 'altexp'), swap.rownames = "id"),
+        "Skipping swapping rownames for unnamed1"
+    )
+
+    # Explicit method
+    expect_true(
+        all(
+            isGene(c("id.gene1", "symb.gene50", "gene100"), object = sce_alts, assay = c('main', 'altexp', 'ADT'), swap.rownames = c(main='id', altexp="symbol"))
+        )
+    )
+})
+
+test_that("dittoPlot can make use of multi-assay feature access", {
+    expect_s3_class(
+        dittoPlot(
+            c("id.gene1", "symb.gene50", "gene100"),
+            object = sce_alts, group.by = "groups",
+            assay = c('main', 'altexp', 'ADT'),
+            swap.rownames = c(main='id', altexp="symbol")
+        ),
+        "ggplot")
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_s3_class(
+        dittoPlot(
+            c("gene1", "gene50", "gene100"),
+            object = seurat, group.by = "groups",
+            assay = c('originalexp', 'RNA', 'ADT')
+        ),
+        "ggplot")
+})
+
+test_that("dittoDimPlot can make use of multi-assay feature access", {
+    expect_s3_class(
+        dittoDimPlot(
+            c("id.gene1", "symb.gene50", "gene100"),
+            object = sce_alts,
+            assay = c('main', 'altexp', 'ADT'),
+            swap.rownames = c(main='id', altexp="symbol")
+        ),
+        "ggplot")
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_s3_class(
+        dittoDimPlot(
+            c("gene1", "gene50", "gene100"),
+            object = seurat,
+            assay = c('originalexp', 'RNA', 'ADT')
+        ),
+        "ggplot")
+})
+
+test_that("dittoDotPlot can make use of multi-assay feature access", {
+    expect_s3_class(
+        dittoDotPlot(
+            c("id.gene1", "symb.gene50", "gene100"),
+            object = sce_alts, group.by = "groups",
+            assay = c('main', 'altexp', 'ADT'),
+            swap.rownames = c(main='id', altexp="symbol")
+        ),
+        "ggplot")
+    skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
+    expect_s3_class(
+        dittoDotPlot(
+            c("gene1", "gene50", "gene100"),
+            object = seurat, group.by = "groups",
+            assay = c('originalexp', 'RNA', 'ADT')
+        ),
+        "ggplot")
+})
+
+test_that("multi-assay documentation simple-path examples not confirmed elsewhere", {
+    # assay = c('main', 'altexp', 'hto')
+    expect_true(
+        identical(
+            .which_data(object = sce_alts, assay = c('main', 'altexp', 'ADT')),
+            .which_data(object = sce_alts, assay = c(main='counts', altexp='counts', ADT='counts'))
+        )
+    )
+    # assay = c('logexp', 'adt'='clr')
+    expect_true(
+        identical(
+            .which_data(object = sce_alts, assay = c('logcounts', 'ADT'='logcounts')),
+            .which_data(object = sce_alts, assay = c('main'='logcounts', ADT='logcounts'))
+        )
+    )
 })

@@ -18,12 +18,12 @@
 #' \itemize{
 #' \item{Seurat-v3+: \code{assay} = \code{DefaultAssay(object)}, \code{slot} = "data"}
 #' \item{Seurat-v2 (v2 pre-dates Seurat's own multi-modal capabilities): \code{assay} is not used, \code{slot} = "data"}
-#' \item{SingleCellExperiment or SummarizedExperiment: \code{assay} = whichever of "logcounts", "normcounts", "counts", are found to exist or else the first element of assays(object); \code{slot} is not used.}
+#' \item{SingleCellExperiment or SummarizedExperiment: \code{assay} = whichever of "logcounts", "normcounts", or "counts" are found to exist first, prioritized in that order, otherwise the first assay of object's top-level / primary modality; \code{slot} is not used.}
 #' }
 #' 
 #' The default for \code{swap.rownames} is \code{NULL}, a.k.a. not used.
 #'
-#' @section Control of Gene/Feature targeting in Seurat Objects:
+#' @section Control of Gene/Feature targeting in Seurat objects:
 #' For Seurat objects, dittoSeq uses of its \code{assay} and \code{slot} inputs for gene/feature retrieval control, and ultimately makes use of Seurat's GetAssayData function for extracting data. (See: '?SeuratObject::GetAssayData')
 #'
 #' To allow targeting of features across multiple modalities, we allow provision of multiple assay names to dittoSeq's version of the 'assay' input.
@@ -44,7 +44,7 @@
 #' \item 3. target the raw counts data via \code{slot = "counts"}
 #' }
 #'
-#' @section Control of Gene/Feature targeting in SingleCellExperiment Objects:
+#' @section Control of Gene/Feature targeting in SingleCellExperiment objects:
 #' For SCE objects, dittoSeq makes use of its \code{assay} input for both modality and data form (the meaning of 'assay' for SCEs) control, and ultimately makes use of the \code{\link[SummarizedExperiment]{assay}} and \code{\link[SingleCellExperiment]{altExp}} functions for extracting data.
 #'
 #' Additionally, we allow use of the \code{swap.rownames} input to allow targeting & display of alternative gene/feature names. The implementation here is that rownames of the extracted assay data are swapped out for the given \code{\link[SummarizedExperiment]{rowData}} column of the object (or altExp).
@@ -78,12 +78,15 @@
 #' The values of that rowData column are then used to identify and label features of the moadilty's assays instead of the original rownames of the assays.
 #' To allow swap.rownames to also work with the multi-modality access system in the most simplified way, the swap.rownames input also has both a simple and an explicit provision system:
 #' \itemize{
-#' \item Simple form: a single string or string vector where any accessed modality will be checked for the presence of a these values in colnames of their rowData. Whenever found, those columns will be used.
+#' \item Simple form: a single string or string vector where all modalities will be checked for the presence of a these values in colnames of their rowData. If multiple matches are found, priority goes to the earlier value.
+#' Values of matched rowData columns are then set (internally to dittoSeq only) as the rownames of the modality.
 #' \item Explicit form: similar to the explicit assay use, a named string or named vector of string values where names indicate the modality/experiment to target and values indicate columns to look for among the given modality's rowData.
+#' 'main' should be used as the name / indicator for the primary modality, and 'altexp' can be used as a shortcut for indicating "the first altExp".
 #' \item Examples:
 #' \itemize{
 #' \item Simplified1: Using \code{assay = c('main', 'altexp'), swap.rownames = "SYMBOL"} with an object where the primary modality rowData has a SYMBOL column and the first alternative experiment's rowData is empty, will lead to swapping to the SYMBOL values for main modality features and use of original rownames for the alternative experiment's features.
-#' \item Simplified2: Using \code{assay = c('main', 'altexp'), swap.rownames = "SYMBOL"} with an object where both modalities' rowData have a SYMBOL column, will lead to swapping to the SYMBOL values both modalities.
+#' (You will also see a warning indicating that the rownames were not swapped for the alternative experiment.)
+#' \item Simplified2: Using \code{assay = c('main', 'altexp'), swap.rownames = "SYMBOL"} with an object where both modalities' rowData have a SYMBOL column, will lead to swapping to the SYMBOL values both modalities (and no warning).
 #' \item Explicit: Using \code{assay = c('main', 'altexp'), swap.rownames = c(main="SYMBOL")} with an object where both modalities' rowData have a SYMBOL column, will lead to swapping to the SYMBOL values for main modality only.
 #' }
 #' }
@@ -94,5 +97,18 @@
 #' \item 2. target the counts assay of the primary modality and logexp assay of the ADT alternative experiment via \code{assay = c('counts', ADT = 'logexp')}
 #' \item 3. swap to the symbol names of features from both modlities by also giving \code{swap.rownames = "symbols"}
 #' }
+#'
+#' @section Some edge-cases for SingleCellExperiment objects:
+#' Some choices within dittoSeq's multi-modality implementation for SCEs were made with a prioritization of ease over creation of edge-cases.
+#' Thus, a few known edge-cases exist:
+#' \itemize{
+#' \item Avoid naming alternative experiments as 'main' or 'altexp'.
+#' Because these tokens have been chosen as indicators of "top-level data", and "the first alternative experiment", respectively, any alternative experiment given one of these names will not be able to be reliably accessed via dittoSeq's system.
+#' \item Explicit-path is required for top-level assays named 'altexp'
+#' Use \code{assay = c(main='altexp')} for a top-level assay named 'altexp'.
+#' Because we think the "simple path" is usefully simpler for cases where it works, \code{assay = 'altexp'} and \code{assay = c('main'='altexp')} are not equivalent.
+#' The explicit method MUST be used to extract from an assay named 'altexp' because \code{assay = 'altexp'} will instead target the first assay of the first altExp of the SCE.
+#' }
+#'
 #' @author Dan Bunis
 NULL
