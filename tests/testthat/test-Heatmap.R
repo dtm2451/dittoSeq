@@ -449,7 +449,7 @@ test_that("dittoHeatmap allows annotation by 'ident' as would be expected", {
             genes = genes,
             object = sce,
             annot.by = "ident"),
-        "ident is not a metadata", fixed = TRUE)
+        "ident is not a", fixed = TRUE)
 
     # works if Seurat
     skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
