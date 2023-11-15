@@ -19,14 +19,8 @@ gene(
 
 \item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
-\item{assay, slot}{single strings or integer that set which data to use.
-Seurat and SingleCellExperiments deal with these differently, so be sure to check the documentation for whichever object you are using.
-When not provided, these typical defaults for the provided \code{object} class are used:
-\itemize{
-\item{SingleCellExperiment (single-cell or bulk data): \code{assay} = "logcounts", "normcounts", "counts", or the first element of assays(object), \code{slot} not used}
-\item{Seurat-v3: \code{assay} = DefaultAssay(object), \code{slot} = "data"}
-\item{Seurat-v2: \code{assay} not used, \code{slot} = "data"}
-}}
+\item{assay, slot}{single strings or integers (SCEs and SEs) or a vector of such values that set which expression data to use.
+See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
 
 \item{adjustment}{Should expression data be used directly (default) or should it be adjusted to be
 \itemize{
@@ -38,7 +32,10 @@ When not provided, these typical defaults for the provided \code{object} class a
 
 For example, \code{function(x) \{log2(x)\}} or \code{as.factor}}
 
-\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
+\item{swap.rownames}{optionally named string or string vector.
+For SummarizedExperiment or SingleCellExperiment objects, its value(s) specifies the column name of rowData(object) to be used to identify features instead of rownames(object).
+When targeting multiple modalities (alternative experiments), names can be used to specify which level / alternative experiment (use 'main' for the top-level) individual values should be used for.
+See \code{\link{GeneTargeting}} for more specifics and examples.}
 }
 \value{
 Returns the expression values of a gene for all cells/samples.

@@ -93,16 +93,20 @@ Alternatively, a Logical vector, the same length as the number of cells in the o
 Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
 See details section for more info.}
 
-\item{assay, slot}{single strings or integer that set which data to use when plotting expressin data. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
+\item{assay, slot}{single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
+See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
 
 \item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly or should it be adjusted to be
 \itemize{
 \item{"z-score": DEFAULT, centered and scaled to produce a relative-to-mean z-score representation}
-\item{NULL: no adjustment, the normal method for all other ditto expression plotting}
+\item{NULL: no adjustment, the normal method for all other ditto expression plotting functions}
 \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 }}
 
-\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
+\item{swap.rownames}{optionally named string or string vector.
+For SummarizedExperiment or SingleCellExperiment objects, its value(s) specifies the column name of rowData(object) to be used to identify features instead of rownames(object).
+When targeting multiple modalities (alternative experiments), names can be used to specify which level / alternative experiment (use 'main' for the top-level) individual values should be used for.
+See \code{\link{GeneTargeting}} for more specifics and examples.}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.}

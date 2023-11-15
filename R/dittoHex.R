@@ -8,8 +8,6 @@
 #' 
 #' @param rename.color.groups String vector containing new names for the identities of discrete color groups.
 #' @param split.nrow,split.ncol Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.
-#' @param assay,slot,adjustment,assay.x,assay.y,assay.color,assay.extra,slot.x,slot.y,slot.color,slot.extra,adjustment.x,adjustment.y,adjustment.color,adjustment.extra
-#' assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.
 #' @param xlab,ylab Strings which set the labels for the axes. To remove, set to \code{NULL}.
 #' @param bins Numeric or numeric vector giving the number of haxagonal bins in the x and y directions. Set to 30 by default.
 #' @param color.method Works differently depending on whether the color.var is continous versus discrete:

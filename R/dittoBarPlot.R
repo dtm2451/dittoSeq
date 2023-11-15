@@ -1,7 +1,6 @@
 #' Outputs a stacked bar plot to show the percent composition of samples, groups, clusters, or other groupings
 #' @import ggplot2
 #'
-#' @inheritParams dittoPlot
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}.
 #' @param group.by String name of a metadata to use for separating the cells/samples into discrete groups.
@@ -61,6 +60,8 @@
 #' @param retain.factor.levels Logical which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
 #' Set to TRUE to faithfully reflect ordering of groupings encoded in factor levels,
 #' but Note that this will also force retention of groupings that could otherwise be removed via \code{cells.use}.
+#'
+#' @inheritParams dittoPlot
 #'
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
 #'

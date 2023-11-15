@@ -118,7 +118,8 @@ When set to "split", inputs \code{split.nrow}, \code{split.ncol}, and \code{spli
 
 \item{multivar.split.dir}{"row" or "col", sets the direction of faceting used for 'var' values when \code{var} is given multiple genes or metadata, when \code{multivar.aes = "split"}, and when \code{split.by} is used to provide additional data to facet by.}
 
-\item{assay, slot}{single strings or integer that set which data to use when plotting gene expression / feature data. See \code{\link{gene}} for more information.}
+\item{assay, slot}{single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
+See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
 
 \item{adjustment}{When plotting gene expression / feature counts, should that data be used directly (default) or should it be adjusted to be
 \itemize{
@@ -126,7 +127,10 @@ When set to "split", inputs \code{split.nrow}, \code{split.ncol}, and \code{spli
 \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 }}
 
-\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
+\item{swap.rownames}{optionally named string or string vector.
+For SummarizedExperiment or SingleCellExperiment objects, its value(s) specifies the column name of rowData(object) to be used to identify features instead of rownames(object).
+When targeting multiple modalities (alternative experiments), names can be used to specify which level / alternative experiment (use 'main' for the top-level) individual values should be used for.
+See \code{\link{GeneTargeting}} for more specifics and examples.}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),}

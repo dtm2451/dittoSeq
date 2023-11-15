@@ -68,14 +68,13 @@
 #' @param legend.title String which sets the title for the color legend. Default = \code{NULL} normally, but \code{var} when a shape legend will also be shown.
 #' @param shape.legend.size Number representing the size at which shapes should be plotted in the shape legend.
 #' @param shape.legend.title String which sets the title of the shapes legend.  Default is \code{shape.by}
-#' @param assay,slot single strings or integer that set which data to use when plotting gene expression.
-#' See \code{\link{gene}} for more information.
-#' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly (default) or should it be adjusted to be
+#' @param assay,slot single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
+#' See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.
+#' @param adjustment When plotting gene / feature expression, should that data be used directly (default) or should it be adjusted to be
 #' \itemize{
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 #' }
-#' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @param main String, sets the plot title.
 #' Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.
 #' @param sub String, sets the plot subtitle
@@ -132,7 +131,9 @@
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
 #' a data.frame containing the underlying data for target cells ("Target_data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
-#' 
+#'
+#' @inheritParams gene
+#'
 #' @return A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
 #'
 #' Alternatively, if \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').

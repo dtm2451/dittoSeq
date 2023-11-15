@@ -10,8 +10,6 @@
 #' @param cells.use String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 #' 
 #' Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.
-#' @param assay,slot single strings or integer that set which expression data to use. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.
-#' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @param order.by Single string, string vector, or numeric vector which sets how cells/samples (columns) will be ordered when \code{cluster_cols = FALSE}.
 #' 
 #' Strings should be the name of a gene, or metadata slot, but can also be multiple such values in order of priority.
@@ -40,6 +38,9 @@
 #' \item annotation_colors: dittoHeatmap fills this complicated-to-produce input in automatically by pulling from the colors given to \code{annot.colors},
 #' but it is possible to set all or some manually. dittoSeq will just fill any left out annotations. Format is a named (annotation_col & annotation_row colnames) character vector list where individual color values can also be named.
 #' }
+#'
+#' @inheritParams dittoPlot
+#'
 #' @description Given a set of genes, cells/samples, and metadata names for column annotations, this function will retrieve the expression data for those genes and cells, and the annotation data for those cells.
 #' It will then utilize these data to make a heatmap using the \code{\link[pheatmap]{pheatmap}} function of either the \code{pheatmap} (default) or \code{ComplexHeatmap} package.
 #'
