@@ -270,4 +270,4 @@ gene <- function(
 #' \item 3. swap to the symbol names of features from both modlities by also giving \code{swap.rownames = "symbols"}
 #' }
 #' @author Dan Bunis
-# NULL
+NULL
