@@ -81,16 +81,19 @@ Default = light grey and purple.}
 \item{summary.fxn.color, summary.fxn.size}{A function which sets how color or size will be used to summarize variables' data for each group.
 Any function can be used as long as it takes in a numeric vector and returns a single numeric value.}
 
-\item{assay, slot}{single strings or integer that set which data to use when plotting expressin data. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
+\item{assay, slot}{single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
+See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
 
-\item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be adjusted altogether before \code{cells.use} subsetting and splitting into groups?
+\item{adjustment}{Should expression data be used directly (default) or should it be adjusted to be
 \itemize{
+\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
-\item{"z-score": centered and scaled to produce a relative-to-mean z-score representation}
-\item{NULL: Default, no adjustment}
 }}
 
-\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
+\item{swap.rownames}{optionally named string or string vector.
+For SummarizedExperiment or SingleCellExperiment objects, its value(s) specifies the column name of rowData(object) to be used to identify features instead of rownames(object).
+When targeting multiple modalities (alternative experiments), names can be used to specify which level / alternative experiment (use 'main' for the top-level) individual values should be used for.
+See \code{\link{GeneTargeting}} for more specifics and examples.}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE} the object will be converted to an interactive plotly object in which underlying data for individual dots will be displayed when you hover your cursor over them.}

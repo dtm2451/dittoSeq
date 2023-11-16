@@ -11,7 +11,10 @@ getGenes(object, assay = .default_assay(object), swap.rownames = NULL)
 
 \item{assay}{Single string or integer that sets which set of seq data inside the object to check.}
 
-\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
+\item{swap.rownames}{optionally named string or string vector.
+For SummarizedExperiment or SingleCellExperiment objects, its value(s) specifies the column name of rowData(object) to be used to identify features instead of rownames(object).
+When targeting multiple modalities (alternative experiments), names can be used to specify which level / alternative experiment (use 'main' for the top-level) individual values should be used for.
+See \code{\link{GeneTargeting}} for more specifics and examples.}
 }
 \value{
 A string vector, returns the names of all genes of the \code{object} for the requested \code{assay}.

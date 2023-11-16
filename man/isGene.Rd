@@ -22,7 +22,10 @@ isGene(
 \item{return.values}{Logical which sets whether the function returns a logical \code{TRUE}/\code{FALSE} versus the \code{TRUE} \code{test} values . Default = \code{FALSE}
 REQUIRED, unless '\code{DEFAULT <- "object"}' has been run.}
 
-\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
+\item{swap.rownames}{optionally named string or string vector.
+For SummarizedExperiment or SingleCellExperiment objects, its value(s) specifies the column name of rowData(object) to be used to identify features instead of rownames(object).
+When targeting multiple modalities (alternative experiments), names can be used to specify which level / alternative experiment (use 'main' for the top-level) individual values should be used for.
+See \code{\link{GeneTargeting}} for more specifics and examples.}
 }
 \value{
 Returns a logical vector indicating whether each instance in \code{test} is a rowname within the requested \code{assay} of the \code{object}.

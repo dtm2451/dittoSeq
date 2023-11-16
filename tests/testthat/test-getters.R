@@ -152,7 +152,7 @@ test_that("gene works for Seurat and SCE (+ assay/slot & adjustment/adj.fxn)", {
 
 test_that("gene gives error when given a non-gene", {
     expect_error(gene("a", sce),
-        "is not a gene of 'object'", fixed = TRUE)
+        "is not a gene/feature of the targeted assay(s) of 'object'", fixed = TRUE)
 })
 
 test_that("gene, isGene, and getGenes work with swap.rownames",{
@@ -216,7 +216,7 @@ test_that(".var_or_get_meta_or_gene gets metas, genes, spits back var, or errors
             seq_len(ncol(sce)),
             sce)))
     expect_error(.var_OR_get_meta_or_gene(1,sce),
-        "is not a metadata or gene nor equal in length to ncol('object')", fixed = TRUE)
+        " is not a gene of the targeted assay(s), a metadata, nor equal in length to ncol('object')", fixed = TRUE)
 })
 
 test_that("isBulk works properly", {

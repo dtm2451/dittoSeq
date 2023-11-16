@@ -87,17 +87,6 @@ test_that("Heatmap gives error when both genes and metas are not provided", {
         "No 'genes' or 'metas' requested", fixed = TRUE)
 })
 
-test_that("Heatmap gives error when both highlight.genes and highlight.features are provided", {
-    # Function throws an error when no genes or metas are provided.
-    expect_error(
-        dittoHeatmap(
-            genes = genes,
-            object = sce,
-            highlight.features = "gene1",
-            highlight.genes = "gene1"),
-        "you can only specify one of 'highlight.genes' or 'highlight.features'", fixed = TRUE)
-})
-
 ########################
 ##### Manual Check #####
 ########################
@@ -476,7 +465,7 @@ test_that("dittoHeatmap allows annotation by 'ident' as would be expected", {
             genes = genes,
             object = sce,
             annot.by = "ident"),
-        "ident is not a metadata", fixed = TRUE)
+        "ident is not a", fixed = TRUE)
 
     # works if Seurat
     skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")

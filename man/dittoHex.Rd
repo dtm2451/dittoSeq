@@ -193,9 +193,19 @@ List elements should be valid inputs to the faceting functions, e.g. `list(scale
 For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
 OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
-\item{assay, slot, adjustment, assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra, adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.}
+\item{assay, slot}{single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
+See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
 
-\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
+\item{adjustment}{When plotting gene / feature expression, should that data be used directly (default) or should it be adjusted to be
+\itemize{
+\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+\item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+}}
+
+\item{swap.rownames}{optionally named string or string vector.
+For SummarizedExperiment or SingleCellExperiment objects, its value(s) specifies the column name of rowData(object) to be used to identify features instead of rownames(object).
+When targeting multiple modalities (alternative experiments), names can be used to specify which level / alternative experiment (use 'main' for the top-level) individual values should be used for.
+See \code{\link{GeneTargeting}} for more specifics and examples.}
 
 \item{show.axes.numbers}{Logical which controls whether the axes values should be displayed.}
 
@@ -276,6 +286,15 @@ and data.frame of the underlying data for target cells ("data").}
 Note: must be continuous.
 
 Alternatively, can be a directly supplied numeric vector of length equal to the total number of cells/samples in \code{object}.}
+
+\item{assay.x, assay.y, assay.color, assay.extra, slot.x, slot.y, slot.color, slot.extra}{single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use for each given data target.
+See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
+
+\item{adjustment.x, adjustment.y, adjustment.color, adjustment.extra}{For the given data target, when targeting gene / feature expression, should that data be used directly (default) or should it be adjusted to be
+\itemize{
+\item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+\item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+}}
 }
 \value{
 A ggplot object where colored hexagonal bins are used to summarize RNAseq data in a scatterplot or tSNE, PCA, UMAP.

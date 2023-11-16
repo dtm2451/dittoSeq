@@ -24,7 +24,6 @@ dittoHeatmap(
   annotation_colors = NULL,
   data.out = FALSE,
   highlight.features = NULL,
-  highlight.genes = NULL,
   show_colnames = isBulk(object),
   show_rownames = TRUE,
   scale = "row",
@@ -61,9 +60,13 @@ Alternatively, can be a numeric vector which gives the column index order direct
 
 \item{cell.names.meta}{quoted "name" of a meta.data slot to use for naming the columns instead of using the raw cell/sample names.}
 
-\item{assay, slot}{single strings or integer that set which expression data to use. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.}
+\item{assay, slot}{single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
+See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
 
-\item{swap.rownames}{String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).}
+\item{swap.rownames}{optionally named string or string vector.
+For SummarizedExperiment or SingleCellExperiment objects, its value(s) specifies the column name of rowData(object) to be used to identify features instead of rownames(object).
+When targeting multiple modalities (alternative experiments), names can be used to specify which level / alternative experiment (use 'main' for the top-level) individual values should be used for.
+See \code{\link{GeneTargeting}} for more specifics and examples.}
 
 \item{heatmap.colors}{the colors to use within the heatmap when (default setting) \code{scaled.to.max} is set to \code{FALSE}.
 Default is a ramp from navy to white to red with 50 slices.}
@@ -80,8 +83,6 @@ Default is a ramp from white to red with 25 slices.}
 (Can be useful for troubleshooting or customization.)}
 
 \item{highlight.features}{String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.}
-
-\item{highlight.genes}{Deprecated, use \code{highlight.features} instead.}
 
 \item{show_colnames, show_rownames, scale, annotation_col, annotation_colors}{arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
 \itemize{

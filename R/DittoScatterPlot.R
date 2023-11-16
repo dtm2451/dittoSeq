@@ -31,7 +31,13 @@
 #'
 #' Useful for quickly swapping the colors of nearby clusters.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use
-#' @param assay.x,assay.y,assay.color,assay.extra,slot.x,slot.y,slot.color,slot.extra,adjustment.x,adjustment.y,adjustment.color,adjustment.extra assay, slot, and adjustment set which data to use when the axes, coloring, or \code{extra.vars} are based on expression/counts data. See \code{\link{gene}} for additional information.
+#' @param assay.x,assay.y,assay.color,assay.extra,slot.x,slot.y,slot.color,slot.extra single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use for each given data target.
+#' See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.
+#' @param adjustment.x,adjustment.y,adjustment.color,adjustment.extra For the given data target, when targeting gene / feature expression, should that data be used directly (default) or should it be adjusted to be
+#' \itemize{
+#' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+#' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+#' }
 #' @param do.hover Logical which controls whether the object will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 #' \code{hover.data} argument is used to determine what data to use.
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.

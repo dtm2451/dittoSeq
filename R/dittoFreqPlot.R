@@ -1,7 +1,5 @@
 #' Plot cell type/cluster/identity frequencies per sample and per grouping
 #'
-#' @inheritParams dittoPlot
-#' @inheritParams dittoBarPlot
 #' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}.
 #' @param sample.by String name of a metadata containing which samples each cell belongs to.
 #' 
@@ -32,7 +30,10 @@
 #' Faceting for this dittoFreqPlot is always by the \code{var}-data, so see \code{\link[ggplot2]{facet_wrap}} for options.
 #' @param ylab String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
 #' Default = "make" and if left as make, a title will be automatically generated.
-#' 
+#'
+#' @inheritParams dittoPlot
+#' @inheritParams dittoBarPlot
+#'
 #' @return A ggplot plot where frequencies of discrete data, grouped by sample, condition, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
 #' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").

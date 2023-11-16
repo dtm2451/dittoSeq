@@ -35,13 +35,13 @@
 #' Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
 #' 
 #' See details section for more info.
-#' @param assay,slot single strings or integer that set which data to use when plotting gene expression / feature data. See \code{\link{gene}} for more information.
+#' @param assay,slot single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
+#' See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.
 #' @param adjustment When plotting gene expression / feature counts, should that data be used directly (default) or should it be adjusted to be
 #' \itemize{
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 #' }
-#' @param swap.rownames String. For SummarizeedExperiment or SingleCellExperiment objects, the column name of rowData(object) to be used to identify features instead of rownames(object).
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),
 #' @param hover.data String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.
@@ -131,6 +131,9 @@
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
 #' @param ... arguments passed to dittoPlot by dittoRidgePlot, dittoRidgeJitter, and dittoBoxPlot wrappers.
 #' Options are all the ones above.
+#'
+#' @inheritParams gene
+#'
 #' @return a ggplot where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
 #' Alternatively when \code{data.out=TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").

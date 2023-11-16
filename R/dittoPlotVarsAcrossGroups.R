@@ -15,11 +15,10 @@
 #' @param plots String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
 #' Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
 #' See details section for more info.
-#' @param assay,slot single strings or integer that set which data to use when plotting expressin data. See \code{\link{gene}} for more information about how defaults for these are filled in when not provided.
 #' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly or should it be adjusted to be
 #' \itemize{
 #' \item{"z-score": DEFAULT, centered and scaled to produce a relative-to-mean z-score representation}
-#' \item{NULL: no adjustment, the normal method for all other ditto expression plotting}
+#' \item{NULL: no adjustment, the normal method for all other ditto expression plotting functions}
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
 #' }
 #' @param groupings.drop.unused Logical. \code{TRUE} by default. If \code{group.by}-data is a factor, factor levels are retained for ordering purposes, but some level(s) can end up with zero cells left after \code{cells.use} subsetting.

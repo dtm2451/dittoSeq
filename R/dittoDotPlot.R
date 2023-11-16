@@ -4,14 +4,13 @@
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
 #' @param summary.fxn.color,summary.fxn.size A function which sets how color or size will be used to summarize variables' data for each group.
 #' Any function can be used as long as it takes in a numeric vector and returns a single numeric value.
-#' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be adjusted altogether before \code{cells.use} subsetting and splitting into groups?
-#' \itemize{
-#' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
-#' \item{"z-score": centered and scaled to produce a relative-to-mean z-score representation}
-#' \item{NULL: Default, no adjustment}
-#' }
 #' @param scale String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled. 
 #' @param size Number which sets the dot size associated with the highest value shown by dot size (default: percent non-zero expression).
+#' @param adjustment Should expression data be used directly (default) or should it be adjusted to be
+#' \itemize{
+#' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
+#' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
+#' }
 #' @param min.percent,max.percent Numbers between 0 and 1 which sets the minimum and maximum percent expression to show.
 #' When set to NA, the minimum/maximum of the data are used.
 #' @param min.color,max.color colors to use for minimum and maximum color values.
@@ -420,7 +419,7 @@ dittoDotPlot <- function(
     gene_gets <- isGene(gets[!call_meta], object, assay, return.values = TRUE)
     
     if (!all(gets %in% c(meta_gets, gene_gets))) {
-        stop("All 'vars' and 'split.by' must be a metadata or gene")
+        stop("All 'vars' and 'split.by' must be a metadata or gene/feature of the targeted assay(s)")
     }
     
     if (length(vars) <= 1) {

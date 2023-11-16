@@ -44,8 +44,46 @@
 .which_data <- function(
     assay = .default_assay(object), slot = .default_slot(object), object) {
     # Retrieves the required counts data from 'object'
+    
+    if (length(assay)>1) {
+        return(
+            do.call(
+                rbind,
+                lapply(
+                    seq_along(assay),
+                    function(i) {
+                        .which_data(assay[i], slot, object)
+                    })
+            )
+        )
+    }
 
     if (is(object,"SummarizedExperiment")) {
+        if (is(object,"SingleCellExperiment")) {
+            ### altExp compatibility
+            # Note: name='' check because that's given to unnamed elements of a half-named c() call.
+            if (identical(NULL, names(assay)) || identical('', names(assay))) {
+                # Simplified method: check 'altexp' & 'main' tokens, then top-level assay names, then altExp names
+                if (assay=='altexp') {
+                    return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object)))
+                } else if (assay=='main') {
+                    return(SummarizedExperiment::assay(object))
+                } else if (assay %in% SummarizedExperiment::assayNames(object)) {
+                    return(SummarizedExperiment::assay(object, assay))
+                } else {
+                    return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object, assay)))
+                }
+            } else {
+                # Explicit (named) method: check 'altexp' & 'main' tokens, then explicit altExp names
+                if (names(assay)=='altexp') {
+                    return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object), assay))
+                } else if (names(assay)=='main') {
+                    return(SummarizedExperiment::assay(object, assay))
+                } else {
+                    return(SummarizedExperiment::assay(SingleCellExperiment::altExp(object, names(assay)), assay))
+                }
+            }
+        }
         return(SummarizedExperiment::assay(object, assay))
     }
     if (is(object,"Seurat")) {
@@ -81,7 +119,7 @@
     if (length(OUT)!=length(cells)) {
         stop(
             ifelse(length(var)==1, var, 'var'),
-            " is not a metadata or gene nor equal in length to ncol('object')")
+            " is not a gene of the targeted assay(s), a metadata, nor equal in length to ncol('object')")
     }
     names(OUT) <- cells
     OUT
