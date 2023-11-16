@@ -1,3 +1,8 @@
+# dittoSeq 1.15.2
+
+* Added multi-modality feature expression retrieval to provide for across modality plotting. The 'assay' input can now be provided a vector of assays to target. The 'swap.rownames' input was also updated for multi-modality access purposes. The full system is documented in its own page, '?GeneTargeting', that function documentation for 'assay', 'slot', and 'swap.rownames' inputs have been updated to point to.
+* Completed the deprecation of 'dittoHeatmap()'s 'highlight.genes' input
+
 # dittoSeq 1.15.1
 
 * Added 'vlnplot.quantiles' and 'boxplot.outlier.size' inputs to 'dittoPlot()', 'dittoPlotVarsAcrossGroups()', and 'dittoFreqPlot()' functions.
