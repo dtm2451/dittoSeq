@@ -244,6 +244,7 @@ dittoScatterPlot <- function(
     labels.highlight = TRUE,
     labels.repel = TRUE,
     labels.split.by = split.by,
+    labels.repel.adjust = list(),
     legend.show = TRUE,
     legend.color.title = "make",
     legend.color.size = 5,
@@ -318,6 +319,7 @@ dittoScatterPlot <- function(
         p, Target_data, is.discrete = !is.numeric(Target_data$color),
         do.letter, do.ellipse, do.label,
         labels.highlight, labels.size, labels.repel, labels.split.by,
+        labels.repel.adjust,
         size, opacity, legend.color.title, legend.color.size)
     
     if (is.list(add.trajectory.lineages)) {

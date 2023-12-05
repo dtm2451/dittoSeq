@@ -94,6 +94,8 @@
 #' TRUE by default.
 #' @param labels.split.by String of one or two metadata names which controls the facet-split calculations for label placements.
 #' Defaults to \code{split.by}, so generally there is no need to adjust this except when you are utilizing the \code{extra.vars} input to achieve manual faceting control.
+#' @param labels.repel.adjust A named list which allows extra parameters to be pushed through to ggrepel function calls.
+#' List elements should be valid inputs to the \code{\link[ggrepel]{geom_label_repel}} by default, or \code{\link[ggrepel]{geom_text_repel}} when \code{labels.highlight = FALSE}.
 #' @param rename.var.groups String vector which sets new names for the identities of \code{var} groups.
 #' @param rename.shape.groups String vector which sets new names for the identities of \code{shape.by} groups.
 #' @param min.color color for lowest values of \code{var}/\code{min}.  Default = yellow
@@ -312,6 +314,7 @@ dittoDimPlot <- function(
     labels.highlight = TRUE,
     labels.repel = TRUE,
     labels.split.by = split.by,
+    labels.repel.adjust = list(),
     do.hover = FALSE,
     hover.data = var,
     hover.assay = .default_assay(object),
@@ -377,7 +380,7 @@ dittoDimPlot <- function(
         add.trajectory.lineages, add.trajectory.curves = NULL,
         trajectory.cluster.meta, trajectory.arrow.size,
         do.letter, do.ellipse, do.label, labels.size, labels.highlight,
-        labels.repel, labels.split.by,
+        labels.repel, labels.split.by, labels.repel.adjust,
         legend.show, legend.title, legend.size,
         legend.breaks, legend.breaks.labels, shape.legend.title,
         shape.legend.size, do.raster, raster.dpi, data.out = TRUE)

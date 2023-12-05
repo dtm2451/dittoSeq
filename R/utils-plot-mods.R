@@ -34,6 +34,7 @@
     p, data,
     is.discrete, do.letter, do.ellipse, do.label,
     labels.highlight, labels.size, labels.repel, labels.split.by,
+    labels.repel.adjust,
     letter.size, letter.opacity, letter.legend.title, letter.legend.size,
     column = "color") {
     
@@ -55,7 +56,7 @@
         if (do.label) {
             p <- .add_labels(
                 p, data, column, labels.highlight, labels.size,
-                labels.repel, labels.split.by)
+                labels.repel, labels.repel.adjust, labels.split.by)
         }
         
     } else {
@@ -87,7 +88,8 @@
 
 .add_labels <- function(
     p, Target_data, col.use = "color",
-    labels.highlight, labels.size, labels.repel, split.by) {
+    labels.highlight, labels.size, labels.repel, labels.repel.adjust,
+    split.by) {
     # Add text labels at/near the median x and y values for each group
     # (Dim and Scatter plots)
 
@@ -103,7 +105,6 @@
         for (level in levels(as.factor(as.character(Target_data[,split.by])))) {
             
             level.dat <- Target_data[Target_data[,split.by]==level,]
-                
             level.med.dat <- .calc_center_medians(level.dat, col.use)
             # Add split.by columns
             level.med.dat$split1 <- level
@@ -122,10 +123,10 @@
         
         for (level1 in levels(as.factor(as.character(Target_data[,split.by[1]])))) {
             for (level2 in levels(as.factor(as.character(Target_data[,split.by[2]])))) {
-            
+
                 level.dat <- Target_data[Target_data[,split.by[1]]==level1,]
                 level.dat <- level.dat[level.dat[,split.by[2]]==level2,]
-                    
+
                 if (nrow(level.dat)>0) {
                     level.med.dat <- .calc_center_medians(level.dat, col.use)
                     # Add split.by columns
@@ -150,20 +151,23 @@
         data = median.data,
         mapping = aes_string(x = "cent.x", y = "cent.y", label = "label"),
         size = labels.size)
-    geom.use <-
-        if (labels.highlight) {
-            if (labels.repel) {
-                ggrepel::geom_label_repel
-            } else {
-                geom_label
-            }
-        } else {
-            if (labels.repel) {
-                ggrepel::geom_text_repel
-            } else {
-                geom_text
-            }
+    if (labels.repel) {
+        if (is.list(labels.repel.adjust)) {
+            args <- c(args, labels.repel.adjust)
         }
+        geom.use <- if (labels.highlight) {
+            ggrepel::geom_label_repel
+        } else {
+            ggrepel::geom_text_repel
+        }
+    } else {
+        geom.use <- if (labels.highlight) {
+            geom_label
+        } else {
+            geom_text
+        }
+    }
+
     p + do.call(geom.use, args)
 }
 
