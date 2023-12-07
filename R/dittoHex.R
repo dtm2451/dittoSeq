@@ -206,6 +206,7 @@ dittoDimHex <- function(
     labels.highlight = TRUE,
     labels.repel = TRUE,
     labels.split.by = split.by,
+    labels.repel.adjust = list(),
     add.trajectory.lineages = NULL,
     add.trajectory.curves = NULL,
     trajectory.cluster.meta,
@@ -252,7 +253,7 @@ dittoDimHex <- function(
         rename.color.groups, xlab, ylab, main, sub, theme,
         do.contour, contour.color, contour.linetype,
         do.ellipse, do.label, labels.size, labels.highlight, labels.repel,
-        labels.split.by,
+        labels.split.by, labels.repel.adjust,
         add.trajectory.lineages, add.trajectory.curves = NULL,
         trajectory.cluster.meta, trajectory.arrow.size,
         legend.show,
@@ -332,6 +333,7 @@ dittoScatterHex <- function(
     labels.highlight = TRUE,
     labels.repel = TRUE,
     labels.split.by = split.by,
+    labels.repel.adjust = list(),
     add.trajectory.lineages = NULL,
     add.trajectory.curves = NULL,
     trajectory.cluster.meta,
@@ -423,7 +425,8 @@ dittoScatterHex <- function(
     p <- .add_letters_ellipses_labels_if_discrete(
         p, data, is.discrete = discrete_data,
         FALSE, do.ellipse, do.label,
-        labels.highlight, labels.size, labels.repel, labels.split.by)
+        labels.highlight, labels.size, labels.repel, labels.split.by,
+        labels.repel.adjust)
     
     if (is.list(add.trajectory.lineages)) {
         p <- .add_trajectory_lineages(

@@ -68,6 +68,7 @@ dittoScatterPlot(
   labels.highlight = TRUE,
   labels.repel = TRUE,
   labels.split.by = split.by,
+  labels.repel.adjust = list(),
   legend.show = TRUE,
   legend.color.title = "make",
   legend.color.size = 5,
@@ -222,6 +223,9 @@ TRUE by default.}
 
 \item{labels.split.by}{String of one or two metadata names which controls the facet-split calculations for label placements.
 Defaults to \code{split.by}, so generally there is no need to adjust this except when you are utilizing the \code{extra.vars} input to achieve manual faceting control.}
+
+\item{labels.repel.adjust}{A named list which allows extra parameters to be pushed through to ggrepel function calls.
+List elements should be valid inputs to the \code{\link[ggrepel]{geom_label_repel}} by default, or \code{\link[ggrepel]{geom_text_repel}} when \code{labels.highlight = FALSE}.}
 
 \item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
 

@@ -55,6 +55,7 @@ dittoDimPlot(
   labels.highlight = TRUE,
   labels.repel = TRUE,
   labels.split.by = split.by,
+  labels.repel.adjust = list(),
   do.hover = FALSE,
   hover.data = var,
   hover.assay = .default_assay(object),
@@ -218,6 +219,9 @@ TRUE by default.}
 
 \item{labels.split.by}{String of one or two metadata names which controls the facet-split calculations for label placements.
 Defaults to \code{split.by}, so generally there is no need to adjust this except when you are utilizing the \code{extra.vars} input to achieve manual faceting control.}
+
+\item{labels.repel.adjust}{A named list which allows extra parameters to be pushed through to ggrepel function calls.
+List elements should be valid inputs to the \code{\link[ggrepel]{geom_label_repel}} by default, or \code{\link[ggrepel]{geom_text_repel}} when \code{labels.highlight = FALSE}.}
 
 \item{do.hover}{Logical which controls whether the output will be converted to a plotly object so that data about individual points will be displayed when you hover your cursor over them.
 \code{hover.data} argument is used to determine what data to use.}
