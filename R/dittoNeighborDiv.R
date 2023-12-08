@@ -1,4 +1,5 @@
-#' Shows data overlayed on a tsne, pca, or similar type of plot
+#' Shows Neighbor Diversity data, per a given metadata, overlaid on a umap, tsne, pca, or similar
+#' @name dittoNeighborDiversity
 #' @import ggplot2
 #'
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
@@ -14,8 +15,9 @@
 #' a data.frame containing the underlying data for target cells ("Target_data"),
 #' and a data.frame containing the underlying data for non-target cells ("Others_data").
 #' @inheritParams dittoDimPlot
+#' @inheritParams dittoHex
 #'
-#' @return A ggplot or plotly object where neighborhood diversity of \code{var}-values among cells' 'nearby' nearest neighbors is overlayed, via color, onto a tSNE, PCA, UMAP, ..., plot of choice.
+#' @return A ggplot or plotly object where neighborhood diversity of \code{var}-values among cells' 'nearby' nearest neighbors is overlaid, via color, onto a tSNE, PCA, UMAP, ..., plot of choice.
 #'
 #' Alternatively, if \code{data.out=TRUE}, a list containing four slots is output:
 #' the calculated neighborhood diversity metadata ("diversity") either as vector or data.frame depending on how many metadata were given to \code{var},
@@ -27,15 +29,14 @@
 #' cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed upon hovering the cursor over the plot.
 #'
 #' @details
-#' These plotters start by making use of \code{\link{calcNeighborMetadataDiversity}}
-#' 
+#' These plotters start by making use of \code{\link{calcNeighborMetadataDiversity}}, then
+#' passes all inputs through to \code{\link{dittoDimPlot}} or \code{\link{dittoDimHex}} plotters
 #' 
 #' @seealso
 #' \code{\link{calcNeighborMetadataDiversity}} for details on the neighborhood diversity calculation
 #' \code{\link{dittoDimPlot}} and \code{\link{dittoDimHex}} for additional details about the other options as these are the plotters used after diversity calculations complete.
 #'
 #' @author Daniel Bunis
-#' @export
 #' @examples
 #' example(importDittoBulk, echo = FALSE)
 #' myRNA
@@ -47,8 +48,12 @@
 #' 
 #' # (Using bigger size than the default for these examples because the example data has so few cells)
 #' dittoNeighborDiversityPlot(myRNA, "groups", size = 1)
-#' 
+#' dittoNeighborDiversityHex(myRNA, "groups")
+#'
+NULL
 
+#' @describeIn dittoNeighborDiversity Shows Neighbor Diversity data, per a given metadata, overlaid per cell on a umap, tsne, pca, or similar
+#' @export
 dittoNeighborDiversityPlot <- function(
     object,
     var,
@@ -75,7 +80,7 @@ dittoNeighborDiversityPlot <- function(
     shape.panel = c(16,15,17,23,25,8),
     min.color = "#F0E442",
     max.color = "#0072B2",
-    min = 0,
+    min = NA,
     max = NA,
     order = c("unordered", "increasing", "decreasing", "randomize"),
     main = "make",
@@ -88,7 +93,7 @@ dittoNeighborDiversityPlot <- function(
     show.axes.numbers = TRUE,
     show.grid.lines = if (is.character(reduction.use)) { !grepl("umap|tsne", tolower(reduction.use)) } else {TRUE},
     do.hover = FALSE,
-    hover.data = var,
+    hover.data = c(var, paste0(var, "_diversity")),
     add.trajectory.lineages = NULL,
     add.trajectory.curves = NULL,
     trajectory.cluster.meta,
@@ -109,9 +114,9 @@ dittoNeighborDiversityPlot <- function(
     
     var_use <- c()
     for (this_var in var) {
-        this_var_use <- paste0(var, "_diversity")
+        this_var_use <- paste0(this_var, "_diversity")
         object[[this_var_use]] <- calcNeighborMetadataDiversity(
-            object, var, neighbors, distances, quantile
+            object, this_var, neighbors, distances, quantile
         )
         var_use <- c(var_use, this_var_use)
     }
@@ -129,7 +134,7 @@ dittoNeighborDiversityPlot <- function(
         do.letter = FALSE, do.ellipse = FALSE, do.label = FALSE,
         labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
         labels.split.by = split.by, labels.repel.adjust = list(),
-        do.hover, hover.data = c(var, paste0(var, "_diversity")),
+        do.hover, hover.data,
         hover.assay = NA, hover.slot = NA, hover.adjustment = NULL,
         add.trajectory.lineages, add.trajectory.curves, trajectory.cluster.meta,
         trajectory.arrow.size, do.contour, contour.color, contour.linetype,
@@ -152,8 +157,106 @@ dittoNeighborDiversityPlot <- function(
     }
 }
 
-#' Shows data overlayed on a tsne, pca, or similar type of plot
-#' @import ggplot2
+#' @describeIn dittoNeighborDiversity Shows Neighbor Diversity data, per a given metadata, summarized and overlaid per hexagonaly-shaped region on a umap, tsne, pca, or similar plot
+#' @export
+dittoNeighborDiversityHex <- function(
+        object,
+        var,
+        neighbors = .default_neighbors(object),
+        distances,
+        quantile = 0.9,
+        bins = 30,
+        color.method = NULL,
+        reduction.use = .default_reduction(object),
+        dim.1 = 1,
+        dim.2 = 2,
+        cells.use = NULL,
+        color.panel = dittoColors(),
+        colors = seq_along(color.panel),
+        split.by = NULL,
+        extra.vars = NULL,
+        multivar.split.dir = c("col", "row"),
+        split.nrow = NULL,
+        split.ncol = NULL,
+        split.adjust = list(),
+        assay.extra = assay,
+        slot.extra = slot,
+        adjustment.extra = adjustment,
+        show.axes.numbers = TRUE,
+        show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
+        main = "make",
+        sub = NULL,
+        xlab = "make",
+        ylab = "make",
+        theme = theme_bw(),
+        do.contour = FALSE,
+        contour.color = "black",
+        contour.linetype = 1,
+        min.density = NA,
+        max.density = NA,
+        min.color = "#F0E442",
+        max.color = "#0072B2",
+        min.opacity = 0.2,
+        max.opacity = 1, 
+        min = NA,
+        max = NA,
+        do.ellipse = FALSE,
+        add.trajectory.lineages = NULL,
+        add.trajectory.curves = NULL,
+        trajectory.cluster.meta,
+        trajectory.arrow.size = 0.15,
+        data.out = FALSE,
+        legend.show = TRUE,
+        legend.color.title = "make",
+        legend.color.breaks = waiver(),
+        legend.color.breaks.labels = waiver(),
+        legend.density.title = if (isBulk(object)) "Samples" else "Cells",
+        legend.density.breaks = waiver(),
+        legend.density.breaks.labels = waiver()
+) {
+    var_use <- c()
+    for (this_var in var) {
+        this_var_use <- paste0(this_var, "_diversity")
+        object[[this_var_use]] <- calcNeighborMetadataDiversity(
+            object, this_var, neighbors, distances, quantile
+        )
+        var_use <- c(var_use, this_var_use)
+    }
+    div_out <- getMetas(object, names.only = FALSE)[,var_use]
+    
+    # Make dataframes and plot
+    p.df <- dittoDimHex(
+        object, var_use, bins, color.method, reduction.use, dim.1, dim.2,
+        cells.use, color.panel, colors, split.by, extra.vars,
+        multivar.split.dir, split.nrow, split.ncol, split.adjust,
+        assay = NA, slot = NA, adjustment = NULL, swap.rownames = NULL,
+        assay.extra = assay, slot.extra = slot, adjustment.extra = adjustment,
+        show.axes.numbers, show.grid.lines, main, sub, xlab, ylab, theme,
+        do.contour, contour.color, contour.linetype, min.density, max.density,
+        min.color, max.color, min.opacity, max.opacity, min, max,
+        rename.color.groups = NULL, do.ellipse, do.label = FALSE,
+        labels.size = 5, labels.highlight = TRUE, labels.repel = TRUE,
+        labels.split.by = split.by, labels.repel.adjust = list(),
+        add.trajectory.lineages, add.trajectory.curves, trajectory.cluster.meta,
+        trajectory.arrow.size, data.out = TRUE, legend.show, legend.color.title,
+        legend.color.breaks, legend.color.breaks.labels, legend.density.title,
+        legend.density.breaks, legend.density.breaks.labels
+        )
+    p <- p.df$plot
+    data <- p.df$data
+    
+    ### RETURN the PLOT ###
+    if (data.out) {
+        list(
+            diversity = div_out,
+            plot = p,
+            data = data)
+    } else {
+        p
+    }
+}
+
+#' Calculates Neighbor Diversity of a given metadata per each cell 
 #'
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 #' This is the data that will be displayed for each cell/sample. Discrete or continuous data both work.

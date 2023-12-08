@@ -2,7 +2,7 @@
 % Please edit documentation in R/dittoNeighborDiv.R
 \name{calcNeighborMetadataDiversity}
 \alias{calcNeighborMetadataDiversity}
-\title{Shows data overlayed on a tsne, pca, or similar type of plot}
+\title{Calculates Neighbor Diversity of a given metadata per each cell}
 \usage{
 calcNeighborMetadataDiversity(
   object,
@@ -28,7 +28,7 @@ Otherwise, must be given a matrix with cells in its rows and distance measures t
 A named numeric vector of diversity counts, the same length as the number of cells in \code{object} which can be added to the object as cell metadata, and named by the cell names of the \code{object}.
 }
 \description{
-Shows data overlayed on a tsne, pca, or similar type of plot
+Calculates Neighbor Diversity of a given metadata per each cell
 }
 \details{
 If given a Seurat \code{object} and \code{neighbors} is given (default) a string value representing a Neighbors object slot name.
