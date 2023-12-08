@@ -116,3 +116,17 @@
     use <- .preferred_or_first(opts, c("umap","tsne","pca"))
     use
 }
+
+.default_neighbors <- function(object) {
+    # Sets the default for calcNeighborMetadataDiversity and related plotters' 'neighbors' input
+    if (is(object, "Seurat")) {
+        opts <- Seurat::Neighbors(object)
+        if (is.null(opts)) {
+            stop("No Neighbors slots in 'object'. Add one, or provide 'neighbors' and 'distances' inputs directly.")
+        }
+        use <- .preferred_or_first(opts, c("weighted.nn"))
+        return(use)   
+    } else {
+        stop("Auto-extraction of neighbors data cannot be performed for this 'object'-type. Please fill in the 'neighbors' and 'distances' inputs directly.")
+    }
+}
