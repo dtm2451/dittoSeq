@@ -2,6 +2,7 @@
 % Please edit documentation in R/DittoSeq.References.R
 \docType{package}
 \name{dittoSeq}
+\alias{dittoSeq-package}
 \alias{dittoSeq}
 \title{dittoSeq}
 \description{

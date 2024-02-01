@@ -357,7 +357,7 @@ dittoPlot <- function(
     split.by <- gather_out$split.by
 
     # Make the plot
-    p <- ggplot(Target_data, aes_string(fill="color")) +
+    p <- ggplot(Target_data, aes(fill=.data$color)) +
         theme +
         scale_fill_manual(name = legend.title, values=color.panel[colors]) +
         ggtitle(main, sub)
@@ -435,7 +435,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     # Adds plots based on what is requested in plots, ordered by their order.
 
     # Now that we know the plot's direction, set direction & y-axis limits
-    p <- p + aes_string(x = "grouping", y = "var.data")
+    p <- p + aes(x = .data$grouping, y = .data$var.data)
     
     if (!is.null(y.breaks)) {
         p <- p + scale_y_continuous(breaks = y.breaks)
@@ -493,16 +493,16 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 jitter.args$raster.dpi <- raster.dpi
             }
             
-            jitter.aes.args <- list()
+            jitter.aes <- aes()
             if (do.hover) {
-                jitter.aes.args$text <-  "hover.string"
+                jitter.aes <- modifyList(jitter.aes, aes(text = .data$hover.string))
             }
             
             #If shape.by metadata given, use it. Else, shapes[1] which = dots (16) by default
             if (!is.null(shape.by) && isMeta(shape.by, object)) {
                 
                 # Set shape in aes & set scales/theming.
-                jitter.aes.args$shape <- shape.by
+                jitter.aes <- modifyList(jitter.aes, aes(shape = .data[[shape.by]]))
                 
                 p <- p + scale_shape_manual(
                     values = shape.panel[seq_along(metaLevels(shape.by, object, rownames(Target_data)))])
@@ -520,7 +520,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
                 jitter.args$shape <- shape.panel[1]
             }
             
-            jitter.args$mapping <- do.call(aes_string, jitter.aes.args)
+            jitter.args$mapping <- jitter.aes
             
             if (do.hover) {
                 p <- p + suppressWarnings(do.call(geom_for_jitter, jitter.args))
@@ -553,7 +553,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     #This function takes in a partial dittoPlot ggplot object without any data overlay, and parses adding the main data visualizations.
 
     # Now that we know the plot's direction, set direction & "y"-axis limits
-    p <- p + aes_string(x = "var.data", y = "grouping")
+    p <- p + aes(x = .data$var.data, y = .data$grouping)
     
     if (!is.null(y.breaks)) {
         p <- p + scale_x_continuous(breaks = y.breaks)

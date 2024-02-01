@@ -259,7 +259,7 @@ dittoDotPlot <- function(
     legend.show) {
     
     p <- ggplot(data,
-            aes_string(x = "var", y = "grouping", color = "color", size = "size")) +
+            aes(x = .data$var, y = .data$grouping, color = .data$color, size = .data$size)) +
         theme +
         ggtitle(main, sub) + xlab(xlab) + ylab(ylab) +
         scale_size(
@@ -275,7 +275,7 @@ dittoDotPlot <- function(
     
     if (do.hover) {
         p <- p + suppressWarnings(
-            geom_point(aes_string(text = "hover.string"), na.rm = TRUE))
+            geom_point(aes(text = .data$hover.string), na.rm = TRUE))
     } else {
         p <- p + geom_point(na.rm = TRUE)
     }

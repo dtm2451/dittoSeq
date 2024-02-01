@@ -49,7 +49,7 @@
         if (do.ellipse) {
             p <- p + stat_ellipse(
                 data=data,
-                aes_string(x = "X", y = "Y", colour = column),
+                aes(x = .data$X, y = .data$Y, colour = .data[[column]]),
                 type = "t", linetype = 2, size = 0.5, show.legend = FALSE, na.rm = TRUE)
         }
         
@@ -80,7 +80,7 @@
     
     p + geom_density_2d(
         data = data,
-        mapping = aes_string(x = "X", y = "Y"),
+        mapping = aes(x = .data$X, y = .data$Y),
         color = color,
         linetype = linetype,
         na.rm = TRUE)
@@ -149,7 +149,7 @@
     #Add labels
     args <- list(
         data = median.data,
-        mapping = aes_string(x = "cent.x", y = "cent.y", label = "label"),
+        mapping = aes(x = .data$cent.x, y = .data$cent.y, label = .data$label),
         size = labels.size)
     if (labels.repel) {
         if (is.list(labels.repel.adjust)) {
@@ -218,7 +218,7 @@
     for (i in seq_along(trajectories)){
         p <- p + geom_path(
             data = data[as.character(trajectories[[i]]),],
-            aes_string(x = "cent.x", y = "cent.y"),
+            aes(x = .data$cent.x, y = .data$cent.y),
             arrow = arrow(
                 angle = 20, type = "closed", length = unit(arrow.size, "inches")))
     }
@@ -245,7 +245,7 @@
             names(data)[c(dim.1,dim.2)] <- c("x", "y")
             p <- p + geom_path(
                 data = data,
-                aes_string(x = "x", y = "y"),
+                aes(x = .data$x, y = .data$y),
                 arrow = arrow(
                     angle = 20, type = "closed", length = unit(arrow.size, "inches")))
         }
@@ -257,7 +257,7 @@
             names(data) <- c("x", "y")
             p <- p + geom_path(
                 data = data,
-                aes_string(x = "x", y = "y"),
+                aes(x = .data$x, y = .data$y),
                 arrow = arrow(
                     angle = 20, type = "closed", length = unit(arrow.size, "inches")))
         }
@@ -281,7 +281,7 @@
     p <- p +
         geom_point(
             data=Target_data,
-            aes_string(x = "X", y = "Y", shape = col.use),
+            aes(x = .data$X, y = .data$Y, shape = .data[[col.use]]),
             color = "black", size=size*3/4, alpha = opacity) +
         scale_shape_manual(
             name = legend.title,

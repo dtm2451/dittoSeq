@@ -387,14 +387,14 @@ dittoScatterPlot <- function(
     p <- ggplot() + ylab(ylab) + xlab(xlab) + ggtitle(main,sub) + theme
 
     # Determine how to add data while adding proper theming
-    aes.args <- list(x = "X", y = "Y")
+    aes.use <- aes(x = .data$X, y = .data$Y)
     geom.args <- list(
         data = Target_data,
         size=size, alpha = opacity)
 
     if (!is.null(color.var)) {
         
-        aes.args$color = "color"
+        aes.use <- modifyList(aes.use, aes(color = .data$color))
         
         if (is.numeric(Target_data$color)) {
             p <- p +
@@ -414,7 +414,7 @@ dittoScatterPlot <- function(
 
     if (!is.null(shape.by)) {
         
-        aes.args$shape = "shape"
+        aes.use <- modifyList(aes.use, aes(shape = .data$shape))
         
         p <- p +
             scale_shape_manual(
@@ -438,20 +438,20 @@ dittoScatterPlot <- function(
             if (do.raster) {
                 .error_if_no_ggrastr()
                 p <- p + ggrastr::geom_point_rast(data = Others_data,
-                    aes_string(x = "X", y = "Y"), size=size, color = "gray90", raster.dpi = raster.dpi)
+                    aes(x = .data$X, y = .data$Y), size=size, color = "gray90", raster.dpi = raster.dpi)
             } else {
                 p <- p + geom_point(data = Others_data,
-                    aes_string(x = "X", y = "Y"), size=size, color = "gray90")
+                    aes(x = .data$X, y = .data$Y), size=size, color = "gray90")
             }
         }
     }
     # Target_data
     if (do.hover) {
-        aes.args$text = "hover.string"
-        geom.args$mapping <- do.call(aes_string, aes.args)
+        aes.use <- modifyList(aes.use, aes(text = .data$hover.string))
+        geom.args$mapping <- aes.use
         p <- p + suppressWarnings(do.call(geom_point, geom.args))
     } else {
-        geom.args$mapping <- do.call(aes_string, aes.args)
+        geom.args$mapping <- aes.use
         if (do.raster) {
             .error_if_no_ggrastr()
             p <- p + do.call(ggrastr::geom_point_rast, geom.args)
