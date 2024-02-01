@@ -448,7 +448,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     for (i in seq_along(plots)) {
         if (plots[i] == "vlnplot") {
             p <- p + geom_violin(
-                size = vlnplot.lineweight,
+                linewidth = vlnplot.lineweight,
                 width = vlnplot.width,
                 scale = vlnplot.scaling,
                 draw_quantiles = vlnplot.quantiles,

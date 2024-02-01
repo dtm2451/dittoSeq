@@ -50,7 +50,7 @@
             p <- p + stat_ellipse(
                 data=data,
                 aes(x = .data$X, y = .data$Y, colour = .data[[column]]),
-                type = "t", linetype = 2, size = 0.5, show.legend = FALSE, na.rm = TRUE)
+                type = "t", linetype = 2, linewidth = 0.5, show.legend = FALSE, na.rm = TRUE)
         }
         
         if (do.label) {
