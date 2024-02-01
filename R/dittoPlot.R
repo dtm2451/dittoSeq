@@ -574,7 +574,7 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
         scale_y_discrete(expand = expansion(mult=c(0, ridgeplot.ymax.expansion)))
 
     # Add ridgeplot and jitter data
-    ridge.args <- list(size = ridgeplot.lineweight, scale = ridgeplot.scale)
+    ridge.args <- list(linewidth = ridgeplot.lineweight, scale = ridgeplot.scale)
     if (ridgeplot.shape == "hist") {
         ridge.args$stat <- "binline"
         ridge.args$bins <- ridgeplot.bins
