@@ -276,7 +276,7 @@ dittoFreqPlot <- function(
     #Build Plot
     p <- ggplot(
         data=data,
-        aes_string(fill = color.by)) +
+        aes(fill = .data[[color.by]])) +
         theme +
         scale_fill_manual(name = legend.title, values=color.panel[colors]) +
         ggtitle(main, sub)
