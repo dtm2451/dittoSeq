@@ -337,7 +337,7 @@ dittoHeatmap <- function(
     }
     
     # Add annotation_col / annotation_colors only if needed
-    if (ncol(annotation_col)>0 || !is.null(args$annotation_row)) {
+    if (ncol(annotation_col)>0 || "annotation_row" %in% names(args)) {
         if (ncol(annotation_col)>0) {
             args$annotation_col <- annotation_col[colnames(args$mat),, drop = FALSE]
         }
@@ -356,7 +356,7 @@ dittoHeatmap <- function(
     }
 
     # Add cell/sample/row names unless provided separately by user
-    if(is.null(args$labels_col) && !is.null(cell.names)) {
+    if(!"labels_col" %in% names(args) && !is.null(cell.names)) {
         args$labels_col <- as.character(cell.names[colnames(args$mat)])
         args$show_colnames <- TRUE
     }
@@ -400,7 +400,7 @@ dittoHeatmap <- function(
     user.provided <- names(args$annotation_colors)
 
     # Columns First (if there)
-    if (!is.null(args$annotation_col) && ncol(args$annotation_col)>0) {
+    if ("annotation_col" %in% names(args) && ncol(args$annotation_col)>0) {
         make.these <- !(colnames(args$annotation_col) %in% user.provided)
         if (any(make.these)) {
             dfcolors_out <- .pick_colors_for_df(
@@ -414,7 +414,7 @@ dittoHeatmap <- function(
     }
 
     # Rows Second (if there)
-    if (!is.null(args$annotation_row)) {
+    if ("annotation_row" %in% names(args) && ncol(args$annotation_row)>0) {
         make.these <- !(colnames(args$annotation_row) %in% user.provided)
         if (any(make.these)) {
             dfcolors_out <- .pick_colors_for_df(
