@@ -1,3 +1,7 @@
+# dittoSeq 1.15.4
+
+* Various behind the scenes updates to make warnings from ggplot and Seurat go away
+
 # dittoSeq 1.15.3
 
 * Added 'labels.repel.adjust' input to 'dittoDimPlot()', 'dittoScatterPlot()', 'dittoDimHex()', and 'dittoScatterHex()'. The input allows extra control of how labels will be placed when 'do.label = TRUE' (and 'labels.repel' is not set to FALSE) by providing a mechanism to pass desired parameters through to the ggrepel function used for plotting the labels.

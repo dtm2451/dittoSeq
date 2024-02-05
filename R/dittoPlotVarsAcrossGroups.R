@@ -234,7 +234,7 @@ dittoPlotVarsAcrossGroups <- function(
 
     # Start making the plot
     p <- ggplot(data,
-            aes_string(x = "grouping", y = "value", fill = "color")) +
+            aes(x = .data$grouping, y = .data$value, fill = .data$color)) +
         theme +
         scale_fill_manual(name = legend.title, values=color.panel[colors]) +
         ggtitle(main, sub)

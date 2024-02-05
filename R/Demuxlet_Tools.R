@@ -520,7 +520,7 @@ demux.calls.summary <- function(
         p <- ggplot(data = dat.m) + xlab(xlab) + ylab(ylab) + theme +
             ggtitle(main, subtitle = sub) + geom_hline(yintercept=0) +
             geom_col(
-                aes_string(x = "Sample", y = "Counts"), fill = color) +
+                aes(x = .data$Sample, y = .data$Counts), fill = color) +
             facet_wrap(
                 facets = ~Lane, ncol = 1, scales = "fixed", strip.position = "left")
         return(p)
