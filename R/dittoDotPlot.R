@@ -1,6 +1,8 @@
 #' Compact plotting of per group summaries for expression of multiple features
 #' 
 #' @param vars String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to show.
+#' Alternatively, if you wish to group your \code{vars} into specific categories like celltypes, you can provide as a named list where names will be used as catagory labels,
+#' (example: \code{list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("gene3"))})
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
 #' @param summary.fxn.color,summary.fxn.size A function which sets how color or size will be used to summarize variables' data for each group.
 #' Any function can be used as long as it takes in a numeric vector and returns a single numeric value.
@@ -160,7 +162,7 @@ dittoDotPlot <- function(
     groupings.drop.unused = TRUE,
     split.nrow = NULL,
     split.ncol = NULL,
-    split.adjust = list(),
+    split.adjust = list(scales = "free_x"),
     theme = theme_classic(),
     legend.show = TRUE,
     legend.color.breaks = waiver(),
@@ -178,6 +180,16 @@ dittoDotPlot <- function(
     min <- .leave_default_or_null(
         min,
         default = if (scale) {NA} else {0})
+    
+    vars_list <- NULL
+    if (is.list(vars)) {
+        vars_list <- vars
+        vars <- unlist(vars)
+        if (length(split.by) > 1) {
+            warning("Grouping of 'vars' into categories via list-typed provision makes use of faceting for rendering. The second element given to 'split.by' will be ignored.")
+        }
+        split.by <- split.by[1]
+    }
 
     # Create data table summarizing vars data for each group
     data <- .data_gather_summarize_vars_by_groups(
@@ -189,6 +201,16 @@ dittoDotPlot <- function(
     data$var <- factor(data$var, levels = vars)
     data$grouping <-
         .rename_and_or_reorder(data$grouping, y.reorder, y.labels)
+    if (!is.null(vars_list)) {
+        split.by <- c(split.by, 'VAR_SET')
+        var_names <- c()
+        for (i in seq_along(vars_list)) {
+            this <- rep(names(vars_list)[i], length(vars_list[[i]]))
+            names(this) <- vars_list[[i]]
+            var_names <- c(var_names, this)
+        }
+        data$VAR_SET <- factor(var_names[data$var], levels = names(vars_list))
+    }
     
     if (scale) {
         

@@ -39,7 +39,7 @@ dittoDotPlot(
   groupings.drop.unused = TRUE,
   split.nrow = NULL,
   split.ncol = NULL,
-  split.adjust = list(),
+  split.adjust = list(scales = "free_x"),
   theme = theme_classic(),
   legend.show = TRUE,
   legend.color.breaks = waiver(),
@@ -52,7 +52,9 @@ dittoDotPlot(
 \arguments{
 \item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
-\item{vars}{String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to show.}
+\item{vars}{String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to show.
+Alternatively, if you wish to group your \code{vars} into specific categories like celltypes, you can provide as a named list where names will be used as catagory labels,
+(example: \code{list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("gene3"))})}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
