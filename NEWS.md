@@ -1,3 +1,7 @@
+# dittoSeq 1.15.5
+
+* BugFix: Corrects a bug which blocked provision of 'annotation_row' and 'annotation_colors' inputs to dittoHeatmap without also generating column annotations via either 'annot.by' or 'annotation_col'.
+
 # dittoSeq 1.15.4
 
 * Various behind the scenes updates to make warnings from ggplot and Seurat go away
