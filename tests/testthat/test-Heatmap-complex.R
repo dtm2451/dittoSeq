@@ -312,10 +312,6 @@ test_that("Heatmap annotation colors can be adjusted via annotation_colors", {
             annotation_colors = color_list),
         "Heatmap")
     ### When annotation_colors provides all colors for annotation_col.
-    color_list <- list(clusters = c('1' = "red",
-                                    '2' = "yellow",
-                                    '3' = "blue",
-                                    '4' = "purple"))
     expect_s4_class(
         dittoHeatmap(complex = TRUE,
             genes = genes,
@@ -323,6 +319,17 @@ test_that("Heatmap annotation colors can be adjusted via annotation_colors", {
             annot.by = c("clusters"),
             annotation_colors = color_list),
         "Heatmap")
+
+    ### When row annotations provided, but annot.by not used
+    expect_s3_class(
+        dittoHeatmap(complex = TRUE,
+            genes = genes,
+            object = sce,
+            annotation_row = data.frame(
+                clusters = as.character(c(1:4,1:4,1)),
+                row.names = genes),
+            annotation_colors = color_list),
+        "pheatmap")
 })
 
 test_that("Coloring works for discrete column and row annotations", {
