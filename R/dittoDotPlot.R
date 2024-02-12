@@ -4,6 +4,12 @@
 #' Alternatively, if you wish to group your \code{vars} into specific categories like celltypes, you can provide as a named list where names will be used as catagory labels,
 #' (example: \code{list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("gene3"))})
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
+#' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
+#' \itemize{
+#' \item When 2 metadata are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+#' \item When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
+#' \item Note: When \code{vars} is provided in list format to group vars into categories, that grouping is carried out via faceting and takes up the first \code{split.by} slot.
+#' }
 #' @param summary.fxn.color,summary.fxn.size A function which sets how color or size will be used to summarize variables' data for each group.
 #' Any function can be used as long as it takes in a numeric vector and returns a single numeric value.
 #' @param scale String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled. 
@@ -68,6 +74,7 @@
 #' \itemize{
 #' \item Size of the dots can be changed with \code{size}.
 #' \item Subsetting to utilize only certain cells/samples can be achieved with \code{cells.use}.
+#' \item Markers can be grouped into categories by providing them to the \code{vars} input as a list where list element names represent desired category names, and list element contents are the vars which each category should contain.
 #' \item Colors can be adjusted with \code{min.color} and \code{max.color}.
 #' \item Displayed value ranges can be adjusted with \code{min} and \code{max} for color, or \code{min.percent} and \code{max.percent} for size.
 #' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, \code{legend.color.title}, and \code{legend.size.title} arguments.
@@ -115,6 +122,35 @@
 #'     xlab = "x-axis label",
 #'     legend.color.title = "Colors title",
 #'     legend.size.title = "Dot size title")
+#'
+#' # You can also bin vars into groups by providing them instead as a named list
+#' dittoDotPlot(myRNA, group.by = "clustering",
+#'     vars = list(
+#'         'Naive' = c("gene1", "gene2"),
+#'         'Stimulated' = c("gene3", "gene4")
+#'     )
+#' )
+#' # To allow categories to grow or shrink depending on their number of elements
+#' #   a bit of external work may be necessary.
+#' # Case1: Using vars-categories & a second split.by element, add 'space = free'
+#' #   and 'scales = "free_x"' to 'split.adjust'
+#' dittoDotPlot(myRNA, group.by = "clustering",
+#'     vars = list(
+#'         'Naive' = c("gene5", "gene6", "gene7", "gene8"),
+#'         'Stimulated' = c("gene9", "gene10")
+#'     ),
+#'     split.by = "conditions",
+#'     split.adjust = list(scales = "free_x", space = "free")
+#' )
+#' # Case2: Using vars-categories alone, the 'facet_wrap' function does not support
+#' #   the 'space' argument. Thus you will need to re-implement using facet_grid,
+#' #   and the knowledge that the column to target is called "VAR_SET":
+#' dittoDotPlot(myRNA, group.by = "clustering",
+#'     vars = list(
+#'         'Naive' = c("gene5", "gene6", "gene7", "gene8"),
+#'         'Stimulated' = c("gene9", "gene10")
+#'     )
+#' ) + facet_grid(~VAR_SET, scales = "free_x", space = "free")
 #'     
 #' # For certain specialized applications, it may be helpful to adjust the
 #' #   functions used for summarizing the data as well. Inputs are:

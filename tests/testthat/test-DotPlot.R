@@ -281,3 +281,27 @@ test_that("dittoDotPlot retains group factor levels and optionally drops unused 
         length(levels(with_gE$data$grouping)) >
         length(levels(without_gE$data$grouping)))
 })
+
+test_that("dittoDotPlot allows var-category grouping", {
+    gene_list <- list('T'=getGenes(sce)[1:5],
+                      'B'=getGenes(sce)[6:8],
+                      getGenes(sce)[9])
+
+    # On its own
+    expect_s3_class(
+        dittoDotPlot(
+            sce, gene_list, "groups"),
+        "ggplot")
+
+    # With faceting
+    expect_s3_class(
+        dittoDotPlot(
+            sce, gene_list, "groups",
+            split.by = disc2),
+    "ggplot")
+    expect_warning(
+        dittoDotPlot(
+            sce, gene_list, "groups",
+            split.by = c(disc2, disc)),
+    "The second element given to 'split.by'", fixed = TRUE)
+})
