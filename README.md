@@ -5,7 +5,7 @@
 dittoSeq includes universal plotting and helper functions for working with (sc)RNAseq data processed in these packages:
 
 - single-cell:
-  - Seurat (versions 2 & 3/4), *Seurat* data structure
+  - Seurat (versions 2+), *Seurat* data structure
   - scran / scater / other Bioconductor packages that utilize the *SingleCellExperiment* data structure
 - bulk:
   - edgeR, *DGEList* data structure
