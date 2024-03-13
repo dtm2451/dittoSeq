@@ -12,7 +12,7 @@ dittoDotPlot(
   split.by = NULL,
   cells.use = NULL,
   size = 6,
-  categories.split.dir = c("col", "row"),
+  vars.dir = c("x", "y"),
   categories.split.adjust = TRUE,
   categories.theme.adjust = TRUE,
   split.nrow = NULL,
@@ -41,7 +41,7 @@ dittoDotPlot(
   y.labels = NULL,
   y.reorder = NULL,
   xlab = NULL,
-  x.labels.rotate = TRUE,
+  x.labels.rotate = vars.dir == "x",
   groupings.drop.unused = TRUE,
   theme = theme_classic(),
   legend.show = TRUE,
@@ -77,16 +77,16 @@ Alternatively, a Logical vector, the same length as the number of cells in the o
 
 \item{size}{Number which sets the dot size associated with the highest value shown by dot size (default: percent non-zero expression).}
 
-\item{categories.split.dir}{"row" or "col", sets the direction of faceting used for \code{vars}-categories.}
+\item{vars.dir}{"x" or "y", sets the axis where \code{vars} will be displayed.}
 
 \item{categories.split.adjust}{Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided, improves category display by:
 \itemize{
-\item adding \code{list(switch = "y", scales = "free_y", space = "free_y")} to the default for \code{split.adjust} (or 'x' counterparts depending on \code{categories.split.dir})
+\item adding \code{list(switch = "y", scales = "free_y", space = "free_y")} to the default for \code{split.adjust} (or 'x' counterparts depending on \code{vars.dir})
 \item enforces that \code{\link[ggplot2]{facet_grid}} will be used for faceting because \code{\link[ggplot2]{facet_wrap}} cannot recieve the 'space' argument.
 }}
 
 \item{categories.theme.adjust}{Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided,
-improves category display by adding \code{theme(strip.placement = "outside", strip.background.y = element_blank())} to the given \code{theme} (or 'x' counterpart depending on \code{categories.split.dir})}
+improves category display by adding \code{theme(strip.placement = "outside", strip.background.y = element_blank())} to the given \code{theme} (or 'x' counterpart depending on \code{vars.dir})}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 
@@ -234,6 +234,10 @@ dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
 dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
     x.labels.rotate = FALSE)
 
+# The axis that vars get shown on can be swapped with the 'vars.dir' input.
+dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+    vars.dir = "y")
+
 # Title are adjustable via various discrete inputs:
 dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
     main = "Title",
@@ -254,10 +258,7 @@ dittoDotPlot(myRNA, group.by = "clustering",
 #   controls whether 'split.adjust' and 'theme' input contents, respectively,
 #   will be added to in ways that make these categories appear more like
 #   categories for the vars-axis.
-# They both default to TRUE.
-# 'categories.split.adjust' also controls whether, when you have provided
-#   categories, the facet_grid will always be used for faceting.  This is done
-#   because the facet_wrap function does not alllow use of 'space = "free"'.
+# They both default to TRUE, and the axis they affect does follow 'vars.dir'.
 dittoDotPlot(myRNA, group.by = "clustering",
     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3"))
 )
@@ -266,17 +267,15 @@ dittoDotPlot(myRNA, group.by = "clustering",
     categories.split.adjust = FALSE,
     categories.theme.adjust = FALSE
 )
-# The 'categories.split.dir' argument controls the faceting direction to use for
-#   the categories, which is useful when making use of 'coord_flip()':
+dittoDotPlot(myRNA, group.by = "clustering",
+    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+    vars.dir = "y"
+)
 dittoDotPlot(myRNA, group.by = "clustering",
     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
     split.by = "conditions",
-    categories.split.dir = "row"
-) + coord_flip()
-dittoDotPlot(myRNA, group.by = "clustering",
-    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
-    categories.split.dir = "row"
-) + coord_flip()
+    vars.dir = "y"
+)
 
 # For certain specialized applications, it may be helpful to adjust the
 #   functions used for summarizing the data as well. Inputs are:
