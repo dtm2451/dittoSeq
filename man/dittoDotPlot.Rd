@@ -12,8 +12,12 @@ dittoDotPlot(
   split.by = NULL,
   cells.use = NULL,
   size = 6,
-  min.percent = 0.01,
-  max.percent = NA,
+  categories.split.dir = c("col", "row"),
+  categories.split.adjust = TRUE,
+  categories.theme.adjust = TRUE,
+  split.nrow = NULL,
+  split.ncol = NULL,
+  split.adjust = list(),
   min.color = "grey90",
   max.color = "#C51B7D",
   min = "make",
@@ -24,6 +28,8 @@ dittoDotPlot(
   summary.fxn.size = function(x) {
      mean(x != 0)
  },
+  min.percent = 0.01,
+  max.percent = NA,
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -37,9 +43,6 @@ dittoDotPlot(
   xlab = NULL,
   x.labels.rotate = TRUE,
   groupings.drop.unused = TRUE,
-  split.nrow = NULL,
-  split.ncol = NULL,
-  split.adjust = list(scales = "free_x"),
   theme = theme_classic(),
   legend.show = TRUE,
   legend.color.breaks = waiver(),
@@ -53,8 +56,9 @@ dittoDotPlot(
 \item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
 \item{vars}{String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to show.
-Alternatively, if you wish to group your \code{vars} into specific categories like celltypes, you can provide as a named list where names will be used as catagory labels,
-(example: \code{list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("gene3"))})}
+
+Alternatively, if you wish to group your \code{vars} into specific categories such as associated celltypes, you can provide them as a named list where names are the category labels,
+(example: \code{vars = list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("gene3"))})}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
@@ -64,7 +68,7 @@ Alternatively, if you wish to group your \code{vars} into specific categories li
 \itemize{
 \item When 2 metadata are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
 \item When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
-\item Note: When \code{vars} is provided in list format to group vars into categories, that grouping is carried out via faceting and takes up the first \code{split.by} slot.
+\item Note: When \code{vars} is provided in list format to group vars into categories, that grouping is carried out via faceting and takes up one of the \code{split.by} slots.
 }}
 
 \item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
@@ -73,8 +77,24 @@ Alternatively, a Logical vector, the same length as the number of cells in the o
 
 \item{size}{Number which sets the dot size associated with the highest value shown by dot size (default: percent non-zero expression).}
 
-\item{min.percent, max.percent}{Numbers between 0 and 1 which sets the minimum and maximum percent expression to show.
-When set to NA, the minimum/maximum of the data are used.}
+\item{categories.split.dir}{"row" or "col", sets the direction of faceting used for \code{vars}-categories.}
+
+\item{categories.split.adjust}{Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided, improves category display by:
+\itemize{
+\item adding \code{list(switch = "y", scales = "free_y", space = "free_y")} to the default for \code{split.adjust} (or 'x' counterparts depending on \code{categories.split.dir})
+\item enforces that \code{\link[ggplot2]{facet_grid}} will be used for faceting because \code{\link[ggplot2]{facet_wrap}} cannot recieve the 'space' argument.
+}}
+
+\item{categories.theme.adjust}{Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided,
+improves category display by adding \code{theme(strip.placement = "outside", strip.background.y = element_blank())} to the given \code{theme} (or 'x' counterpart depending on \code{categories.split.dir})}
+
+\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{min.color, max.color}{colors to use for minimum and maximum color values.
 Default = light grey and purple.}
@@ -83,6 +103,9 @@ Default = light grey and purple.}
 
 \item{summary.fxn.color, summary.fxn.size}{A function which sets how color or size will be used to summarize variables' data for each group.
 Any function can be used as long as it takes in a numeric vector and returns a single numeric value.}
+
+\item{min.percent, max.percent}{Numbers between 0 and 1 which sets the minimum and maximum percent expression to show.
+When set to NA, the minimum/maximum of the data are used.}
 
 \item{assay, slot}{single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
 See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
@@ -128,14 +151,6 @@ Set to \code{NULL} to remove.}
 
 \item{groupings.drop.unused}{Logical. \code{TRUE} by default. If \code{group.by}-data is a factor, factor levels are retained for ordering purposes, but some level(s) can end up with zero cells left after \code{cells.use} subsetting.
 By default, we remove them, but you can set this input to \code{FALSE} to keep them.}
-
-\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
-
-\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
-List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
-
-For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
-OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_classic()}.
@@ -183,7 +198,7 @@ Finally, data is plotted as dots of differing colors and sizes.
 \itemize{
 \item Size of the dots can be changed with \code{size}.
 \item Subsetting to utilize only certain cells/samples can be achieved with \code{cells.use}.
-\item Markers can be grouped into categories by providing them to the \code{vars} input as a list where list element names represent desired category names, and list element contents are the vars which each category should contain. 
+\item Markers can be grouped into categories by providing them to the \code{vars} input as a list where list element names represent desired category names, and list element contents are the vars which each category should contain.
 \item Colors can be adjusted with \code{min.color} and \code{max.color}.
 \item Displayed value ranges can be adjusted with \code{min} and \code{max} for color, or \code{min.percent} and \code{max.percent} for size.
 \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, \code{legend.color.title}, and \code{legend.size.title} arguments.
@@ -235,28 +250,34 @@ dittoDotPlot(myRNA, group.by = "clustering",
         'Stimulated' = c("gene3", "gene4")
     )
 )
-# To allow categories to grow or shrink depending on their number of elements
-#   a bit of external work may be necessary.
-# Case1: Using vars-categories & a second split.by element, add 'space = free'
-#   and 'scales = "free_x"' to 'split.adjust'
+# The 'categories.split.adjust' and 'category.theme.adjust' arguments then
+#   controls whether 'split.adjust' and 'theme' input contents, respectively,
+#   will be added to in ways that make these categories appear more like
+#   categories for the vars-axis.
+# They both default to TRUE.
+# 'categories.split.adjust' also controls whether, when you have provided
+#   categories, the facet_grid will always be used for faceting.  This is done
+#   because the facet_wrap function does not alllow use of 'space = "free"'.
 dittoDotPlot(myRNA, group.by = "clustering",
-    vars = list(
-        'Naive' = c("gene5", "gene6", "gene7", "gene8"),
-        'Stimulated' = c("gene9", "gene10")
-    ),
-    split.by = "conditions",
-    split.adjust = list(scales = "free_x", space = "free")
+    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3"))
 )
-# Case2: Using vars-categories alone, the 'facet_wrap' function does not support
-#   the 'space' argument. Thus you will need to re-implement using facet_grid,
-#   and the knowledge that the column to target is called "VAR_SET":
 dittoDotPlot(myRNA, group.by = "clustering",
-    vars = list(
-        'Naive' = c("gene5", "gene6", "gene7", "gene8"),
-        'Stimulated' = c("gene9", "gene10")
-    )
-) + facet_grid(~VAR_SET, scales = "free_x", space = "free")
-    
+    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+    categories.split.adjust = FALSE,
+    categories.theme.adjust = FALSE
+)
+# The 'categories.split.dir' argument controls the faceting direction to use for
+#   the categories, which is useful when making use of 'coord_flip()':
+dittoDotPlot(myRNA, group.by = "clustering",
+    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+    split.by = "conditions",
+    categories.split.dir = "row"
+) + coord_flip()
+dittoDotPlot(myRNA, group.by = "clustering",
+    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+    categories.split.dir = "row"
+) + coord_flip()
+
 # For certain specialized applications, it may be helpful to adjust the
 #   functions used for summarizing the data as well. Inputs are:
 #   summary.fxn.color & summary.fxn.size

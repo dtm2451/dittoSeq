@@ -1,15 +1,24 @@
 #' Compact plotting of per group summaries for expression of multiple features
 #' 
 #' @param vars String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to show.
-#' Alternatively, if you wish to group your \code{vars} into specific categories like celltypes, you can provide as a named list where names will be used as catagory labels,
-#' (example: \code{list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("gene3"))})
+#'
+#' Alternatively, if you wish to group your \code{vars} into specific categories such as associated celltypes, you can provide them as a named list where names are the category labels,
+#' (example: \code{vars = list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("gene3"))})
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
 #' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #' \itemize{
 #' \item When 2 metadata are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
 #' \item When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
-#' \item Note: When \code{vars} is provided in list format to group vars into categories, that grouping is carried out via faceting and takes up the first \code{split.by} slot.
+#' \item Note: When \code{vars} is provided in list format to group vars into categories, that grouping is carried out via faceting and takes up one of the \code{split.by} slots.
 #' }
+#' @param categories.split.dir "row" or "col", sets the direction of faceting used for \code{vars}-categories.
+#' @param categories.split.adjust Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided, improves category display by:
+#' \itemize{
+#' \item adding \code{list(switch = "y", scales = "free_y", space = "free_y")} to the default for \code{split.adjust} (or 'x' counterparts depending on \code{categories.split.dir})
+#' \item enforces that \code{\link[ggplot2]{facet_grid}} will be used for faceting because \code{\link[ggplot2]{facet_wrap}} cannot recieve the 'space' argument.
+#' }
+#' @param categories.theme.adjust Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided,
+#' improves category display by adding \code{theme(strip.placement = "outside", strip.background.y = element_blank())} to the given \code{theme} (or 'x' counterpart depending on \code{categories.split.dir})
 #' @param summary.fxn.color,summary.fxn.size A function which sets how color or size will be used to summarize variables' data for each group.
 #' Any function can be used as long as it takes in a numeric vector and returns a single numeric value.
 #' @param scale String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled. 
@@ -130,28 +139,34 @@
 #'         'Stimulated' = c("gene3", "gene4")
 #'     )
 #' )
-#' # To allow categories to grow or shrink depending on their number of elements
-#' #   a bit of external work may be necessary.
-#' # Case1: Using vars-categories & a second split.by element, add 'space = free'
-#' #   and 'scales = "free_x"' to 'split.adjust'
+#' # The 'categories.split.adjust' and 'category.theme.adjust' arguments then
+#' #   controls whether 'split.adjust' and 'theme' input contents, respectively,
+#' #   will be added to in ways that make these categories appear more like
+#' #   categories for the vars-axis.
+#' # They both default to TRUE.
+#' # 'categories.split.adjust' also controls whether, when you have provided
+#' #   categories, the facet_grid will always be used for faceting.  This is done
+#' #   because the facet_wrap function does not alllow use of 'space = "free"'.
 #' dittoDotPlot(myRNA, group.by = "clustering",
-#'     vars = list(
-#'         'Naive' = c("gene5", "gene6", "gene7", "gene8"),
-#'         'Stimulated' = c("gene9", "gene10")
-#'     ),
-#'     split.by = "conditions",
-#'     split.adjust = list(scales = "free_x", space = "free")
+#'     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3"))
 #' )
-#' # Case2: Using vars-categories alone, the 'facet_wrap' function does not support
-#' #   the 'space' argument. Thus you will need to re-implement using facet_grid,
-#' #   and the knowledge that the column to target is called "VAR_SET":
 #' dittoDotPlot(myRNA, group.by = "clustering",
-#'     vars = list(
-#'         'Naive' = c("gene5", "gene6", "gene7", "gene8"),
-#'         'Stimulated' = c("gene9", "gene10")
-#'     )
-#' ) + facet_grid(~VAR_SET, scales = "free_x", space = "free")
-#'     
+#'     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+#'     categories.split.adjust = FALSE,
+#'     categories.theme.adjust = FALSE
+#' )
+#' # The 'categories.split.dir' argument controls the faceting direction to use for
+#' #   the categories, which is useful when making use of 'coord_flip()':
+#' dittoDotPlot(myRNA, group.by = "clustering",
+#'     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+#'     split.by = "conditions",
+#'     categories.split.dir = "row"
+#' ) + coord_flip()
+#' dittoDotPlot(myRNA, group.by = "clustering",
+#'     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+#'     categories.split.dir = "row"
+#' ) + coord_flip()
+#'
 #' # For certain specialized applications, it may be helpful to adjust the
 #' #   functions used for summarizing the data as well. Inputs are:
 #' #   summary.fxn.color & summary.fxn.size
@@ -175,14 +190,20 @@ dittoDotPlot <- function(
     split.by = NULL,
     cells.use = NULL,
     size = 6,
-    min.percent = 0.01,
-    max.percent = NA,
+    categories.split.dir = c("col", "row"),
+    categories.split.adjust = TRUE,
+    categories.theme.adjust = TRUE,
+    split.nrow = NULL,
+    split.ncol = NULL,
+    split.adjust = list(),
     min.color = "grey90",
     max.color = "#C51B7D",
     min = "make",
     max = NA,
     summary.fxn.color = function(x) {mean(x[x!=0])},
     summary.fxn.size = function(x) {mean(x!=0)},
+    min.percent = 0.01,
+    max.percent = NA,
     assay = .default_assay(object),
     slot = .default_slot(object),
     adjustment = NULL,
@@ -196,9 +217,6 @@ dittoDotPlot <- function(
     xlab = NULL,
     x.labels.rotate = TRUE,
     groupings.drop.unused = TRUE,
-    split.nrow = NULL,
-    split.ncol = NULL,
-    split.adjust = list(scales = "free_x"),
     theme = theme_classic(),
     legend.show = TRUE,
     legend.color.breaks = waiver(),
@@ -208,7 +226,8 @@ dittoDotPlot <- function(
     data.out = FALSE) {
 
     cells.use <- .which_cells(cells.use, object)
-    
+    categories.split.dir <- match.arg(categories.split.dir)
+
     # Fill defaults
     legend.color.title <- .leave_default_or_null(
         legend.color.title,
@@ -217,6 +236,7 @@ dittoDotPlot <- function(
         min,
         default = if (scale) {NA} else {0})
     
+    # Handle vars-categories pre-gather
     vars_list <- NULL
     if (is.list(vars)) {
         vars_list <- vars
@@ -237,8 +257,9 @@ dittoDotPlot <- function(
     data$var <- factor(data$var, levels = vars)
     data$grouping <-
         .rename_and_or_reorder(data$grouping, y.reorder, y.labels)
+
+    # Finish vars-categories
     if (!is.null(vars_list)) {
-        split.by <- c(split.by, 'VAR_SET')
         var_names <- c()
         for (i in seq_along(vars_list)) {
             this <- rep(names(vars_list)[i], length(vars_list[[i]]))
@@ -246,6 +267,28 @@ dittoDotPlot <- function(
             var_names <- c(var_names, this)
         }
         data$VAR_SET <- factor(var_names[data$var], levels = names(vars_list))
+
+        if (categories.split.dir == "row") {
+            split.by <- c('VAR_SET', split.by)
+            split.adjust.add <- list(switch = "y", scales = "free_y", space = "free_y")
+            theme_adj <- theme + theme(
+                strip.placement = "outside",
+                strip.background.y = element_blank()
+            )
+        } else {
+            split.by <- c(split.by, 'VAR_SET')
+            split.adjust.add <- list(switch = "x", scales = "free_x", space = "free_x")
+            theme_adj <- theme + theme(
+                strip.placement = "outside",
+                strip.background.x = element_blank()
+            )
+        }
+        if (categories.split.adjust) {
+            split.adjust <- modifyList(split.adjust.add, split.adjust)
+        }
+        if (categories.theme.adjust) {
+            theme <- theme_adj
+        }
     }
     
     if (scale) {
@@ -275,7 +318,8 @@ dittoDotPlot <- function(
     ### Add extra features
     if (!is.null(split.by)) {
         p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, split.adjust)
+            p, split.by, split.nrow, split.ncol, split.adjust,
+            exists("var_names") && categories.split.adjust, categories.split.dir)
     }
 
     if (do.hover) {
