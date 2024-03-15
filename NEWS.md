@@ -1,3 +1,9 @@
+# dittoSeq 1.15.6
+
+* Added ability to have 'dittoDotPlot()' group shown features ("vars") into categories, by providing 'vars' as a named list.  Also adds inputs 'categories.split.adjust' and 'categories.theme.adjust' which can be used to turn off the automatic addition of display-style adjustments that make category labels appear more like category labels.
+* Added native control to 'dittoDotPlot()' over which axis is used for 'vars' versus 'group.by'-groupings, controlled by the new input: 'vars.dir'.
+* BugFix: Corrects a bug in how the version of the Seurat-package was checked during expression matrix retrieval.
+
 # dittoSeq 1.15.5
 
 * BugFix: Corrects a bug which blocked provision of 'annotation_row' and 'annotation_colors' inputs to dittoHeatmap without also generating column annotations via either 'annot.by' or 'annotation_col'.
