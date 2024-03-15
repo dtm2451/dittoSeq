@@ -88,7 +88,7 @@
     }
     if (is(object,"Seurat")) {
         .error_if_no_Seurat()
-        if (compareVersion(packageVersion("Seurat"), '5.0')) {
+        if (packageVersion("Seurat")>='5.0') {
             return(object[[assay]][slot])
         }
         return(Seurat::GetAssayData(object, assay = assay, slot = slot))
