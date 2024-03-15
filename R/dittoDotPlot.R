@@ -1,28 +1,29 @@
 #' Compact plotting of per group summaries for expression of multiple features
 #' 
-#' @param vars String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to show.
+#' @param vars String vector of gene or metadata names which selects the features to summarize and show.
+#' Example: \code{c("gene1","gene2","gene3")}
 #'
-#' Alternatively, if you wish to group your \code{vars} into specific categories such as associated celltypes, you can provide them as a named list where names are the category labels,
-#' (example: \code{vars = list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("gene3"))})
+#' Alternatively, a named list of string vectors where names represent category labels, such as associated cell types, and values are the gene or metadata names that you wish to have grouped together.
+#' Example: \code{vars = list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("gene3"))}
 #' @param group.by String representing the name of a metadata to use for separating the cells/samples into discrete groups.
 #' @param split.by 1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 #' \itemize{
 #' \item When 2 metadata are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
 #' \item When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
-#' \item Note: When \code{vars} is provided in list format to group vars into categories, that grouping is carried out via faceting and takes up one of the \code{split.by} slots.
+#' \item Note: When \code{vars} are provided in list format, to group its contents into categories, that grouping is carried out via faceting and takes up one of the \code{split.by} slots.
 #' }
 #' @param vars.dir "x" or "y", sets the axis where \code{vars} will be displayed.
 #' @param categories.split.adjust Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided, improves category display by:
 #' \itemize{
 #' \item adding \code{list(switch = "y", scales = "free_y", space = "free_y")} to the default for \code{split.adjust} (or 'x' counterparts depending on \code{vars.dir})
-#' \item enforces that \code{\link[ggplot2]{facet_grid}} will be used for faceting because \code{\link[ggplot2]{facet_wrap}} cannot recieve the 'space' argument.
+#' \item enforcing that \code{\link[ggplot2]{facet_grid}} will be used for faceting because \code{\link[ggplot2]{facet_wrap}} cannot receive the 'space' argument.
 #' }
-#' @param categories.theme.adjust Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided,
-#' improves category display by adding \code{theme(strip.placement = "outside", strip.background.y = element_blank())} to the given \code{theme} (or 'x' counterpart depending on \code{vars.dir})
+#' @param categories.theme.adjust Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided, improves category display by
+#' adding \code{theme(strip.placement = "outside", strip.background.y = element_blank())} to the given \code{theme} (or 'x' counterpart depending on \code{vars.dir})
 #' @param summary.fxn.color,summary.fxn.size A function which sets how color or size will be used to summarize variables' data for each group.
 #' Any function can be used as long as it takes in a numeric vector and returns a single numeric value.
 #' @param scale String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled. 
-#' @param size Number which sets the dot size associated with the highest value shown by dot size (default: percent non-zero expression).
+#' @param size Number which sets the visual dot size associated with the highest value shown by dot size (default: percent non-zero expression).
 #' @param adjustment Should expression data be used directly (default) or should it be adjusted to be
 #' \itemize{
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
@@ -56,7 +57,7 @@
 #' @inheritParams dittoPlotVarsAcrossGroups
 #' @inheritParams dittoScatterPlot
 #' 
-#' @return a ggplot object where dots of different colors and sizes summarize continuous data for multiple features (columns) per multiple groups (rows)
+#' @return a ggplot object where dots of different colors and sizes summarize continuous data for multiple features per multiple groups.
 #'
 #' Alternatively when \code{data.out = TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
 #'
@@ -77,13 +78,14 @@
 #' If \code{scale = TRUE} (default setting), the color summary values are centered and scaled.
 #' Doing so 1) puts values for all \code{vars} in a similar range, and 2) emphasizes relative differences between groups.
 #' 
-#' Finally, data is plotted as dots of differing colors and sizes.
+#' Finally, data is plotted as dots of differing colors and sizes, with \code{vars} along the \code{vars.dir}-axis and groupings along the other.
+#' Labels along the x-axis can be rotated 45 degrees with \code{x.label.rotate=TRUE}, which is on by default when \code{vars.dir=='x'}.
 #'
 #' @section Many characteristics of the plot can be adjusted using discrete inputs:
 #' \itemize{
 #' \item Size of the dots can be changed with \code{size}.
 #' \item Subsetting to utilize only certain cells/samples can be achieved with \code{cells.use}.
-#' \item Markers can be grouped into categories by providing them to the \code{vars} input as a list where list element names represent desired category names, and list element contents are the vars which each category should contain.
+#' \item Markers can be grouped into categories by providing them to the \code{vars} input as a list, where list element names represent category names, and list element contents are the feature names which each category should contain.
 #' \item Colors can be adjusted with \code{min.color} and \code{max.color}.
 #' \item Displayed value ranges can be adjusted with \code{min} and \code{max} for color, or \code{min.percent} and \code{max.percent} for size.
 #' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, \code{legend.color.title}, and \code{legend.size.title} arguments.
@@ -94,7 +96,7 @@
 #' }
 #'
 #' @seealso
-#' \code{\link{dittoPlotVarsAcrossGroups}} for a method of summarizing expression of multiple features across distinct groups that can be better (and more compact) when the identities of the individual genes are unimportant.
+#' \code{\link{dittoPlotVarsAcrossGroups}} for a different method of summarizing expression of multiple features across distinct groups that can be better (and more compact) when the mapping of values to individual genes among the requested set are unimportant.
 #' 
 #' \code{\link{dittoPlot}} and \code{\link{multi_dittoPlot}} for plotting of expression and metadata vars, each as separate plots, on a per cell/sample basis.
 #'
@@ -102,10 +104,12 @@
 #' example(importDittoBulk, echo = FALSE)
 #' myRNA
 #' 
-#' # These random data aren't very exciting, but we can at least add some zeros
-#' #   for making slightly more interesting dot plots.
-#' counts(myRNA)[1:4,1:40] <- 0
-#' logcounts(myRNA)[1:4,1:40] <- 0
+#' # These random data don't mimic dropout, so we'll add some zeros.
+#' logcounts(myRNA)[
+#'     matrix(
+#'         sample(c(TRUE,FALSE), ncol(myRNA)*10, p=c(.2,.8), replace = TRUE),
+#'         ncol=10
+#'     )] <- 0
 #' 
 #' dittoDotPlot(
 #'     myRNA, c("gene1", "gene2", "gene3", "gene4"),
@@ -127,7 +131,7 @@
 #' dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
 #'     vars.dir = "y")
 #' 
-#' # Title are adjustable via various discrete inputs:
+#' # Titles are adjustable via various discrete inputs:
 #' dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
 #'     main = "Title",
 #'     sub = "Subtitle",
@@ -136,26 +140,31 @@
 #'     legend.color.title = "Colors title",
 #'     legend.size.title = "Dot size title")
 #'
-#' # You can also bin vars into groups by providing them instead as a named list
+#' # You can also bin vars into groups by providing them in a named list:
 #' dittoDotPlot(myRNA, group.by = "clustering",
 #'     vars = list(
 #'         'Naive' = c("gene1", "gene2"),
 #'         'Stimulated' = c("gene3", "gene4")
 #'     )
 #' )
-#' # The 'categories.split.adjust' and 'category.theme.adjust' arguments then
-#' #   controls whether 'split.adjust' and 'theme' input contents, respectively,
-#' #   will be added to in ways that make these categories appear more like
-#' #   categories for the vars-axis.
-#' # They both default to TRUE, and the axis they affect does follow 'vars.dir'.
+#' # The 'categories.split.adjust' and 'categories.theme.adjust' arguments then
+#' #   control whether 'split.adjust' and 'theme' input contents, respectively,
+#' #   will be added to in ways that make these categories actually appear, and
+#' #   work, like categories.
+#' # They both default to TRUE, and the axis they affect follows 'vars.dir'.
 #' dittoDotPlot(myRNA, group.by = "clustering",
 #'     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3"))
+#' )
+#' dittoDotPlot(myRNA, group.by = "clustering",
+#'     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+#'     split.by = "conditions"
 #' )
 #' dittoDotPlot(myRNA, group.by = "clustering",
 #'     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
 #'     categories.split.adjust = FALSE,
 #'     categories.theme.adjust = FALSE
 #' )
+#' # Now with 'vars.dir' changed to 'y'...
 #' dittoDotPlot(myRNA, group.by = "clustering",
 #'     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
 #'     vars.dir = "y"
@@ -174,7 +183,6 @@
 #' dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
 #'     summary.fxn.color = mean,
 #'     legend.color.title = "mean\nexpression\nincluding 0s",
-#'     main = "scater::plotDots() defaulting recreation",
 #'     x.labels.rotate = FALSE,
 #'     scale = FALSE)
 #' 
