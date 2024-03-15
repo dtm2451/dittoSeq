@@ -12,8 +12,12 @@ dittoDotPlot(
   split.by = NULL,
   cells.use = NULL,
   size = 6,
-  min.percent = 0.01,
-  max.percent = NA,
+  vars.dir = c("x", "y"),
+  categories.split.adjust = TRUE,
+  categories.theme.adjust = TRUE,
+  split.nrow = NULL,
+  split.ncol = NULL,
+  split.adjust = list(),
   min.color = "grey90",
   max.color = "#C51B7D",
   min = "make",
@@ -24,6 +28,8 @@ dittoDotPlot(
   summary.fxn.size = function(x) {
      mean(x != 0)
  },
+  min.percent = 0.01,
+  max.percent = NA,
   assay = .default_assay(object),
   slot = .default_slot(object),
   adjustment = NULL,
@@ -35,11 +41,8 @@ dittoDotPlot(
   y.labels = NULL,
   y.reorder = NULL,
   xlab = NULL,
-  x.labels.rotate = TRUE,
+  x.labels.rotate = vars.dir == "x",
   groupings.drop.unused = TRUE,
-  split.nrow = NULL,
-  split.ncol = NULL,
-  split.adjust = list(),
   theme = theme_classic(),
   legend.show = TRUE,
   legend.color.breaks = waiver(),
@@ -52,26 +55,47 @@ dittoDotPlot(
 \arguments{
 \item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
-\item{vars}{String vector (example: \code{c("gene1","gene2","gene3")}) which selects which variables, typically genes, to show.}
+\item{vars}{String vector of gene or metadata names which selects the features to summarize and show.
+Example: \code{c("gene1","gene2","gene3")}
+
+Alternatively, a named list of string vectors where names represent category labels, such as associated cell types, and values are the gene or metadata names that you wish to have grouped together.
+Example: \code{vars = list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("gene3"))}}
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
 \item{scale}{String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled.}
 
 \item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
-
-When 2 metadatas are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
-
-When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}}
+\itemize{
+\item When 2 metadata are named, c(row,col), the first is used as rows and the second is used for columns of the resulting grid.
+\item When 1 metadata is named, shape control can be achieved with \code{split.nrow} and \code{split.ncol}
+\item Note: When \code{vars} are provided in list format, to group its contents into categories, that grouping is carried out via faceting and takes up one of the \code{split.by} slots.
+}}
 
 \item{cells.use}{String vector of cells'/samples' names OR an integer vector specifying the indices of cells/samples which should be included.
 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
-\item{size}{Number which sets the dot size associated with the highest value shown by dot size (default: percent non-zero expression).}
+\item{size}{Number which sets the visual dot size associated with the highest value shown by dot size (default: percent non-zero expression).}
 
-\item{min.percent, max.percent}{Numbers between 0 and 1 which sets the minimum and maximum percent expression to show.
-When set to NA, the minimum/maximum of the data are used.}
+\item{vars.dir}{"x" or "y", sets the axis where \code{vars} will be displayed.}
+
+\item{categories.split.adjust}{Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided, improves category display by:
+\itemize{
+\item adding \code{list(switch = "y", scales = "free_y", space = "free_y")} to the default for \code{split.adjust} (or 'x' counterparts depending on \code{vars.dir})
+\item enforcing that \code{\link[ggplot2]{facet_grid}} will be used for faceting because \code{\link[ggplot2]{facet_wrap}} cannot receive the 'space' argument.
+}}
+
+\item{categories.theme.adjust}{Boolean. When \code{TRUE} (default), and \code{vars}-categories have been provided, improves category display by
+adding \code{theme(strip.placement = "outside", strip.background.y = element_blank())} to the given \code{theme} (or 'x' counterpart depending on \code{vars.dir})}
+
+\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
+
+\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
+List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
+
+For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
+OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{min.color, max.color}{colors to use for minimum and maximum color values.
 Default = light grey and purple.}
@@ -80,6 +104,9 @@ Default = light grey and purple.}
 
 \item{summary.fxn.color, summary.fxn.size}{A function which sets how color or size will be used to summarize variables' data for each group.
 Any function can be used as long as it takes in a numeric vector and returns a single numeric value.}
+
+\item{min.percent, max.percent}{Numbers between 0 and 1 which sets the minimum and maximum percent expression to show.
+When set to NA, the minimum/maximum of the data are used.}
 
 \item{assay, slot}{single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
 See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
@@ -126,14 +153,6 @@ Set to \code{NULL} to remove.}
 \item{groupings.drop.unused}{Logical. \code{TRUE} by default. If \code{group.by}-data is a factor, factor levels are retained for ordering purposes, but some level(s) can end up with zero cells left after \code{cells.use} subsetting.
 By default, we remove them, but you can set this input to \code{FALSE} to keep them.}
 
-\item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
-
-\item{split.adjust}{A named list which allows extra parameters to be pushed through to the faceting function call.
-List elements should be valid inputs to the faceting functions, e.g. `list(scales = "free")`.
-
-For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]{facet_wrap}},
-OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
-
 \item{theme}{A ggplot theme which will be applied before dittoSeq adjustments.
 Default = \code{theme_classic()}.
 See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.}
@@ -149,7 +168,7 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).}
 }
 \value{
-a ggplot object where dots of different colors and sizes summarize continuous data for multiple features (columns) per multiple groups (rows)
+a ggplot object where dots of different colors and sizes summarize continuous data for multiple features per multiple groups.
 
 Alternatively when \code{data.out = TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
 
@@ -173,13 +192,15 @@ Groupings are determined using \code{group.by}, and then data for each variable 
 If \code{scale = TRUE} (default setting), the color summary values are centered and scaled.
 Doing so 1) puts values for all \code{vars} in a similar range, and 2) emphasizes relative differences between groups.
 
-Finally, data is plotted as dots of differing colors and sizes.
+Finally, data is plotted as dots of differing colors and sizes, with \code{vars} along the \code{vars.dir}-axis and groupings along the other.
+Labels along the x-axis can be rotated 45 degrees with \code{x.label.rotate=TRUE}, which is on by default when \code{vars.dir=='x'}.
 }
 \section{Many characteristics of the plot can be adjusted using discrete inputs}{
 
 \itemize{
 \item Size of the dots can be changed with \code{size}.
 \item Subsetting to utilize only certain cells/samples can be achieved with \code{cells.use}.
+\item Markers can be grouped into categories by providing them to the \code{vars} input as a list, where list element names represent category names, and list element contents are the feature names which each category should contain.
 \item Colors can be adjusted with \code{min.color} and \code{max.color}.
 \item Displayed value ranges can be adjusted with \code{min} and \code{max} for color, or \code{min.percent} and \code{max.percent} for size.
 \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, \code{legend.color.title}, and \code{legend.size.title} arguments.
@@ -194,10 +215,12 @@ Finally, data is plotted as dots of differing colors and sizes.
 example(importDittoBulk, echo = FALSE)
 myRNA
 
-# These random data aren't very exciting, but we can at least add some zeros
-#   for making slightly more interesting dot plots.
-counts(myRNA)[1:4,1:40] <- 0
-logcounts(myRNA)[1:4,1:40] <- 0
+# These random data don't mimic dropout, so we'll add some zeros.
+logcounts(myRNA)[
+    matrix(
+        sample(c(TRUE,FALSE), ncol(myRNA)*10, p=c(.2,.8), replace = TRUE),
+        ncol=10
+    )] <- 0
 
 dittoDotPlot(
     myRNA, c("gene1", "gene2", "gene3", "gene4"),
@@ -215,7 +238,11 @@ dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
 dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
     x.labels.rotate = FALSE)
 
-# Title are adjustable via various discrete inputs:
+# The axis that vars get shown on can be swapped with the 'vars.dir' input.
+dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+    vars.dir = "y")
+
+# Titles are adjustable via various discrete inputs:
 dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
     main = "Title",
     sub = "Subtitle",
@@ -223,7 +250,42 @@ dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
     xlab = "x-axis label",
     legend.color.title = "Colors title",
     legend.size.title = "Dot size title")
-    
+
+# You can also bin vars into groups by providing them in a named list:
+dittoDotPlot(myRNA, group.by = "clustering",
+    vars = list(
+        'Naive' = c("gene1", "gene2"),
+        'Stimulated' = c("gene3", "gene4")
+    )
+)
+# The 'categories.split.adjust' and 'categories.theme.adjust' arguments then
+#   control whether 'split.adjust' and 'theme' input contents, respectively,
+#   will be added to in ways that make these categories actually appear, and
+#   work, like categories.
+# They both default to TRUE, and the axis they affect follows 'vars.dir'.
+dittoDotPlot(myRNA, group.by = "clustering",
+    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3"))
+)
+dittoDotPlot(myRNA, group.by = "clustering",
+    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+    split.by = "conditions"
+)
+dittoDotPlot(myRNA, group.by = "clustering",
+    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+    categories.split.adjust = FALSE,
+    categories.theme.adjust = FALSE
+)
+# Now with 'vars.dir' changed to 'y'...
+dittoDotPlot(myRNA, group.by = "clustering",
+    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+    vars.dir = "y"
+)
+dittoDotPlot(myRNA, group.by = "clustering",
+    vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
+    split.by = "conditions",
+    vars.dir = "y"
+)
+
 # For certain specialized applications, it may be helpful to adjust the
 #   functions used for summarizing the data as well. Inputs are:
 #   summary.fxn.color & summary.fxn.size
@@ -232,13 +294,12 @@ dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
 dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
     summary.fxn.color = mean,
     legend.color.title = "mean\nexpression\nincluding 0s",
-    main = "scater::plotDots() defaulting recreation",
     x.labels.rotate = FALSE,
     scale = FALSE)
 
 }
 \seealso{
-\code{\link{dittoPlotVarsAcrossGroups}} for a method of summarizing expression of multiple features across distinct groups that can be better (and more compact) when the identities of the individual genes are unimportant.
+\code{\link{dittoPlotVarsAcrossGroups}} for a different method of summarizing expression of multiple features across distinct groups that can be better (and more compact) when the mapping of values to individual genes among the requested set are unimportant.
 
 \code{\link{dittoPlot}} and \code{\link{multi_dittoPlot}} for plotting of expression and metadata vars, each as separate plots, on a per cell/sample basis.
 }

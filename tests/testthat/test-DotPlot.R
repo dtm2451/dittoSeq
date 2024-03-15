@@ -281,3 +281,61 @@ test_that("dittoDotPlot retains group factor levels and optionally drops unused 
         length(levels(with_gE$data$grouping)) >
         length(levels(without_gE$data$grouping)))
 })
+
+test_that("dittoDotPlot vars.dir controls axis where vars are shown", {
+
+    ### Manual check:
+    # Both the below should put genes on the y-axis
+
+    # On its own
+    expect_s3_class(
+        dittoDotPlot(
+            sce, genes[1:5], "groups",
+            vars.dir = "y"),
+        "ggplot")
+
+    # With faceting
+    expect_s3_class(
+        dittoDotPlot(
+            sce, genes[1:5], "groups",
+            vars.dir = "y",
+            split.by = disc),
+        "ggplot")
+})
+
+
+test_that("dittoDotPlot allows var-category grouping", {
+    gene_list <- list('T'=getGenes(sce)[1:5],
+                      'B'=getGenes(sce)[6:8],
+                      getGenes(sce)[9])
+
+    # On its own
+    expect_s3_class(
+        dittoDotPlot(
+            sce, gene_list, "groups"),
+        "ggplot")
+
+    # With additional faceting
+    expect_s3_class(
+        dittoDotPlot(
+            sce, gene_list, "groups",
+            split.by = disc),
+    "ggplot")
+    expect_warning(
+        dittoDotPlot(
+            sce, gene_list, "groups",
+            split.by = c(disc, disc2)),
+    "The second element given to 'split.by'", fixed = TRUE)
+
+    # Additional args:
+    # Manual check:
+    #   - categories.split.adjust & categories.theme.adjust are ON by default.
+    #      If working, categories show outside of axes without their box.
+    #   - Here, categories should appear on the y-axis, alongside genes.
+    expect_s3_class(
+        dittoDotPlot(
+            sce, gene_list, "groups",
+            vars.dir = "y"
+            ),
+        "ggplot")
+})

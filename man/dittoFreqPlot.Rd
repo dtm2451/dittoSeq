@@ -217,9 +217,9 @@ For an explanation of each, see \code{\link{geom_violin}}.}
 A value of 1 means the tallest density curve just touches the baseline of the next higher one.
 Higher numbers lead to greater overlap.  Default = 1.25}
 
-\item{ridgeplot.ymax.expansion}{Scalar which adjusts the minimal space between the topmost grouping and the top of the plot in order to ensure the curve is not cut off by the plotting grid.
+\item{ridgeplot.ymax.expansion}{Scalar which adjusts the minimal space between the top-most grouping and the top of the plot in order to ensure that the curve is not cut off by the plotting grid.
 The larger the value, the greater the space requested.
-When left as NA, dittoSeq will attempt to determine an ideal value itself based on the number of groups & linear interpolation between these goal posts: #groups of 3 or fewer: 0.6; #groups=12: 0.1; #groups or 34 or greater: 0.05.}
+When left as NA, dittoSeq will attempt to determine an ideal value itself based on the number of groups & linear interpolation between these goal posts: 0.6 when g<=3, 0.1 when g==12, and 0.05 when g>=34, where g is the number of groups.}
 
 \item{ridgeplot.shape}{Either "smooth" or "hist", sets whether ridges will be smoothed (the typical, and default) versus rectangular like a histogram.
 (Note: as of the time shape "hist" was added, combination of jittered points is not supported by the \code{\link[ggridges]{stat_binline}} that dittoSeq relies on.)}
