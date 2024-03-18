@@ -395,15 +395,3 @@ test_that("Rasterization works for ComplexHeatmap", {
             use_raster = TRUE, raster_quality = 1),
         "Heatmap")
 })
-
-test_that("dittoHeatmap drop_level dropped from args when complex = TRUE",{
-    args <- dittoHeatmap(genes = genes, object = sce, data.out = TRUE,
-        drop_levels = TRUE, complex = TRUE)
-    
-    # Manual Check: Only three colors in the legend
-    expect_warning(
-        dittoHeatmap(genes = genes, object = sce,
-            annot.by = "clusters", cells.use = sce$clusters!="4",
-            drop_levels = TRUE, complex = TRUE),
-        NA)
-})

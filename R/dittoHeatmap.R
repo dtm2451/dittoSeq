@@ -291,7 +291,6 @@ dittoHeatmap <- function(
         OUT <- args
     } else if (complex) {
         .error_if_no_complexHm()
-        args <- .adjust_for_complex(args)
         OUT <- do.call("pheatmap", args, envir = asNamespace("ComplexHeatmap"))
     } else {
         OUT <- do.call(pheatmap::pheatmap, args)
@@ -505,15 +504,4 @@ dittoHeatmap <- function(
     } 
 
     data
-}
-
-.adjust_for_complex <- function(args) {
-
-    # As of Sept 2021, CH complains when 'drop_levels' is given because its
-    # maintainer decided to enforced the input to always be TRUE.  We still get
-    # the effect via the 'annotation_colors' setup, so it should be safe to
-    # simply remove the input before passing along.
-    args$drop_levels <- NULL
-
-    args
 }
