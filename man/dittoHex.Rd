@@ -146,13 +146,16 @@ Alternatively, can be a directly supplied numeric or string vector or a factor o
 
 \item{bins}{Numeric or numeric vector giving the number of haxagonal bins in the x and y directions. Set to 30 by default.}
 
-\item{color.method}{Works differently depending on whether the color.var is continous versus discrete:
+\item{color.method}{Works differently depending on whether the \code{color.var}-data is continuous versus discrete:
 
-\strong{Continuous}: String signifying a function for how target data should be summarized for each bin.
+\strong{Continuous}: String naming a function for how target data should be summarized for each bin.
 Can be any function that summarizes a numeric vector input with a single numeric output value.
 Default is \code{median}. Other useful options are \code{sum}, \code{mean}, \code{sd}, or \code{mad}.
+You can also use a previously assigned function; e.g. first run \code{pNonZero <- function(x) \{ sum(x!=0)/length(x)\}},
+then you give \code{color.method = "pNonZero"}
 
 \strong{Discrete}: A string signifying whether the color should (default) be simply based on the "max" grouping of the bin,
+based on "prop.<value>" the proportion of a specific value (e.g. "prop.A" or "prop.TRUE"),
 or based on the "max.prop"ortion of cells/samples belonging to any grouping.}
 
 \item{reduction.use}{String, such as "pca", "tsne", "umap", or "PCA", etc, which is the name of a dimensionality reduction slot within the object, and which sets what dimensionality reduction space within the object to use.
@@ -388,6 +391,11 @@ dittoDimHex(myRNA, color.var = "groups", bins = 10,
     color.method = "max.prop")
 dittoDimHex(myRNA, color.var = "gene1", bins = 10,
     color.method = "mean")
+# One particularly useful 'color.method' for discrete 'color.var'-data is
+#   to use 'prop.<value>' to color by the proportion of a particular value
+#   within each bin:
+dittoDimHex(myRNA, color.var = "groups", bins = 10,
+    color.method = "prop.A")
 
 ### Additional Features:
 

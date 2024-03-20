@@ -39,6 +39,11 @@ test_that("DimHex can plot continuous or discrete color.var data + 'adjustment'"
 test_that("DimHex - color.method options work for discrete data, and defaults to 'max'", {
     ### Manual: Should have continuous color-scale and max.props in its title
     expect_s3_class(dittoDimHex(object=sce, disc,
+        color.method = "prop.A"),
+        "ggplot")
+
+    ### Manual: Should have continuous color-scale and max.props in its title
+    expect_s3_class(dittoDimHex(object=sce, disc,
         color.method = "max.prop"),
         "ggplot")
     
