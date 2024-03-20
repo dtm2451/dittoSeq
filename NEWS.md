@@ -1,3 +1,7 @@
+# dittoSeq 1.15.7
+
+* Added new 'color.method = "prop.<value>"' functionality to dittoScatterHex() and dittoDimHex() which allows coloring bins by the proportion of a given 'color.var'-data value.
+
 # dittoSeq 1.15.6
 
 * Added ability to have 'dittoDotPlot()' group shown features ("vars") into categories, by providing 'vars' as a named list.  Also adds inputs 'categories.split.adjust' and 'categories.theme.adjust' which can be used to turn off the automatic addition of display-style adjustments that make category labels appear more like category labels.
