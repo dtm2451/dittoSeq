@@ -22,6 +22,8 @@ dittoDotPlot(
   max.color = "#C51B7D",
   min = "make",
   max = NA,
+  mid.color = NULL,
+  mid = "make",
   summary.fxn.color = function(x) {
      mean(x[x != 0])
  },
@@ -98,9 +100,30 @@ For options, when giving 1 metadata to \code{split.by}, see \code{\link[ggplot2]
 OR when giving 2 metadatas to \code{split.by}, see \code{\link[ggplot2]{facet_grid}}.}
 
 \item{min.color, max.color}{colors to use for minimum and maximum color values.
-Default = light grey and purple.}
+Default = light grey and purple.
+Ignored if \code{mid.color} given as \code{"rwb"} or \code{"rgb"} which will update these to be "blue" and "red", respectively.}
 
 \item{min, max}{Numbers which set the values associated with the minimum and maximum colors.}
+
+\item{mid.color}{NULL (default), "rwb", "rgb", or a color to use for the midpoint of a three-color color scale.
+\emph{This parameter acts a switch between using a 2-color scale or a 3-color scale}:\itemize{
+\item When left NULL, the 2-color scale runs from \code{min.color} to \code{max.color}, using \code{\link[ggplot2]{scale_fill_gradient}}.
+\item When given a color, the 3-color scale runs from \code{min.color} to \code{mid.color} to \code{max.color}, using \code{\link[ggplot2]{scale_fill_gradient2}}.
+\item{
+When given \emph{\code{"rwb"} or \code{"rgb"} serves as a \strong{single-point, quick switch to a "standard" 3-color scale}} by also updating the \code{min.color} and \code{max.color} used:
+Doing so sets:\itemize{
+    \item "red" as the \code{max.color},
+    \item "blue" as the \code{min.color},
+    \item and either "white" ("r\emph{w}b") or "gray90" ("r\emph{g}b") for \code{mid.color}.
+}
+Thus, the 3-color scale runs from "blue" to either "white" or "gray90" to "red", using \code{\link[ggplot2]{scale_fill_gradient2}}.
+}
+}}
+
+\item{mid}{Number or "make" (default) which sets the value associated with the \code{mid.color} of the three-color scale.
+Ignored when \code{mid.color} is left as NULL.
+When "make", defaults to midway between what dittoSeq expects to be the minimum and maximum values shown in the legend.
+(Maps to the 'midpoint' parameter of \code{\link[ggplot2]{scale_fill_gradient2}}.)}
 
 \item{summary.fxn.color, summary.fxn.size}{A function which sets how color or size will be used to summarize variables' data for each group.
 Any function can be used as long as it takes in a numeric vector and returns a single numeric value.}
@@ -201,7 +224,8 @@ Labels along the x-axis can be rotated 45 degrees with \code{x.label.rotate=TRUE
 \item Size of the dots can be changed with \code{size}.
 \item Subsetting to utilize only certain cells/samples can be achieved with \code{cells.use}.
 \item Markers can be grouped into categories by providing them to the \code{vars} input as a list, where list element names represent category names, and list element contents are the feature names which each category should contain.
-\item Colors can be adjusted with \code{min.color} and \code{max.color}.
+\item Colors (2-color scale) can be adjusted with \code{min.color} and \code{max.color}.
+\item Coloring can also be switched to a 3-color scale by using the \code{mid.color} parameter.  For details, see that parameter's description above.
 \item Displayed value ranges can be adjusted with \code{min} and \code{max} for color, or \code{min.percent} and \code{max.percent} for size.
 \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, \code{legend.color.title}, and \code{legend.size.title} arguments.
 \item The legend can be hidden by setting \code{legend.show = FALSE}.
@@ -284,6 +308,22 @@ dittoDotPlot(myRNA, group.by = "clustering",
     vars = list(Naive = c("gene1", "gene2"), Stimulated = c("gene3")),
     split.by = "conditions",
     vars.dir = "y"
+)
+
+# Coloring can be swapped from the default 2-color scale to a 3-color scale
+#   by using the 'mid.color' input:
+dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+    mid.color = "white"
+)
+# Setting it to "rgb" or "rwb" quickly updates 'min.color' and 'max.color' too,
+#   making the affect of these next two calls equivalent:
+dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+    mid.color = "rgb"
+)
+dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+    min.color = "blue",
+    mid.color = "gray90",
+    max.color = "red"
 )
 
 # For certain specialized applications, it may be helpful to adjust the

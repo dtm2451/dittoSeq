@@ -339,3 +339,45 @@ test_that("dittoDotPlot allows var-category grouping", {
             ),
         "ggplot")
 })
+
+test_that("dittoDotPlot allows 3-color scale", {
+    # Just mid.color / mid.value set
+    expect_s3_class(
+        dittoDotPlot(sce, genes, "groups",
+            mid.color = "white"),
+        "ggplot")
+
+    # "rgb" or "rwb"
+    ### Manual Check:
+    # First has gray in middle of legend
+    # Second has white in middle of legend
+    # Both have blue at bottom and red at top of legend
+    expect_s3_class(
+        dittoDotPlot(sce, genes, "groups",
+            mid.color = "rgb"),
+        "ggplot")
+    expect_s3_class(
+        dittoDotPlot(sce, genes, "groups",
+            mid.color = "rwb"),
+        "ggplot")
+
+    ## Edge-cases
+    # No scaling.  mid defaults to 0
+    expect_s3_class(
+        dittoDotPlot(sce, genes, "groups",
+            mid.color = "white",
+            scale = FALSE),
+        "ggplot")
+    # No scaling, but min NA, mid defaults to halfway between calc'd min and max
+    expect_s3_class(
+        dittoDotPlot(sce, genes, "groups",
+            mid.color = "white",
+            scale = FALSE, min = NA),
+        "ggplot")
+    # mid too high, colors plotted between min and mid only
+    expect_s3_class(
+        dittoDotPlot(sce, genes, "groups",
+            mid.color = "white",
+            mid = 1.5),
+        "ggplot")
+})
