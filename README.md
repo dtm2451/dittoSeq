@@ -19,26 +19,80 @@ dittoSeq also makes access of underlying data easy, for submitting to journals o
 
 ### News:
 
-**dittoSeq has been stable for the past 2 Bioconductor release cycles, but new feature development has resumed!**
+**Major functionality updates are coming in the next release!**
 
-Current updates in 'devel':
+Current updates in 'devel' dittoSeq v1.15, coming soon in Bioconductor 3.19:
 
-- Improved 'group.by' order control for 'dittoDotPlot()' and 'dittoPlotVarsAcrossGroups()' via retention of original 'group.by'-data factor levels, with added control via a new 'groupings.drop.unused' input.
+- Feature Extensions:
+
+    1. **Multi-modality functionality**: To support visualization of markers from multiple modalities within a single plot, the way that `assay` and `slot` inputs can be provided for Seurat-objects, and that `assay` and `swap.rownames` can be provided for SingleCellExperiment and Summarized Experiment objects has been overhauled.  A new documentation page, [`?GeneTargeting`](man/GeneTargeting.Rd), describes the new methodologies.
+        - Note: *Single assay mode currently remains the default for all plotters*. In the current implementation, you need to explicitly set `assay` whenever aiming to target multiple modalities, but I will be considering defaulting to e.g. `assay = c("RNA", "ADT")` for Seurat objects in a future dittoSeq-v2.0.
+    2. **'dittoDotPlot()' vars-categories**: Added support for categorization of `vars`/markers shown in 'dittoDotPlot()'s and also for axes swapping.
+        - Added `vars.dir` input to give internal control over whether markers are shown on the x-axis (default) or the y-axis (`vars.dir = "y"`).
+        - `vars` input can be given as a named list to group markers (list element values) into categories (list element names).
+        - Added automatic addition of display-style adjustments that make category labels appear more like category labels.
+            - New inputs `categories.split.adjust` and `categories.theme.adjust` were added to let users turn off these display adjustments. Elements which are added to `split.adjust` (and then ultimately given to `ggplot2::facet_grid()`) can be turned off by setting `categories.split.adjust = FALSE` and elements which are added to `theme` (and applied via `ggplot2::theme()`) can be turned off by setting `categories.theme.adjust = FALSE`.
+    3. (Underway in #147) **'dittoDotPlot()' 3-color scale**: Added support for adding a midpoint color to the color scale used for 'dittoDotPlot()'s.
+        - New input `mid.color` controls the switch:
+            - Left as the default, `NULL`, a 2-color scale is used (from 'min.color' to 'max.color')
+            - Given `mid.color = "<color>"`, a 3-color scale is used (from 'min.color' to \<color\> to 'max.color')
+            - Giving `mid.color = "rgb"` or `"rwb"` allows single-point quick update to all of 'min.color', 'mid.color', and 'max.color' for use of one of two standard 3-color scales ("rgb": from "blue" to "gray90" to "red"; "rwb": from "blue" to "white" to "red").
+        - New input `mid` controls the data value at which 'mid.color' will be used in the scale, and receives intuitive defaulting so users generally don't need to provide it.
+        - *This mechanism is being rolled out an tested with `dittoDotPlot()` first, but* ***users can expect extension of this functionality to other visualizations in an upcoming release!***
+    4. 'dittoDimPlot()', 'dittoScatterPlot()', 'dittoDimHex()', and 'dittoScatterHex():
+        - Added 'labels.repel.adjust' input which provide additional control of labeling via input pass-through to the `ggrepel::geom_label_repel()` (`labels.highlight = TRUE`, the default) and `ggrepel::geom_text_repel()` (`labels.highlight = FALSE`) functions which underly `do.label = TRUE` labeling (when `labels.repel` is left as the default `TRUE`)
+    5. 'dittoPlot()', 'dittoFreqPlot()', and 'dittoPlotVarsAcrossGroups()':
+        - Added 'boxplot.outlier.size' input to allow control of the outlier shape's size
+        - Added 'vlnplot.quantiles' input to allow drawing of lines, within violin plot data representations, at requested data quantiles.
+    6. 'dittoScatterHex()' and 'dittoDimHex()':
+        - Added a new 'color.method' style for discrete 'color.var'-data. Users can give `color.method = "prop.<value>"`, where \<value\> is an actual data level of 'color.var'-data, to have color represent the proportion of `'color.var'-data == <value>` for all bins.
+
+- Bug Fixes:
+    
+    1. 'dittoHeatmap()': Fixed a bug which blocked provision of 'annotation_row' and 'annotation_colors' inputs to dittoHeatmap without also generating column annotations via either 'annot.by' or direct 'annotation_col' provision. 
+
+- Upkeep with ggplot-v3 & Seurat-v5, *details here are generally invisbile to the user*:
+  
+    1. ggplot-v3: Switched from making use of `do.call()` with the deprecated `aes_string()`, and simple `list` management for successively built setups, to mostly direct `aes(.data[[<col>]])` calls, and use of `modifyList` for additions in successively built setups.  This methodology should be backwards compatible to earlier ggplot versions, but that has not been officially tested.
+    2. Seurat-v5: Added conditional code that switched to the newly supported `SeuratObj[[<assay>]][<slot>]` syntax for expression data retrieval when the user's Seurat package version is 5.0 or higher. 
 
 #### Previous updates:
 
 <details>
 
-  <summary>Updates in dittoSeq v1.10 & v1.12 for Bioconductor 3.16 and 3.17</summary>
+  <summary>Updates in dittoSeq v1.14 (Bioconductor 3.18)</summary>
   
-  - No code updates, Bioconductor-maintained version number updates only
+  - Feature Extensions:
+    
+      1. 'dittoDotPlot()' & 'dittoPlotVarsAcrossGroups()': Improved 'group.by' ordering control via retention of factor levels and addition of a new 'groupings.drop.unused' input to control retention of empty levels.
+      2. 'dittoHeatmap()': Targeting Seurat clusters with the "ident" shortcut now works for the 'annot.by' input of 'dittoHeatmap()'.
+  
+  - Bug Fixes:
+    
+      1. 'dittoHeatmap()': Fixed a feature exclusion check in 'dittoHeatmap()' meant to remove features without any non-zero values. Previously, it removed all features with a mean of zero, which blocked plotting from pre-scaled data.
+      2. 'dittoHeatmap()': (New in dittoSeq-v1.15-devel, but also pushed to the released v1.14.2) Fixed a bug which blocked provision of 'annotation_row' and 'annotation_colors' inputs to dittoHeatmap without also generating column annotations via either 'annot.by' or direct 'annotation_col' provision.
+      3. 'dittoDimPlot()' & 'getReductions()': Eliminated cases where 'getReductions()' did not return NULL for 'object's containing zero dimensionality reductions. This fix also improves associated error messaging of 'dittoDimPlot()' where such cases were missed.
+  
+  - Upkeep with ggplot-v3 & Seurat-v5, *details here are generally invisbile to the user* (New in dittoSeq-v1.15-devel, but also pushed to the released v1.14.1):
+  
+      1. ggplot-v3: Switched from making use of `do.call()` with the deprecated `aes_string()`, and simple `list` management for successively built setups, to mostly direct `aes(.data[[<col>]])` calls, and use of `modifyList` for additions in suucessively built setups.  This methodology should be backwards compatible to earlier ggplot versions, but that has not been officially tested.
+      2. Seurat-v5: Added conditional code that switched to the newly supported `SeuratObj[[<assay>]][<slot>]` syntax for expression data retrieval when the user's Seurat package version is 5.0 or higher.
   
 </details>
 
 
 <details>
 
-  <summary>Updates in dittoSeq v1.8 for Bioconductor 3.15</summary>
+  <summary>No code updates in dittoSeq v1.10 & v1.12 (Bioconductor 3.16 & 3.17)</summary>
+  
+  - Bioconductor-maintained version number updates only
+  
+</details>
+
+
+<details>
+
+  <summary>Updates in dittoSeq v1.8 (Bioconductor 3.15)</summary>
   
   - Added 'randomize' option for 'order' input of 'dittoDimPlot()' and 'dittoScatterPlot()'
   
@@ -47,7 +101,7 @@ Current updates in 'devel':
 
 <details>
 
-  <summary>Updates in dittoSeq v1.6 for Bioconductor 3.14</summary>
+  <summary>Updates in dittoSeq v1.6 (Bioconductor 3.14)</summary>
   
   - Vignette Update: Added a 'Quick-Reference: Seurat<=>dittoSeq' section.
   - Build & Test Infrastructure Update: Removed Seurat dependency from all build and test materials by removing Seurat code from the vignette and making all unit-testing of Seurat interactions conditional on both presence of Seurat and successful SCE to Seurat cnversion.
@@ -62,7 +116,7 @@ Current updates in 'devel':
 
 <details>
 
-  <summary>Updates in dittoSeq v1.4, Bioconductor 3.13</summary>
+  <summary>Updates in dittoSeq v1.4 (Bioconductor 3.13)</summary>
 
   - Added 1 New Visualization Function: `dittoFreqPlot()`:
     - Combines the population frequency summarization of `dittoBarPlot()` with the plotting style of `dittoPlot()` to enable per-population, per-sample, per-group frequency comparisons which focus on individual cell types / clusters!
@@ -93,7 +147,7 @@ Current updates in 'devel':
 
 <details>
 
-  <summary>Updates in dittoSeq v1.2, Bioconductor 3.12</summary>
+  <summary>Updates in dittoSeq v1.2 (Bioconductor 3.12)</summary>
   
   - Added 3 New Visualization Functions, `dittoDotPlot()`, `dittoDimHex()` & `dittoScatterHex()`.
   - Expanded SummarizedExperiment compatibility across the entire toolset.
@@ -109,9 +163,10 @@ Current updates in 'devel':
   
 </details>
 
+
 <details>
 
-  <summary>Updates in dittoSeq v1.0, Bioconductor 3.11</summary>
+  <summary>Updates in dittoSeq v1.0 (Bioconductor 3.11)</summary>
   
   - Submitted to Bioconductor
   
