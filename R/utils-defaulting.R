@@ -22,7 +22,7 @@
     #  - NULL when logical provided to 'null.if' is TRUE.
     #  - 'target' otherwise
     if (!is.null(target)) {
-        if (target==default.when) {
+        if (identical(target,default.when)) {
             if (null.if) {
                 target <- NULL
             } else {

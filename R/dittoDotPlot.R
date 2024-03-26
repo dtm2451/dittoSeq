@@ -33,7 +33,26 @@
 #' When set to NA, the minimum/maximum of the data are used.
 #' @param min.color,max.color colors to use for minimum and maximum color values.
 #' Default = light grey and purple.
+#' Ignored if \code{mid.color} given as \code{"rwb"} or \code{"rgb"} which will update these to be "blue" and "red", respectively.
 #' @param min,max Numbers which set the values associated with the minimum and maximum colors.
+#' @param mid.color NULL (default), "rwb", "rgb", or a color to use for the midpoint of a three-color color scale.
+#' \emph{This parameter acts a switch between using a 2-color scale or a 3-color scale}:\itemize{
+#' \item When left NULL, the 2-color scale runs from \code{min.color} to \code{max.color}, using \code{\link[ggplot2]{scale_fill_gradient}}.
+#' \item When given a color, the 3-color scale runs from \code{min.color} to \code{mid.color} to \code{max.color}, using \code{\link[ggplot2]{scale_fill_gradient2}}.
+#' \item{
+#' When given \emph{\code{"rwb"} or \code{"rgb"} serves as a \strong{single-point, quick switch to a "standard" 3-color scale}} by also updating the \code{min.color} and \code{max.color} used:
+#' Doing so sets:\itemize{
+#'     \item "red" as the \code{max.color},
+#'     \item "blue" as the \code{min.color},
+#'     \item and either "white" ("r\emph{w}b") or "gray90" ("r\emph{g}b") for \code{mid.color}.
+#' }
+#' Thus, the 3-color scale runs from "blue" to either "white" or "gray90" to "red", using \code{\link[ggplot2]{scale_fill_gradient2}}.
+#' }
+#' }
+#' @param mid Number or "make" (default) which sets the value associated with the \code{mid.color} of the three-color scale.
+#' Ignored when \code{mid.color} is left as NULL.
+#' When "make", defaults to midway between what dittoSeq expects to be the minimum and maximum values shown in the legend.
+#' (Maps to the 'midpoint' parameter of \code{\link[ggplot2]{scale_fill_gradient2}}.)
 #' @param ylab String which sets the y/grouping-axis label.
 #' Default is \code{group.by} so it defaults to the name of the grouping information.
 #' Set to \code{NULL} to remove.
@@ -86,7 +105,8 @@
 #' \item Size of the dots can be changed with \code{size}.
 #' \item Subsetting to utilize only certain cells/samples can be achieved with \code{cells.use}.
 #' \item Markers can be grouped into categories by providing them to the \code{vars} input as a list, where list element names represent category names, and list element contents are the feature names which each category should contain.
-#' \item Colors can be adjusted with \code{min.color} and \code{max.color}.
+#' \item Colors (2-color scale) can be adjusted with \code{min.color} and \code{max.color}.
+#' \item Coloring can also be switched to a 3-color scale by using the \code{mid.color} parameter.  For details, see that parameter's description above.
 #' \item Displayed value ranges can be adjusted with \code{min} and \code{max} for color, or \code{min.percent} and \code{max.percent} for size.
 #' \item Titles and axes labels can be adjusted with \code{main}, \code{sub}, \code{xlab}, \code{ylab}, \code{legend.color.title}, and \code{legend.size.title} arguments.
 #' \item The legend can be hidden by setting \code{legend.show = FALSE}.
@@ -175,6 +195,22 @@
 #'     vars.dir = "y"
 #' )
 #'
+#' # Coloring can be swapped from the default 2-color scale to a 3-color scale
+#' #   by using the 'mid.color' input:
+#' dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+#'     mid.color = "white"
+#' )
+#' # Setting it to "rgb" or "rwb" quickly updates 'min.color' and 'max.color' too,
+#' #   making the affect of these next two calls equivalent:
+#' dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+#'     mid.color = "rgb"
+#' )
+#' dittoDotPlot(myRNA, c("gene1", "gene2", "gene3", "gene4"), "clustering",
+#'     min.color = "blue",
+#'     mid.color = "gray90",
+#'     max.color = "red"
+#' )
+#'
 #' # For certain specialized applications, it may be helpful to adjust the
 #' #   functions used for summarizing the data as well. Inputs are:
 #' #   summary.fxn.color & summary.fxn.size
@@ -207,6 +243,8 @@ dittoDotPlot <- function(
     max.color = "#C51B7D",
     min = "make",
     max = NA,
+    mid.color = NULL,
+    mid = "make",
     summary.fxn.color = function(x) {mean(x[x!=0])},
     summary.fxn.size = function(x) {mean(x!=0)},
     min.percent = 0.01,
@@ -242,6 +280,18 @@ dittoDotPlot <- function(
     min <- .leave_default_or_null(
         min,
         default = if (scale) {NA} else {0})
+    if (!identical(mid.color, NULL)) {
+        if (mid.color == "rgb") {
+            min.color <- "blue"
+            mid.color <- "gray90"
+            max.color <- "red"
+        }
+        if (mid.color == "rwb") {
+            min.color <- "blue"
+            mid.color <- "white"
+            max.color <- "red"
+        }
+    }
     
     # Handle vars-categories pre-gather
     vars_list <- NULL
@@ -315,10 +365,23 @@ dittoDotPlot <- function(
         }
     }
 
+    # Fill remaining default that might require data knowledge
+    if (!identical(mid.color, NULL)) {
+        if (identical(mid,"make")) {
+            if (scale) {
+                mid <- 0
+            } else {
+                max_calc <- ifelse(identical(max, NA), max(data$color), max)
+                min_calc <- ifelse(identical(min, NA), min(data$color), min)
+                mid <- (min_calc + max_calc)/2
+            }
+        }
+    }
+
     # Generate Plot
     p <- .ditto_dot_plot(
         data, do.hover, main, sub, ylab, xlab, x.labels.rotate, scale,
-        min.color, max.color, min, max,
+        min.color, mid.color, max.color, min, mid, max,
         size, min.percent, max.percent, theme,
         legend.color.title, legend.color.breaks, legend.color.breaks.labels,
         legend.size.title, legend.show)
@@ -360,8 +423,10 @@ dittoDotPlot <- function(
     x.labels.rotate,
     scale,
     min.color,
+    mid.color,
     max.color,
     min,
+    mid,
     max,
     size,
     min.percent,
@@ -380,13 +445,22 @@ dittoDotPlot <- function(
         scale_size(
             name = legend.size.title,
             limits = c(min.percent, max.percent),
-            range = c(0, size)) +
-        scale_color_gradient(
-            name = legend.color.title,
-            low= min.color, high = max.color,
-            limits = c(min,max),
-            breaks = legend.color.breaks,
-            labels = legend.color.breaks.labels)
+            range = c(0, size))
+
+    color.args <- list(
+        name = legend.color.title,
+        low = min.color, high = max.color,
+        limits = c(min,max),
+        breaks = legend.color.breaks,
+        labels = legend.color.breaks.labels
+    )
+    if (identical(mid.color, NULL)) {
+        p <- p + do.call(scale_color_gradient, color.args)
+    } else {
+        color.args$mid <- mid.color
+        color.args$midpoint <- mid
+        p <- p + do.call(scale_color_gradient2, color.args)
+    }
     
     if (do.hover) {
         p <- p + suppressWarnings(
