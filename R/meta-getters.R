@@ -90,7 +90,7 @@ getMetas <- function(object, names.only = TRUE){
 #'
 #' @param meta String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
-#' @param adjustment A recognized string indicating whether numeric metadata should be used directly (default) versus adjusted to be
+#' @param adjustment \code{NULL} for off or a recognized string indicating whether numeric metadata should be used directly (default) versus adjusted to be
 #' \itemize{
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}

@@ -11,7 +11,7 @@ meta(meta, object, adjustment = NULL, adj.fxn = NULL, add.names = TRUE)
 
 \item{object}{A Seurat, SingleCellExperiment, or SummarizedExperiment object.}
 
-\item{adjustment}{A recognized string indicating whether numeric metadata should be used directly (default) versus adjusted to be
+\item{adjustment}{\code{NULL} for off or a recognized string indicating whether numeric metadata should be used directly (default) versus adjusted to be
 \itemize{
 \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}

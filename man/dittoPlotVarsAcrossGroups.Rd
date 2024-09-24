@@ -98,7 +98,7 @@ See details section for more info.}
 \item{assay, slot}{single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
 See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
 
-\item{adjustment}{When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly or should it be adjusted to be
+\item{adjustment}{\code{NULL} for off or a recognized string indicating if \code{var}-data should be used directly or should be adjusted to be
 \itemize{
 \item{"z-score": DEFAULT, centered and scaled to produce a relative-to-mean z-score representation}
 \item{NULL: no adjustment, the normal method for all other ditto expression plotting functions}

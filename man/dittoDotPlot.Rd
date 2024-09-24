@@ -65,7 +65,7 @@ Example: \code{vars = list('Epithelial Cells' = c("gene1","gene2"), Neuron = c("
 
 \item{group.by}{String representing the name of a metadata to use for separating the cells/samples into discrete groups.}
 
-\item{scale}{String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled.}
+\item{scale}{String which sets whether the values shown with color should be centered and scaled after being summarized per \code{group.by} groups.}
 
 \item{split.by}{1 or 2 strings naming discrete metadata to use for splitting the cells/samples into multiple plots with ggplot faceting.
 \itemize{
@@ -135,7 +135,7 @@ When set to NA, the minimum/maximum of the data are used.}
 \item{assay, slot}{single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
 See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.}
 
-\item{adjustment}{Should expression data be used directly (default) or should it be adjusted to be
+\item{adjustment}{\code{NULL} for off or a recognized string indicating if \code{vars}-data should be used directly (default) or, prior to any potential scaling per groupings controlled via \code{scale}, should be adjusted to be
 \itemize{
 \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
