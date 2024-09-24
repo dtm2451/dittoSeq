@@ -2,9 +2,9 @@
 % Please edit documentation in R/meta-getters.R
 \name{meta}
 \alias{meta}
-\title{Returns the values of a meta.data  for all cells/samples}
+\title{Returns the values of a meta.data for all cells/samples}
 \usage{
-meta(meta, object, adjustment = NULL, adj.fxn = NULL)
+meta(meta, object, adjustment = NULL, adj.fxn = NULL, add.names = TRUE)
 }
 \arguments{
 \item{meta}{String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.}
@@ -22,12 +22,14 @@ Ignored if the target metadata is not numeric.}
 \item{adj.fxn}{A function which takes a vector (of metadata values) and returns a vector of the same length.
 
 For example, \code{function(x) \{log2(x)\}} or \code{as.factor}}
+
+\item{add.names}{Logical which sets whether cells'/samples' names should be added as names on the output.}
 }
 \value{
-A named vector.
+A vector
 }
 \description{
-Returns the values of a meta.data  for all cells/samples
+Returns the values of a meta.data for all cells/samples
 }
 \details{
 Retrieves the values of a metadata slot from \code{object}, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
@@ -35,7 +37,7 @@ Retrieves the values of a metadata slot from \code{object}, or the clustering sl
 If \code{adjustment} or \code{adj.fxn} are provided, then these requested adjustments are applied to these values (\code{adjustment} first).
 Note: Alterations via \code{adjustment} are only applied when metadata is numeric, but \code{adj.fxn} alterations are applied to metadata of any type.
 
-Lastly, outputs these values are named as the cells'/samples' names.
+Lastly, if \code{add.names = TRUE} the values are named as the cells'/samples' names before being output.
 }
 \examples{
 example(importDittoBulk, echo = FALSE)

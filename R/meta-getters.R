@@ -86,7 +86,7 @@ getMetas <- function(object, names.only = TRUE){
 }
 
 #### meta: for extracting the values of a particular metadata for all cells/samples ####
-#' Returns the values of a meta.data  for all cells/samples
+#' Returns the values of a meta.data for all cells/samples
 #'
 #' @param meta String, the name of the "metadata" slot to grab. OR "ident" to retireve the clustering of a Seurat \code{object}.
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
@@ -100,14 +100,15 @@ getMetas <- function(object, names.only = TRUE){
 #' @param adj.fxn A function which takes a vector (of metadata values) and returns a vector of the same length.
 #' 
 #' For example, \code{function(x) \{log2(x)\}} or \code{as.factor}
-#' @return A named vector.
+#' @param add.names Logical which sets whether cells'/samples' names should be added as names on the output.
+#' @return A vector
 #' @details
 #' Retrieves the values of a metadata slot from \code{object}, or the clustering slot if \code{meta = "ident"} and the \code{object} is a Seurat.
 #' 
 #' If \code{adjustment} or \code{adj.fxn} are provided, then these requested adjustments are applied to these values (\code{adjustment} first).
 #' Note: Alterations via \code{adjustment} are only applied when metadata is numeric, but \code{adj.fxn} alterations are applied to metadata of any type.
 #' 
-#' Lastly, outputs these values are named as the cells'/samples' names.
+#' Lastly, if \code{add.names = TRUE} the values are named as the cells'/samples' names before being output. 
 #' @seealso
 #' \code{\link{metaLevels}} for returning just the unique discrete identities that exist within a metadata slot
 #'
@@ -127,7 +128,7 @@ getMetas <- function(object, names.only = TRUE){
 #' @export
 
 meta <- function(meta, object,
-    adjustment = NULL, adj.fxn = NULL) {
+    adjustment = NULL, adj.fxn = NULL, add.names = TRUE) {
 
     if (!isMeta(meta, object)) {
         stop(dQuote(meta)," is not a metadata of 'object'")
@@ -165,7 +166,9 @@ meta <- function(meta, object,
     }
     
     # Add names
-    names(values) <- .all_cells(object)
+    if (add.names) {
+        names(values) <- .all_cells(object)
+    }
     
     values
 }

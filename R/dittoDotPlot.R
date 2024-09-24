@@ -597,7 +597,7 @@ dittoDotPlot <- function(
     )
 }
 
-#' @importFrom stats sd
+#' @importFrom stats sd setNames
 .multi_var_gather_raw <- function(
     object,
     vars,
@@ -623,7 +623,18 @@ dittoDotPlot <- function(
     }
     
     gets_data <- if (length(meta_gets)>0) {
-        getMetas(object, names.only = FALSE)[, meta_gets, drop = FALSE]
+        data.frame(
+            setNames(
+                lapply(
+                    meta_gets,
+                    function(m) {
+                        # Individual pulls for applying adjustments
+                        meta(m, object, adjustment, add.names = FALSE)
+                    }
+                ),
+                meta_gets),
+            row.names = .all_cells(object)
+        )
     } else {
         data.frame(row.names = .all_cells(object))
     }

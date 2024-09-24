@@ -2,7 +2,7 @@
 #' Darkens input colors by a set amount
 #'
 #' @description A wrapper for the darken function of the colorspace package.
-#' @param colors the color(s) input. Can be a list of colors, for example, /code{dittoColors()}.
+#' @param colors the color(s) input. Can be a list of colors, for example, \code{dittoColors()}.
 #' @param percent.change # between 0 and 1. the percentage to darken by. Defaults to 0.25 if not given.
 #' @param relative TRUE/FALSE. Whether the percentage should be a relative change versus an absolute one. Default = TRUE.
 #' @return Return a darkened version of the color in hexadecimal color form (="#RRGGBB" in base 16)
@@ -23,7 +23,7 @@ Darken <- function(colors, percent.change = 0.25, relative = TRUE) {
 #' Lightens input colors by a set amount
 #'
 #' @description A wrapper for the lighten function of the colorspace package.
-#' @param colors the color(s) input. Can be a list of colors, for example, /code{dittoColors()}.
+#' @param colors the color(s) input. Can be a list of colors, for example, \code{dittoColors()}.
 #' @param percent.change # between 0 and 1. the percentage to darken by. Defaults to 0.25 if not given.
 #' @param relative TRUE/FALSE. Whether the percentage should be a relative change versus an absolute one. Default = TRUE.
 #' @return Return a lighter version of the color in hexadecimal color form (="#RRGGBB" in base 16)

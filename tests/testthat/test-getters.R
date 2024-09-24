@@ -1,5 +1,5 @@
 # Tests for visualization functions
-# library(dittoSeq); library(testthat); source("setup.R"); source("../../R/utils.R"); source("../../R/utils-getters.R"); source("../../R/get.reductions.R"); source("../../R/utils-defaulting.R"); source("test-getters.R")
+# library(dittoSeq); library(testthat); for (i in list.files("../../R", pattern="^utils", full.names = TRUE)) source(i); source("test-getters.R")
 
 # Make Seurat, if can
 try(seurat <- Seurat::as.Seurat(sce), silent = TRUE)
@@ -28,7 +28,7 @@ test_that("isMeta works for Seurat and SCE", {
     expect_true(isMeta("score", seurat))
 })
 
-test_that("meta works for Seurat and SCE (+ adjustment/adj.fxn)", {
+test_that("meta works for Seurat and SCE (+ adjustment/adj.fxn, add.names)", {
     expect_type(
         meta("score", sce),
         "double")
@@ -45,6 +45,12 @@ test_that("meta works for Seurat and SCE (+ adjustment/adj.fxn)", {
         factor(meta("score", sce)),
         meta("score", sce, adj.fxn = function(x) {factor(x)}))
     
+    expect_true(is.null(names(meta("age", sce, add.names = FALSE))))
+    expect_equal(
+        names(meta("age", sce)),
+        .all_cells(sce)
+    )
+
     skip_if_not(seurat_conversion_worked, message = "Seurat conversion bug")
     expect_equal(
         meta("score", sce),
