@@ -70,7 +70,7 @@
 #' @param shape.legend.title String which sets the title of the shapes legend.  Default is \code{shape.by}
 #' @param assay,slot single strings or integers (SCEs and SEs) or an optionally named vector of such values that set which expression data to use.
 #' See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleCellExperiment objects deal with these differently, and functionality additions in dittoSeq have led to some minimal divergence from the native methodologies.
-#' @param adjustment When plotting gene / feature expression, should that data be used directly (default) or should it be adjusted to be
+#' @param adjustment \code{NULL} for off or a recognized string indicating if numeric \code{var}-data should be used directly (default) or should be adjusted to be
 #' \itemize{
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}

@@ -22,9 +22,9 @@
 #' adding \code{theme(strip.placement = "outside", strip.background.y = element_blank())} to the given \code{theme} (or 'x' counterpart depending on \code{vars.dir})
 #' @param summary.fxn.color,summary.fxn.size A function which sets how color or size will be used to summarize variables' data for each group.
 #' Any function can be used as long as it takes in a numeric vector and returns a single numeric value.
-#' @param scale String which sets whether the values shown with color (default: mean non-zero expression) should be centered and scaled. 
+#' @param scale String which sets whether the values shown with color should be centered and scaled after being summarized per \code{group.by} groups. 
 #' @param size Number which sets the visual dot size associated with the highest value shown by dot size (default: percent non-zero expression).
-#' @param adjustment Should expression data be used directly (default) or should it be adjusted to be
+#' @param adjustment \code{NULL} for off or a recognized string indicating if \code{vars}-data should be used directly (default) or, prior to any potential scaling per groupings controlled via \code{scale}, should be adjusted to be
 #' \itemize{
 #' \item{"z-score": scaled with the scale() function to produce a relative-to-mean z-score representation}
 #' \item{"relative.to.max": divided by the maximum expression value to give percent of max values between [0,1]}
@@ -597,7 +597,7 @@ dittoDotPlot <- function(
     )
 }
 
-#' @importFrom stats sd
+#' @importFrom stats sd setNames
 .multi_var_gather_raw <- function(
     object,
     vars,
@@ -623,7 +623,18 @@ dittoDotPlot <- function(
     }
     
     gets_data <- if (length(meta_gets)>0) {
-        getMetas(object, names.only = FALSE)[, meta_gets, drop = FALSE]
+        data.frame(
+            setNames(
+                lapply(
+                    meta_gets,
+                    function(m) {
+                        # Individual pulls for applying adjustments
+                        meta(m, object, adjustment, add.names = FALSE)
+                    }
+                ),
+                meta_gets),
+            row.names = .all_cells(object)
+        )
     } else {
         data.frame(row.names = .all_cells(object))
     }

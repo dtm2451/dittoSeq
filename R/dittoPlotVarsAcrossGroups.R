@@ -15,7 +15,7 @@
 #' @param plots String vector which sets the types of plots to include: possibilities = "jitter", "boxplot", "vlnplot", "ridgeplot".
 #' Order matters: c("vlnplot", "boxplot", "jitter") will put a violin plot in the back, boxplot in the middle, and then individual dots in the front.
 #' See details section for more info.
-#' @param adjustment When plotting gene expression (or antibody, or other forms of counts data), should that data be used directly or should it be adjusted to be
+#' @param adjustment \code{NULL} for off or a recognized string indicating if \code{var}-data should be used directly or should be adjusted to be
 #' \itemize{
 #' \item{"z-score": DEFAULT, centered and scaled to produce a relative-to-mean z-score representation}
 #' \item{NULL: no adjustment, the normal method for all other ditto expression plotting functions}
