@@ -58,6 +58,7 @@
         }
         
         if (do.ellipse) {
+            .error_if_no_mass_because("ellipses")
             p <- p + stat_ellipse(
                 data=data,
                 aes(x = .data$X, y = .data$Y, colour = .data[[column]]),
@@ -89,6 +90,7 @@
     # Add contours based on the density of cells/samples
     # (Dim and Scatter plots)
     
+    .error_if_no_mass_because("contours")
     p + geom_density_2d(
         data = data,
         mapping = aes(x = .data$X, y = .data$Y),

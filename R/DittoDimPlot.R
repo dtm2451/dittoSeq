@@ -243,8 +243,10 @@
 #'
 #' # MANY addtional tweaks are possible.
 #' # Also, many extra features are easy to add as well:
-#' dittoDimPlot(myRNA, "clustering",
-#'     do.label = TRUE, do.ellipse = TRUE)
+#' if (requireNamespace("MASS", quietly = TRUE)) {
+#'     dittoDimPlot(myRNA, "clustering",
+#'         do.label = TRUE, do.ellipse = TRUE)
+#' }
 #' dittoDimPlot(myRNA, "clustering",
 #'     do.label = TRUE, labels.highlight = FALSE, labels.size = 8)
 #' if (requireNamespace("plotly", quietly = TRUE)) {
@@ -255,10 +257,12 @@
 #'     trajectory.cluster.meta = "clustering",
 #'     sub = "Pseudotime Trajectories")
 #' 
-#' dittoDimPlot(myRNA, "gene1",
-#'     do.contour = TRUE,
-#'     contour.color = "lightblue", # Optional, black by default
-#'     contour.linetype = "dashed") # Optional, solid by default
+#' if (requireNamespace("MASS", quietly = TRUE)) {
+#'     dittoDimPlot(myRNA, "gene1",
+#'         do.contour = TRUE,
+#'         contour.color = "lightblue", # Optional, black by default
+#'         contour.linetype = "dashed") # Optional, solid by default
+#' }
 #' 
 #' # Plotting ordering can also be adjusted with 'order':
 #' dittoDimPlot(myRNA, "timepoint", size = 20,
