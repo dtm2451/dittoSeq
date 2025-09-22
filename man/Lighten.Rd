@@ -7,7 +7,7 @@
 Lighten(colors, percent.change = 0.25, relative = TRUE)
 }
 \arguments{
-\item{colors}{the color(s) input. Can be a list of colors, for example, /code{dittoColors()}.}
+\item{colors}{the color(s) input. Can be a list of colors, for example, \code{dittoColors(1)}.}
 
 \item{percent.change}{# between 0 and 1. the percentage to darken by. Defaults to 0.25 if not given.}
 
