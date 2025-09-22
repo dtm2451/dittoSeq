@@ -10,6 +10,8 @@ cells.names <- colnames(sce)[1:40]
 cells.logical <- c(rep(TRUE, 40), rep(FALSE,ncells-40))
 cols <- c("red", "blue", "yellow", "green", "black", "gray", "white")
 
+mass_installed <- requireNamespace("MASS", quietly = TRUE)
+
 test_that("dittoDimPlot can plot continuous or discrete data & raw or normalized expression", {
     expect_s3_class(
         dittoDimPlot(
@@ -435,6 +437,7 @@ test_that("dittoDimPlot genes can be different data types", {
 })
 
 test_that("dittoDimPlot adding contours", {
+    skip_if_not(mass_installed, message = "No MASS")
     expect_s3_class(dittoDimPlot(object=sce, disc,
         do.contour = TRUE),
         "ggplot")
@@ -463,6 +466,7 @@ test_that("dittoDimPlot ignores do.letter/do.label/do.ellipse for continuous dat
     expect_message(dittoDimPlot(object=sce, cont,
         do.letter = TRUE),
         "do.letter was/were ignored for non-discrete data", fixed = TRUE)
+    skip_if_not(mass_installed, message = "No MASS")
     expect_message(dittoDimPlot(object=sce, cont,
         do.ellipse = TRUE),
         "do.ellipse was/were ignored for non-discrete data", fixed = TRUE)
@@ -549,21 +553,7 @@ test_that("dittoDimPlot added features work with single-metadata faceting", {
         print(dittoDimPlot(
             disc, object=sce,
             split.by = disc2,
-            do.ellipse = TRUE,
-            split.show.all.others = FALSE)),
-        NA)
-    expect_error(
-        print(dittoDimPlot(
-            disc, object=sce,
-            split.by = disc2,
             do.letter = TRUE,
-            split.show.all.others = FALSE)),
-        NA)
-    expect_error(
-        print(dittoDimPlot(
-            disc, object=sce,
-            split.by = disc2,
-            do.contour = TRUE,
             split.show.all.others = FALSE)),
         NA)
     expect_error(
@@ -586,6 +576,22 @@ test_that("dittoDimPlot added features work with single-metadata faceting", {
                 data.frame(
                     c(5:20),
                     c(5:10,9:5,6:10))),
+            split.show.all.others = FALSE)),
+        NA)
+
+    skip_if_not(mass_installed, message = "No MASS")
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=sce,
+            split.by = disc2,
+            do.contour = TRUE,
+            split.show.all.others = FALSE)),
+        NA)
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=sce,
+            split.by = disc2,
+            do.ellipse = TRUE,
             split.show.all.others = FALSE)),
         NA)
 })
@@ -602,13 +608,6 @@ test_that("dittoDimPlot added features work with double-metadata faceting", {
         print(dittoDimPlot(
             disc, object=sce,
             split.by = c(disc2,disc),
-            do.ellipse = TRUE,
-            split.show.all.others = FALSE)),
-        NA)
-    expect_error(
-        print(dittoDimPlot(
-            disc, object=sce,
-            split.by = c(disc2,disc),
             do.letter = TRUE,
             split.show.all.others = FALSE)),
         NA)
@@ -632,6 +631,15 @@ test_that("dittoDimPlot added features work with double-metadata faceting", {
                 data.frame(
                     c(5:20),
                     c(5:10,9:5,6:10))),
+            split.show.all.others = FALSE)),
+        NA)
+
+    skip_if_not(mass_installed, message = "No MASS")
+    expect_error(
+        print(dittoDimPlot(
+            disc, object=sce,
+            split.by = c(disc2,disc),
+            do.ellipse = TRUE,
             split.show.all.others = FALSE)),
         NA)
 })

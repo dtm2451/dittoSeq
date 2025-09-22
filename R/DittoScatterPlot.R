@@ -162,8 +162,10 @@
 #'     facet_wrap("SNP", ncol = 1, strip.position = "left")
 #' 
 #' # Countours can also be added to help illuminate overlapping samples
-#' dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
+#' if (requireNamespace("MASS", quietly = TRUE)) {
+#'     dittoScatterPlot(myRNA, x.var = "gene1", y.var = "gene2",
 #'     do.contour = TRUE)
+#' }
 #' 
 #' # Multiple continuous metadata or genes can also be plotted together by
 #' #   giving that vector to 'color.var':

@@ -153,10 +153,12 @@
 #' dittoDimHex(myRNA, data.out = TRUE)
 #' 
 #' # Contour lines can be added with 'do.contours = TRUE'
-#' dittoDimHex(myRNA, bins = 10,
-#'     do.contour = TRUE,
-#'     contour.color = "lightblue", # Optional, black by default
-#'     contour.linetype = "dashed") # Optional, solid by default
+#' if (requireNamespace("MASS", quietly = TRUE)) {
+#'     dittoDimHex(myRNA, bins = 10,
+#'         do.contour = TRUE,
+#'         contour.color = "lightblue", # Optional, black by default
+#'         contour.linetype = "dashed") # Optional, solid by default
+#' }
 #' 
 #' # Trajectories can be added to dittoDimHex plots
 #' dittoDimHex(myRNA, bins = 10,

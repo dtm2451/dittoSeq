@@ -17,6 +17,8 @@ cells.names <- colnames(sce)[1:40]
 cells.logical <- c(rep(TRUE, 40), rep(FALSE,ncells-40))
 cols <- c("red", "blue", "yellow", "green", "black", "gray", "white")
 
+mass_installed <- requireNamespace("MASS", quietly = TRUE)
+
 test_that("DimHex & ScatterHex can plot density for SCE", {
     expect_s3_class(dittoDimHex(object=sce), "ggplot")
     expect_s3_class(dittoDimHex(cont, object=sce), "ggplot")
@@ -327,6 +329,7 @@ test_that("dittoScatterHex trajectory curve adding works", {
 })
 
 test_that("dittoDimHex adding contours", {
+    skip_if_not(mass_installed, message = "No MASS")
     expect_s3_class(dittoDimHex(object=sce, disc,
         do.contour = TRUE),
         "ggplot")
@@ -344,6 +347,7 @@ test_that("dittoDimHex do.label/do.ellipse", {
             disc, object=sce,
             do.label = TRUE),
         "ggplot")
+    skip_if_not(mass_installed, message = "No MASS")
     expect_s3_class(
         dittoDimHex(
             disc, object=sce,
@@ -355,11 +359,12 @@ test_that("dittoDimHex ignores do.label/do.ellipse for continuous data", {
     expect_message(dittoDimHex(object=sce, cont,
         do.label = TRUE),
         "do.label was/were ignored for non-discrete data", fixed = TRUE)
+    skip_if_not(mass_installed, message = "No MASS")
     expect_message(dittoDimHex(object=sce, cont,
         do.ellipse = TRUE),
         "do.ellipse was/were ignored for non-discrete data", fixed = TRUE)
     
-    # No message for discrete data && MANUAAL CHECK: ellipse is drawn 
+    # No message for discrete data && MANUAL CHECK: ellipse is drawn
     expect_message(dittoDimHex(object=sce, disc,
         do.ellipse = TRUE),
         NA)

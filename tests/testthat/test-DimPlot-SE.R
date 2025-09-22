@@ -9,6 +9,8 @@ cells.names <- colnames(sce)[1:40]
 cells.logical <- c(rep(TRUE, 40), rep(FALSE,ncells-40))
 cols <- c("red", "blue", "yellow", "green", "black", "gray", "white")
 
+mass_installed <- requireNamespace("MASS", quietly = TRUE)
+
 se <- as(sce, 'SummarizedExperiment')
 rownames(se) <- rownames(sce)
 embeds <- reducedDim(sce, 'PCA')
@@ -202,6 +204,7 @@ test_that("dittoDimPlot genes can be different data types", {
 })
 
 test_that("dittoDimPlot adding contours", {
+    skip_if_not(mass_installed, message = "No MASS")
     expect_s3_class(dittoDimPlot(object = se, reduction.use = embeds, disc,
         do.contour = TRUE),
         "ggplot")
