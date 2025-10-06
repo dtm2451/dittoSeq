@@ -447,12 +447,21 @@ dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plo
     # Add Plots
     for (i in seq_along(plots)) {
         if (plots[i] == "vlnplot") {
-            p <- p + geom_violin(
+            violin.args <- list(
                 linewidth = vlnplot.lineweight,
                 width = vlnplot.width,
                 scale = vlnplot.scaling,
-                draw_quantiles = vlnplot.quantiles,
-                na.rm = TRUE)
+                na.rm = TRUE
+            )
+            if (!identical(vlnplot.quantiles, NULL)) {
+                .error_if_no_mass_because("quantiles to violins")
+                if ("quantile.linetype" %in% names(formals(ggplot2::geom_violin))) {
+                    violin.args$quantiles <- vlnplot.quantiles
+                } else {
+                    violin.args$draw_quantiles <- vlnplot.quantiles
+                }
+            }
+            p <- p + do.call(geom_violin, violin.args)
         }
 
         if (plots[i] == "boxplot") {

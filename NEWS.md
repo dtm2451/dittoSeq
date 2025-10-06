@@ -1,6 +1,7 @@
 # dittoSeq 1.21.1
 
 * Minor changes to ensure compatibility with ggplot2 version 4.0.0 changes. Notably, the 'MASS' package is now added as a suggested companion package, and error messages suggesting its installation were added for features which rely on functionality from this package. This change is concurrent with ggplot2 itself downgrading the tool from an imported requirement to a suggested addition.
+* Minor changes to ensure compatibility with ComplexHeatmap in how the 'drop_levels' input of 'dittoHeatmap()' is handled. See function documentation for details.
 
 # dittoSeq 1.16
 

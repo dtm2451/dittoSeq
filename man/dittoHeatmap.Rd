@@ -94,7 +94,9 @@ Default is a ramp from white to red with 25 slices.}
 but it is possible to set all or some manually. dittoSeq will just fill any left out annotations. Format is a named (annotation_col & annotation_row colnames) character vector list where individual color values can also be named.
 }}
 
-\item{cluster_cols, border_color, legend_breaks, breaks, drop_levels, ...}{other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).}
+\item{cluster_cols, border_color, legend_breaks, breaks, ...}{other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).}
+
+\item{drop_levels}{argument passed to \code{\link[pheatmap]{pheatmap}} or used only for picking of annotation colors when \code{complex = TRUE} because the input is enforced to be TRUE by \code{\link[ComplexHeatmap]{pheatmap}}.}
 
 \item{complex}{Logical which sets whether the heatmap should be generated with ComplexHeatmap (\code{TRUE}) versus pheatmap (\code{FALSE}, default).}
 }

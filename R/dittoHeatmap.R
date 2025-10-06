@@ -28,7 +28,8 @@
 #' @param data.out Logical. When set to \code{TRUE}, changes the output from the heatmat itself, to a list containing all arguments that would have be passed to \code{\link{pheatmap}} for heatmap generation.
 #' (Can be useful for troubleshooting or customization.)
 #' @param highlight.features String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.
-#' @param cluster_cols,border_color,legend_breaks,breaks,drop_levels,... other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).
+#' @param cluster_cols,border_color,legend_breaks,breaks,... other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).
+#' @param drop_levels argument passed to \code{\link[pheatmap]{pheatmap}} or used only for picking of annotation colors when \code{complex = TRUE} because the input is enforced to be TRUE by \code{\link[ComplexHeatmap]{pheatmap}}.
 #' @param show_colnames,show_rownames,scale,annotation_col,annotation_colors arguments passed to \code{pheatmap} that are over-ruled by certain \code{dittoHeatmap} functionality:
 #' \itemize{
 #' \item show_colnames (& labels_col): if \code{cell.names.meta} is provided, pheatmaps's \code{labels_col} is utilized to show these names and \code{show_colnames} parameter is set to \code{TRUE}.
@@ -291,6 +292,8 @@ dittoHeatmap <- function(
         OUT <- args
     } else if (complex) {
         .error_if_no_complexHm()
+        # Remove drop_levels -- enforced on by ComplexHeatmap, so affects color picking purposes, but dropped levels won't show in the legend.
+        args$drop_levels <- NULL
         OUT <- do.call("pheatmap", args, envir = asNamespace("ComplexHeatmap"))
     } else {
         OUT <- do.call(pheatmap::pheatmap, args)
@@ -330,7 +333,6 @@ dittoHeatmap <- function(
         drop_levels = drop_levels, ...)
     
     # Adjust data
-    
     if (scaled.to.max) {
         args <- .scale_to_max(args, heatmap.colors.max.scaled)
     }
