@@ -13,7 +13,9 @@ dittoBarPlot(
   cells.use = NULL,
   retain.factor.levels = FALSE,
   data.out = FALSE,
+  data.only = FALSE,
   do.hover = FALSE,
+  hover.round.digits = 5,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
   split.nrow = NULL,
@@ -21,7 +23,7 @@ dittoBarPlot(
   split.adjust = list(),
   y.breaks = NA,
   min = 0,
-  max = NULL,
+  max = NA,
   var.labels.rename = NULL,
   var.labels.reorder = NULL,
   x.labels = NULL,
@@ -33,7 +35,12 @@ dittoBarPlot(
   main = "make",
   sub = NULL,
   legend.show = TRUE,
-  legend.title = NULL
+  legend.title = NULL,
+  add.line = NULL,
+  line.linetype = "dashed",
+  line.color = "black",
+  line.linewidth = 0.5,
+  line.opacity = 1
 )
 }
 \arguments{
@@ -63,7 +70,11 @@ but Note that this will also force retention of groupings that could otherwise b
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.}
 
+\item{data.only}{Logical. When set to \code{TRUE}, the underlying data will be returned, but not the plot itself.}
+
 \item{do.hover}{Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.}
+
+\item{hover.round.digits}{Integer number specifying the number of decimal digits to round displayed numeric values to, when \code{do.hover} is set to \code{TRUE}.}
 
 \item{color.panel}{String vector which sets the colors to draw from. \code{dittoColors()} by default.}
 
@@ -127,6 +138,20 @@ Default = "make" and if left as make, a title will be automatically generated.}
 \item{legend.show}{Logical which sets whether the legend should be displayed.}
 
 \item{legend.title}{String which adds a title to the legend.}
+
+\item{add.line}{numeric value(s) where one or multiple line(s) should be added}
+
+\item{line.linetype}{String which sets the type of line for \code{add.line}.
+Defaults to "dashed", but any ggplot linetype will work.}
+
+\item{line.color}{String that sets the color(s) of the \code{add.line} line(s)
+Alternatively, a vector of strings of the same length as \code{add.line} can be given to set the color of each line individually.}
+
+\item{line.linewidth}{Number that sets the thickness of the \code{add.line} line(s). Default = 0.5.
+Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the thickness of each line individually.}
+
+\item{line.opacity}{Number that sets the opacity of the \code{add.line} line(s). Default = 1.
+Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the opacity of each line individually.}
 }
 \value{
 A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.

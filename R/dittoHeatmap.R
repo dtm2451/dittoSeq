@@ -1,6 +1,5 @@
 ########## dittoHeatmap: Builds a heatmap with given genes using pheatmap. ##########
 #' Outputs a heatmap of given genes
-#' @importFrom grDevices colorRampPalette
 #'
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap.

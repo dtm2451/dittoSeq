@@ -69,8 +69,8 @@ test_that("dittoDimPlot work for a Seurat & 'slot' input usable", {
     df <- dittoDimPlot("gene1", object = seurat, data.out = TRUE,
         slot = "counts")
     expect_equal(
-        df$Target_data$color,
-        round(df$Target_data$color,0))
+        df$Target_data[,df$cols_used$color.by],
+        round(df$Target_data[,df$cols_used$color.by],0))
 })
 
 test_that("dittoDotPlot works with gene and meta data for a Seurat, with 'slot' doing what it should", {
@@ -135,18 +135,18 @@ test_that("DimHex & ScatterHex work for Seurat", {
     expect_s3_class((p1 <- dittoDimHex(object=seurat, "gene1", data.out = TRUE))[[1]], "ggplot")
     expect_s3_class((p2 <- dittoDimHex("gene1", object=seurat, slot = "counts", data.out = TRUE))$plot, "ggplot")
     expect_s3_class((p3 <- dittoDimHex("gene1", object=sce, assay = "counts", data.out = TRUE))$plot, "ggplot")
-    expect_false(identical(p1$data$color, p2$data$color))
-    expect_true(identical(p2$data$color, p3$data$color))
+    expect_false(identical(p1$data[,p1$cols_used$color.by], p2$data[,p2$cols_used$color.by]))
+    expect_true(identical(p2$data[,p2$cols_used$color.by], p3$data[,p3$cols_used$color.by]))
     # Scatter - Slot / Assay Adjustment
     expect_s3_class((p <- dittoScatterHex("gene1", "gene1", "gene1", object = seurat, data.out = TRUE,
         slot.x = "counts",
         slot.y = "counts",
         adjustment.color = "z-score"))$plot, "ggplot")
     expect_equal(
-        p$data$X,
-        round(p$data$Y,0))
+        p$data[,p$cols_used$x.by],
+        round(p$data[,p$cols_used$y.by],0))
     expect_equal(
-        mean(p$data$color),
+        mean(p$data[,p$cols_used$color.by]),
         0)
 })
 
@@ -194,15 +194,15 @@ test_that("dittoScatterPlot can plot genes or metadata for a Seurat, with'slot' 
         "ggplot")
     expect_s3_class(
         dittoScatterPlot(
-            "gene1", "gene1", object = seurat),
+            "gene1", "gene2", object = seurat),
         "ggplot")
     
-    df <- dittoScatterPlot("gene1", "gene1", "gene1", NULL, object = seurat,
+    df <- dittoScatterPlot("gene1", "gene1", "gene2", NULL, object = seurat,
         slot.x = "counts",
         slot.y = "counts",
         data.out = TRUE)
     expect_equal(
-        df$Target_data$X,
-        round(df$Target_data$Y,0))
+        df$Target_data[,df$cols_used$x.by],
+        round(df$Target_data[,df$cols_used$y.by],0))
 })
     

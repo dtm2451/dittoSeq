@@ -19,7 +19,9 @@ dittoFreqPlot(
   split.adjust = list(),
   cells.use = NULL,
   data.out = FALSE,
+  data.only = FALSE,
   do.hover = FALSE,
+  hover.round.digits = 5,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
   y.breaks = NULL,
@@ -60,6 +62,8 @@ dittoFreqPlot(
   ridgeplot.binwidth = NULL,
   add.line = NULL,
   line.linetype = "dashed",
+  line.linewidth = 0.5,
+  line.opacity = 1,
   line.color = "black",
   legend.show = TRUE,
   legend.title = color.by
@@ -113,8 +117,12 @@ Alternatively, a Logical vector, the same length as the number of cells in the o
 
 \item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).}
 
+\item{data.only}{Logical. When set to \code{TRUE}, the underlying data will be returned, but not the plot itself.}
+
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),}
+
+\item{hover.round.digits}{Integer number specifying the number of decimal digits to round displayed numeric values to, when \code{do.hover} is set to \code{TRUE}.}
 
 \item{color.panel}{String vector which sets the colors to draw from for plot fills.
 Default = \code{dittoColors()}.}
@@ -235,7 +243,14 @@ Takes precedence over \code{ridgeplot.bins} when provided.}
 \item{line.linetype}{String which sets the type of line for \code{add.line}.
 Defaults to "dashed", but any ggplot linetype will work.}
 
-\item{line.color}{String that sets the color(s) of the \code{add.line} line(s)}
+\item{line.linewidth}{Number that sets the thickness of the \code{add.line} line(s). Default = 0.5.
+Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the thickness of each line individually.}
+
+\item{line.opacity}{Number that sets the opacity of the \code{add.line} line(s). Default = 1.
+Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the opacity of each line individually.}
+
+\item{line.color}{String that sets the color(s) of the \code{add.line} line(s)
+Alternatively, a vector of strings of the same length as \code{add.line} can be given to set the color of each line individually.}
 
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 

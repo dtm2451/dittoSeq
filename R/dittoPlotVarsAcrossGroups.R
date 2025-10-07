@@ -154,6 +154,7 @@ dittoPlotVarsAcrossGroups <- function(
     adjustment = "z-score",
     swap.rownames = NULL,
     do.hover = FALSE,
+    hover.round.digits = 5,
     main = NULL,
     sub = NULL,
     ylab = "make",
@@ -194,6 +195,8 @@ dittoPlotVarsAcrossGroups <- function(
     add.line = NULL,
     line.linetype = "dashed",
     line.color = "black",
+    line.linewidth = 0.5,
+    line.opacity = 1,
     split.nrow = NULL,
     split.ncol = NULL,
     split.adjust = list(),
@@ -231,56 +234,78 @@ dittoPlotVarsAcrossGroups <- function(
     } else {
         data$grouping
     }
-
-    # Start making the plot
-    p <- ggplot(data,
-            aes(x = .data$grouping, y = .data$value, fill = .data$color)) +
-        theme +
-        scale_fill_manual(name = legend.title, values=color.panel[colors]) +
-        ggtitle(main, sub)
-
-    # Add data to plot
-    if (!("ridgeplot" %in% plots)) {
-        p <- .dittoPlot_add_data_y_direction(
-            p, data, plots, xlab, ylab, NULL, jitter.size, jitter.width,
-            jitter.color, 16, NA, TRUE, jitter.position.dodge, do.raster, raster.dpi,
-            boxplot.width, boxplot.color, boxplot.show.outliers,
-            boxplot.outlier.size, boxplot.fill,
-            boxplot.position.dodge, boxplot.lineweight, vlnplot.lineweight,
-            vlnplot.width, vlnplot.scaling, vlnplot.quantiles,
-            add.line, line.linetype, line.color,
-            x.labels.rotate, do.hover, y.breaks, min, max, object)
-    } else {
-        p <- .dittoPlot_add_data_x_direction(
-            p, data, plots, xlab, ylab, jitter.size, jitter.color,
-            NA, TRUE, ridgeplot.lineweight, ridgeplot.scale,
-            ridgeplot.ymax.expansion, ridgeplot.shape, ridgeplot.bins,
-            ridgeplot.binwidth, add.line, line.linetype, line.color,
-            x.labels.rotate, do.hover, color.panel,
-            colors, y.breaks, min, max)
-    }
     
-    ### Add extra features
-    if (!is.null(split.by)) {
-        p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, split.adjust)
-    }
+    viz_out <- dittoViz::yPlot(
+        data_frame = data,
+        var = 'var.data',
+        group.by = 'grouping',
+        color.by = 'color',
+        shape.by = NULL,
+        split.by = split.by,
+        rows.use = NULL,
+        plots = plots,
+        var.adjustment = NULL,
+        var.adj.fxn = NULL,
+        do.hover = do.hover,
+        hover.data = unique(c(
+            'var', 'grouping', 'color', 'var.data'
+        )),
+        hover.round.digits = hover.round.digits,
+        color.panel = color.panel,
+        colors = colors,
+        theme = theme,
+        main = main,
+        sub = sub,
+        ylab = ylab,
+        y.breaks = y.breaks,
+        min = min,
+        max = max,
+        xlab = xlab,
+        x.labels = x.labels,
+        x.labels.rotate = x.labels.rotate,
+        x.reorder = x.reorder,
+        split.nrow = split.nrow,
+        split.ncol = split.ncol,
+        split.adjust = split.adjust,
+        do.raster = do.raster,
+        raster.dpi = raster.dpi,
+        jitter.size = jitter.size,
+        jitter.width = jitter.width,
+        jitter.color = jitter.color,
+        jitter.position.dodge = jitter.position.dodge,
+        boxplot.width = boxplot.width,
+        boxplot.color = boxplot.color,
+        boxplot.show.outliers = boxplot.show.outliers,
+        boxplot.outlier.size = boxplot.outlier.size,
+        boxplot.fill = boxplot.fill,
+        boxplot.position.dodge = boxplot.position.dodge,
+        boxplot.lineweight = boxplot.lineweight,
+        vlnplot.lineweight = vlnplot.lineweight,
+        vlnplot.width = vlnplot.width,
+        vlnplot.scaling = vlnplot.scaling,
+        vlnplot.quantiles = vlnplot.quantiles,
+        ridgeplot.lineweight = ridgeplot.lineweight,
+        ridgeplot.scale = ridgeplot.scale,
+        ridgeplot.ymax.expansion = ridgeplot.ymax.expansion,
+        ridgeplot.shape = ridgeplot.shape,
+        ridgeplot.bins = ridgeplot.bins,
+        ridgeplot.binwidth = ridgeplot.binwidth,
+        add.line = add.line,
+        line.linetype = line.linetype,
+        line.color = line.color,
+        line.linewidth = line.linewidth,
+        line.opacity = line.opacity,
+        legend.show = legend.show,
+        legend.title = legend.title,
+        data.out = data.out
+    )
     
-    if (!legend.show) {
-        p <- .remove_legend(p)
-    }
-    
-    if (do.hover) {
-        p <- .warn_or_jitter_plotly(p, plots)
-    }
-    
-    # DONE. Return the plot +/- data
+    # DONE
     if (data.out) {
-        list(
-            p = p,
-            data = data)
+        viz_out$df_passed <- data
+        viz_out
     } else {
-        p
+        viz_out
     }
 }
 

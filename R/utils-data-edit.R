@@ -1,35 +1,3 @@
-.make_hover_strings_from_vars <- function(
-    data.hover, object, assay, slot, adjustment) {
-
-    # Overall: if do.hover=TRUE and data.hover has a list of genes / metas called
-    #   c(var1, var2, var3, ...), then for all cells, make a string:
-    #   "var1: var1-value\nvar2: var2-value\nvar3: var3-value\n..."
-    #   vars that are not genes or metadata are ignored.
-    fillable <- vapply(
-        seq_along(data.hover),
-        function(i)
-            (isMeta(data.hover[i],object) ||
-                isGene(data.hover[i],object, assay)),
-        logical(1))
-    data.hover <- data.hover[fillable]
-    if (is.null(data.hover)) {
-        stop("No genes or metadata names added to 'hover.data'")
-    }
-
-    # Create dataframe to contain the hover.info
-    features.info <- data.frame(row.names = .all_cells(object))
-    features.info <- vapply(
-        data.hover,
-        function(this.data)
-            as.character(.var_OR_get_meta_or_gene(
-                this.data,object, assay, slot, adjustment)),
-        character(nrow(features.info)))
-    names(features.info) <- data.hover[fillable]
-
-    # Convert each row of dataframe to 'colname1: data1\ncolname2: data2\n...'
-    hover.strings <- .make_hover_strings_from_df(features.info)
-}
-
 .make_hover_strings_from_df <- function(df){
     # Creates a single character vector where each element is the hoverstring
     # for a given row of the provided 'df' with structure

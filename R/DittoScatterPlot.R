@@ -1,6 +1,4 @@
 #' Show RNAseq data overlayed on a scatter plot
-#' @import ggplot2
-#'
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param x.var,y.var Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
 #' Note: must be continuous.
@@ -229,6 +227,7 @@ dittoScatterPlot <- function(
     theme = theme_bw(),
     do.hover = FALSE,
     hover.data = NULL,
+    hover.round.digits = 5,
     hover.assay = .default_assay(object),
     hover.slot = .default_slot(object),
     hover.adjustment = NULL,
@@ -237,13 +236,31 @@ dittoScatterPlot <- function(
     contour.linetype = 1,
     add.trajectory.lineages = NULL,
     add.trajectory.curves = NULL,
-    trajectory.cluster.meta,
+    trajectory.cluster.meta = NULL,
     trajectory.arrow.size = 0.15,
+    add.xline = NULL,
+    xline.linetype = "dashed",
+    xline.color = "black",
+    xline.linewidth = 0.5,
+    xline.opacity = 1,
+    add.yline = NULL,
+    yline.linetype = "dashed",
+    yline.color = "black",
+    yline.linewidth = 0.5,
+    yline.opacity = 1,
+    add.abline = NULL,
+    abline.slope = 1,
+    abline.linetype = "solid",
+    abline.color = "black",
+    abline.linewidth = 0.5,
+    abline.opacity = 1,
     do.letter = FALSE,
     do.ellipse = FALSE,
     do.label = FALSE,
     labels.size = 5,
     labels.highlight = TRUE,
+    labels.use.numbers = FALSE,
+    labels.numbers.spacer = ": ",
     labels.repel = TRUE,
     labels.split.by = split.by,
     labels.repel.adjust = list(),
@@ -260,34 +277,20 @@ dittoScatterPlot <- function(
 
     order <- match.arg(order)
     multivar.split.dir <- match.arg(multivar.split.dir)
-    
-    # Standardize cells/samples vectors.
     cells.use <- .which_cells(cells.use, object)
-    all.cells <- .all_cells(object)
 
     # Make dataframe
-    all_data <- .scatter_data_gather(
-        object = object, cells.use = cells.use, x.var = x.var, y.var = y.var,
-        color.var = color.var, shape.by = shape.by, split.by = split.by,
-        extra.vars = extra.vars, multivar.split.dir = multivar.split.dir,
-        assay.x = assay.x, slot.x = slot.x, adjustment.x = adjustment.x,
-        assay.y = assay.y, slot.y = slot.y, adjustment.y = adjustment.y,
-        assay.color = assay.color, slot.color = slot.color,
-        adjustment.color = adjustment.color,
-        assay.extra = assay.extra, slot.extra = slot.extra,
-        adjustment.extra = adjustment.extra,
+    pulled_data <- .data_gather_to_df(
+        object, color.var,
+        x.by = x.var, y.by = y.var,
+        shape.by = shape.by,
+        extra.vars = unique(c(split.by,extra.vars,hover.data,trajectory.cluster.meta)),
+        assay = assay.color, slot = slot.color,
         swap.rownames = swap.rownames,
-        do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
-        rename.color.groups, rename.shape.groups)
-    Target_data <- all_data$Target_data
-    Others_data <- all_data$Others_data
-    split.by <- all_data$split.by
-    
-    if (order %in% c("increasing", "decreasing")) {
-        Target_data <- Target_data[order(Target_data$color, decreasing = order=="decreasing"),]
-    } else if (order == "randomize") {
-        Target_data <- Target_data[sample(nrow(Target_data)),]
-    }
+        x.assay = assay.x, x.slot = slot.x,
+        y.assay = assay.y, y.slot = slot.y,
+        extra.assay = assay.extra, extra.slot = slot.extra
+    )
 
     # Set title if "make"
     main <- .leave_default_or_null(main,
@@ -297,359 +300,104 @@ dittoScatterPlot <- function(
         legend.color.title, color.var, null.if = length(color.var)>1)
 
     # Make the plot
-    p <- .ditto_scatter_plot(Target_data, Others_data,
-        color.var, shape.by, show.others, size, opacity,
-        color.panel, colors, do.hover, shape.panel,
-        min.color, max.color, min, max,
-        xlab, ylab, main, sub, theme,
-        legend.show, legend.color.title, legend.color.size,
-        legend.color.breaks, legend.color.breaks.labels, legend.shape.title,
-        legend.shape.size, do.raster, raster.dpi,
-        split.by, split.show.all.others)
-
-    ### Add extra features
-    if (!is.null(split.by)) {
-        p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, split.adjust)
-    }
+    viz_out <- dittoViz::scatterPlot(
+        data_frame = pulled_data,
+        x.by = if ('_x.by' %in% colnames(pulled_data)) {'_x.by'} else {x.var},
+        y.by = if ('_y.by' %in% colnames(pulled_data)) {'_y.by'} else {y.var},
+        color.by = if ('_var' %in% colnames(pulled_data)) {'_var'} else {color.var},
+        shape.by = if ('_shape.by' %in% colnames(pulled_data)) {'_shape.by'} else {shape.by},
+        split.by = split.by,
+        size = size,
+        rows.use = cells.use,
+        show.others = show.others,
+        x.adjustment = adjustment.x,
+        y.adjustment = adjustment.y,
+        color.adjustment = adjustment.color,
+        x.adj.fxn = NULL,
+        y.adj.fxn = NULL,
+        color.adj.fxn = NULL,
+        split.show.all.others = split.show.all.others,
+        opacity = opacity,
+        color.panel = color.panel,
+        colors = colors,
+        split.nrow = split.nrow,
+        split.ncol = split.ncol,
+        split.adjust = split.adjust,
+        multivar.split.dir = multivar.split.dir,
+        shape.panel = shape.panel,
+        rename.color.groups = rename.color.groups,
+        rename.shape.groups = rename.shape.groups,
+        min.color = min.color,
+        max.color = max.color,
+        min.value = min,
+        max.value = max,
+        plot.order = order,
+        xlab = xlab,
+        ylab = ylab,
+        main = main,
+        sub = sub,
+        theme = theme,
+        do.hover = do.hover,
+        hover.data = unique(c(
+            color.var, paste0(color.var,".color.adj"), "color.multi", "color.which",
+            x.var, paste0(x.var,".x.adj"),
+            y.var, paste0(y.var,".y.adj"),
+            shape.by, split.by,
+            'var', 'var.color.adj', "color.multi", "color.which",
+            shape.by, split.by, hover.data
+        )),
+        hover.round.digits = hover.round.digits,
+        do.contour = do.contour,
+        contour.color = contour.color,
+        contour.linetype = contour.linetype,
+        add.trajectory.by.groups = add.trajectory.lineages,
+        add.trajectory.curves = add.trajectory.curves,
+        trajectory.group.by = trajectory.cluster.meta,
+        trajectory.arrow.size = trajectory.arrow.size,
+        add.xline = add.xline,
+        xline.linetype = xline.linetype,
+        xline.color = xline.color,
+        xline.linewidth = xline.linewidth,
+        xline.opacity = xline.opacity,
+        add.yline = add.yline,
+        yline.linetype = yline.linetype,
+        yline.color = yline.color,
+        yline.linewidth = yline.linewidth,
+        yline.opacity = yline.opacity,
+        add.abline = add.abline,
+        abline.slope = abline.slope,
+        abline.linetype = abline.linetype,
+        abline.color = abline.color,
+        abline.linewidth = abline.linewidth,
+        abline.opacity = abline.opacity,
+        do.letter = do.letter,
+        do.ellipse = do.ellipse,
+        do.label = do.label,
+        labels.size = labels.size,
+        labels.highlight = labels.highlight,
+        labels.use.numbers = labels.use.numbers,
+        labels.numbers.spacer = labels.numbers.spacer,
+        labels.repel = labels.repel,
+        labels.repel.adjust = labels.repel.adjust,
+        labels.split.by = labels.split.by,
+        legend.show = legend.show,
+        legend.color.title = legend.color.title,
+        legend.color.size = legend.color.size,
+        legend.color.breaks = legend.color.breaks,
+        legend.color.breaks.labels = legend.color.breaks.labels,
+        legend.shape.title = legend.shape.title,
+        legend.shape.size = legend.shape.size,
+        show.grid.lines = TRUE,
+        do.raster = do.raster,
+        raster.dpi = raster.dpi,
+        data.out = data.out
+    )
     
-    if (do.contour) {
-        p <- .add_contours(p, Target_data, contour.color, contour.linetype)
-    }
-    
-    p <- .add_letters_ellipses_labels_if_discrete(
-        p, Target_data, is.discrete = !is.numeric(Target_data$color),
-        do.letter, do.ellipse, do.label,
-        labels.highlight, labels.size, labels.repel, labels.split.by,
-        labels.repel.adjust,
-        size, opacity, legend.color.title, legend.color.size)
-    
-    if (is.list(add.trajectory.lineages)) {
-        p <- .add_trajectory_lineages(
-            p, rbind(Target_data, Others_data), add.trajectory.lineages,
-            trajectory.cluster.meta, trajectory.arrow.size, object)
-    }
-    
-    if (is.list(add.trajectory.curves)) {
-        p <- .add_trajectory_curves(
-            p, add.trajectory.curves, trajectory.arrow.size)
-    }
-    
-    if (do.hover) {
-        .error_if_no_plotly()
-        p <- plotly::ggplotly(p, tooltip = "text")
-    }
-
     ### RETURN the PLOT ###
     if (data.out) {
-        list(
-            plot = p,
-            Target_data = Target_data,
-            Others_data = Others_data)
-    } else{
-        p
-    }
-}
-
-.ditto_scatter_plot <- function(
-    Target_data,
-    Others_data,
-    color.var,
-    shape.by,
-    show.others,
-    size,
-    opacity,
-    color.panel,
-    colors,
-    do.hover,
-    shape.panel,
-    min.color,
-    max.color,
-    min,
-    max,
-    xlab,
-    ylab,
-    main,
-    sub,
-    theme,
-    legend.show,
-    legend.color.title,
-    legend.color.size,
-    legend.color.breaks,
-    legend.color.breaks.labels,
-    legend.shape.title,
-    legend.shape.size,
-    do.raster,
-    raster.dpi,
-    split.by,
-    split.show.all.others
-) {
-    
-    ### Set up plotting
-    p <- ggplot() + ylab(ylab) + xlab(xlab) + ggtitle(main,sub) + theme
-
-    # Determine how to add data while adding proper theming
-    aes.use <- aes(x = .data$X, y = .data$Y)
-    geom.args <- list(
-        data = Target_data,
-        size=size, alpha = opacity)
-
-    if (!is.null(color.var)) {
-        
-        aes.use <- modifyList(aes.use, aes(color = .data$color))
-        
-        if (is.numeric(Target_data$color)) {
-            p <- p +
-            scale_colour_gradient(
-                name = legend.color.title, low= min.color, high = max.color,
-                limits = c(min, max),
-                breaks = legend.color.breaks,
-                labels = legend.color.breaks.labels)
-        } else {
-            p <- p +
-            scale_colour_manual(
-                name = legend.color.title,
-                values = color.panel[colors]) +
-            guides(color = guide_legend(override.aes = list(size=legend.color.size)))
-        }
-    }
-
-    if (!is.null(shape.by)) {
-        
-        aes.use <- modifyList(aes.use, aes(shape = .data$shape))
-        
-        p <- p +
-            scale_shape_manual(
-                values = shape.panel[seq_along(levels(as.factor(Target_data$shape)))],
-                name = legend.shape.title) +
-            guides(shape = guide_legend(override.aes = list(size=legend.shape.size)))
-    
+        viz_out$df_passed <- pulled_data
+        viz_out
     } else {
-        geom.args$shape <- shape.panel[1]
+        viz_out
     }
-
-    ### Add data
-    # Others_data
-    if (show.others) {
-        if (!is.null(split.by) && split.show.all.others) {
-            Others_data <- .rep_all_data_per_facet(
-                Target_data, Others_data, split.by)
-        }
-        
-        if (nrow(Others_data)>1) {
-            if (do.raster) {
-                .error_if_no_ggrastr()
-                p <- p + ggrastr::geom_point_rast(data = Others_data,
-                    aes(x = .data$X, y = .data$Y), size=size, color = "gray90", raster.dpi = raster.dpi)
-            } else {
-                p <- p + geom_point(data = Others_data,
-                    aes(x = .data$X, y = .data$Y), size=size, color = "gray90")
-            }
-        }
-    }
-    # Target_data
-    if (do.hover) {
-        aes.use <- modifyList(aes.use, aes(text = .data$hover.string))
-        geom.args$mapping <- aes.use
-        p <- p + suppressWarnings(do.call(geom_point, geom.args))
-    } else {
-        geom.args$mapping <- aes.use
-        if (do.raster) {
-            .error_if_no_ggrastr()
-            p <- p + do.call(ggrastr::geom_point_rast, geom.args)
-        } else {
-            p <- p + do.call(geom_point, geom.args)
-        }
-    }
-
-    if (!legend.show) {
-        p <- .remove_legend(p)
-    }
-
-    p
-}
-
-.rep_all_data_per_facet <- function(Target_data, Others_data, split.by) {
-    
-    all_data <- rbind(Target_data, Others_data)
-    
-    facet <- if (is.null(split.by)) {
-        "filler"
-    } else {
-        do.call(paste, all_data[,split.by, drop = FALSE])
-    }
-    
-    Others_data <- data.frame(row.names = rownames(all_data))
-    
-    Others_data <- do.call(
-        rbind,
-        lapply(
-            unique(facet),
-            function(this_facet) {
-        
-                facet_data <- all_data[facet==this_facet, , drop = FALSE]
-                
-                new_data <- all_data        
-                # Add facet info
-                if (!is.null(split.by)) {
-                    for (by in split.by) {
-                        new_data[[by]] <- facet_data[1,by]
-                    }
-                }
-                
-                new_data
-            }
-        )
-    )
-}
-
-.scatter_data_gather <- function(
-    object,
-    cells.use,
-    x.var,
-    y.var,
-    color.var,
-    shape.by,
-    split.by,
-    extra.vars,
-    multivar.split.dir,
-    assay.x,
-    slot.x,
-    adjustment.x,
-    assay.y,
-    slot.y,
-    adjustment.y,
-    assay.color,
-    slot.color,
-    adjustment.color,
-    assay.extra,
-    slot.extra,
-    adjustment.extra,
-    swap.rownames = NULL,
-    do.hover = FALSE,
-    hover.data = NULL,
-    hover.assay = NULL,
-    hover.slot = NULL,
-    hover.adjustment = NULL,
-    rename.color.groups = NULL,
-    rename.shape.groups = NULL
-    ) {
-
-    all.cells <- .all_cells(object)
-    cells.use <- .which_cells(cells.use, object)
-    object <- .swap_rownames(object, swap.rownames)
-    
-    # Support multiple genes/metadata
-    if (length(color.var)>1 && length(color.var) != length(all.cells)) {
-        # Data
-        each_data <- lapply(
-            color.var, function(this.var) {
-                this.out <- .scatter_data_gather_inner(
-                    object, all.cells, x.var, y.var, this.var,
-                    shape.by, split.by, extra.vars, assay.x, slot.x, adjustment.x,
-                    assay.y, slot.y, adjustment.y, assay.color, slot.color,
-                    adjustment.color, assay.extra, slot.extra, adjustment.extra,
-                    do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
-                    rename.color.groups, rename.shape.groups)
-                this.out$color.var <- this.var
-                this.out
-            }
-        )
-        if (any(unlist(lapply(each_data, function(x) { !is.numeric(x$color) })))) {
-            stop("Only numeric data supported when plotting multiple color.var")
-        }
-        out_data <-list(
-            Target_data = do.call(rbind, lapply(each_data, function(x) { x[cells.use,] } )),
-            Others_data = do.call(rbind, lapply(each_data, function(x) { x[!(all.cells %in% cells.use),] } ))
-        )
-        split.by <- .multivar_adjust_split_by(
-            split.by, multivar.split.dir, multivar.col.name = "color.var")
-    } else {
-        # Single var
-        all_data <- .scatter_data_gather_inner(
-            object, all.cells, x.var, y.var, color.var,
-            shape.by, split.by, extra.vars, assay.x, slot.x, adjustment.x,
-            assay.y, slot.y, adjustment.y, assay.color, slot.color,
-            adjustment.color, assay.extra, slot.extra, adjustment.extra,
-            do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
-            rename.color.groups, rename.shape.groups)
-        out_data <-list(
-            Target_data = all_data[cells.use,],
-            Others_data = all_data[!(all.cells %in% cells.use),]
-        )
-    }
-    
-    out_data$split.by <- split.by
-    
-    out_data
-}
-
-.scatter_data_gather_inner <- function(
-    object,
-    all.cells,
-    x.var,
-    y.var,
-    color.var,
-    shape.by,
-    split.by,
-    extra.vars,
-    assay.x,
-    slot.x,
-    adjustment.x,
-    assay.y,
-    slot.y,
-    adjustment.y,
-    assay.color,
-    slot.color,
-    adjustment.color,
-    assay.extra,
-    slot.extra,
-    adjustment.extra,
-    do.hover,
-    hover.data,
-    hover.assay,
-    hover.slot,
-    hover.adjustment,
-    rename.color.groups,
-    rename.shape.groups) {
-    
-    # Make dataframe
-    vars <- list(x.var, y.var, color.var, shape.by)
-    names <- list("X", "Y", "color", "shape")
-    assays <- list(assay.x, assay.y, assay.color, NA)
-    slots <- list(slot.x, slot.y, slot.color, NA)
-    adjustments <- list(adjustment.x, adjustment.y, adjustment.color, NA)
-    relabels <- list(NULL, NULL, rename.color.groups, rename.shape.groups)
-
-    dat <- data.frame(row.names = all.cells)
-    for (i in seq_along(vars)) {
-        dat <- .add_by_cell(dat, vars[[i]], names[[i]], object, assays[[i]],
-            slots[[i]], adjustments[[i]], NULL, relabels[[i]])
-    }
-
-    extra.vars <- unique(c(split.by, extra.vars))
-    dat <- .add_by_cell(dat, extra.vars, extra.vars, object, assay.extra,
-        slot.extra, adjustment.extra, mult = TRUE)
-
-    if (do.hover) {
-        dat$hover.string <- .make_hover_strings_from_vars(
-            hover.data, object, hover.assay, hover.slot, hover.adjustment)
-    }
-    
-    dat
-}
-
-.multivar_adjust_split_by <- function(split.by, multivar.split.dir, multivar.col.name) {
-    if (is.null(split.by)) {
-        split.by <- multivar.col.name
-    } else {
-        if (length(split.by)>1) {
-            warning("multi-feature '", multivar.col.name, "' is prioiritized for faceting. The second 'split.by' element will be ignored.")
-        }
-        split.by[2] <- multivar.col.name
-        if (multivar.split.dir=="row") {
-            split.by <- rev(split.by)
-        }
-    }
-    split.by
 }

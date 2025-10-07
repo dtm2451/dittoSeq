@@ -21,14 +21,11 @@ test_that("dittoScatterPlot can plot genes or metadata & works for SCE", {
         "ggplot")
     expect_s3_class(
         dittoScatterPlot(
-            gene, gene, object = sce),
+            gene, "gene2", object = sce),
         "ggplot")
 })
 
 test_that("dittoScatterPlot can overlay colors, continuous or discrete", {
-    expect_true(
-        "color" %in%
-        names(dittoScatterPlot(gene, cont, cont, object = sce, data.out = TRUE)$Target_data))
     expect_s3_class(
         dittoScatterPlot(
             gene, cont, cont, object = sce),
@@ -40,9 +37,6 @@ test_that("dittoScatterPlot can overlay colors, continuous or discrete", {
 })
 
 test_that("dittoScatterPlot can overlay shapes", {
-    expect_true(
-        "shape" %in%
-        names(dittoScatterPlot(gene, cont, NULL, disc, object = sce, data.out = TRUE)$Target_data))
     expect_s3_class(
         dittoScatterPlot(
             gene, cont, NULL, disc, object = sce),
@@ -52,14 +46,13 @@ test_that("dittoScatterPlot can overlay shapes", {
 test_that("dittoScatterPlot can add extra vars to dataframe", {
     df1 <- dittoScatterPlot(
             gene, cont, NULL, disc, object = sce,
-            data.out = TRUE)[[2]]
+            data.out = TRUE)$Target_data
     expect_s3_class(
         df2 <- dittoScatterPlot(
             gene, cont, NULL, disc, object = sce,
-            extra.vars = c(gene, disc2), data.out = TRUE)[[2]],
+            extra.vars = c("gene2", disc2), data.out = TRUE)$Target_data,
         "data.frame")
-    expect_equal(ncol(df1), 3)
-    expect_equal(ncol(df2), 5)
+    expect_equal(ncol(df1) + 2, ncol(df2))
 })
 
 test_that("dittoScatterPlot gene display can utilize different data.types (excluding for hover)", {
@@ -69,10 +62,10 @@ test_that("dittoScatterPlot gene display can utilize different data.types (exclu
         adjustment.color = "z-score",
         data.out = TRUE)
     expect_equal(
-        df$Target_data$X,
-        round(df$Target_data$Y,0))
+        df$Target_data[,df$cols_used$x.by],
+        round(df$Target_data[,df$cols_used$y.by],0))
     expect_equal(
-        mean(df$Target_data$color),
+        mean(df$Target_data[,df$cols_used$color.by]),
         0)
 })
 
@@ -141,7 +134,7 @@ test_that("dittoScatterPlot with and without rasterization produces identical pl
         "ggplot")
     expect_s3_class(
         dittoScatterPlot(
-            gene, gene, object = sce),
+            gene, cont, object = sce),
         "ggplot")
 })
 

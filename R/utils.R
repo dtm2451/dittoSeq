@@ -16,27 +16,9 @@
     }
 }
 
-.error_if_no_ggplot.multistats <- function() {
-    if (!requireNamespace("ggplot.multistats", quietly = TRUE)) {
-        stop("ggplot.multistats installation required for supplying 'color.var' to dittoHex plotters.")
-    }
-}
-
-.error_if_no_ggrastr <- function() {
-    if (!requireNamespace("ggrastr", quietly = TRUE)) {
-        stop("ggrastr installation required for using rasterization with dittoScatterPlot plotters.")
-    }
-}
-
 .error_if_no_complexHm <- function() {
     if (!requireNamespace("ComplexHeatmap", quietly = TRUE)) {
         stop("ComplexHeatmap installation required for using `complex` in dittoHeatmap.",
              "\nInstall with BiocManager::install('ComplexHeatmap').")
-    }
-}
-
-.error_if_no_mass_because <- function(case) {
-    if (!requireNamespace("MASS", quietly = TRUE)) {
-        stop(paste0("MASS installation required for adding ", case, "."))
     }
 }

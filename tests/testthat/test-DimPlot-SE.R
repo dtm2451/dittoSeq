@@ -194,13 +194,13 @@ test_that("dittoDimPlot genes can be different data types", {
     df <- dittoDimPlot(gene, object = se, reduction.use = embeds, data.out = TRUE,
         assay = "counts")
     expect_equal(
-        df$Target_data$color,
-        round(df$Target_data$color,0))
+        df$Target_data[,df$cols_used$color.by],
+        round(df$Target_data[,df$cols_used$color.by],0))
     df <- dittoDimPlot(gene, object = se, reduction.use = embeds, data.out = TRUE,
         adjustment = "relative.to.max")
     expect_equal(
         0:1,
-        range(df$Target_data$color))
+        range(df$Target_data[,df$cols_used$color.by]))
 })
 
 test_that("dittoDimPlot adding contours", {

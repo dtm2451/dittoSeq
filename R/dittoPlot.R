@@ -1,6 +1,4 @@
 #' Plots continuous data for customizeable cells'/samples' groupings on a y- (or x-) axis
-#' @import ggplot2
-#'
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var Single string representing the name of a metadata or gene, OR a vector with length equal to the total number of cells/samples in the dataset.
 #' Alternatively, a string vector naming multiple genes or metadata.
@@ -45,6 +43,7 @@
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),
 #' @param hover.data String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.
+#' @param hover.round.digits Integer number specifying the number of decimal digits to round displayed numeric values to, when \code{do.hover} is set to \code{TRUE}.
 #' @param color.panel String vector which sets the colors to draw from for plot fills.
 #' Default = \code{dittoColors()}.
 #' @param colors Integer vector, the indexes / order, of colors from color.panel to actually use.
@@ -82,6 +81,11 @@
 #' @param line.linetype String which sets the type of line for \code{add.line}.
 #' Defaults to "dashed", but any ggplot linetype will work.
 #' @param line.color String that sets the color(s) of the \code{add.line} line(s)
+#' Alternatively, a vector of strings of the same length as \code{add.line} can be given to set the color of each line individually.
+#' @param line.linewidth Number that sets the thickness of the \code{add.line} line(s). Default = 0.5.
+#' Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the thickness of each line individually.
+#' @param line.opacity Number that sets the opacity of the \code{add.line} line(s). Default = 1.
+#' Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the opacity of each line individually.
 #' @param jitter.size Scalar which sets the size of the jitter shapes.
 #' @param jitter.width Scalar that sets the width/spread of the jitter in the x direction. Ignored in ridgeplots.
 #' 
@@ -93,7 +97,6 @@
 #' @param jitter.shape.legend.show Logical which sets whether the shapes legend will be shown when its shape is determined by \code{shape.by}.
 #' @param jitter.position.dodge Scalar which adjusts the relative distance between jitter widths when multiple subgroups exist per \code{group.by} grouping (a.k.a. when \code{group.by} and \code{color.by} are not equal).
 #' Similar to \code{boxplot.position.dodge} input & defaults to the value of that input so that BOTH will actually be adjusted when only, say, \code{boxplot.position.dodge = 0.3} is given.
-#' @param do.raster Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 #' @param do.raster Logical. When set to \code{TRUE}, rasterizes the jitter plot layer, changing it from individually encoded points to a flattened set of pixels.
 #' This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.
 #' @param raster.dpi Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.
@@ -273,7 +276,8 @@ dittoPlot <- function(
     adjustment = NULL,
     swap.rownames = NULL,
     do.hover = FALSE,
-    hover.data = var,
+    hover.data = NULL,
+    hover.round.digits = 5,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
     shape.panel = c(16,15,17,23,25,8),
@@ -318,6 +322,8 @@ dittoPlot <- function(
     ridgeplot.binwidth = NULL,
     add.line = NULL,
     line.linetype = "dashed",
+    line.linewidth = 0.5,
+    line.opacity = 1,
     line.color = "black",
     legend.show = TRUE,
     legend.title = "make",
@@ -348,62 +354,93 @@ dittoPlot <- function(
     legend.title <- .leave_default_or_null(legend.title, var,
         null.if = is.null(shape.by))
 
-    # Grab the data
-    gather_out <- .dittoPlot_data_gather(object, var, group.by, color.by,
-        c(shape.by,split.by,extra.vars), cells.use, assay, slot, adjustment,
-        swap.rownames, do.hover, hover.data, x.reorder, x.labels,
-        split.by, multivar.aes, multivar.split.dir)
-    Target_data <- gather_out$Target_data
-    split.by <- gather_out$split.by
+    # Gather data
+    pulled_data <- .data_gather_to_df(
+        object, var,
+        group.by = group.by, color.by = color.by, shape.by = shape.by,
+        extra.vars = c(split.by,extra.vars),
+        assay = assay, slot = slot,
+        swap.rownames = swap.rownames
+    )
 
-    # Make the plot
-    p <- ggplot(Target_data, aes(fill=.data$color)) +
-        theme +
-        scale_fill_manual(name = legend.title, values=color.panel[colors]) +
-        ggtitle(main, sub)
-    if(!("ridgeplot" %in% plots)) {
-        p <- .dittoPlot_add_data_y_direction(
-            p, Target_data, plots, xlab, ylab, shape.by, jitter.size,
-            jitter.width, jitter.color, shape.panel, jitter.shape.legend.size,
-            jitter.shape.legend.show, jitter.position.dodge,
-            do.raster, raster.dpi,
-            boxplot.width, boxplot.color, boxplot.show.outliers,
-            boxplot.outlier.size, boxplot.fill,
-            boxplot.position.dodge, boxplot.lineweight,
-            vlnplot.lineweight, vlnplot.width, vlnplot.scaling,
-            vlnplot.quantiles,
-            add.line, line.linetype, line.color,
-            x.labels.rotate, do.hover, y.breaks, min, max, object)
-    } else {
-        p <- .dittoPlot_add_data_x_direction(
-            p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
-            jitter.shape.legend.size, jitter.shape.legend.show,
-            ridgeplot.lineweight, ridgeplot.scale, ridgeplot.ymax.expansion,
-            ridgeplot.shape, ridgeplot.bins, ridgeplot.binwidth, add.line,
-            line.linetype, line.color, x.labels.rotate, do.hover, color.panel,
-            colors, y.breaks, min, max)
-    }
-    # Extra tweaks
-    if (!is.null(split.by)) {
-        p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, split.adjust)
-    }
+    viz_out <- dittoViz::yPlot(
+        data_frame = pulled_data,
+        var = if ('_var' %in% colnames(pulled_data)) {'var'} else {var},
+        group.by = if ('_group.by' %in% colnames(pulled_data)) {'_group.by'} else {group.by},
+        color.by = if ('_color.by' %in% colnames(pulled_data)) {'_color.by'} else {color.by},
+        shape.by = if ('_shape.by' %in% colnames(pulled_data)) {'_shape.by'} else {shape.by},
+        split.by = split.by,
+        rows.use = cells.use,
+        plots = plots,
+        multivar.aes = multivar.aes,
+        multivar.split.dir = multivar.split.dir,
+        var.adjustment = adjustment,
+        var.adj.fxn = NULL,
+        do.hover = do.hover,
+        hover.data = unique(c(
+            var, paste0(var,".adj"), "var.multi", "var.which",
+            group.by, color.by, shape.by, split.by,
+            hover.data
+        )),
+        hover.round.digits = hover.round.digits,
+        color.panel = color.panel,
+        colors = colors,
+        shape.panel = shape.panel,
+        theme = theme,
+        main = main,
+        sub = sub,
+        ylab = ylab,
+        y.breaks = y.breaks,
+        min = min,
+        max = max,
+        xlab = xlab,
+        x.labels = x.labels,
+        x.labels.rotate = x.labels.rotate,
+        x.reorder = x.reorder,
+        split.nrow = split.nrow,
+        split.ncol = split.ncol,
+        split.adjust = split.adjust,
+        do.raster = do.raster,
+        raster.dpi = raster.dpi,
+        jitter.size = jitter.size,
+        jitter.width = jitter.width,
+        jitter.color = jitter.color,
+        jitter.shape.legend.size = jitter.shape.legend.size,
+        jitter.shape.legend.show = jitter.shape.legend.show,
+        jitter.position.dodge = jitter.position.dodge,
+        boxplot.width = boxplot.width,
+        boxplot.color = boxplot.color,
+        boxplot.show.outliers = boxplot.show.outliers,
+        boxplot.outlier.size = boxplot.outlier.size,
+        boxplot.fill = boxplot.fill,
+        boxplot.position.dodge = boxplot.position.dodge,
+        boxplot.lineweight = boxplot.lineweight,
+        vlnplot.lineweight = vlnplot.lineweight,
+        vlnplot.width = vlnplot.width,
+        vlnplot.scaling = vlnplot.scaling,
+        vlnplot.quantiles = vlnplot.quantiles,
+        ridgeplot.lineweight = ridgeplot.lineweight,
+        ridgeplot.scale = ridgeplot.scale,
+        ridgeplot.ymax.expansion = ridgeplot.ymax.expansion,
+        ridgeplot.shape = ridgeplot.shape,
+        ridgeplot.bins = ridgeplot.bins,
+        ridgeplot.binwidth = ridgeplot.binwidth,
+        add.line = add.line,
+        line.linetype = line.linetype,
+        line.color = line.color,
+        line.linewidth = line.linewidth,
+        line.opacity = line.opacity,
+        legend.show = legend.show,
+        legend.title = legend.title,
+        data.out = data.out
+    )
     
-    if (!legend.show) {
-        p <- .remove_legend(p)
-    }
-    
-    if (do.hover) {
-        p <- .warn_or_jitter_plotly(p, plots)
-    }
-    
-    # DONE. Return the plot +/- data
+    # DONE
     if (data.out) {
-        list(
-            p = p,
-            data = Target_data)
+        viz_out$df_passed <- pulled_data
+        viz_out
     } else {
-        p
+        viz_out
     }
 }
 
@@ -418,290 +455,3 @@ dittoRidgeJitter <- function(..., plots = c("ridgeplot", "jitter")){ dittoPlot(.
 #' @describeIn dittoPlot Plots continuous data for customizeable cells'/samples' groupings in boxplot form
 #' @export
 dittoBoxPlot <- function(..., plots = c("boxplot","jitter")){ dittoPlot(..., plots = plots) }
-
-.dittoPlot_add_data_y_direction <- function(
-    p, Target_data, plots, xlab, ylab, shape.by,
-    jitter.size, jitter.width, jitter.color,shape.panel,
-    jitter.shape.legend.size, jitter.shape.legend.show, jitter.position.dodge,
-    do.raster, raster.dpi,
-    boxplot.width, boxplot.color, boxplot.show.outliers, boxplot.outlier.size,
-    boxplot.fill, boxplot.position.dodge, boxplot.lineweight,
-    vlnplot.lineweight, vlnplot.width, vlnplot.scaling, vlnplot.quantiles,
-    add.line, line.linetype, line.color,
-    x.labels.rotate, do.hover, y.breaks, min, max,
-    object) {
-    # This function takes in a partial dittoPlot ggplot object without any data
-    # overlay, and parses adding the main data visualizations.
-    # Adds plots based on what is requested in plots, ordered by their order.
-
-    # Now that we know the plot's direction, set direction & y-axis limits
-    p <- p + aes(x = .data$grouping, y = .data$var.data)
-    
-    if (!is.null(y.breaks)) {
-        p <- p + scale_y_continuous(breaks = y.breaks)
-    }
-    if (!is.na(min) || !is.na(max)) {
-        p <- p + coord_cartesian(ylim=c(min,max))
-    }
-
-    # Add Plots
-    for (i in seq_along(plots)) {
-        if (plots[i] == "vlnplot") {
-            violin.args <- list(
-                linewidth = vlnplot.lineweight,
-                width = vlnplot.width,
-                scale = vlnplot.scaling,
-                na.rm = TRUE
-            )
-            if (!identical(vlnplot.quantiles, NULL)) {
-                .error_if_no_mass_because("quantiles to violins")
-                if ("quantile.linetype" %in% names(formals(ggplot2::geom_violin))) {
-                    violin.args$quantiles <- vlnplot.quantiles
-                } else {
-                    violin.args$draw_quantiles <- vlnplot.quantiles
-                }
-            }
-            p <- p + do.call(geom_violin, violin.args)
-        }
-
-        if (plots[i] == "boxplot") {
-            boxplot.args <- list(
-                width = boxplot.width,
-                color = boxplot.color,
-                lwd = boxplot.lineweight,
-                alpha = ifelse(boxplot.fill, 1, 0),
-                position = position_dodge(width = boxplot.position.dodge),
-                outlier.size = boxplot.outlier.size,
-                na.rm = TRUE)
-            if (is.na(boxplot.show.outliers)) {
-                boxplot.show.outliers <- ifelse("jitter" %in% plots, FALSE, TRUE)
-            }
-            if (!boxplot.show.outliers) {
-                boxplot.args$outlier.shape <- NA
-            }
-            p <- p + do.call(geom_boxplot, boxplot.args)
-        }
-
-        if (plots[i] == "jitter") {
-            
-            # Create geom_jitter() arguments
-            jitter.args <- list(
-                position = position_jitterdodge(
-                      jitter.width = jitter.width,
-                      jitter.height = 0,
-                      dodge.width = jitter.position.dodge,
-                      seed = NA
-                ),
-                size=jitter.size,
-                color = jitter.color)
-            
-            geom_for_jitter <- geom_jitter
-            if (do.raster) {
-                .error_if_no_ggrastr()
-                geom_for_jitter <- ggrastr::geom_jitter_rast
-                jitter.args$raster.dpi <- raster.dpi
-            }
-            
-            jitter.aes <- aes()
-            if (do.hover) {
-                jitter.aes <- modifyList(jitter.aes, aes(text = .data$hover.string))
-            }
-            
-            #If shape.by metadata given, use it. Else, shapes[1] which = dots (16) by default
-            if (!is.null(shape.by) && isMeta(shape.by, object)) {
-                
-                # Set shape in aes & set scales/theming.
-                jitter.aes <- modifyList(jitter.aes, aes(shape = .data[[shape.by]]))
-                
-                p <- p + scale_shape_manual(
-                    values = shape.panel[seq_along(metaLevels(shape.by, object, rownames(Target_data)))])
-                
-                if (!is.na(jitter.shape.legend.size)){
-                    p <- p + guides(shape = guide_legend(
-                        override.aes = list(size=jitter.shape.legend.size)))
-                }
-                if (jitter.shape.legend.show==FALSE){
-                    p <- p + guides(shape = "none")
-                }
-                
-            } else {
-                # Set shape outside of aes
-                jitter.args$shape <- shape.panel[1]
-            }
-            
-            jitter.args$mapping <- jitter.aes
-            
-            if (do.hover) {
-                p <- p + suppressWarnings(do.call(geom_for_jitter, jitter.args))
-            } else {
-                p <- p + do.call(geom_for_jitter, jitter.args)
-            }
-        }
-    }
-
-    # Add labels and, if requested, lines
-    p <- p + xlab(xlab) + ylab(ylab)
-    if (is.na(x.labels.rotate) || x.labels.rotate) {
-        p <- p + theme(axis.text.x= element_text(angle=45, hjust = 1, vjust = 1))
-    }
-    if (!is.null(add.line)) {
-        p <- p + geom_hline(yintercept=add.line, linetype= line.linetype, color = line.color)
-    }
-
-    p
-}
-
-#' @importFrom ggridges geom_density_ridges2
-.dittoPlot_add_data_x_direction <- function(
-    p, Target_data, plots, xlab, ylab, jitter.size, jitter.color,
-    jitter.shape.legend.size, jitter.shape.legend.show,
-    ridgeplot.lineweight, ridgeplot.scale,
-    ridgeplot.ymax.expansion, ridgeplot.shape, ridgeplot.bins,
-    ridgeplot.binwidth, add.line, line.linetype, line.color,
-    x.labels.rotate, do.hover, color.panel, colors, y.breaks, min, max) {
-    #This function takes in a partial dittoPlot ggplot object without any data overlay, and parses adding the main data visualizations.
-
-    # Now that we know the plot's direction, set direction & "y"-axis limits
-    p <- p + aes(x = .data$var.data, y = .data$grouping)
-    
-    if (!is.null(y.breaks)) {
-        p <- p + scale_x_continuous(breaks = y.breaks)
-    }
-    if (!is.na(min) || !is.na(max)) {
-        p <- p + coord_cartesian(xlim=c(min,max))
-    }
-    
-    # For stylistic issues with plotting defaults, also adjust grouping-axis limits
-    if (is.na(ridgeplot.ymax.expansion)) {
-        num_groups <- length(unique(Target_data$grouping))
-        # From 0.6 to 0.1 between 4 to 12 groups and 0.05 by 34 groups.
-        set_exp <- stats::approxfun(
-            x=c(3,12,34), y=c(0.6, 0.1, 0.05), yleft = 0.6, yright = 0.05)
-        ridgeplot.ymax.expansion <- set_exp(num_groups)
-    }
-    p <- p + scale_color_manual(values=color.panel[colors]) +
-        scale_y_discrete(expand = expansion(mult=c(0, ridgeplot.ymax.expansion)))
-
-    # Add ridgeplot and jitter data
-    ridge.args <- list(linewidth = ridgeplot.lineweight, scale = ridgeplot.scale)
-    if (ridgeplot.shape == "hist") {
-        ridge.args$stat <- "binline"
-        ridge.args$bins <- ridgeplot.bins
-        ridge.args$binwidth <- ridgeplot.binwidth
-    }
-    if ("jitter" %in% plots) {
-        ridge.args <- c(ridge.args, jittered_points = TRUE,
-            point_size = jitter.size, point_color = jitter.color)
-    }
-    
-    p <- p + do.call(ggridges::geom_density_ridges2, ridge.args)
-        
-    if (!is.na(jitter.shape.legend.size)) {
-        p <- p + guides(shape = guide_legend(override.aes = list(size=jitter.shape.legend.size)))
-    }
-    if (jitter.shape.legend.show==FALSE){
-        p <- p + guides(shape = "none")
-    }
-
-    # Add labels and, if requested, lines
-    p <- p + xlab(ylab) + ylab(xlab)
-    if (!is.na(x.labels.rotate) && x.labels.rotate) {
-        p <- p + theme(axis.text.y= element_text(angle=45, hjust = 1, vjust = 1))
-    }
-    if (!is.null(add.line)) {
-        p <- p + geom_vline(xintercept=add.line, linetype= line.linetype, color = line.color)
-    }
-
-    p
-}
-
-.warn_or_jitter_plotly <- function(p, plots) {
-    if ("ridgeplot" %in% plots) {
-        warning("'do.hover = TRUE' request ignored because plotly does not support ridgeplots.")
-    } else {
-        .error_if_no_plotly()
-        # Add hover.text to jitter, else just convert.
-        if ("jitter" %in% plots) {
-            p <- plotly::ggplotly(p, tooltip = "text")
-        } else {
-            p <- plotly::ggplotly(p)
-        }
-    }
-    p
-}
-
-.dittoPlot_data_gather <- function(
-    object, var, group.by, color.by,
-    extra.vars, cells.use,
-    assay, slot, adjustment,
-    swap.rownames,
-    do.hover, hover.data = c(var, extra.vars),
-    x.reorder, x.labels,
-    split.by, multivar.aes, multivar.split.dir) {
-
-    all.cells <- .all_cells(object)
-    
-    # Support multiple genes/metadata
-    if (length(var)>1 && length(var) != length(all.cells)) {
-        Target_data <- do.call(rbind, lapply(
-            var, function(this.var) {
-                col <- switch(
-                    multivar.aes, "split"="var", "group"="grouping", "color"="color")
-                this.out <- .dittoPlot_data_gather_inner(
-                    object, this.var, group.by, color.by, extra.vars, cells.use,
-                    all.cells, assay, slot, adjustment, swap.rownames, do.hover,
-                    hover.data, x.reorder, x.labels
-                )
-                this.out[[col]] <- this.var
-                this.out
-            }
-        ))
-        if (multivar.aes == "split") {
-            split.by <- .multivar_adjust_split_by(
-                split.by, multivar.split.dir, multivar.col.name = "var")
-        }
-    } else {
-        # Single var
-        Target_data <- .dittoPlot_data_gather_inner(
-            object, var, group.by, color.by, extra.vars, cells.use,
-            all.cells, assay, slot, adjustment, swap.rownames, do.hover,
-            hover.data, x.reorder, x.labels
-        )
-    }
-    list(Target_data = Target_data, split.by = split.by)
-}
-
-.dittoPlot_data_gather_inner <- function(
-    object, var, group.by, color.by, extra.vars, cells.use, all.cells,
-    assay, slot, adjustment, swap.rownames, do.hover, hover.data,
-    x.reorder, x.labels
-) {
-    
-    # Populate cells.use with a list of names if it was given anything else.
-    cells.use <- .which_cells(cells.use, object)
-    
-    ### Make dataframe for storing the plotting data:
-    full_data <- data.frame(
-        var.data = .var_OR_get_meta_or_gene(
-            var, object, assay, slot, adjustment, swap.rownames),
-        grouping = meta(group.by, object),
-        color = meta(color.by, object),
-        row.names = all.cells)
-    # Add split and extra data
-    full_data <- .add_by_cell(full_data, extra.vars, extra.vars, object, assay,
-        slot, adjustment, mult = TRUE)
-    
-    # Add hover strings
-    if (do.hover) {
-        full_data$hover.string <- .make_hover_strings_from_vars(
-            hover.data, object, assay, slot, adjustment)
-    }
-
-    Target_data <- full_data[all.cells %in% cells.use,]
-    # Reorder / Relabel grouping data
-    Target_data$grouping <-
-        .rename_and_or_reorder(Target_data$grouping, x.reorder, x.labels)
-    
-    Target_data
-}
-

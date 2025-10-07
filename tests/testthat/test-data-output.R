@@ -31,7 +31,7 @@ test_that("Data outputing works for Plot", {
         data <- dittoPlot("gene1", object = sce, group.by = "age", color.by = "age", data.out = TRUE),
         "list")
     expect_true(is.data.frame(data$data))
-    expect_true(ncol(data$data) > 2 && nrow(data$data) == ncol(sce))
+    expect_true(ncol(data$data) == 2 && nrow(data$data) == ncol(sce))
 })
 
 test_that("Data outputing works for Plot_VarsByGroup", {

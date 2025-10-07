@@ -136,12 +136,12 @@ test_that("dittoFreqPlot properly checks if samples vs grouping-data has mismatc
     expect_error(
         dittoFreqPlot(
             sce, grp1, sample.by = grp2, group.by = bad_grp),
-        "Unable to interpret 'group.by' with 'samples.by'. 'age' data does not map 1:1 per sample.", fixed = TRUE)
+        "Unable to interpret 'group.by' with 'sample.by'. 'age' data does not map 1 per sample.", fixed = TRUE)
     expect_error(
         dittoFreqPlot(
             sce, grp1, sample.by = grp2, group.by = grp3,
             color.by = bad_grp),
-        "Unable to interpret 'color.by' with 'samples.by'. 'age' data does not map 1:1 per sample.", fixed = TRUE)
+        "Unable to interpret 'color.by' with 'sample.by'. 'age' data does not map 1 per sample.", fixed = TRUE)
     
     # No error if no sample.by given
     expect_s3_class(

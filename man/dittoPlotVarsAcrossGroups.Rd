@@ -18,6 +18,7 @@ dittoPlotVarsAcrossGroups(
   adjustment = "z-score",
   swap.rownames = NULL,
   do.hover = FALSE,
+  hover.round.digits = 5,
   main = NULL,
   sub = NULL,
   ylab = "make",
@@ -58,6 +59,8 @@ dittoPlotVarsAcrossGroups(
   add.line = NULL,
   line.linetype = "dashed",
   line.color = "black",
+  line.linewidth = 0.5,
+  line.opacity = 1,
   split.nrow = NULL,
   split.ncol = NULL,
   split.adjust = list(),
@@ -112,6 +115,8 @@ See \code{\link{GeneTargeting}} for more specifics and examples.}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE} (and if there is a "jitter" in \code{plots}): the object will be converted to a plotly object in which underlying data about individual points will be displayed when you hover your cursor over them.}
+
+\item{hover.round.digits}{Integer number specifying the number of decimal digits to round displayed numeric values to, when \code{do.hover} is set to \code{TRUE}.}
 
 \item{main}{String which sets the plot title.}
 
@@ -225,7 +230,14 @@ Takes precedence over \code{ridgeplot.bins} when provided.}
 \item{line.linetype}{String which sets the type of line for \code{add.line}.
 Defaults to "dashed", but any ggplot linetype will work.}
 
-\item{line.color}{String that sets the color(s) of the \code{add.line} line(s)}
+\item{line.color}{String that sets the color(s) of the \code{add.line} line(s)
+Alternatively, a vector of strings of the same length as \code{add.line} can be given to set the color of each line individually.}
+
+\item{line.linewidth}{Number that sets the thickness of the \code{add.line} line(s). Default = 0.5.
+Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the thickness of each line individually.}
+
+\item{line.opacity}{Number that sets the opacity of the \code{add.line} line(s). Default = 1.
+Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the opacity of each line individually.}
 
 \item{split.nrow, split.ncol}{Integers which set the dimensions of faceting/splitting when a single metadata is given to \code{split.by}.}
 

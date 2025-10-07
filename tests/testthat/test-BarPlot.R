@@ -85,7 +85,7 @@ test_that("dittoBarPlots colors can be adjusted", {
     expect_s3_class(
         dittoBarPlot(
             sce, grp2, group.by = grp3,
-            color.panel = c("red","blue","yellow")),
+            color.panel = c("red","blue","yellow", "magenta")),
         "ggplot")
 })
 
@@ -197,13 +197,13 @@ test_that("dittoBarPlot can be faceted with 'split.by'", {
         dittoBarPlot(
             sce, grp2, group.by = grp3,
             split.by = grp1,
-            cells.use = sce$number<50),
+            cells.use = sce[[grp3]]!=3),
         "ggplot")
     expect_s3_class(
         dittoBarPlot(
             sce, grp2, group.by = grp3,
             split.by = c(grp1,grp3),
-            cells.use = sce$number<50),
+            cells.use = sce[[grp3]]!=3),
         "ggplot")
 })
 

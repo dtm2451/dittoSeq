@@ -24,7 +24,8 @@ dittoPlot(
   adjustment = NULL,
   swap.rownames = NULL,
   do.hover = FALSE,
-  hover.data = var,
+  hover.data = NULL,
+  hover.round.digits = 5,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
   shape.panel = c(16, 15, 17, 23, 25, 8),
@@ -69,6 +70,8 @@ dittoPlot(
   ridgeplot.binwidth = NULL,
   add.line = NULL,
   line.linetype = "dashed",
+  line.linewidth = 0.5,
+  line.opacity = 1,
   line.color = "black",
   legend.show = TRUE,
   legend.title = "make",
@@ -138,6 +141,8 @@ See \code{\link{GeneTargeting}} for more specifics and examples.}
 If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),}
 
 \item{hover.data}{String vector, a list of variable names, c("meta1","gene1","meta2",...) which determines what data to show upon hover when do.hover is set to \code{TRUE}.}
+
+\item{hover.round.digits}{Integer number specifying the number of decimal digits to round displayed numeric values to, when \code{do.hover} is set to \code{TRUE}.}
 
 \item{color.panel}{String vector which sets the colors to draw from for plot fills.
 Default = \code{dittoColors()}.}
@@ -266,7 +271,14 @@ Takes precedence over \code{ridgeplot.bins} when provided.}
 \item{line.linetype}{String which sets the type of line for \code{add.line}.
 Defaults to "dashed", but any ggplot linetype will work.}
 
-\item{line.color}{String that sets the color(s) of the \code{add.line} line(s)}
+\item{line.linewidth}{Number that sets the thickness of the \code{add.line} line(s). Default = 0.5.
+Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the thickness of each line individually.}
+
+\item{line.opacity}{Number that sets the opacity of the \code{add.line} line(s). Default = 1.
+Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the opacity of each line individually.}
+
+\item{line.color}{String that sets the color(s) of the \code{add.line} line(s)
+Alternatively, a vector of strings of the same length as \code{add.line} can be given to set the color of each line individually.}
 
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 

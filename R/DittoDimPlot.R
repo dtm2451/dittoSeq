@@ -2,9 +2,6 @@
 ################# dittoDimPlot ####################
 
 #' Shows data overlayed on a tsne, pca, or similar type of plot
-#' @import ggplot2
-#' @importFrom ggrepel geom_text_repel geom_label_repel
-#'
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var String name of a "gene" or "metadata" (or "ident" for a Seurat \code{object}) to use for coloring the plots.
 #' This is the data that will be displayed for each cell/sample. Discrete or continuous data both work.
@@ -90,12 +87,14 @@
 #' @param do.label  Logical. Whether to add text labels near the center (median) of clusters for grouping vars.
 #' @param labels.size Size of the the labels text
 #' @param labels.highlight Logical. Whether the labels should have a box behind them
-#' @param labels.repel Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
+#' @param labels.repel Logical, that sets whether the labels' placements will be adjusted with \link[ggrepel]{ggrepel} to avoid intersections between labels and plot bounds.
 #' TRUE by default.
 #' @param labels.split.by String of one or two metadata names which controls the facet-split calculations for label placements.
 #' Defaults to \code{split.by}, so generally there is no need to adjust this except when you are utilizing the \code{extra.vars} input to achieve manual faceting control.
 #' @param labels.repel.adjust A named list which allows extra parameters to be pushed through to ggrepel function calls.
 #' List elements should be valid inputs to the \code{\link[ggrepel]{geom_label_repel}} by default, or \code{\link[ggrepel]{geom_text_repel}} when \code{labels.highlight = FALSE}.
+#' @param labels.use.numbers Logical which controls swapping of data-value-labels for number-labels and adjustment of the legend to provide the mapping.
+#' @param labels.numbers.spacer String. When \code{do.label = TRUE} and \code{labels.use.numbers}, this string is used in the legend between the numbers and their associated data values.
 #' @param rename.var.groups String vector which sets new names for the identities of \code{var} groups.
 #' @param rename.shape.groups String vector which sets new names for the identities of \code{shape.by} groups.
 #' @param min.color color for lowest values of \code{var}/\code{min}.  Default = yellow
@@ -117,6 +116,7 @@
 #' \code{hover.data} argument is used to determine what data to use.
 #' @param hover.data String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.
 #' @param hover.assay,hover.slot,hover.adjustment Similar to the non-hover versions of these inputs, when showing expression data upon hover, these set what data will be shown.
+#' @param hover.round.digits Integer number specifying the number of decimal digits to round displayed numeric values to, when \code{do.hover} is set to \code{TRUE}.
 #' @param add.trajectory.lineages List of vectors representing trajectory paths, each from start-cluster to end-cluster, where vector contents are the names of clusters provided in the \code{trajectory.cluster.meta} input.
 #'
 #' If the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
@@ -128,6 +128,36 @@
 #' you can provide \code{add.trajectory.curves = slingCurves('object')}
 #' @param trajectory.cluster.meta String name of metadata containing the clusters that were used for generating trajectories.  Required when plotting trajectories using the \code{add.trajectory.lineages} method. Names of clusters inside the metadata should be the same as the contents of \code{add.trajectory.lineages} vectors.
 #' @param trajectory.arrow.size Number representing the size of trajectory arrows, in inches.  Default = 0.15.
+#' @param add.xline Numeric value(s), denoting x-axis value(s), where one or more vertical line(s) should be added.
+#' @param xline.linetype String which sets the type of line for \code{add.xline}.
+#' Defaults to "dashed", but any ggplot linetype will work.
+#' @param xline.color String that sets the color(s) of the \code{add.xline} line(s). Default = "black".
+#' Alternatively, a vector of strings of the same length as \code{add.xline} can be given to set the color of each line individually.
+#' @param xline.linewidth Number that sets the thickness of the \code{add.xline} line(s). Default = 0.5.
+#' Alternatively, a vector of numbers of the same length as \code{add.xline} can be given to set the thickness of each line individually.
+#' @param xline.opacity Number that sets the opacity of the \code{add.xline} line(s). Default = 1.
+#' Alternatively, a vector of numbers of the same length as \code{add.xline} can be given to set the opacity of each line individually.
+#' @param add.yline Numeric value(s), denoting y-axis value(s), where one or multiple horizonal line(s) should be added.
+#' @param yline.linetype String which sets the type of line for \code{add.yline}.
+#' Defaults to "dashed", but any ggplot linetype will work.
+#' @param yline.color String that sets the color(s) of the \code{add.yline} line(s). Default = "black".
+#' Alternatively, a vector of strings of the same length as \code{add.yline} can be given to set the color of each line individually.
+#' @param yline.linewidth Number that sets the thickness of the \code{add.yline} line(s). Default = 0.5.
+#' Alternatively, a vector of numbers of the same length as \code{add.yline} can be given to set the thickness of each line individually.
+#' @param yline.opacity Number that sets the opacity of the \code{add.yline} line(s). Default = 1.
+#' Alternatively, a vector of numbers of the same length as \code{add.yline} can be given to set the opacity of each line individually.
+#' @param add.abline Numeric value(s), denoting y-axis intercept(s), where one or multiple diagonal line(s) should be added.
+#' Use \code{abline.slope} to set slope(s).
+#' @param abline.slope Number that sets the slope of the \code{add.abline} line(s). Default = 1.
+#' Alternatively, a vector of numbers of the same length as \code{add.abline} can be given to set the slope of each line individually.
+#' @param abline.linetype String which sets the type of line for \code{add.abline}.
+#' Defaults to "dashed", but any ggplot linetype will work.
+#' @param abline.color String that sets the color(s) of the \code{add.abline} line(s). Default = "black".
+#' Alternatively, a vector of strings of the same length as \code{add.abline} can be given to set the color of each line individually.
+#' @param abline.linewidth Number that sets the thickness of the \code{add.abline} line(s). Default = 0.5.
+#' Alternatively, a vector of numbers of the same length as \code{add.abline} can be given to set the thickness of each line individually.
+#' @param abline.opacity Number that sets the opacity of the \code{add.abline} line(s). Default = 1.
+#' Alternatively, a vector of numbers of the same length as \code{add.abline} can be given to set the opacity of each line individually.
 #' @param do.raster Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).
 #' @param raster.dpi Number indicating dpi to use for rasterization. Default = 300.
 #' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
@@ -319,18 +349,37 @@ dittoDimPlot <- function(
     labels.repel = TRUE,
     labels.split.by = split.by,
     labels.repel.adjust = list(),
+    labels.use.numbers = FALSE,
+    labels.numbers.spacer = ": ",
     do.hover = FALSE,
     hover.data = var,
+    hover.round.digits = 5,
     hover.assay = .default_assay(object),
     hover.slot = .default_slot(object),
     hover.adjustment = NULL,
     add.trajectory.lineages = NULL,
     add.trajectory.curves = NULL,
-    trajectory.cluster.meta,
+    trajectory.cluster.meta = NULL,
     trajectory.arrow.size = 0.15,
     do.contour = FALSE,
     contour.color = "black",
     contour.linetype = 1,
+    add.xline = NULL,
+    xline.linetype = "dashed",
+    xline.color = "black",
+    xline.linewidth = 0.5,
+    xline.opacity = 1,
+    add.yline = NULL,
+    yline.linetype = "dashed",
+    yline.color = "black",
+    yline.linewidth = 0.5,
+    yline.opacity = 1,
+    add.abline = NULL,
+    abline.slope = 1,
+    abline.linetype = "solid",
+    abline.color = "black",
+    abline.linewidth = 0.5,
+    abline.opacity = 1,
     legend.show = TRUE,
     legend.size = 5,
     legend.title = "make",
@@ -345,9 +394,9 @@ dittoDimPlot <- function(
     order <- match.arg(order)
     multivar.split.dir <- match.arg(multivar.split.dir)
     
-    if (do.hover || !is.null(shape.by)) {
-        do.letter <- FALSE
-    }
+    # if (do.hover || !is.null(shape.by)) {
+    #     do.letter <- FALSE
+    # }
 
     # Generate the x/y dimensional reduction data and plot titles.
     xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
@@ -358,62 +407,104 @@ dittoDimPlot <- function(
     legend.title <- .leave_default_or_null(
         legend.title, var, is.null(shape.by) || length(var)>1)
 
-    # Edit theme.
-    if (!show.grid.lines) {
-        theme <- theme + theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank())
-    }
     if (!show.axes.numbers) {
         theme <- theme +
             theme(axis.text.x=element_blank(), axis.text.y=element_blank())
     }
-
-    # Make dataframes and plot
-    p.df <- dittoScatterPlot(
-        object, xdat$embeddings, ydat$embeddings, var, shape.by, split.by,
-        extra.vars, cells.use, multivar.split.dir, show.others, split.show.all.others,
-        size, opacity, color.panel, colors,
-        split.nrow, split.ncol, split.adjust, NA, NA, NA, NA, NA, NA,
-        assay, slot, adjustment, assay, slot, adjustment, swap.rownames,
-        shape.panel, rename.var.groups, rename.shape.groups,
-        min.color, max.color, min, max, order,
-        xlab, ylab, main, sub, theme,
-        do.hover, hover.data, hover.assay, hover.slot, hover.adjustment,
-        do.contour, contour.color, contour.linetype,
-        add.trajectory.lineages, add.trajectory.curves = NULL,
-        trajectory.cluster.meta, trajectory.arrow.size,
-        do.letter, do.ellipse, do.label, labels.size, labels.highlight,
-        labels.repel, labels.split.by, labels.repel.adjust,
-        legend.show, legend.title, legend.size,
-        legend.breaks, legend.breaks.labels, shape.legend.title,
-        shape.legend.size, do.raster, raster.dpi, data.out = TRUE)
-    p <- p.df$plot
-    Target_data <- p.df$Target_data
-    Others_data <- p.df$Others_data
-
-    # Add extra features
-    if (is.list(add.trajectory.curves)) {
-        p <- .add_trajectory_curves(
-            p, add.trajectory.curves, trajectory.arrow.size, dim.1, dim.2)
-    }
-
-    if (!legend.show) {
-        p <- .remove_legend(p)
-    }
     
-    if (do.hover) {
-        .error_if_no_plotly()
-        p <- plotly::ggplotly(p, tooltip = "text")
-    }
-    
-    ### RETURN the PLOT ###
-    if (data.out) {
-        list(
-            plot = p,
-            Target_data = Target_data,
-            Others_data = Others_data)
-    } else {
-        p
-    }
+    dittoScatterPlot(
+        object = object,
+        x.var = xdat$embeddings,
+        y.var = ydat$embeddings,
+        color.var = var,
+        shape.by = shape.by,
+        split.by = split.by,
+        extra.vars = extra.vars,
+        cells.use = cells.use,
+        multivar.split.dir = multivar.split.dir,
+        show.others = show.others,
+        split.show.all.others = split.show.all.others,
+        size = size,
+        opacity = opacity,
+        color.panel = color.panel,
+        colors = colors,
+        split.nrow = split.nrow,
+        split.ncol = split.ncol,
+        split.adjust = split.adjust,
+        assay.x = NA,
+        slot.x = NA,
+        adjustment.x = NULL,
+        assay.y = NA,
+        slot.y = NA,
+        adjustment.y = NULL,
+        assay.color = assay,
+        slot.color = slot,
+        adjustment.color = adjustment,
+        assay.extra = assay,
+        slot.extra = slot,
+        adjustment.extra = adjustment,
+        swap.rownames = swap.rownames,
+        shape.panel = shape.panel,
+        rename.color.groups = rename.var.groups,
+        rename.shape.groups = rename.shape.groups,
+        min.color = min.color,
+        max.color = max.color,
+        min = min,
+        max = max,
+        order = order,
+        xlab = xlab,
+        ylab = ylab,
+        main = main,
+        sub = sub,
+        theme = theme,
+        do.hover = do.hover,
+        hover.data = hover.data,
+        hover.round.digits = hover.round.digits,
+        hover.assay = hover.assay,
+        hover.slot = hover.slot,
+        hover.adjustment = hover.adjustment,
+        do.contour = do.contour,
+        contour.color = contour.color,
+        contour.linetype = contour.linetype,
+        add.trajectory.lineages = add.trajectory.lineages,
+        add.trajectory.curves = add.trajectory.curves,
+        trajectory.cluster.meta = trajectory.cluster.meta,
+        trajectory.arrow.size = trajectory.arrow.size,
+        add.xline = add.xline,
+        xline.linetype = xline.linetype,
+        xline.color = xline.color,
+        xline.linewidth = xline.linewidth,
+        xline.opacity = xline.opacity,
+        add.yline = add.yline,
+        yline.linetype = yline.linetype,
+        yline.color = yline.color,
+        yline.linewidth = yline.linewidth,
+        yline.opacity = yline.opacity,
+        add.abline = add.abline,
+        abline.slope = abline.slope,
+        abline.linetype = abline.linetype,
+        abline.color = abline.color,
+        abline.linewidth = abline.linewidth,
+        abline.opacity = abline.opacity,
+        do.letter = do.letter,
+        do.ellipse = do.ellipse,
+        do.label = do.label,
+        labels.size = labels.size,
+        labels.highlight = labels.highlight,
+        labels.use.numbers = FALSE,
+        labels.numbers.spacer = ": ",
+        labels.repel = labels.repel,
+        labels.split.by = labels.split.by,
+        labels.repel.adjust = labels.repel.adjust,
+        legend.show = legend.show,
+        legend.color.title = legend.title,
+        legend.color.size = legend.size,
+        legend.color.breaks = legend.breaks,
+        legend.color.breaks.labels = legend.breaks.labels,
+        legend.shape.title = shape.legend.title,
+        legend.shape.size = shape.legend.size,
+        do.raster = do.raster,
+        raster.dpi = raster.dpi,
+        data.out = data.out
+    )
 }

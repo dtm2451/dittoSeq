@@ -1,5 +1,5 @@
 # Tests for visualization functions
-# library(dittoSeq); library(testthat); source("setup.R"); source("../../R/utils.R"); source("../../R/utils-getters.R"); source("../../R/get.reductions.R"); source("../../R/utils-defaulting.R"); source("test-getters.R")
+# library(dittoSeq); library(testthat); source("setup.R"); source("../../R/utils.R"); source("../../R/utils-getters.R"); source("../../R/get.reductions.R"); source("../../R/utils-defaulting.R"); source("../../R/utils-data-edit.R"); source("test-getters.R")
 
 # Make Seurat, if can
 try(seurat <- Seurat::as.Seurat(sce), silent = TRUE)
@@ -216,7 +216,7 @@ test_that(".var_or_get_meta_or_gene gets metas, genes, spits back var, or errors
             seq_len(ncol(sce)),
             sce)))
     expect_error(.var_OR_get_meta_or_gene(1,sce),
-        " is not a gene of the targeted assay(s), a metadata, nor equal in length to ncol('object')", fixed = TRUE)
+        " is not a gene of the targeted assay(s), a metadata of 'object', nor equal in length to ncol('object')", fixed = TRUE)
 })
 
 test_that("isBulk works properly", {

@@ -35,7 +35,7 @@ test_that("DimHex can plot continuous or discrete color.var data + 'adjustment'"
     expect_s3_class(dittoDimHex(object=sce, cont), "ggplot")
     # Expression
     expect_s3_class((p <- dittoDimHex(gene, object=sce, adjustment = "relative.to.max", data.out = TRUE))$plot, "ggplot")
-    expect_equal(max(p$data$color), 1)
+    expect_equal(max(p$data[,p$cols_used$color.by]), 1)
 })
 
 test_that("DimHex - color.method options work for discrete data, and defaults to 'max'", {
@@ -397,7 +397,7 @@ test_that("dittoDimHex allows plotting of multiple vars, via faceting", {
         dittoDimHex(
             sce, c("gene1","gene2","number"),
             split.by = c(disc2,disc)),
-        "second 'split.by' element will be ignored")
+        "Multi-feature display is prioiritized for faceting")
 })
 
 
@@ -412,15 +412,15 @@ test_that("dittoScatterHex gene display can utilize different data.types (exclud
         assay.y = "counts",
         adjustment.color = "z-score"))$plot, "ggplot")
     expect_equal(
-        p$data$X,
-        round(p$data$Y,0))
+        p$data[,p$cols_used$x.by],
+        round(p$data[,p$cols_used$y.by],0))
     expect_equal(
-        mean(p$data$color),
+        mean(p$data[,p$cols_used$color.by]),
         0)
     expect_s3_class((p <- dittoScatterHex(gene, gene, gene, object = sce, data.out = TRUE,
         adjustment.y= "relative.to.max"))$plot, "ggplot")
     expect_equal(
-        max(p$data$Y), 1)
+        max(p$data[,p$cols_used$y.by]), 1)
 })
 
 test_that("dittoScatterHex swap.rownames works", {
