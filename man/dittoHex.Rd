@@ -258,8 +258,7 @@ See \code{\link{GeneTargeting}} for more specifics and examples.}
 \item{show.axes.numbers}{Logical which controls whether the axes values should be displayed.}
 
 \item{show.grid.lines}{Logical which sets whether gridlines of the plot should be shown.
-They are removed when set to FALSE.
-Default = FALSE for umap and tsne \code{reduction.use}, TRUE otherwise.}
+They are removed when set to FALSE.}
 
 \item{main}{String, sets the plot title. The default title is either "Density", \code{color.var}, or NULL, depending on the identity of \code{color.var}.
 To remove, set to \code{NULL}.}
@@ -372,8 +371,12 @@ Alternatively, a vector of numbers of the same length as \code{add.abline} can b
 \item{abline.opacity}{Number that sets the opacity of the \code{add.abline} line(s). Default = 1.
 Alternatively, a vector of numbers of the same length as \code{add.abline} can be given to set the opacity of each line individually.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output from the plot alone to a list containing the plot ("plot"),
-and data.frame of the underlying data for target cells ("data").}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a named list containing:\itemize{
+\item "p": the plot
+\item "data": a data.frame containing the underlying data
+\item "cols_used": a named list providing the columns of 'data' ultimately used in plotting the named elements
+\item "to_dittoViz": the dataframe extracted by dittoSeq and passed to \code{dittoViz::\link[dittoViz]{scatterHex}} for plotting.
+}}
 
 \item{legend.show}{Logical. Whether any legend should be displayed. Default = \code{TRUE}.}
 
@@ -400,7 +403,7 @@ See \code{\link{GeneTargeting}} for specifics and examples -- Seurat and SingleC
 \value{
 A ggplot object where colored hexagonal bins are used to summarize RNAseq data in a scatterplot or tSNE, PCA, UMAP.
 
-Alternatively, if \code{data.out=TRUE}, a list containing two slots is output: the plot (named 'plot'), and a data.table containing the underlying data for target cells (named 'data').
+Alternatively, if \code{data.out=TRUE}, a named list containing four elements. See the description of that argument above for further details.
 }
 \description{
 Show RNAseq data, grouped into hexagonal bins, on a scatter or dimensionality reduction plot

@@ -201,7 +201,7 @@ If left as "unordered", plot order is simply based on the order of cells within 
 \item{main}{String, sets the plot title.
 Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.}
 
-\item{sub}{String, sets the plot subtitle}
+\item{sub}{String, sets the plot subtitle.}
 
 \item{xlab, ylab}{Strings which set the labels for the axes.
 Default labels are generated if you do not give this a specific value.
@@ -338,18 +338,23 @@ Default = 5. *Enlarging the colors legend is incredibly helpful for making color
 
 \item{shape.legend.title}{String which sets the title of the shapes legend.  Default is \code{shape.by}}
 
-\item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).}
+\item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot layer, changing it from individually encoded points to a flattened set of pixels.
+This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.}
 
-\item{raster.dpi}{Number indicating dpi to use for rasterization. Default = 300.}
+\item{raster.dpi}{Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
-a data.frame containing the underlying data for target cells ("Target_data"),
-and a data.frame containing the underlying data for non-target cells ("Others_data").}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a named list containing:\itemize{
+\item "p": the plot
+\item "Target_data": a data.frame containing the underlying data for targeted cells
+\item "Others_data": a data.frame containing the underlying data for non-target cells, those excluded with \code{cells.use}
+\item "cols_used": a named list providing the columns of 'Target_data' ultimately used in plotting the named elements
+\item "to_dittoViz": the dataframe extracted by dittoSeq and passed to \code{dittoViz::\link[dittoViz]{scatterPlot}} for plotting.
+}}
 }
 \value{
 A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
 
-Alternatively, if \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
+Alternatively, if \code{data.out=TRUE}, a list containing five elements. See the description of that argument above for further details.
 
 Alternatively, if \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly &
 cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed upon hovering the cursor over the plot.

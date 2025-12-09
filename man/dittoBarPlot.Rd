@@ -68,9 +68,17 @@ Note: When \code{cells.use} is combined with \code{scale = "percent"}, left out 
 Set to TRUE to faithfully reflect ordering of groupings encoded in factor levels,
 but Note that this will also force retention of groupings that could otherwise be removed via \code{cells.use}.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output from the plot alone to a named list containing:\itemize{
+\item "p": the plot
+\item "data": a data.frame containing the computed composition data which underlies the plot
+\item "to_dittoViz": the dataframe extracted by dittoSeq and passed to\code{dittoViz::\link[dittoViz]{barPlot}}.
+}}
 
-\item{data.only}{Logical. When set to \code{TRUE}, the underlying data will be returned, but not the plot itself.}
+\item{data.only}{Logical. When set to \code{TRUE}, underlying data is gathered and compositions are calculated and returned.
+Plotting is skipped entirely, and the output is instead a named list containing:\itemize{
+\item "data": a data.frame containing the computed composition data
+\item "to_dittoViz": the dataframe extracted by dittoSeq and passed to\code{dittoViz::\link[dittoViz]{barPlot}}.
+}}
 
 \item{do.hover}{Logical which sets whether the ggplot output should be converted to a ggplotly object with data about individual bars displayed when you hover your cursor over them.}
 
@@ -156,7 +164,9 @@ Alternatively, a vector of numbers of the same length as \code{add.line} can be 
 \value{
 A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
 
-Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
+Alternatively, if \code{data.out = TRUE}, a named list containing three elements. See the description of that argument above for further details.
+
+Alternatively, if \code{data.only = TRUE}, a named list containing two elements. See the description of that argument above for further details.
 
 Alternatively, if \code{do.hover = TRUE}, a plotly conversion of the ggplot output in which underlying data can be retrieved upon hovering the cursor over the plot.
 }

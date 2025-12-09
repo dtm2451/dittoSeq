@@ -95,6 +95,7 @@ dittoScatterPlot(
   legend.color.breaks.labels = waiver(),
   legend.shape.title = shape.by,
   legend.shape.size = 5,
+  show.grid.lines = TRUE,
   do.raster = FALSE,
   raster.dpi = 300,
   data.out = FALSE
@@ -309,14 +310,21 @@ Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for
 
 \item{legend.color.breaks.labels}{String vector, with same length as \code{legend.breaks}, which sets the labels for the tick marks of the color-scale.}
 
+\item{show.grid.lines}{Logical which sets whether gridlines of the plot should be shown.
+They are removed when set to FALSE.}
+
 \item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot layer, changing it from individually encoded points to a flattened set of pixels.
 This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.}
 
 \item{raster.dpi}{Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
-a data.frame containing the underlying data for target cells ("Target_data"),
-and a data.frame containing the underlying data for non-target cells ("Others_data").}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a named list containing:\itemize{
+\item "p": the plot
+\item "Target_data": a data.frame containing the underlying data for targeted cells
+\item "Others_data": a data.frame containing the underlying data for non-target cells, those excluded with \code{cells.use}
+\item "cols_used": a named list providing the columns of 'Target_data' ultimately used in plotting the named elements
+\item "to_dittoViz": the dataframe extracted by dittoSeq and passed to \code{dittoViz::\link[dittoViz]{scatterPlot}} for plotting.
+}}
 }
 \value{
 a ggplot scatterplot where colored dots and/or shapes represent individual cells/samples. X and Y axes can be gene expression, numeric metadata, or manually supplied values.

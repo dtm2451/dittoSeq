@@ -30,13 +30,26 @@
 #' Faceting for this dittoFreqPlot is always by the \code{var}-data, so see \code{\link[ggplot2]{facet_wrap}} for options.
 #' @param ylab String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
 #' Default = "make" and if left as make, a title will be automatically generated.
+#' @param data.out Logical. When set to \code{TRUE}, changes the output from the plot alone to a named list containing:\itemize{
+#' \item "p": the plot
+#' \item "data": a data.frame containing the computed composition data which underlies the plot
+#' \item "cols_used": a named list providing the columns of 'data' ultimately used in plotting the named elements
+#' \item "to_dittoViz": the dataframe extracted by dittoSeq and passed to\code{dittoViz::\link[dittoViz]{freqPlot}}.
+#' }
+#' @param data.only Logical. When set to \code{TRUE}, underlying data is gathered and compositions are calculated and returned.
+#' Plotting is skipped entirely, and the output is instead a named list containing:\itemize{
+#' \item "data": a data.frame containing the computed composition data
+#' \item "to_dittoViz": the dataframe extracted by dittoSeq and passed to\code{dittoViz::\link[dittoViz]{freqPlot}}.
+#' }
 #'
 #' @inheritParams dittoPlot
 #' @inheritParams dittoBarPlot
 #'
 #' @return A ggplot plot where frequencies of discrete data, grouped by sample, condition, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
-#' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
+#' Alternatively, if \code{data.out = TRUE}, a named list containing four elements. See the description of that argument above for further details.
+#'
+#' Alternatively, if \code{data.only = TRUE}, a named list containing two elements. See the description of that argument above for further details.
 #'
 #' Alternatively, if \code{do.hover = TRUE}, a plotly conversion of the ggplot output in which underlying data can be retrieved upon hovering the cursor over the plot.
 #' @details
@@ -314,8 +327,13 @@ dittoFreqPlot <- function(
         legend.title = legend.title
     )
     if (data.out) {
-        viz_out$df_passed <- pulled_data
+        viz_out$to_dittoViz <- pulled_data
         viz_out
+    } else if (data.only) {
+        list(
+            data = viz_out,
+            to_dittoViz = pulled_data
+        )
     } else {
         viz_out
     }

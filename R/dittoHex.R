@@ -39,6 +39,12 @@
 #' Alternatively, (for dittoDimHex only, but not dittoScatterHex) a list of lists(/princurve objects) can be provided.
 #' Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
 #' you can provide \code{add.trajectory.curves = slingCurves('object')}
+#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a named list containing:\itemize{
+#' \item "p": the plot
+#' \item "data": a data.frame containing the underlying data
+#' \item "cols_used": a named list providing the columns of 'data' ultimately used in plotting the named elements
+#' \item "to_dittoViz": the dataframe extracted by dittoSeq and passed to \code{dittoViz::\link[dittoViz]{scatterHex}} for plotting.
+#' }
 #' @inheritParams dittoScatterPlot
 #' @inheritParams dittoDimPlot
 #' 
@@ -59,7 +65,7 @@
 #'
 #' @return A ggplot object where colored hexagonal bins are used to summarize RNAseq data in a scatterplot or tSNE, PCA, UMAP.
 #'
-#' Alternatively, if \code{data.out=TRUE}, a list containing two slots is output: the plot (named 'plot'), and a data.table containing the underlying data for target cells (named 'data').
+#' Alternatively, if \code{data.out=TRUE}, a named list containing four elements. See the description of that argument above for further details.
 #'
 #' @section Many characteristics of the plot can be adjusted using discrete inputs:
 #' \itemize{
@@ -531,12 +537,11 @@ dittoScatterHex <- function(
         legend.density.breaks = legend.density.breaks,
         legend.density.breaks.labels = legend.density.breaks.labels,
         show.grid.lines = show.grid.lines,
-        # show.axes.numbers = show.axes.numbers,
         data.out = data.out)
     
     ### RETURN the PLOT ###
     if (data.out) {
-        viz_out$df_passed <- pulled_data
+        viz_out$to_dittoViz <- pulled_data
         viz_out
     } else {
         viz_out

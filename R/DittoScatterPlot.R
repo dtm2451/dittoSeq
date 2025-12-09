@@ -1,5 +1,4 @@
 #' Show RNAseq data overlayed on a scatter plot
-#' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param x.var,y.var Single string giving a gene or metadata that will be used for the x- and y-axis of the scatterplot.
 #' Note: must be continuous.
 #'
@@ -47,11 +46,6 @@
 #'
 #' Note: Unfortunately, shapes can be hard to see when points are on top of each other & they are more slowly processed by the brain.
 #' For these reasons, even as a color blind person myself writing this code, I recommend use of colors for variables with many discrete values.
-#' @param size Number which sets the size of data points. Default = 1.
-#' @param opacity Number between 0 and 1.
-#' Great for when you have MANY overlapping points, this sets how solid the points should be:
-#' 1 = not see-through at all. 0 = invisible. Default = 1.
-#' (In terms of typical ggplot variables, = alpha)
 #' @param rename.color.groups,rename.shape.groups String vector containing new names for the identities of the color or shape overlay groups.
 #' @param add.trajectory.curves List of matrices, each representing coordinates for a trajectory path, from start to end, where matrix columns represent x and y coordinates of the paths.
 #' @param legend.show Logical. Whether any legend should be displayed. Default = \code{TRUE}.
@@ -66,17 +60,9 @@
 #' @param main String, sets the plot title.
 #' A default title is automatically generated if based on \code{color.var} and \code{shape.by} when either are provided.
 #' To remove, set to \code{NULL}.
-#' @param sub String, sets the plot subtitle.
 #' @param xlab,ylab Strings which set the labels for the axes. To remove, set to \code{NULL}.
-#' @param theme A ggplot theme which will be applied before dittoSeq adjustments.
-#' Default = \code{theme_bw()}.
-#' See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options and ideas.
-#' @param do.raster Logical. When set to \code{TRUE}, rasterizes the internal plot layer, changing it from individually encoded points to a flattened set of pixels.
-#' This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.
-#' @param raster.dpi Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.
-#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
-#' a data.frame containing the underlying data for target cells ("Target_data"),
-#' and a data.frame containing the underlying data for non-target cells ("Others_data").
+#' @param show.grid.lines Logical which sets whether gridlines of the plot should be shown.
+#' They are removed when set to FALSE.
 #' 
 #' @inheritParams dittoDimPlot
 #' @return a ggplot scatterplot where colored dots and/or shapes represent individual cells/samples. X and Y axes can be gene expression, numeric metadata, or manually supplied values.
@@ -271,6 +257,7 @@ dittoScatterPlot <- function(
     legend.color.breaks.labels = waiver(),
     legend.shape.title = shape.by,
     legend.shape.size = 5,
+    show.grid.lines = TRUE,
     do.raster = FALSE,
     raster.dpi = 300,
     data.out = FALSE) {
@@ -387,7 +374,7 @@ dittoScatterPlot <- function(
         legend.color.breaks.labels = legend.color.breaks.labels,
         legend.shape.title = legend.shape.title,
         legend.shape.size = legend.shape.size,
-        show.grid.lines = TRUE,
+        show.grid.lines = show.grid.lines,
         do.raster = do.raster,
         raster.dpi = raster.dpi,
         data.out = data.out
@@ -395,7 +382,7 @@ dittoScatterPlot <- function(
     
     ### RETURN the PLOT ###
     if (data.out) {
-        viz_out$df_passed <- pulled_data
+        viz_out$to_dittoViz <- pulled_data
         viz_out
     } else {
         viz_out

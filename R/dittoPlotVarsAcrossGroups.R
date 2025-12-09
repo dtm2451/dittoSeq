@@ -48,7 +48,7 @@
 #' 
 #' @return a ggplot object
 #'
-#' Alternatively when \code{data.out = TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
+#' Alternatively when \code{data.out = TRUE}, a named list containing four elements. See the description of that argument above for further details.
 #'
 #' Alternatively when \code{do.hover = TRUE}, a plotly converted version of the plot where additional data will be displayed when the cursor is hovered over jitter points.
 #' @details
@@ -302,7 +302,7 @@ dittoPlotVarsAcrossGroups <- function(
     
     # DONE
     if (data.out) {
-        viz_out$df_passed <- data
+        viz_out$to_dittoViz <- data
         viz_out
     } else {
         viz_out

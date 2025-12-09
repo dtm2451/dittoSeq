@@ -74,7 +74,7 @@
 #' }
 #' @param main String, sets the plot title.
 #' Default title is automatically generated if not given a specific value.  To remove, set to \code{NULL}.
-#' @param sub String, sets the plot subtitle
+#' @param sub String, sets the plot subtitle.
 #' @param xlab,ylab Strings which set the labels for the axes.
 #' Default labels are generated if you do not give this a specific value.
 #' To remove, set to \code{NULL}.
@@ -158,17 +158,22 @@
 #' Alternatively, a vector of numbers of the same length as \code{add.abline} can be given to set the thickness of each line individually.
 #' @param abline.opacity Number that sets the opacity of the \code{add.abline} line(s). Default = 1.
 #' Alternatively, a vector of numbers of the same length as \code{add.abline} can be given to set the opacity of each line individually.
-#' @param do.raster Logical. When set to \code{TRUE}, rasterizes the internal plot area. Useful for editing in external programs (e.g. Illustrator).
-#' @param raster.dpi Number indicating dpi to use for rasterization. Default = 300.
-#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
-#' a data.frame containing the underlying data for target cells ("Target_data"),
-#' and a data.frame containing the underlying data for non-target cells ("Others_data").
+#' @param do.raster Logical. When set to \code{TRUE}, rasterizes the internal plot layer, changing it from individually encoded points to a flattened set of pixels.
+#' This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.
+#' @param raster.dpi Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.
+#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a named list containing:\itemize{
+#' \item "p": the plot
+#' \item "Target_data": a data.frame containing the underlying data for targeted cells
+#' \item "Others_data": a data.frame containing the underlying data for non-target cells, those excluded with \code{cells.use}
+#' \item "cols_used": a named list providing the columns of 'Target_data' ultimately used in plotting the named elements
+#' \item "to_dittoViz": the dataframe extracted by dittoSeq and passed to \code{dittoViz::\link[dittoViz]{scatterPlot}} for plotting.
+#' }
 #'
 #' @inheritParams gene
 #'
 #' @return A ggplot or plotly object where colored dots (or other shapes) are overlayed onto a tSNE, PCA, UMAP, ..., plot of choice.
 #'
-#' Alternatively, if \code{data.out=TRUE}, a list containing three slots is output: the plot (named 'p'), a data.table containing the underlying data for target cells (named 'Target_data'), and a data.table containing the underlying data for non-target cells (named 'Others_data').
+#' Alternatively, if \code{data.out=TRUE}, a list containing five elements. See the description of that argument above for further details.
 #'
 #' Alternatively, if \code{do.hover} is set to \code{TRUE}, the plot is coverted from ggplot to plotly &
 #' cell/sample information, determined by the \code{hover.data} input, is retrieved, added to the dataframe, and displayed upon hovering the cursor over the plot.
@@ -393,10 +398,6 @@ dittoDimPlot <- function(
 
     order <- match.arg(order)
     multivar.split.dir <- match.arg(multivar.split.dir)
-    
-    # if (do.hover || !is.null(shape.by)) {
-    #     do.letter <- FALSE
-    # }
 
     # Generate the x/y dimensional reduction data and plot titles.
     xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
@@ -491,7 +492,7 @@ dittoDimPlot <- function(
         do.label = do.label,
         labels.size = labels.size,
         labels.highlight = labels.highlight,
-        labels.use.numbers = FALSE,
+        labels.use.numbers = labels.use.numbers,
         labels.numbers.spacer = ": ",
         labels.repel = labels.repel,
         labels.split.by = labels.split.by,
@@ -503,6 +504,7 @@ dittoDimPlot <- function(
         legend.color.breaks.labels = legend.breaks.labels,
         legend.shape.title = shape.legend.title,
         legend.shape.size = shape.legend.size,
+        show.grid.lines = show.grid.lines,
         do.raster = do.raster,
         raster.dpi = raster.dpi,
         data.out = data.out

@@ -131,7 +131,12 @@
 #' Takes precedence over \code{ridgeplot.bins} when provided.
 #' @param legend.show Logical. Whether the legend should be displayed. Default = \code{TRUE}.
 #' @param legend.title String or \code{NULL}, sets the title for the main legend which includes colors and data representations.
-#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
+#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a named list containing:\itemize{
+#' \item "p": the plot
+#' \item "data": a data.frame containing the underlying data
+#' \item "cols_used": a named list providing the columns of 'data' ultimately used in plotting the named elements
+#' \item "to_dittoViz": the dataframe extracted by dittoSeq and passed to \code{dittoViz::\link[dittoViz]{yPlot}} for plotting.
+#' }
 #' @param ... arguments passed to dittoPlot by dittoRidgePlot, dittoRidgeJitter, and dittoBoxPlot wrappers.
 #' Options are all the ones above.
 #'
@@ -139,7 +144,7 @@
 #'
 #' @return a ggplot where continuous data, grouped by sample, age, cluster, etc., shown on either the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
-#' Alternatively when \code{data.out=TRUE}, a list containing the plot ("p") and the underlying data as a dataframe ("data").
+#' Alternatively when \code{data.out=TRUE}, a named list containing four elements. See the description of that argument above for further details.
 #'
 #' Alternatively when \code{do.hover = TRUE}, a plotly converted version of the ggplot where additional data will be displayed when the cursor is hovered over jitter points.
 #' @details
@@ -437,7 +442,7 @@ dittoPlot <- function(
     
     # DONE
     if (data.out) {
-        viz_out$df_passed <- pulled_data
+        viz_out$to_dittoViz <- pulled_data
         viz_out
     } else {
         viz_out
