@@ -237,7 +237,7 @@
     }
     
     df
-} 
+}
 
 .extract_Reduced_Dim <- function(reduction.use, dim=1, object) {
     # Extracts loadings ("embeddings") and suggested plotting label ("name")
