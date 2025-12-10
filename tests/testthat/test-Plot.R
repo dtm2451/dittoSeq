@@ -248,12 +248,14 @@ test_that("dittoPlot can have lines added", {
     expect_s3_class(
         dittoPlot(
             "number", object=sce, group.by = grp,
-            add.line = 20, line.linetype = "solid", line.color = "green"),
+            add.line = 20, line.linetype = "solid", line.color = "green",
+            line.linewidth = 5, line.opacity = 0.5),
         "ggplot")
     expect_s3_class(
         dittoRidgePlot(
             "number", object=sce, group.by = grp,
-            add.line = 20, line.linetype = "solid", line.color = "green"),
+            add.line = 20, line.linetype = "solid", line.color = "green",
+            line.linewidth = 5, line.opacity = 0.5),
         "ggplot")
 })
 

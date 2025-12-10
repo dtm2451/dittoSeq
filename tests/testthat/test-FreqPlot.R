@@ -58,6 +58,32 @@ test_that("dittoFreqPlot makes sample alteration for bulk", {
         "ggplot")
 })
 
+test_that("dittoFreqPlot data.out yields a list, and at least a data element", {
+    expect_type(
+        dittoFreqPlot(
+            sce, grp1, sample.by = grp2, group.by = grp3, color.by = grp4,
+            data.out = TRUE),
+        "list")
+    expect_true(
+        "data" %in% names(dittoFreqPlot(
+            sce, grp1, sample.by = grp2, group.by = grp3, color.by = grp4,
+            data.out = TRUE)),
+    )
+})
+
+test_that("dittoFreqPlot data.only yields a list, and at least a data element", {
+    expect_type(
+        dittoFreqPlot(
+            sce, grp1, sample.by = grp2, group.by = grp3, color.by = grp4,
+            data.only = TRUE),
+        "list")
+    expect_true(
+        "data" %in% names(dittoFreqPlot(
+            sce, grp1, sample.by = grp2, group.by = grp3, color.by = grp4,
+            data.only = TRUE)),
+    )
+})
+
 test_that("dittoFreqPlots can be subset to show only certain cells/samples with any cells.use method", {
     expect_s3_class(
         {p1 <- dittoFreqPlot(
@@ -169,4 +195,14 @@ test_that("dittoFreqPlot computes for only one grouping per sample", {
     expect_true(all(
         rowSums(table(data$sample, data$grouping)!=0)==1
         ))
+})
+
+test_that("dittoFreqPlot can have lines added", {
+    # MANUAL: lines at 0.2 and 0.3, solid, thick, green, somewhat see-through
+    expect_s3_class(
+        dittoFreqPlot(
+            sce, grp1, sample.by = grp2, group.by = grp3,
+            add.line = c(0.2, 0.3), line.linetype = "solid", line.color = "green",
+            line.linewidth = 5, line.opacity = 0.5),
+        "ggplot")
 })

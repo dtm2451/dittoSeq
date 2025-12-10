@@ -355,6 +355,38 @@ test_that("dittoDimHex do.label/do.ellipse", {
         "ggplot")
 })
 
+test_that("dittoDimHex do.labels with labels.use.numbers adds labels to the scale", {
+    expect_true(
+        startsWith(
+            dittoDimHex(
+                disc, object=sce,
+                do.label = TRUE,
+                labels.use.numbers = TRUE
+            )$scales$scales[[2]]$labels[1],
+            "1: "
+        )
+    )
+    expect_true(
+        startsWith(
+            dittoDimHex(
+                disc, object=sce,
+                do.label = TRUE,
+                labels.use.numbers = TRUE,
+                labels.numbers.spacer = "_"
+            )$scales$scales[[2]]$labels[1],
+            "1_"
+        )
+    )
+
+    ### Manual Check: Labels are numbers 1:5, and legend explains as e.g. "1: A"
+    expect_s3_class(
+        dittoDimHex(
+            disc, object=sce,
+            do.label = TRUE,
+            labels.use.numbers = TRUE),
+        "ggplot")
+})
+
 test_that("dittoDimHex ignores do.label/do.ellipse for continuous data", {
     expect_message(dittoDimHex(object=sce, cont,
         do.label = TRUE),
@@ -430,5 +462,23 @@ test_that("dittoScatterHex swap.rownames works", {
     expect_s3_class(
         dittoScatterHex(sce, "gene1_symb", "gene2_symb", "gene3_symb",
             swap.rownames = "symbol"),
+        "ggplot")
+})
+
+test_that("dittoDimHex can have lines added", {
+    # MANUAL: LOTS of lines:
+    #  vertical at -0.1 and 0.1, solid, thick, green, somewhat see-through
+    #  horizontal at -1 and 1, solid, thick, red, somewhat see-through
+    #  diagonal intersecting at -1 and 1, solid, thick, blue, somewhat see-through
+    expect_s3_class(
+        dittoDimHex(
+            sce, disc,
+            add.xline = c(-0.1, 0.1), xline.linetype = "solid", xline.color = "green",
+            xline.linewidth = 5, xline.opacity = 0.5,
+            add.yline = c(-1, 1), yline.linetype = "solid", yline.color = "red",
+            yline.linewidth = 5, yline.opacity = 0.5,
+            add.abline = c(-1, 1), abline.slope = 1,
+            abline.linetype = "solid", abline.color = "blue",
+            abline.linewidth = 5, abline.opacity = 0.5),
         "ggplot")
 })

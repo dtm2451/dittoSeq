@@ -27,6 +27,32 @@ test_that("dittoBarPlot works for bulk", {
         "ggplot")
 })
 
+test_that("dittoBarPlot data.out yields a list, and at least a data element", {
+    expect_type(
+        dittoBarPlot(
+            sce, grp2, group.by = grp3,
+            data.out = TRUE),
+        "list")
+    expect_true(
+        "data" %in% names(dittoBarPlot(
+            sce, grp2, group.by = grp3,
+            data.out = TRUE)),
+        )
+})
+
+test_that("dittoBarPlot data.only yields a list, and at least a data element", {
+    expect_type(
+        dittoBarPlot(
+            sce, grp2, group.by = grp3,
+            data.only = TRUE),
+        "list")
+    expect_true(
+        "data" %in% names(dittoBarPlot(
+            sce, grp2, group.by = grp3,
+            data.only = TRUE)),
+    )
+})
+
 test_that("dittoBarPlots can be subset to show only certain cells/samples with any cells.use method", {
     expect_s3_class(
         {c1 <- dittoBarPlot(
@@ -241,5 +267,16 @@ test_that("dittoBarPlot, 'retain.factor.level' can be used to respect factor lev
             sce, "var_factor", group.by = "grp_factor",
             retain.factor.levels = TRUE,
             cells.use = meta("grp_factor",sce)!=1),
+        "ggplot")
+})
+
+test_that("dittoBarPlot can have lines added", {
+    # MANUAL: lines at 0.2 and 0.8, solid, thick, green, somewhat see-through
+    expect_s3_class(
+        dittoBarPlot(
+            sce, grp2, group.by = grp3,
+            add.line = c(0.2, 0.8),
+            line.linetype = "solid", line.color = "green",
+            line.linewidth = 5, line.opacity = 0.5),
         "ggplot")
 })

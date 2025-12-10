@@ -493,7 +493,7 @@ dittoDimPlot <- function(
         labels.size = labels.size,
         labels.highlight = labels.highlight,
         labels.use.numbers = labels.use.numbers,
-        labels.numbers.spacer = ": ",
+        labels.numbers.spacer = labels.numbers.spacer,
         labels.repel = labels.repel,
         labels.split.by = labels.split.by,
         labels.repel.adjust = labels.repel.adjust,
