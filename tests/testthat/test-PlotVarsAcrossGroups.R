@@ -345,4 +345,12 @@ test_that("dittoPlotVarsAcrossGroups split.by works", {
         "ggplot")
 })
 
-## For Future: Could add checking of assay/slot/adjustments
+test_that("dittoPlotVarsAcrossGroups can have lines added", {
+    # MANUAL: lines at -0.1 and 0.1, solid, thick, green, somewhat see-through
+    expect_s3_class(
+        dittoPlotVarsAcrossGroups(
+            genes, object=sce, group.by = grp,
+            add.line = c(-0.1, 0.1), line.linetype = "solid", line.color = "green",
+            line.linewidth = 5, line.opacity = 0.5),
+        "ggplot")
+})

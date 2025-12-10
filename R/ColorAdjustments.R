@@ -9,7 +9,7 @@
 #' @examples
 #' Darken("blue") #"blue" = "#0000FF"
 #' #Output: "#0000BF"
-#' Darken(dittoColors()[1:8]) #Works for multiple color inputs as well.
+#' Darken(c("blue", "red")) #Works for multiple color inputs as well.
 #'
 #' @author Daniel Bunis
 #' @export
@@ -30,7 +30,7 @@ Darken <- function(colors, percent.change = 0.25, relative = TRUE) {
 #' @examples
 #' Lighten("blue") #"blue" = "#0000FF"
 #' #Output: "#4040FF"
-#' Lighten(dittoColors()[1:8]) #Works for multiple color inputs as well.
+#' Lighten(c("blue", "red")) #Works for multiple color inputs as well.
 #'
 #' @author Daniel Bunis
 #' @export

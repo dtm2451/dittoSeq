@@ -13,8 +13,13 @@
 #' Default \code{\link{dittoColors}} are color blindness friendly and adapted from \href{https://www.nature.com/articles/nmeth.1618}{Wong B, "Points of view: Color blindness." Nature Methods, 2011.}
 #' 
 #' To report bugs, suggest new features, or ask for help, the best method is to create an issue on the github, \href{https://github.com/dtm2451/dittoSeq}{here}, or the bioconductor support site (be sure to tag 'dittoSeq' so that I get a notification!), \href{https://support.bioconductor.org/}{here}
+#' @import ggplot2
 #' @importFrom utils modifyList
 "_PACKAGE"
+
+#' @importFrom dittoViz dittoColors
+#' @export
+dittoViz::dittoColors
 
 #' demuxlet.example
 #'

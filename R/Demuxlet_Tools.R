@@ -440,8 +440,6 @@ demux.SNP.summary <- function(
 }
 
 #' Plots the number of annotations per sample, per lane
-#' @import ggplot2
-#'
 #' @param object A Seurat or SingleCellExperiment object
 #' @param singlets.only Whether to only show data for cells called as singlets by demuxlet. Default is TRUE. Note: if doublets are included, only one of their sample calls will be used.
 #' @param main plot title. Default = "Sample Annotations by Lane"

@@ -51,6 +51,7 @@ dittoScatterPlot(
   theme = theme_bw(),
   do.hover = FALSE,
   hover.data = NULL,
+  hover.round.digits = 5,
   hover.assay = .default_assay(object),
   hover.slot = .default_slot(object),
   hover.adjustment = NULL,
@@ -59,13 +60,31 @@ dittoScatterPlot(
   contour.linetype = 1,
   add.trajectory.lineages = NULL,
   add.trajectory.curves = NULL,
-  trajectory.cluster.meta,
+  trajectory.cluster.meta = NULL,
   trajectory.arrow.size = 0.15,
+  add.xline = NULL,
+  xline.linetype = "dashed",
+  xline.color = "black",
+  xline.linewidth = 0.5,
+  xline.opacity = 1,
+  add.yline = NULL,
+  yline.linetype = "dashed",
+  yline.color = "black",
+  yline.linewidth = 0.5,
+  yline.opacity = 1,
+  add.abline = NULL,
+  abline.slope = 1,
+  abline.linetype = "solid",
+  abline.color = "black",
+  abline.linewidth = 0.5,
+  abline.opacity = 1,
   do.letter = FALSE,
   do.ellipse = FALSE,
   do.label = FALSE,
   labels.size = 5,
   labels.highlight = TRUE,
+  labels.use.numbers = FALSE,
+  labels.numbers.spacer = ": ",
   labels.repel = TRUE,
   labels.split.by = split.by,
   labels.repel.adjust = list(),
@@ -76,6 +95,7 @@ dittoScatterPlot(
   legend.color.breaks.labels = waiver(),
   legend.shape.title = shape.by,
   legend.shape.size = 5,
+  show.grid.lines = TRUE,
   do.raster = FALSE,
   raster.dpi = 300,
   data.out = FALSE
@@ -186,6 +206,8 @@ See \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} for other options
 
 \item{hover.data}{String vector of gene and metadata names, example: \code{c("meta1","gene1","meta2","gene2")} which determines what data to show on hover when \code{do.hover} is set to \code{TRUE}.}
 
+\item{hover.round.digits}{Integer number specifying the number of decimal digits to round displayed numeric values to, when \code{do.hover} is set to \code{TRUE}.}
+
 \item{hover.assay, hover.slot, hover.adjustment}{Similar to the x, y, color, and extra versions, when showing expression data upon hover, these set what data will be shown.}
 
 \item{do.contour}{Logical. Whether density-based contours should be displayed.}
@@ -206,6 +228,52 @@ you can provide \code{add.trajectory.lineages = slingLineages('object')}.}
 
 \item{trajectory.arrow.size}{Number representing the size of trajectory arrows, in inches.  Default = 0.15.}
 
+\item{add.xline}{Numeric value(s), denoting x-axis value(s), where one or more vertical line(s) should be added.}
+
+\item{xline.linetype}{String which sets the type of line for \code{add.xline}.
+Defaults to "dashed", but any ggplot linetype will work.}
+
+\item{xline.color}{String that sets the color(s) of the \code{add.xline} line(s). Default = "black".
+Alternatively, a vector of strings of the same length as \code{add.xline} can be given to set the color of each line individually.}
+
+\item{xline.linewidth}{Number that sets the thickness of the \code{add.xline} line(s). Default = 0.5.
+Alternatively, a vector of numbers of the same length as \code{add.xline} can be given to set the thickness of each line individually.}
+
+\item{xline.opacity}{Number that sets the opacity of the \code{add.xline} line(s). Default = 1.
+Alternatively, a vector of numbers of the same length as \code{add.xline} can be given to set the opacity of each line individually.}
+
+\item{add.yline}{Numeric value(s), denoting y-axis value(s), where one or multiple horizonal line(s) should be added.}
+
+\item{yline.linetype}{String which sets the type of line for \code{add.yline}.
+Defaults to "dashed", but any ggplot linetype will work.}
+
+\item{yline.color}{String that sets the color(s) of the \code{add.yline} line(s). Default = "black".
+Alternatively, a vector of strings of the same length as \code{add.yline} can be given to set the color of each line individually.}
+
+\item{yline.linewidth}{Number that sets the thickness of the \code{add.yline} line(s). Default = 0.5.
+Alternatively, a vector of numbers of the same length as \code{add.yline} can be given to set the thickness of each line individually.}
+
+\item{yline.opacity}{Number that sets the opacity of the \code{add.yline} line(s). Default = 1.
+Alternatively, a vector of numbers of the same length as \code{add.yline} can be given to set the opacity of each line individually.}
+
+\item{add.abline}{Numeric value(s), denoting y-axis intercept(s), where one or multiple diagonal line(s) should be added.
+Use \code{abline.slope} to set slope(s).}
+
+\item{abline.slope}{Number that sets the slope of the \code{add.abline} line(s). Default = 1.
+Alternatively, a vector of numbers of the same length as \code{add.abline} can be given to set the slope of each line individually.}
+
+\item{abline.linetype}{String which sets the type of line for \code{add.abline}.
+Defaults to "dashed", but any ggplot linetype will work.}
+
+\item{abline.color}{String that sets the color(s) of the \code{add.abline} line(s). Default = "black".
+Alternatively, a vector of strings of the same length as \code{add.abline} can be given to set the color of each line individually.}
+
+\item{abline.linewidth}{Number that sets the thickness of the \code{add.abline} line(s). Default = 0.5.
+Alternatively, a vector of numbers of the same length as \code{add.abline} can be given to set the thickness of each line individually.}
+
+\item{abline.opacity}{Number that sets the opacity of the \code{add.abline} line(s). Default = 1.
+Alternatively, a vector of numbers of the same length as \code{add.abline} can be given to set the opacity of each line individually.}
+
 \item{do.letter}{Logical which sets whether letters should be added on top of the colored dots. For extended colorblindness compatibility.
 NOTE: \code{do.letter} is ignored if \code{do.hover = TRUE} or \code{shape.by} is provided a metadata because
 lettering is incompatible with plotly and with changing the dots' to be different shapes.}
@@ -218,7 +286,11 @@ lettering is incompatible with plotly and with changing the dots' to be differen
 
 \item{labels.highlight}{Logical. Whether the labels should have a box behind them}
 
-\item{labels.repel}{Logical, that sets whether the labels' placements will be adjusted with \link{ggrepel} to avoid intersections between labels and plot bounds.
+\item{labels.use.numbers}{Logical which controls swapping of data-value-labels for number-labels and adjustment of the legend to provide the mapping.}
+
+\item{labels.numbers.spacer}{String. When \code{do.label = TRUE} and \code{labels.use.numbers}, this string is used in the legend between the numbers and their associated data values.}
+
+\item{labels.repel}{Logical, that sets whether the labels' placements will be adjusted with \link[ggrepel]{ggrepel} to avoid intersections between labels and plot bounds.
 TRUE by default.}
 
 \item{labels.split.by}{String of one or two metadata names which controls the facet-split calculations for label placements.
@@ -238,14 +310,21 @@ Default = 5. *Enlarging the icons in the colors legend is incredibly helpful for
 
 \item{legend.color.breaks.labels}{String vector, with same length as \code{legend.breaks}, which sets the labels for the tick marks of the color-scale.}
 
+\item{show.grid.lines}{Logical which sets whether gridlines of the plot should be shown.
+They are removed when set to FALSE.}
+
 \item{do.raster}{Logical. When set to \code{TRUE}, rasterizes the internal plot layer, changing it from individually encoded points to a flattened set of pixels.
 This can be useful for editing in external programs (e.g. Illustrator) when there are many thousands of data points.}
 
 \item{raster.dpi}{Number indicating dots/pixels per inch (dpi) to use for rasterization. Default = 300.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p"),
-a data.frame containing the underlying data for target cells ("Target_data"),
-and a data.frame containing the underlying data for non-target cells ("Others_data").}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a named list containing:\itemize{
+\item "p": the plot
+\item "Target_data": a data.frame containing the underlying data for targeted cells
+\item "Others_data": a data.frame containing the underlying data for non-target cells, those excluded with \code{cells.use}
+\item "cols_used": a named list providing the columns of 'Target_data' ultimately used in plotting the named elements
+\item "to_dittoViz": the dataframe extracted by dittoSeq and passed to \code{dittoViz::\link[dittoViz]{scatterPlot}} for plotting.
+}}
 }
 \value{
 a ggplot scatterplot where colored dots and/or shapes represent individual cells/samples. X and Y axes can be gene expression, numeric metadata, or manually supplied values.

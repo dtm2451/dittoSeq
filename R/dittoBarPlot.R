@@ -1,6 +1,4 @@
 #' Outputs a stacked bar plot to show the percent composition of samples, groups, clusters, or other groupings
-#' @import ggplot2
-#'
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param var String name of a metadata that contains discrete data, or a factor or vector containing such data for all cells/samples in the target \code{object}.
 #' @param group.by String name of a metadata to use for separating the cells/samples into discrete groups.
@@ -56,16 +54,27 @@
 #' Values of \code{var.labels.reorder} should be these indices, but in the order that you would like them rearranged to be.
 #' @param legend.show Logical which sets whether the legend should be displayed.
 #' @param legend.title String which adds a title to the legend.
-#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot ("p") and a data.frame ("data") containing the underlying data.
+#' @param data.out Logical. When set to \code{TRUE}, changes the output from the plot alone to a named list containing:\itemize{
+#' \item "p": the plot
+#' \item "data": a data.frame containing the computed composition data which underlies the plot
+#' \item "to_dittoViz": the dataframe extracted by dittoSeq and passed to\code{dittoViz::\link[dittoViz]{barPlot}}.
+#' }
 #' @param retain.factor.levels Logical which controls whether factor identities of \code{var} and \code{group.by} data should be respected.
 #' Set to TRUE to faithfully reflect ordering of groupings encoded in factor levels,
 #' but Note that this will also force retention of groupings that could otherwise be removed via \code{cells.use}.
+#' @param data.only Logical. When set to \code{TRUE}, underlying data is gathered and compositions are calculated and returned.
+#' Plotting is skipped entirely, and the output is instead a named list containing:\itemize{
+#' \item "data": a data.frame containing the computed composition data
+#' \item "to_dittoViz": the dataframe extracted by dittoSeq and passed to\code{dittoViz::\link[dittoViz]{barPlot}}.
+#' }
 #'
 #' @inheritParams dittoPlot
 #'
 #' @return A ggplot plot where discrete data, grouped by sample, condition, cluster, etc. on the x-axis, is shown on the y-axis as either counts or percent-of-total-per-grouping in a stacked barplot.
 #'
-#' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
+#' Alternatively, if \code{data.out = TRUE}, a named list containing three elements. See the description of that argument above for further details.
+#'
+#' Alternatively, if \code{data.only = TRUE}, a named list containing two elements. See the description of that argument above for further details.
 #'
 #' Alternatively, if \code{do.hover = TRUE}, a plotly conversion of the ggplot output in which underlying data can be retrieved upon hovering the cursor over the plot.
 #' @details
@@ -136,7 +145,9 @@ dittoBarPlot <- function(
     cells.use = NULL,
     retain.factor.levels = FALSE,
     data.out = FALSE,
+    data.only = FALSE,
     do.hover = FALSE,
+    hover.round.digits = 5,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
     split.nrow = NULL,
@@ -144,7 +155,7 @@ dittoBarPlot <- function(
     split.adjust = list(),
     y.breaks = NA,
     min = 0,
-    max = NULL,
+    max = NA,
     var.labels.rename = NULL,
     var.labels.reorder = NULL,
     x.labels = NULL,
@@ -156,9 +167,15 @@ dittoBarPlot <- function(
     main = "make",
     sub = NULL,
     legend.show = TRUE,
-    legend.title = NULL) {
+    legend.title = NULL,
+    add.line = NULL,
+    line.linetype = "dashed",
+    line.color = "black",
+    line.linewidth = 0.5,
+    line.opacity = 1) {
     
     scale = match.arg(scale)
+    cells.use <- .which_cells(cells.use, object)
 
     # Decide titles
     if (!(is.null(ylab))) {
@@ -180,171 +197,57 @@ dittoBarPlot <- function(
     }
     
     # Gather data
-    data <- .dittoBarPlot_data_gather(
-        object, var, group.by, split.by, cells.use, x.reorder, x.labels,
-        var.labels.reorder, var.labels.rename, do.hover, FALSE,
-        retain.factor.levels, retain.factor.levels)
-    if (scale == "percent") {
-        y.show <- "percent"
-    } else {
-        y.show <- "count"
-    }
-
-    #Build Plot
-    p <- ggplot(
-        data=data,
-        aes(x = .data$grouping, y= .data[[y.show]], fill = .data$label)) +
-        theme + xlab(xlab) + ylab(ylab) + ggtitle(main, subtitle = sub) +
-        scale_fill_manual(name = legend.title, values = color.panel[colors]) +
-        if (x.labels.rotate) {
-            theme(axis.text.x= element_text(
-                angle=45, hjust = 1, vjust = 1))
-        }
-        #Add the bars.
-        if(do.hover){
-            p <- p + suppressWarnings(geom_col(
-                aes(text = .data$hover.string)))
-        } else {
-            p <- p + geom_col()
-        }
-    # Set y-axis ticks & scaling
-    if (is.na(y.breaks[1]) && scale == "percent") {
-        y.breaks <- c(0,0.5,1)
-    }
-    if (!is.na(y.breaks[1])) {
-        p <- p + scale_y_continuous(breaks = y.breaks)
-    }
-    if (is.null(max)) {
-        max <- ifelse(scale == "percent", 1, max(data$label.count.total))
-    }
-    p <- p + coord_cartesian(ylim=c(min,max))
-    
-    ### Add extra features
-    if (!is.null(split.by)) {
-        p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, split.adjust)
-    }
-
-    if (!legend.show) {
-        p <- .remove_legend(p)
-    }
-    
-    if (do.hover) {
-        .error_if_no_plotly()
-        p <- plotly::ggplotly(p, tooltip = "text")
-    }
+    pulled_data <- .dittoBarFreq_data_gather(
+        object, var, group.by, split.by)
 
     #DONE. Return the plot
-    if (data.out) {
-        list(
-            p = p,
-            data = data)
-    } else {
-        p
-    }
-}
-
-.dittoBarPlot_data_gather <- function(
-    object, var, group.by, split.by, cells.use,
-    x.reorder, x.labels,
-    var.labels.reorder, var.labels.rename,
-    do.hover, max.normalize = FALSE,
-    retain.factor.levels.var, retain.factor.levels.group,
-    make.factor.var = FALSE, keep.level.order.group = FALSE
-) {
-    
-    cells.use <- .which_cells(cells.use, object)
-    all.cells <- .all_cells(object)
-    
-    # Extract x.grouping and y.labels data
-    y.var <- .var_OR_get_meta_or_gene(var, object)[all.cells %in% cells.use]
-    x.var <- .var_OR_get_meta_or_gene(group.by, object)[all.cells %in% cells.use]
-    
-    # For pre-v1.4 compatibility
-    if(!retain.factor.levels.var) {
-        y.var <- as.character(y.var)
-    }
-    if(make.factor.var) {
-        y.var <- as.factor(y.var)
-    }
-    x.levs <- levels(as.factor(x.var))
-    if(!retain.factor.levels.group) {
-        x.var <- as.character(x.var)
-    }
-    
-    # Extract or negate-away split.by data
-    facet <- "filler"
-    split.data <- list()
-    if (!is.null(split.by)) {
-        for (by in seq_along(split.by)) {
-            split.data[[by]] <- meta(split.by[by], object)[all.cells %in% cells.use]
-        }
-        facet <- do.call(paste, split.data)
-    }
-    
-    # Create dataframe (per split.by group)
-    data <- do.call(
-        rbind,
-        lapply(
-            unique(facet),
-            function(this_facet) {
-                
-                # Subset data per facet
-                y.var <- y.var[facet==this_facet]
-                x.var <- x.var[facet==this_facet]
-                
-                # Create data frame
-                new <- data.frame(
-                    count = as.vector(data.frame(table(y.var, x.var))))
-                names(new) <- c("label", "grouping", "count")
-                
-                new$label.count.total.per.facet <- rep(
-                    as.vector(table(x.var)),
-                    each = length(levels(as.factor(y.var))))
-                new$percent <- new$count / new$label.count.total.per.facet
-                
-                # Catch 0/0
-                new$percent[is.nan(new$percent)] <- 0
-                
-                # Add facet info
-                for (by in seq_along(split.by)) {
-                    new[[split.by[by]]] <- (split.data[[by]][facet==this_facet])[1]
-                }
-                
-                new
-            }
-        )
+    viz_out <- dittoViz::barPlot(
+        data_frame = pulled_data,
+        var = var,
+        group.by = group.by,
+        scale = scale,
+        split.by = split.by,
+        rows.use = cells.use,
+        retain.factor.levels = retain.factor.levels,
+        data.out = data.out,
+        data.only = data.only,
+        do.hover = do.hover,
+        hover.round.digits = hover.round.digits,
+        color.panel = color.panel,
+        colors = colors,
+        split.nrow = split.nrow,
+        split.ncol = split.ncol,
+        split.adjust = split.adjust,
+        y.breaks = y.breaks,
+        min = min,
+        max = max,
+        var.labels.rename = var.labels.rename,
+        var.labels.reorder = var.labels.reorder,
+        x.labels = x.labels,
+        x.labels.rotate = x.labels.rotate,
+        x.reorder = x.reorder,
+        theme = theme,
+        xlab = xlab,
+        ylab = ylab,
+        main = main,
+        sub = sub,
+        legend.show = legend.show,
+        legend.title = legend.title,
+        add.line = add.line,
+        line.linetype = line.linetype,
+        line.color = line.color,
+        line.linewidth = line.linewidth,
+        line.opacity = line.opacity
     )
-    
-    # max.normalization per var-label
-    if (max.normalize) {
-        data$count.norm <- 0
-        data$percent.norm <- 0
-        
-        for (i in unique(data$label)) {
-            this_lab <- data$label == i
-            data$count.norm[this_lab] <- 
-                data$count[this_lab]/max(data$count[this_lab])
-            data$percent.norm[this_lab] <- 
-                data$percent[this_lab]/max(data$percent[this_lab])
-        }
+    if (data.out) {
+        viz_out$to_dittoViz <- pulled_data
+        viz_out
+    } else if (data.only) {
+        list(
+            data = viz_out,
+            to_dittoViz = pulled_data
+        )
+    } else {
+        viz_out
     }
-    
-    # Rename/reorder
-    if(keep.level.order.group){
-        data$grouping <- factor(data$grouping, levels = x.levs)
-    }
-    data$grouping <- .rename_and_or_reorder(data$grouping, x.reorder, x.labels)
-    data$label <- .rename_and_or_reorder(
-        data$label, var.labels.reorder, var.labels.rename)
-
-    # Add hover info
-    if (do.hover) {
-        hover.data <- data[,names(data) %in% c("label", "count", "percent")]
-        names(hover.data)[1] <- var
-        # Make hover strings, "data.type: data" \n "data.type: data"
-        data$hover.string <- .make_hover_strings_from_df(hover.data)
-    }
-    
-    data
 }

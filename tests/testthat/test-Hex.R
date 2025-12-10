@@ -35,7 +35,7 @@ test_that("DimHex can plot continuous or discrete color.var data + 'adjustment'"
     expect_s3_class(dittoDimHex(object=sce, cont), "ggplot")
     # Expression
     expect_s3_class((p <- dittoDimHex(gene, object=sce, adjustment = "relative.to.max", data.out = TRUE))$plot, "ggplot")
-    expect_equal(max(p$data$color), 1)
+    expect_equal(max(p$data[,p$cols_used$color.by]), 1)
 })
 
 test_that("DimHex - color.method options work for discrete data, and defaults to 'max'", {
@@ -355,6 +355,38 @@ test_that("dittoDimHex do.label/do.ellipse", {
         "ggplot")
 })
 
+test_that("dittoDimHex do.labels with labels.use.numbers adds labels to the scale", {
+    expect_true(
+        startsWith(
+            dittoDimHex(
+                disc, object=sce,
+                do.label = TRUE,
+                labels.use.numbers = TRUE
+            )$scales$scales[[2]]$labels[1],
+            "1: "
+        )
+    )
+    expect_true(
+        startsWith(
+            dittoDimHex(
+                disc, object=sce,
+                do.label = TRUE,
+                labels.use.numbers = TRUE,
+                labels.numbers.spacer = "_"
+            )$scales$scales[[2]]$labels[1],
+            "1_"
+        )
+    )
+
+    ### Manual Check: Labels are numbers 1:5, and legend explains as e.g. "1: A"
+    expect_s3_class(
+        dittoDimHex(
+            disc, object=sce,
+            do.label = TRUE,
+            labels.use.numbers = TRUE),
+        "ggplot")
+})
+
 test_that("dittoDimHex ignores do.label/do.ellipse for continuous data", {
     expect_message(dittoDimHex(object=sce, cont,
         do.label = TRUE),
@@ -397,7 +429,7 @@ test_that("dittoDimHex allows plotting of multiple vars, via faceting", {
         dittoDimHex(
             sce, c("gene1","gene2","number"),
             split.by = c(disc2,disc)),
-        "second 'split.by' element will be ignored")
+        "Multi-feature display is prioiritized for faceting")
 })
 
 
@@ -412,15 +444,15 @@ test_that("dittoScatterHex gene display can utilize different data.types (exclud
         assay.y = "counts",
         adjustment.color = "z-score"))$plot, "ggplot")
     expect_equal(
-        p$data$X,
-        round(p$data$Y,0))
+        p$data[,p$cols_used$x.by],
+        round(p$data[,p$cols_used$y.by],0))
     expect_equal(
-        mean(p$data$color),
+        mean(p$data[,p$cols_used$color.by]),
         0)
     expect_s3_class((p <- dittoScatterHex(gene, gene, gene, object = sce, data.out = TRUE,
         adjustment.y= "relative.to.max"))$plot, "ggplot")
     expect_equal(
-        max(p$data$Y), 1)
+        max(p$data[,p$cols_used$y.by]), 1)
 })
 
 test_that("dittoScatterHex swap.rownames works", {
@@ -430,5 +462,23 @@ test_that("dittoScatterHex swap.rownames works", {
     expect_s3_class(
         dittoScatterHex(sce, "gene1_symb", "gene2_symb", "gene3_symb",
             swap.rownames = "symbol"),
+        "ggplot")
+})
+
+test_that("dittoDimHex can have lines added", {
+    # MANUAL: LOTS of lines:
+    #  vertical at -0.1 and 0.1, solid, thick, green, somewhat see-through
+    #  horizontal at -1 and 1, solid, thick, red, somewhat see-through
+    #  diagonal intersecting at -1 and 1, solid, thick, blue, somewhat see-through
+    expect_s3_class(
+        dittoDimHex(
+            sce, disc,
+            add.xline = c(-0.1, 0.1), xline.linetype = "solid", xline.color = "green",
+            xline.linewidth = 5, xline.opacity = 0.5,
+            add.yline = c(-1, 1), yline.linetype = "solid", yline.color = "red",
+            yline.linewidth = 5, yline.opacity = 0.5,
+            add.abline = c(-1, 1), abline.slope = 1,
+            abline.linetype = "solid", abline.color = "blue",
+            abline.linewidth = 5, abline.opacity = 0.5),
         "ggplot")
 })

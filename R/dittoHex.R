@@ -39,6 +39,12 @@
 #' Alternatively, (for dittoDimHex only, but not dittoScatterHex) a list of lists(/princurve objects) can be provided.
 #' Thus, if the \code{\link[slingshot]{slingshot}} package was used for trajectory analysis,
 #' you can provide \code{add.trajectory.curves = slingCurves('object')}
+#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a named list containing:\itemize{
+#' \item "p": the plot
+#' \item "data": a data.frame containing the underlying data
+#' \item "cols_used": a named list providing the columns of 'data' ultimately used in plotting the named elements
+#' \item "to_dittoViz": the dataframe extracted by dittoSeq and passed to \code{dittoViz::\link[dittoViz]{scatterHex}} for plotting.
+#' }
 #' @inheritParams dittoScatterPlot
 #' @inheritParams dittoDimPlot
 #' 
@@ -59,7 +65,7 @@
 #'
 #' @return A ggplot object where colored hexagonal bins are used to summarize RNAseq data in a scatterplot or tSNE, PCA, UMAP.
 #'
-#' Alternatively, if \code{data.out=TRUE}, a list containing two slots is output: the plot (named 'plot'), and a data.table containing the underlying data for target cells (named 'data').
+#' Alternatively, if \code{data.out=TRUE}, a named list containing four elements. See the description of that argument above for further details.
 #'
 #' @section Many characteristics of the plot can be adjusted using discrete inputs:
 #' \itemize{
@@ -193,7 +199,7 @@ dittoDimHex <- function(
     slot.extra = slot,
     adjustment.extra = adjustment,
     show.axes.numbers = TRUE,
-    show.grid.lines = !grepl("umap|tsne", tolower(reduction.use)),
+    show.grid.lines = if (is.character(reduction.use)) { !grepl("umap|tsne", tolower(reduction.use)) } else {TRUE},
     main = "make",
     sub = NULL,
     xlab = "make",
@@ -215,13 +221,31 @@ dittoDimHex <- function(
     do.label = FALSE,
     labels.size = 5,
     labels.highlight = TRUE,
+    labels.use.numbers = FALSE,
+    labels.numbers.spacer = ": ",
     labels.repel = TRUE,
     labels.split.by = split.by,
     labels.repel.adjust = list(),
     add.trajectory.lineages = NULL,
     add.trajectory.curves = NULL,
-    trajectory.cluster.meta,
+    trajectory.cluster.meta = NULL,
     trajectory.arrow.size = 0.15,
+    add.xline = NULL,
+    xline.linetype = "dashed",
+    xline.color = "black",
+    xline.linewidth = 0.5,
+    xline.opacity = 1,
+    add.yline = NULL,
+    yline.linetype = "dashed",
+    yline.color = "black",
+    yline.linewidth = 0.5,
+    yline.opacity = 1,
+    add.abline = NULL,
+    abline.slope = 1,
+    abline.linetype = "solid",
+    abline.color = "black",
+    abline.linewidth = 0.5,
+    abline.opacity = 1,
     data.out = FALSE,
     legend.show = TRUE,
     legend.color.title = "make",
@@ -240,54 +264,92 @@ dittoDimHex <- function(
     xlab <- .leave_default_or_null(xlab, xdat$name)
     ylab <- .leave_default_or_null(ylab, ydat$name)
 
-    # Edit theme
-    if (!show.grid.lines) {
-        theme <- theme + theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank())
-    }
-    if (!show.axes.numbers) {
-        theme <- theme +
-            theme(axis.text.x=element_blank(), axis.text.y=element_blank())
-    }
-
     # Make dataframes and plot
-    p.df <- dittoScatterHex(
-        object, xdat$embeddings, ydat$embeddings, color.var, bins,
-        color.method, split.by,
-        extra.vars, cells.use, color.panel, colors, multivar.split.dir,
-        split.nrow, split.ncol, split.adjust, NA, NA, NA, NA, NA, NA,
-        assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
-        swap.rownames,
-        min.density, max.density, min.color, max.color,
-        min.opacity, max.opacity, min, max,
-        rename.color.groups, xlab, ylab, main, sub, theme,
-        do.contour, contour.color, contour.linetype,
-        do.ellipse, do.label, labels.size, labels.highlight, labels.repel,
-        labels.split.by, labels.repel.adjust,
-        add.trajectory.lineages, add.trajectory.curves = NULL,
-        trajectory.cluster.meta, trajectory.arrow.size,
-        legend.show,
-        legend.color.title, legend.color.breaks, legend.color.breaks.labels,
-        legend.density.title, legend.density.breaks, legend.density.breaks.labels,
-        data.out = TRUE)
-    p <- p.df$plot
-    data <- p.df$data
-    
-    # Add extra features
-    if (is.list(add.trajectory.curves)) {
-        p <- .add_trajectory_curves(
-            p, add.trajectory.curves, trajectory.arrow.size, dim.1, dim.2)
-    }
-    
-    ### RETURN the PLOT ###
-    if (data.out) {
-        list(
-            plot = p,
-            data = data)
-    } else {
-        p
-    }
+    dittoScatterHex(
+        object,
+        x.var = xdat$embeddings,
+        y.var = ydat$embeddings,
+        color.var = color.var,
+        bins = bins,
+        color.method = color.method,
+        split.by = split.by,
+        extra.vars = extra.vars,
+        cells.use = cells.use,
+        color.panel = color.panel,
+        colors = colors,
+        multivar.split.dir = multivar.split.dir,
+        split.nrow = split.nrow,
+        split.ncol = split.ncol,
+        split.adjust = split.adjust,
+        assay.x = NA,
+        slot.x = NA,
+        adjustment.x = NULL,
+        assay.y = NA,
+        slot.y = NA,
+        adjustment.y = NULL,
+        assay.color = assay,
+        slot.color = slot,
+        adjustment.color = adjustment,
+        assay.extra = assay.extra,
+        slot.extra = slot.extra,
+        adjustment.extra = adjustment.extra,
+        swap.rownames = swap.rownames,
+        min.density = min.density,
+        max.density = max.density,
+        min.color = min.color,
+        max.color = max.color,
+        min.opacity = min.opacity,
+        max.opacity = max.opacity,
+        min = min,
+        max = max,
+        rename.color.groups = rename.color.groups,
+        show.grid.lines = show.grid.lines,
+        show.axes.numbers = show.axes.numbers,
+        xlab = xlab,
+        ylab = ylab,
+        main = main,
+        sub = sub,
+        theme = theme,
+        do.contour = do.contour,
+        contour.color = contour.color,
+        contour.linetype = contour.linetype,
+        do.ellipse = do.ellipse,
+        do.label = do.label,
+        labels.size = labels.size,
+        labels.highlight = labels.highlight,
+        labels.use.numbers = labels.use.numbers,
+        labels.numbers.spacer = labels.numbers.spacer,
+        labels.repel = labels.repel,
+        labels.split.by = labels.split.by,
+        labels.repel.adjust = labels.repel.adjust,
+        add.trajectory.lineages = add.trajectory.lineages,
+        add.trajectory.curves = add.trajectory.curves,
+        trajectory.cluster.meta = trajectory.cluster.meta,
+        trajectory.arrow.size = trajectory.arrow.size,
+        add.xline = add.xline,
+        xline.linetype = xline.linetype,
+        xline.color = xline.color,
+        xline.linewidth = xline.linewidth,
+        xline.opacity = xline.opacity,
+        add.yline = add.yline,
+        yline.linetype = yline.linetype,
+        yline.color = yline.color,
+        yline.linewidth = yline.linewidth,
+        yline.opacity = yline.opacity,
+        add.abline = add.abline,
+        abline.slope = abline.slope,
+        abline.linetype = abline.linetype,
+        abline.color = abline.color,
+        abline.linewidth = abline.linewidth,
+        abline.opacity = abline.opacity,
+        legend.show = legend.show,
+        legend.color.title = legend.color.title,
+        legend.color.breaks = legend.color.breaks,
+        legend.color.breaks.labels = legend.color.breaks.labels,
+        legend.density.title = legend.density.title,
+        legend.density.breaks = legend.density.breaks,
+        legend.density.breaks.labels = legend.density.breaks.labels,
+        data.out = data.out)
 }
 
 #' @describeIn dittoHex Make a scatter plot of RNAseq data, grouped into hexagonal bins
@@ -330,6 +392,8 @@ dittoScatterHex <- function(
     min = NA,
     max = NA,
     rename.color.groups = NULL,
+    show.grid.lines = TRUE,
+    show.axes.numbers = TRUE,
     xlab = x.var,
     ylab = y.var,
     main = "make",
@@ -342,13 +406,31 @@ dittoScatterHex <- function(
     do.label = FALSE,
     labels.size = 5,
     labels.highlight = TRUE,
+    labels.use.numbers = FALSE,
+    labels.numbers.spacer = ": ",
     labels.repel = TRUE,
     labels.split.by = split.by,
     labels.repel.adjust = list(),
     add.trajectory.lineages = NULL,
     add.trajectory.curves = NULL,
-    trajectory.cluster.meta,
+    trajectory.cluster.meta = NULL,
     trajectory.arrow.size = 0.15,
+    add.xline = NULL,
+    xline.linetype = "dashed",
+    xline.color = "black",
+    xline.linewidth = 0.5,
+    xline.opacity = 1,
+    add.yline = NULL,
+    yline.linetype = "dashed",
+    yline.color = "black",
+    yline.linewidth = 0.5,
+    yline.opacity = 1,
+    add.abline = NULL,
+    abline.slope = 1,
+    abline.linetype = "solid",
+    abline.color = "black",
+    abline.linewidth = 0.5,
+    abline.opacity = 1,
     legend.show = TRUE,
     legend.color.title = "make",
     legend.color.breaks = waiver(),
@@ -363,234 +445,105 @@ dittoScatterHex <- function(
     multivar.split.dir <- match.arg(multivar.split.dir)
 
     # Make dataframe
-    all_data <- .scatter_data_gather(
-        object, cells.use, x.var, y.var, color.var, shape.by=NULL, split.by,
-        extra.vars, multivar.split.dir, assay.x, slot.x, adjustment.x, assay.y, slot.y,
-        adjustment.y, assay.color, slot.color, adjustment.color, assay.extra,
-        slot.extra, adjustment.extra, swap.rownames = swap.rownames,
-        rename.color.groups = rename.color.groups)
-    data <- all_data$Target_data
-    split.by <- all_data$split.by
-
-    # Parse coloring methods
-    color_by_var <- FALSE
-    discrete_disp <- FALSE
-    discrete_data <- FALSE
-    
-    if (!is.null(color.var)) {
-        color_by_var <- TRUE
-        
-        if (!is.numeric(data$color)) {
-            discrete_data <- TRUE
-            
-            if (!any(c("max.prop", paste0("prop.", unique(data$color))) %in% color.method)) {
-                discrete_disp <- TRUE
-            }
-        }
-        
-        if (is.null(color.method)) {
-            color.method <- ifelse(discrete_data, "max", "median")
-        }
-        
-        .check_color.method(color.method, discrete_disp)
-    }
-    
-    # Set titles if "make"
-    main <- .leave_default_or_null(main,
-        default = 
-            if (!color_by_var) {
-                "Density"
-            } else if (length(color.var)==1) {
-                color.var
-            } else {
-                NULL
-            }
-        )
-    legend.color.title <- .leave_default_or_null(legend.color.title,
-        default = ifelse(
-            length(color.var)==1,
-            paste(color.var, color.method, sep = ",\n"),
-            color.method),
-        null.if = is.null(color.var)
+    pulled_data <- .data_gather_to_df(
+        object, color.var,
+        x.by = x.var, y.by = y.var,
+        extra.vars = unique(c(split.by, extra.vars, trajectory.cluster.meta)),
+        assay = assay.color, slot = slot.color,
+        swap.rownames = swap.rownames,
+        x.assay = assay.x, x.slot = slot.x,
+        y.assay = assay.y, y.slot = slot.y,
+        extra.assay = assay.extra, extra.slot = slot.extra
     )
+    
+    if (!show.axes.numbers) {
+        theme <- theme +
+            theme(axis.text.x=element_blank(), axis.text.y=element_blank())
+    }
 
     # Make the plot
-    p <- .ditto_scatter_hex(
-        data, bins, color_by_var, discrete_disp, color.method, color.panel, colors,
-        min.density, max.density, min.color, max.color,
-        min.opacity, max.opacity, min, max,
-        xlab, ylab, main, sub, theme, legend.show,
-        legend.color.title, legend.color.breaks, legend.color.breaks.labels,
-        legend.density.title, legend.density.breaks, legend.density.breaks.labels)
+    viz_out <- dittoViz::scatterHex(
+        data_frame = pulled_data,
+        x.by = if ('_x.by' %in% colnames(pulled_data)) {'_x.by'} else {x.var},
+        y.by = if ('_y.by' %in% colnames(pulled_data)) {'_y.by'} else {y.var},
+        color.by = if ('_var' %in% colnames(pulled_data)) {'_var'} else {color.var},
+        bins = bins,
+        color.method = color.method,
+        split.by = split.by,
+        rows.use = cells.use,
+        color.panel = color.panel,
+        colors = colors,
+        x.adjustment = adjustment.x,
+        y.adjustment = adjustment.y,
+        color.adjustment = adjustment.color,
+        x.adj.fxn = NULL,
+        y.adj.fxn = NULL,
+        color.adj.fxn = NULL,
+        multivar.split.dir = multivar.split.dir,
+        split.nrow = split.nrow,
+        split.ncol = split.ncol,
+        split.adjust = split.adjust,
+        min.density = min.density,
+        max.density = max.density,
+        min.color = min.color,
+        max.color = max.color,
+        min.opacity = min.opacity,
+        max.opacity = min.opacity,
+        min = min,
+        max = max,
+        rename.color.groups = rename.color.groups,
+        xlab = xlab,
+        ylab = ylab,
+        main = main,
+        sub = sub,
+        theme = theme,
+        do.contour = do.contour,
+        contour.color = contour.color,
+        contour.linetype = contour.linetype,
+        do.ellipse = do.ellipse,
+        do.label = do.label,
+        labels.size = labels.size,
+        labels.highlight = labels.highlight,
+        labels.use.numbers = labels.use.numbers,
+        labels.numbers.spacer = labels.numbers.spacer,
+        labels.repel = labels.repel,
+        labels.split.by = labels.split.by,
+        labels.repel.adjust = labels.repel.adjust,
+        add.trajectory.by.groups = add.trajectory.lineages,
+        add.trajectory.curves = add.trajectory.curves,
+        trajectory.group.by = trajectory.cluster.meta,
+        trajectory.arrow.size = trajectory.arrow.size,
+        add.xline = add.xline,
+        xline.linetype = xline.linetype,
+        xline.color = xline.color,
+        xline.linewidth = xline.linewidth,
+        xline.opacity = xline.opacity,
+        add.yline = add.yline,
+        yline.linetype = yline.linetype,
+        yline.color = yline.color,
+        yline.linewidth = yline.linewidth,
+        yline.opacity = yline.opacity,
+        add.abline = add.abline,
+        abline.slope = abline.slope,
+        abline.linetype = abline.linetype,
+        abline.color = abline.color,
+        abline.linewidth = abline.linewidth,
+        abline.opacity = abline.opacity,
+        legend.show = legend.show,
+        legend.color.title = legend.color.title,
+        legend.color.breaks = legend.color.breaks,
+        legend.color.breaks.labels = legend.color.breaks.labels,
+        legend.density.title = legend.density.title,
+        legend.density.breaks = legend.density.breaks,
+        legend.density.breaks.labels = legend.density.breaks.labels,
+        show.grid.lines = show.grid.lines,
+        data.out = data.out)
     
-    ### Add extra features
-    if (!is.null(split.by)) {
-        p <- .add_splitting(
-            p, split.by, split.nrow, split.ncol, split.adjust)
-    }
-    
-    if (do.contour) {
-        p <- .add_contours(p, data, contour.color,  contour.linetype)
-    }
-    
-    p <- .add_letters_ellipses_labels_if_discrete(
-        p, data, is.discrete = discrete_data,
-        FALSE, do.ellipse, do.label,
-        labels.highlight, labels.size, labels.repel, labels.split.by,
-        labels.repel.adjust)
-    
-    if (is.list(add.trajectory.lineages)) {
-        p <- .add_trajectory_lineages(
-            p, rbind(all_data$Target_data, all_data$Others_data),
-            add.trajectory.lineages, trajectory.cluster.meta,
-            trajectory.arrow.size, object)
-    }
-    
-    if (is.list(add.trajectory.curves)) {
-        p <- .add_trajectory_curves(
-            p, add.trajectory.curves, trajectory.arrow.size)
-    }
-
     ### RETURN the PLOT ###
     if (data.out) {
-        return(list(plot = p, data = data))
-    } else{
-        return(p)
+        viz_out$to_dittoViz <- pulled_data
+        viz_out
+    } else {
+        viz_out
     }
 }
-
-.ditto_scatter_hex <- function(
-    data,
-    bins,
-    color_by_var,
-    discrete,
-    color.method,
-    color.panel,
-    colors,
-    min.density,
-    max.density,
-    min.color,
-    max.color,
-    min.opacity,
-    max.opacity,
-    min,
-    max,
-    xlab,
-    ylab,
-    main,
-    sub,
-    theme,
-    legend.show,
-    legend.color.title,
-    legend.color.breaks,
-    legend.color.breaks.labels,
-    legend.density.title,
-    legend.density.breaks,
-    legend.density.breaks.labels
-) {
-
-    ### Set up plotting
-    p <- ggplot() + ylab(ylab) + xlab(xlab) + ggtitle(main,sub) + theme
-
-    ### Determine how to add data while adding proper theming
-    aes.use <- aes(x = .data$X, y = .data$Y)
-    geom.args <- list(
-        data = data, bins = bins, na.rm = TRUE)
-    
-    if (!color_by_var) {
-        ## Set color scale based on density for stat_bin_hex
-        p <- p + scale_fill_gradient(
-            name = legend.density.title,
-            low= min.color,
-            high = max.color,
-            limits = c(min.density, max.density),
-            breaks = legend.density.breaks,
-            labels = legend.density.breaks.labels)
-        
-    } else {
-        ## Setup for ggplot.multistats::stat_summaries_hex
-        .error_if_no_ggplot.multistats()
-        
-        # Set alpha scale based on density
-        p <- p + scale_alpha_continuous(
-            name = legend.density.title,
-            range = c(min.opacity, max.opacity),
-            limits = c(min.density, max.density),
-            breaks = legend.density.breaks,
-            labels = legend.density.breaks.labels)
-        
-        # Prep aesthetics
-        aes.use <- modifyList(aes.use, aes(
-            z = .data$color,
-            fill = after_stat(.data$fxn_c),
-            alpha = after_stat(.data$fxn_d),
-            # Fix for when color is a factor
-            group = 1))
-        
-        # Determine how 'c' and 'd' should be calculated &
-        # set fill based on color.method
-        if (discrete) {
-            
-            geom.args$funs <- c(
-                fxn_c = if (color.method == "max") {
-                    function(x) names(which.max(table(x)))
-                }, fxn_d = length)
-            
-            p <- p + scale_fill_manual(
-                    name = legend.color.title,
-                    values = color.panel[colors])
-        
-        } else {
-            
-            geom.args$funs <- c(
-                fxn_c = if (color.method == "max.prop") {
-                    function(x) max(table(x)/length(x))
-                } else if (grepl("^prop.", color.method)) {
-                    function(x) {
-                        lev <- substr(color.method, 6, nchar(color.method))
-                        sum(x==lev)/length(x)
-                    }
-                } else {
-                    color.method
-                }, fxn_d = length)
-            
-            p <- p + scale_fill_gradient(
-                name = legend.color.title,
-                low= min.color,
-                high = max.color,
-                limits = c(min,max),
-                breaks = legend.color.breaks,
-                labels = legend.color.breaks.labels)
-            
-        }
-    }
-    
-    ### Add data
-    geom.args$mapping <- aes.use
-    if (!is.null(data$color)) {
-        p <- p + do.call(ggplot.multistats::stat_summaries_hex, geom.args)
-    } else {
-        p <- p + do.call(stat_bin_hex, geom.args)
-    }
-
-    if (!legend.show) {
-        p <- .remove_legend(p)
-    }
-
-    p
-}
-
-.check_color.method <- function(color.method, discrete) {
-    
-    valid <- FALSE
-    if (discrete) {
-        valid <- color.method == "max"
-    } else {
-        valid <- color.method == "max.prop" || grepl("^prop.", color.method) || exists(color.method, mode='function')
-    }
-    
-    if (!valid) {
-        stop("'color.method' not valid. Must be \"max\", \"max.prop\", or \"prop.<data-level>\" (discrete data) or the name of a function (continuous data)")
-    }
-}
-

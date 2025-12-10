@@ -19,7 +19,9 @@ dittoFreqPlot(
   split.adjust = list(),
   cells.use = NULL,
   data.out = FALSE,
+  data.only = FALSE,
   do.hover = FALSE,
+  hover.round.digits = 5,
   color.panel = dittoColors(),
   colors = seq_along(color.panel),
   y.breaks = NULL,
@@ -60,6 +62,8 @@ dittoFreqPlot(
   ridgeplot.binwidth = NULL,
   add.line = NULL,
   line.linetype = "dashed",
+  line.linewidth = 0.5,
+  line.opacity = 1,
   line.color = "black",
   legend.show = TRUE,
   legend.title = color.by
@@ -111,10 +115,23 @@ Faceting for this dittoFreqPlot is always by the \code{var}-data, so see \code{\
 
 Alternatively, a Logical vector, the same length as the number of cells in the object, which sets which cells to include.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).}
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output from the plot alone to a named list containing:\itemize{
+\item "p": the plot
+\item "data": a data.frame containing the computed composition data which underlies the plot
+\item "cols_used": a named list providing the columns of 'data' ultimately used in plotting the named elements
+\item "to_dittoViz": the dataframe extracted by dittoSeq and passed to\code{dittoViz::\link[dittoViz]{freqPlot}}.
+}}
+
+\item{data.only}{Logical. When set to \code{TRUE}, underlying data is gathered and compositions are calculated and returned.
+Plotting is skipped entirely, and the output is instead a named list containing:\itemize{
+\item "data": a data.frame containing the computed composition data
+\item "to_dittoViz": the dataframe extracted by dittoSeq and passed to\code{dittoViz::\link[dittoViz]{freqPlot}}.
+}}
 
 \item{do.hover}{Logical. Default = \code{FALSE}.
 If set to \code{TRUE}: object will be converted to a ggplotly object so that data about individual cells will be displayed when you hover your cursor over the jitter points (assuming that there is a "jitter" in \code{plots}),}
+
+\item{hover.round.digits}{Integer number specifying the number of decimal digits to round displayed numeric values to, when \code{do.hover} is set to \code{TRUE}.}
 
 \item{color.panel}{String vector which sets the colors to draw from for plot fills.
 Default = \code{dittoColors()}.}
@@ -207,7 +224,7 @@ By default, this input actually controls the value of \code{jitter.position.dodg
 
 \item{vlnplot.scaling}{String which sets how the widths of the of violin plots are set in relation to each other.
 Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
-For an explanation of each, see \code{\link{geom_violin}}.}
+For an explanation of each, see \code{\link[ggplot2]{geom_violin}}.}
 
 \item{vlnplot.quantiles}{Single number or numeric vector of values in [0,1] naming quantiles at which to draw a horizontal line within each violin plot. Example: \code{c(0.1, 0.5, 0.9)}}
 
@@ -235,7 +252,14 @@ Takes precedence over \code{ridgeplot.bins} when provided.}
 \item{line.linetype}{String which sets the type of line for \code{add.line}.
 Defaults to "dashed", but any ggplot linetype will work.}
 
-\item{line.color}{String that sets the color(s) of the \code{add.line} line(s)}
+\item{line.linewidth}{Number that sets the thickness of the \code{add.line} line(s). Default = 0.5.
+Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the thickness of each line individually.}
+
+\item{line.opacity}{Number that sets the opacity of the \code{add.line} line(s). Default = 1.
+Alternatively, a vector of numbers of the same length as \code{add.line} can be given to set the opacity of each line individually.}
+
+\item{line.color}{String that sets the color(s) of the \code{add.line} line(s)
+Alternatively, a vector of strings of the same length as \code{add.line} can be given to set the color of each line individually.}
 
 \item{legend.show}{Logical. Whether the legend should be displayed. Default = \code{TRUE}.}
 
@@ -244,7 +268,9 @@ Defaults to "dashed", but any ggplot linetype will work.}
 \value{
 A ggplot plot where frequencies of discrete data, grouped by sample, condition, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 
-Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
+Alternatively, if \code{data.out = TRUE}, a named list containing four elements. See the description of that argument above for further details.
+
+Alternatively, if \code{data.only = TRUE}, a named list containing two elements. See the description of that argument above for further details.
 
 Alternatively, if \code{do.hover = TRUE}, a plotly conversion of the ggplot output in which underlying data can be retrieved upon hovering the cursor over the plot.
 }

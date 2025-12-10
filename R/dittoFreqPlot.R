@@ -30,13 +30,26 @@
 #' Faceting for this dittoFreqPlot is always by the \code{var}-data, so see \code{\link[ggplot2]{facet_wrap}} for options.
 #' @param ylab String, sets the continuous-axis label (=y-axis for box and violin plots, x-axis for ridgeplots).
 #' Default = "make" and if left as make, a title will be automatically generated.
+#' @param data.out Logical. When set to \code{TRUE}, changes the output from the plot alone to a named list containing:\itemize{
+#' \item "p": the plot
+#' \item "data": a data.frame containing the computed composition data which underlies the plot
+#' \item "cols_used": a named list providing the columns of 'data' ultimately used in plotting the named elements
+#' \item "to_dittoViz": the dataframe extracted by dittoSeq and passed to\code{dittoViz::\link[dittoViz]{freqPlot}}.
+#' }
+#' @param data.only Logical. When set to \code{TRUE}, underlying data is gathered and compositions are calculated and returned.
+#' Plotting is skipped entirely, and the output is instead a named list containing:\itemize{
+#' \item "data": a data.frame containing the computed composition data
+#' \item "to_dittoViz": the dataframe extracted by dittoSeq and passed to\code{dittoViz::\link[dittoViz]{freqPlot}}.
+#' }
 #'
 #' @inheritParams dittoPlot
 #' @inheritParams dittoBarPlot
 #'
 #' @return A ggplot plot where frequencies of discrete data, grouped by sample, condition, etc., is shown on the y-axis by a violin plot, boxplot, and/or jittered points, or on the x-axis by a ridgeplot with or without jittered points.
 #'
-#' Alternatively, if \code{data.out = TRUE}, a list containing the plot ("p") and a dataframe of the underlying data ("data").
+#' Alternatively, if \code{data.out = TRUE}, a named list containing four elements. See the description of that argument above for further details.
+#'
+#' Alternatively, if \code{data.only = TRUE}, a named list containing two elements. See the description of that argument above for further details.
 #'
 #' Alternatively, if \code{do.hover = TRUE}, a plotly conversion of the ggplot output in which underlying data can be retrieved upon hovering the cursor over the plot.
 #' @details
@@ -174,7 +187,9 @@ dittoFreqPlot <- function(
     split.adjust = list(),
     cells.use = NULL,
     data.out = FALSE,
+    data.only = FALSE,
     do.hover = FALSE,
+    hover.round.digits = 5,
     color.panel = dittoColors(),
     colors = seq_along(color.panel),
     y.breaks = NULL,
@@ -215,6 +230,8 @@ dittoFreqPlot <- function(
     ridgeplot.binwidth = NULL,
     add.line = NULL,
     line.linetype = "dashed",
+    line.linewidth = 0.5,
+    line.opacity = 1,
     line.color = "black",
     legend.show = TRUE,
     legend.title = color.by) {
@@ -241,100 +258,83 @@ dittoFreqPlot <- function(
         }
     }
     
-    # Check that sample definitions are 1:1 with groupings/colorings
-    if (!is.null(sample.by)) {
-        samps <- meta(sample.by, object)
-        .check_1value_per_group(samps, group.by, "group.by", object)
-        .check_1value_per_group(samps, color.by, "color.by", object)
-    }
-    
     # Gather data (use split.by to ensure per- color.by & sample.by calculation)
-    data <- .dittoBarPlot_data_gather(
-        object, var, group.by, split.by = c(sample.by, color.by),
-        cells.use, x.reorder, x.labels,
-        var.labels.reorder, var.labels.rename, do.hover, max.normalize,
-        TRUE, FALSE, TRUE, TRUE)
+    pulled_data <- .dittoBarFreq_data_gather(
+        object, var, group.by, split.by = c(sample.by, color.by))
     
-    # Subset to vars.use
-    if (!is.null(vars.use)) {
-        data <- data[data$label %in% vars.use,]
-    }
-    
-    # Adjust BarPlot-ready data for dittoPlot plotter expectation
-    if (scale == "percent") {
-        y.show <- "percent"
-    } else {
-        y.show <- "count"
-    }
-    if (max.normalize) {
-        y.show <- paste0(y.show, ".norm")
-        y.breaks = NULL
-        ylab <- paste("Normalized", ylab)
-    }
-    data$var.data <- data[[y.show]]
-
-    #Build Plot
-    p <- ggplot(
-        data=data,
-        aes(fill = .data[[color.by]])) +
-        theme +
-        scale_fill_manual(name = legend.title, values=color.panel[colors]) +
-        ggtitle(main, sub)
-
-    # Add data to plot
-    if (!("ridgeplot" %in% plots)) {
-        p <- .dittoPlot_add_data_y_direction(
-            p, data, plots, xlab, ylab, NULL, jitter.size, jitter.width,
-            jitter.color, 16, NA, TRUE, jitter.position.dodge,
-            do.raster, raster.dpi,
-            boxplot.width, boxplot.color, boxplot.show.outliers,
-            boxplot.outlier.size, boxplot.fill,
-            boxplot.position.dodge, boxplot.lineweight, vlnplot.lineweight,
-            vlnplot.width, vlnplot.scaling, vlnplot.quantiles,
-            add.line, line.linetype, line.color,
-            x.labels.rotate, do.hover, y.breaks, min, max, object)
-    } else {
-        p <- .dittoPlot_add_data_x_direction(
-            p, data, plots, xlab, ylab, jitter.size, jitter.color, NA, TRUE,
-            ridgeplot.lineweight, ridgeplot.scale, ridgeplot.ymax.expansion,
-            ridgeplot.shape, ridgeplot.bins, ridgeplot.binwidth,
-            add.line, line.linetype, line.color,
-            x.labels.rotate, do.hover, color.panel,
-            colors, y.breaks, min, max)
-    }
-    
-    # Split by 'var' to have the desired per element effect!
-    p <- .add_splitting(
-        p, "label", split.nrow, split.ncol, split.adjust)
-    
-    ### Add extra features
-    if (!legend.show) {
-        p <- .remove_legend(p)
-    }
-    
-    if (do.hover) {
-        p <- .warn_or_jitter_plotly(p, plots)
-    }
-    
-    # DONE. Return the plot +/- data
+    viz_out <- dittoViz::freqPlot(
+        data_frame = pulled_data,
+        var = var,
+        sample.by = sample.by,
+        group.by = group.by,
+        color.by = color.by,
+        vars.use = vars.use,
+        scale = scale,
+        max.normalize = max.normalize,
+        plots = plots,
+        split.nrow = split.nrow,
+        split.ncol = split.ncol,
+        split.adjust = split.adjust,
+        rows.use = cells.use,
+        data.out = data.out,
+        data.only = data.only,
+        do.hover = do.hover,
+        hover.round.digits = hover.round.digits,
+        color.panel = color.panel,
+        colors = colors,
+        y.breaks = y.breaks,
+        min = min,
+        max = max,
+        var.labels.rename = var.labels.rename,
+        var.labels.reorder = var.labels.reorder,
+        x.labels = x.labels,
+        x.labels.rotate = x.labels.rotate,
+        x.reorder = x.reorder,
+        theme = theme,
+        xlab = xlab,
+        ylab = ylab,
+        main = main,
+        sub = sub,
+        jitter.size = jitter.size,
+        jitter.width = jitter.width,
+        jitter.color = jitter.color,
+        jitter.position.dodge = jitter.position.dodge,
+        do.raster = do.raster,
+        raster.dpi = raster.dpi,
+        boxplot.width = boxplot.width,
+        boxplot.color = boxplot.color,
+        boxplot.show.outliers = boxplot.show.outliers,
+        boxplot.outlier.size = boxplot.outlier.size,
+        boxplot.fill = boxplot.fill,
+        boxplot.position.dodge = boxplot.position.dodge,
+        boxplot.lineweight = boxplot.lineweight,
+        vlnplot.lineweight = vlnplot.lineweight,
+        vlnplot.width = vlnplot.width,
+        vlnplot.scaling = vlnplot.scaling,
+        vlnplot.quantiles = vlnplot.quantiles,
+        ridgeplot.lineweight = ridgeplot.lineweight,
+        ridgeplot.scale = ridgeplot.scale,
+        ridgeplot.ymax.expansion = ridgeplot.ymax.expansion,
+        ridgeplot.shape = ridgeplot.shape,
+        ridgeplot.bins = ridgeplot.bins,
+        ridgeplot.binwidth = ridgeplot.binwidth,
+        add.line = add.line,
+        line.linetype = line.linetype,
+        line.color = line.color,
+        line.linewidth = line.linewidth,
+        line.opacity = line.opacity,
+        legend.show = legend.show,
+        legend.title = legend.title
+    )
     if (data.out) {
-        return(list(p = p, data = data))
+        viz_out$to_dittoViz <- pulled_data
+        viz_out
+    } else if (data.only) {
+        list(
+            data = viz_out,
+            to_dittoViz = pulled_data
+        )
     } else {
-        return(p)
-    }
-}
-
-.check_1value_per_group <- function(groupings, check, input.name, object) {
-    
-    values <- meta(check, object)
-    any_non_1 <- !all(vapply(
-        unique(groupings),
-        function (group) {
-            length(unique(values[groupings == group]))==1
-        }, FUN.VALUE = logical(1)
-        ))
-    if (any_non_1) {
-        stop("Unable to interpret '", input.name,"' with 'samples.by'. '",
-             check, "' data does not map 1:1 per sample.")
+        viz_out
     }
 }

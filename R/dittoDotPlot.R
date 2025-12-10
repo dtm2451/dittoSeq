@@ -74,6 +74,7 @@
 #' @param do.hover Logical. Default = \code{FALSE}.
 #' If set to \code{TRUE} the object will be converted to an interactive plotly object in which underlying data for individual dots will be displayed when you hover your cursor over them.
 #'
+#' @param data.out Logical. When set to \code{TRUE}, changes the output, from the plot alone, to a list containing the plot (\code{p}) and data (\code{data}).
 #' @inheritParams dittoPlotVarsAcrossGroups
 #' @inheritParams dittoScatterPlot
 #' 

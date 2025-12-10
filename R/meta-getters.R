@@ -33,7 +33,6 @@
 #'
 #' @author Daniel Bunis
 #' @export
-#' @import ggplot2
 #' @importFrom utils packageVersion
 
 isMeta <- function(test, object, return.values=FALSE){

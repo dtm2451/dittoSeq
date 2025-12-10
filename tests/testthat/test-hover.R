@@ -11,18 +11,18 @@ test_that("Showing hover.data works for ScatterPlot (with cells.use)", {
     if (requireNamespace("plotly", quietly = TRUE)) {
         expect_s3_class(
             dittoScatterPlot(gene1, gene2, object = sce, do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident"),
+                hover.data = c(gene1,meta1),
                 data.out = TRUE)[[1]],
             "plotly")
         expect_s3_class(
             dittoScatterPlot(gene1, gene2, object = sce, do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident"),
+                hover.data = c(gene1,meta1),
                 cells.use = rep(c(TRUE,FALSE), length.out = ncol(sce))),
             "plotly")
     } else {
         expect_warning(
             dittoScatterPlot(gene1, gene2, object = sce, do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident")),
+                hover.data = c(gene1,meta1)),
             "plotly installation required for using hover", fixed = TRUE)
     }
 })
@@ -31,18 +31,18 @@ test_that("Showing hover.data works for DimPlot (with cells.use)", {
     if (requireNamespace("plotly", quietly = TRUE)) {
         expect_s3_class(
             dittoDimPlot(gene1, object = sce, do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident"),
+                hover.data = c(gene1,meta1),
                 data.out = TRUE)[[1]],
             "plotly")
         expect_s3_class(
             dittoDimPlot(gene1, object = sce, do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident"),
+                hover.data = c(gene1,meta1),
                 cells.use = rep(c(TRUE,FALSE), length.out = ncol(sce))),
             "plotly")
     } else {
         expect_warning(
             dittoDimPlot(gene1, object = sce, do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident")),
+                hover.data = c(gene1,meta1)),
             "plotly installation required for using hover", fixed = TRUE)
     }
 })
@@ -80,7 +80,7 @@ test_that("Showing hover.data works for Plot (with cells.use)", {
                 gene1, object = sce,
                 group.by = meta2, color.by = meta2,
                 do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident"),
+                hover.data = c(gene1,meta1),
                 data.out = TRUE)[[1]],
             "plotly")
         expect_s3_class(
@@ -88,7 +88,7 @@ test_that("Showing hover.data works for Plot (with cells.use)", {
                 gene1, object = sce,
                 group.by = meta2, color.by = meta2,
                 do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident"),
+                hover.data = c(gene1,meta1),
                 cells.use = rep(c(TRUE,FALSE), length.out = ncol(sce))),
             "plotly")
     } else {
@@ -97,7 +97,7 @@ test_that("Showing hover.data works for Plot (with cells.use)", {
                 gene1, object = sce,
                 group.by = meta2, color.by = meta2,
                 do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident")),
+                hover.data = c(gene1,meta1)),
             "plotly installation required for using hover", fixed = TRUE)
     }
 })
@@ -109,7 +109,7 @@ test_that("Expected hover.data warning for dittoRidgePlot (if plotly available)"
                 gene1, object = sce, plots = c("ridgeplot", "jitter"),
                 group.by = meta2, color.by = meta2,
                 do.hover = TRUE,
-                hover.data = c(gene1,meta1,"ident"),
+                hover.data = c(gene1,meta1),
                 data.out = TRUE)[[1]],
             "'do.hover = TRUE' request ignored because plotly does not support ridgeplots.", fixed = TRUE)
     }

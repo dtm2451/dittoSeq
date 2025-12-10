@@ -102,7 +102,9 @@
 .var_OR_get_meta_or_gene <- function(var, object,
     assay = .default_assay(object), slot = .default_slot(object),
     adjustment = NULL,
-    swap.rownames = NULL) {
+    swap.rownames = NULL,
+    add.names = TRUE,
+    allow.gene = TRUE) {
     # Turns 'var' strings refering to genes or metadata into their associated data
     # Otherwise, returns 'var' with cellname names added.
 
@@ -114,61 +116,126 @@
     if (length(var)==1 && is.character(var)) {
         if (isMeta(var, object)) {
             OUT <- meta(var, object)
-        } else if (isGene(var, object, assay)) {
+        } else if (isGene(var, object, assay) && allow.gene) {
             OUT <- gene(var, object, assay, slot, adjustment)
         }
     }
 
     if (length(OUT)!=length(cells)) {
+        gene_phrase <- ifelse(
+            allow.gene, ' a gene of the targeted assay(s),', ''
+        )
         stop(
             ifelse(length(var)==1, var, 'var'),
-            " is not a gene of the targeted assay(s), a metadata, nor equal in length to ncol('object')")
+            " is not", gene_phrase, " a metadata of 'object', nor equal in length to ncol('object')")
     }
-    names(OUT) <- cells
+    
+    if (add.names) {
+        names(OUT) <- cells
+    }
     OUT
 }
 
-.add_by_cell <- function(df = NULL, target, name, object,
-    assay = .default_assay(object), slot = .default_slot(object),
-    adjustment = NULL, reorder = NULL, relabels = NULL,
-    mult = FALSE) {
+.var_OR_get_meta <- function(var, object,
+    add.names = TRUE) {
+    # Turns 'var' strings refering to genes or metadata into their associated data
+    # Otherwise, returns 'var' with cellname names added.
+    .var_OR_get_meta_or_gene(
+        var, object,
+        assay = NULL, slot = NULL,
+        add.names = add.names,
+        allow.gene = FALSE)
+}
 
-    # Extracts metadata or gene expression if 'target' is the name of one,
-    # or if length('target') = ncol(object), its values are used directly.
-    # These values are added to the 'df' dataframe as a column named 'name'.
-    #
-    # For gene data, 'assay', 'slot', and 'adjustment' control how the data is
-    # obtained via 'gene()'
-    #
-    # For discrete (factor) data, 'reorder' and 'relabels' are used to reorder
-    # and/or rename the factor levels within the data so that the data are
-    # renamed and used in the proper order by ggplot.
-    #
-    # *If 'mult = TRUE', takes in a list of 'target' and 'name' pairs.
-    # Each 'target' must be the name of a gene or metadata.
-    # Each pair is added to the dataframe with 'assay', 'slot', and
-    # 'adjustment' used the same was as in the 'multi = FALSE' mode.
+.dittoBarFreq_data_gather <- function(
+    object, var, group.by, split.by
+) {
+    # Simple as all data must be discrete for these visualizations
+    getMetas(object, FALSE)[,unique(c(var, group.by,split.by)), drop=FALSE]
+}
 
-    if (is.null(df)) {
-        df <- data.frame(row.names = .all_cells(object))
-    }
-
-    if (mult) {
-        for (i in seq_along(target)) {
-            df <- .add_by_cell(df, target[i], name[i], object, assay, slot,
-                adjustment, reorder = NULL, relabels = NULL, mult = FALSE)
+.data_gather_to_df <- function(
+    object,
+    var,
+    x.by = NULL, y.by = NULL,
+    group.by = NULL, color.by = NULL, shape.by = NULL,
+    extra.vars = NULL,
+    assay, slot,
+    swap.rownames = NULL,
+    x.assay, x.slot,
+    y.assay, y.slot,
+    extra.assay, extra.slot
+) {
+    # Return: list with df and dim_cols
+    object <- .swap_rownames(object, swap.rownames)
+    cells <- .all_cells(object)
+    
+    df <- data.frame(row.names = .all_cells(object))
+    
+    # Allow for data columns that can be given directly
+    # var can also name multiple data grabs
+    if (is.character(var) && length(var)!=length(cells)) {
+        for (col in var) {
+            df[,col] <- .var_OR_get_meta_or_gene(
+                col, object,
+                assay = assay, slot = slot,
+                swap.rownames = NULL, add.names = FALSE
+            )
         }
-    } else if (!is.null(target)) {
-        # Obtain and reorder values
-        values <- .var_OR_get_meta_or_gene(
-            target, object, assay, slot, adjustment)
-        values <- .rename_and_or_reorder(values, reorder, relabels)
-        # Add
-        df <- cbind(df, values)
-        # Set the name
-        names(df)[ncol(df)] <- name
+    } else {
+        df[,'_var'] <- var
     }
-
+    # Continuous data where can supply directly
+    if (!identical(x.by, NULL)) {
+        if (length(x.by)!=length(cells)) {
+            df[,x.by] <- .var_OR_get_meta_or_gene(
+                x.by, object, assay = x.assay, slot = x.slot, add.names = FALSE)
+        } else {
+            df[,'_x.by'] <- x.by
+        }
+    }
+    if (!identical(y.by, NULL)) {
+        if (length(y.by)!=length(cells)) {
+            df[,y.by] <- .var_OR_get_meta_or_gene(
+                y.by, object, assay = y.assay, slot = y.slot, add.names = FALSE)
+        } else {
+            df[,'_y.by'] <- y.by
+        }
+    }
+    # Discrete data where can supply directly
+    if (!identical(group.by, NULL)) {
+        if (length(group.by)!=length(cells)) {
+            df[,group.by] <- meta(group.by, object)
+        } else {
+            df[,'_group.by'] <- group.by
+        }
+    }
+    if (!identical(color.by, NULL)) {
+        if (length(color.by)!=length(cells)) {
+            df[,color.by] <- meta(color.by, object)
+        } else {
+            df[,'_color.by'] <- color.by
+        }
+    }
+    if (!identical(shape.by, NULL)) {
+        if (length(shape.by)!=length(cells)) {
+            df[,shape.by] <- meta(shape.by, object)
+        } else {
+            df[,'_shape.by'] <- shape.by
+        }
+    }
+    
+    # Now extra.vars, which should all name a feature or metadata
+    if (!identical(extra.vars, NULL)) {
+        for (col in extra.vars) {
+            df[,col] <- .var_OR_get_meta_or_gene(
+                col, object,
+                assay = extra.assay, slot = extra.slot,
+                swap.rownames = NULL, add.names = FALSE
+            )
+        }
+    }
+    
     df
 }
 

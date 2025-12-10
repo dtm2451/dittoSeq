@@ -280,6 +280,38 @@ test_that("dittoDimPlot can be labeled or circled", {
         "ggplot")
 })
 
+test_that("dittoDimPlot do.labels with labels.use.numbers adds labels to the scale", {
+    expect_true(
+        startsWith(
+            dittoDimPlot(
+                disc, object=sce,
+                do.label = TRUE,
+                labels.use.numbers = TRUE
+            )$scales$scales[[1]]$labels[1],
+            "1: "
+        )
+    )
+    expect_true(
+        startsWith(
+            dittoDimPlot(
+                disc, object=sce,
+                do.label = TRUE,
+                labels.use.numbers = TRUE,
+                labels.numbers.spacer = "_"
+            )$scales$scales[[1]]$labels[1],
+            "1_"
+        )
+    )
+
+    ### Manual Check: Labels are numbers 1:5, and legend explains as e.g. "1: A"
+    expect_s3_class(
+        dittoDimPlot(
+            disc, object=sce,
+            do.label = TRUE,
+            labels.use.numbers = TRUE),
+        "ggplot")
+})
+
 test_that("dittoDimPlot labeling is robust to NAs", {
     ### Manual Check: Labels should repel in the first two (and move between
     # plots), and 1&3 with background, 2&4 without, 5: smaller labels
@@ -427,13 +459,13 @@ test_that("dittoDimPlot genes can be different data types", {
     df <- dittoDimPlot(gene, object = sce, data.out = TRUE,
         assay = "counts")
     expect_equal(
-        df$Target_data$color,
-        round(df$Target_data$color,0))
+        df$Target_data[,df$cols_used$color.by],
+        round(df$Target_data[,df$cols_used$color.by],0))
     df <- dittoDimPlot(gene, object = sce, data.out = TRUE,
         adjustment = "relative.to.max")
     expect_equal(
         0:1,
-        range(df$Target_data$color))
+        range(df$Target_data[,df$cols_used$color.by]))
 })
 
 test_that("dittoDimPlot adding contours", {
@@ -677,6 +709,24 @@ test_that("dittoDimPlot allows plotting of multiple vars, via faceting", {
         dittoDimPlot(
             sce, c("gene1","gene2","number"),
             split.by = c(disc2,disc)),
-        "second 'split.by' element will be ignored")
+        "Multi-feature display is prioiritized for faceting")
+})
+
+test_that("dittoDimPlot can have lines added", {
+    # MANUAL: LOTS of lines:
+    #  vertical at -0.1 and 0.1, solid, thick, green, somewhat see-through
+    #  horizontal at -1 and 1, solid, thick, red, somewhat see-through
+    #  diagonal intersecting at -1 and 1, solid, thick, blue, somewhat see-through
+    expect_s3_class(
+        dittoDimPlot(
+            sce, disc,
+            add.xline = c(-0.1, 0.1), xline.linetype = "solid", xline.color = "green",
+            xline.linewidth = 5, xline.opacity = 0.5,
+            add.yline = c(-1, 1), yline.linetype = "solid", yline.color = "red",
+            yline.linewidth = 5, yline.opacity = 0.5,
+            add.abline = c(-1, 1), abline.slope = 1,
+            abline.linetype = "solid", abline.color = "blue",
+            abline.linewidth = 5, abline.opacity = 0.5),
+        "ggplot")
 })
 

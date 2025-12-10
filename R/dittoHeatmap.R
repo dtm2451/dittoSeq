@@ -1,6 +1,5 @@
 ########## dittoHeatmap: Builds a heatmap with given genes using pheatmap. ##########
 #' Outputs a heatmap of given genes
-#' @importFrom grDevices colorRampPalette
 #'
 #' @param object A Seurat, SingleCellExperiment, or SummarizedExperiment object.
 #' @param genes String vector, c("gene1","gene2","gene3",...) = the list of genes to put in the heatmap.
@@ -25,7 +24,7 @@
 #' @param cell.names.meta quoted "name" of a meta.data slot to use for naming the columns instead of using the raw cell/sample names.
 #' @param annot.by String name of any metadata slots containing how the cells/samples should be annotated.
 #' @param annot.colors String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.
-#' @param data.out Logical. When set to \code{TRUE}, changes the output from the heatmat itself, to a list containing all arguments that would have be passed to \code{\link{pheatmap}} for heatmap generation.
+#' @param data.out Logical. When set to \code{TRUE}, changes the output from the heatmat itself, to a list containing all arguments that would have be passed to \code{\link[pheatmap]{pheatmap}} for heatmap generation (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).
 #' (Can be useful for troubleshooting or customization.)
 #' @param highlight.features String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.
 #' @param cluster_cols,border_color,legend_breaks,breaks,... other arguments passed to \code{\link[pheatmap]{pheatmap}} directly (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).
@@ -52,7 +51,7 @@
 #' Alternatively, if \code{data.out} is set to \code{TRUE}, a list containing all arguments that would have be passed to pheatmap to generate such a heatmap.
 #'
 #' @details
-#' This function serves as a wrapper for creating heatmaps from bulk or single-cell RNAseq data with pheatmap::\code{\link{pheatmap}},
+#' This function serves as a wrapper for creating heatmaps from bulk or single-cell RNAseq data with pheatmap::\code{\link[pheatmap]{pheatmap}},
 #' by essentially automating the data extraction and annotation building steps.
 #' (Or alternatively with ComplexHeatmap::\code{\link[ComplexHeatmap]{pheatmap}} if \code{complex} is set to \code{true}.
 #'

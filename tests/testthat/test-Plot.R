@@ -248,12 +248,14 @@ test_that("dittoPlot can have lines added", {
     expect_s3_class(
         dittoPlot(
             "number", object=sce, group.by = grp,
-            add.line = 20, line.linetype = "solid", line.color = "green"),
+            add.line = 20, line.linetype = "solid", line.color = "green",
+            line.linewidth = 5, line.opacity = 0.5),
         "ggplot")
     expect_s3_class(
         dittoRidgePlot(
             "number", object=sce, group.by = grp,
-            add.line = 20, line.linetype = "solid", line.color = "green"),
+            add.line = 20, line.linetype = "solid", line.color = "green",
+            line.linewidth = 5, line.opacity = 0.5),
         "ggplot")
 })
 
@@ -400,14 +402,13 @@ test_that("dittoPlot ridgeplot adjustments work", {
 test_that("dittoPlot can add extra vars to dataframe", {
     df1 <- dittoPlot(
             gene1, grp, grp, object = sce,
-            data.out = TRUE)[[2]]
+            data.out = TRUE)$data
     expect_s3_class(
         df2 <- dittoPlot(
             gene1, grp, grp, object = sce,
-            extra.vars = c(clr, clr2), data.out = TRUE)[[2]],
+            extra.vars = c(clr, clr2), data.out = TRUE)$data,
         "data.frame")
-    expect_equal(ncol(df1), 3)
-    expect_equal(ncol(df2), 5)
+    expect_equal(ncol(df1) + 2, ncol(df2))
 })
 
 test_that("dittoPlot can be facted with split.by (1 or 2 vars)", {
@@ -519,5 +520,5 @@ test_that("dittoPlot allows plotting of multiple vars, via various aesthetics", 
         dittoPlot(
             sce, c("gene1","gene2","number"), grp,
             split.by = c(clr2,clr)),
-        "second 'split.by' element will be ignored")
+        "Multi-feature display is prioiritized for faceting")
 })
