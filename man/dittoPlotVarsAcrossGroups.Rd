@@ -202,7 +202,7 @@ By default, this input actually controls the value of \code{jitter.position.dodg
 
 \item{vlnplot.scaling}{String which sets how the widths of the of violin plots are set in relation to each other.
 Options are "area", "count", and "width". If the default is not right for your data, I recommend trying "width".
-For an explanation of each, see \code{\link{geom_violin}}.}
+For an explanation of each, see \code{\link[ggplot2]{geom_violin}}.}
 
 \item{vlnplot.quantiles}{Single number or numeric vector of values in [0,1] naming quantiles at which to draw a horizontal line within each violin plot. Example: \code{c(0.1, 0.5, 0.9)}}
 

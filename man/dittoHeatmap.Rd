@@ -79,7 +79,7 @@ Default is a ramp from white to red with 25 slices.}
 
 \item{annot.colors}{String (color) vector where each color will be assigned to an individual annotation in the generated annotation bars.}
 
-\item{data.out}{Logical. When set to \code{TRUE}, changes the output from the heatmat itself, to a list containing all arguments that would have be passed to \code{\link{pheatmap}} for heatmap generation.
+\item{data.out}{Logical. When set to \code{TRUE}, changes the output from the heatmat itself, to a list containing all arguments that would have be passed to \code{\link[pheatmap]{pheatmap}} for heatmap generation (or to \code{\link[ComplexHeatmap]{pheatmap}} if \code{complex = TRUE}).
 (Can be useful for troubleshooting or customization.)}
 
 \item{highlight.features}{String vector of genes/metadata whose names you would like to show. Only these genes/metadata will be named in the resulting heatmap.}
@@ -112,7 +112,7 @@ Given a set of genes, cells/samples, and metadata names for column annotations, 
 It will then utilize these data to make a heatmap using the \code{\link[pheatmap]{pheatmap}} function of either the \code{pheatmap} (default) or \code{ComplexHeatmap} package.
 }
 \details{
-This function serves as a wrapper for creating heatmaps from bulk or single-cell RNAseq data with pheatmap::\code{\link{pheatmap}},
+This function serves as a wrapper for creating heatmaps from bulk or single-cell RNAseq data with pheatmap::\code{\link[pheatmap]{pheatmap}},
 by essentially automating the data extraction and annotation building steps.
 (Or alternatively with ComplexHeatmap::\code{\link[ComplexHeatmap]{pheatmap}} if \code{complex} is set to \code{true}.
 

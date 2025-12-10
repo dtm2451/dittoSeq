@@ -222,7 +222,7 @@
 #'
 #' \code{\link{getReductions}} to see what the \code{reduction.use} options are of an \code{object}.
 #' 
-#' \code{\link{importDittoBulk}} for how to create a \code{\link{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
+#' \code{\link{importDittoBulk}} for how to create a \code{\linkS4class{SingleCellExperiment}} object from bulk seq data that dittoSeq functions can use &
 #' \code{\link{addDimReduction}} for how to specifically add calculated dimensionality reductions that \code{dittoDimPlot} can utilize.
 #'
 #' \code{\link{dittoScatterPlot}} for showing very similar data representations, but where genes or metadata are wanted as the axes.
