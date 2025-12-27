@@ -173,6 +173,7 @@ dittoDimHex <- function(
     color.var = NULL,
     bins = 30,
     color.method = NULL,
+    color.method.out.is.numeric = NA,
     reduction.use = .default_reduction(object),
     dim.1 = 1,
     dim.2 = 2,
@@ -254,7 +255,7 @@ dittoDimHex <- function(
     # Make dataframes and plot
     p.df <- dittoScatterHex(
         object, xdat$embeddings, ydat$embeddings, color.var, bins,
-        color.method, split.by,
+        color.method, color.method.out.is.numeric, split.by,
         extra.vars, cells.use, color.panel, colors, multivar.split.dir,
         split.nrow, split.ncol, split.adjust, NA, NA, NA, NA, NA, NA,
         assay, slot, adjustment, assay.extra, slot.extra, adjustment.extra,
@@ -299,6 +300,7 @@ dittoScatterHex <- function(
     color.var = NULL,
     bins = 30,
     color.method = NULL,
+    color.method.out.is.numeric = NA,
     split.by = NULL,
     extra.vars = NULL,
     cells.use = NULL,
@@ -374,25 +376,56 @@ dittoScatterHex <- function(
 
     # Parse coloring methods
     color_by_var <- FALSE
-    discrete_disp <- FALSE
     discrete_data <- FALSE
+    color_method_valid <- FALSE
     
     if (!is.null(color.var)) {
         color_by_var <- TRUE
         
+        # Check for discrete data of unfilled color.method first, to capture known options
         if (!is.numeric(data$color)) {
             discrete_data <- TRUE
-            
-            if (!any(c("max.prop", paste0("prop.", unique(data$color))) %in% color.method)) {
-                discrete_disp <- TRUE
+            if (identical(NA, color.method) || identical(NULL, color.method) || color.method=="max") {
+                color.method <- "max"
+                color_method_valid <- TRUE
+                color.method.out.is.numeric <- FALSE
+            } else if (color.method %in% c("max.prop", paste0("prop.", unique(data$color)))) {
+                color_method_valid <- TRUE
+                color.method.out.is.numeric <- TRUE
+            }
+        } else if (identical(NA, color.method) || identical(NULL, color.method)) {
+            color.method <- "median"
+            color_method_valid <- TRUE
+            color.method.out.is.numeric <- TRUE
+        }
+        # 
+        if (!color_method_valid && exists(color.method, mode='function')) {
+            color_method_valid <- TRUE
+            if (identical(NA, color.method.out.is.numeric)) {
+                color.method.out.is.numeric <- tryCatch(
+                    {
+                        out <- get(color.method)(head(data$color, 50))
+                        if (is.na(out)) stop("'get(color.method)(head(data$color, 50))' yielded NA.")
+                        is.numeric(out)
+                    },
+                    error = function(e) {
+                        warning("Automatic determination of 'color.method'-function's output type has failed. ",
+                                "\nThe problem could lay in the function itself, or in the determination methodology.",
+                                "\nATTEMPTING plotting by assumming output is numeric.",
+                                "\nTo avoid this warning, or if this assumption is incorrect, set 'color.method.out.is.numeric' to TRUE or FALSE, respectively.",
+                                "\nDetermination failed with error:", e)
+                        TRUE
+                    }
+                )
             }
         }
         
-        if (is.null(color.method)) {
-            color.method <- ifelse(discrete_data, "max", "median")
+        if (!color_method_valid) {
+            stop("'color.method' not valid. It must be the name of a function or, for discrete data only, \"max\", \"max.prop\", or \"prop.<data-level>\".")
         }
-        
-        .check_color.method(color.method, discrete_disp)
+    } else {
+        # Density displayed via color
+        color.method.out.is.numeric <- TRUE
     }
     
     # Set titles if "make"
@@ -416,7 +449,7 @@ dittoScatterHex <- function(
 
     # Make the plot
     p <- .ditto_scatter_hex(
-        data, bins, color_by_var, discrete_disp, color.method, color.panel, colors,
+        data, bins, color_by_var, !color.method.out.is.numeric, color.method, color.panel, colors,
         min.density, max.density, min.color, max.color,
         min.opacity, max.opacity, min, max,
         xlab, ylab, main, sub, theme, legend.show,
@@ -534,7 +567,10 @@ dittoScatterHex <- function(
             geom.args$funs <- c(
                 fxn_c = if (color.method == "max") {
                     function(x) names(which.max(table(x)))
-                }, fxn_d = length)
+                } else {
+                    color.method
+                },
+                fxn_d = length)
             
             p <- p + scale_fill_manual(
                     name = legend.color.title,
@@ -544,7 +580,7 @@ dittoScatterHex <- function(
             
             geom.args$funs <- c(
                 fxn_c = if (color.method == "max.prop") {
-                    function(x) max(table(x)/length(x))
+                    function(x) max(table(x))/length(x)
                 } else if (grepl("^prop.", color.method)) {
                     function(x) {
                         lev <- substr(color.method, 6, nchar(color.method))
@@ -580,17 +616,17 @@ dittoScatterHex <- function(
     p
 }
 
-.check_color.method <- function(color.method, discrete) {
-    
-    valid <- FALSE
-    if (discrete) {
-        valid <- color.method == "max"
-    } else {
-        valid <- color.method == "max.prop" || grepl("^prop.", color.method) || exists(color.method, mode='function')
-    }
-    
-    if (!valid) {
-        stop("'color.method' not valid. Must be \"max\", \"max.prop\", or \"prop.<data-level>\" (discrete data) or the name of a function (continuous data)")
-    }
-}
+# .check_color.method <- function(color.method, discrete) {
+#     
+#     valid <- FALSE
+#     if (discrete) {
+#         valid <- color.method == "max"
+#     } else {
+#         valid <- color.method == "max.prop" || grepl("^prop.", color.method) || exists(color.method, mode='function')
+#     }
+#     
+#     if (!valid) {
+#         stop("'color.method' not valid. Must be \"max\", \"max.prop\", or \"prop.<data-level>\" (discrete data) or the name of a function (continuous data)")
+#     }
+# }
 
